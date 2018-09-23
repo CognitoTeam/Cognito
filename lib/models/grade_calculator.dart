@@ -3,12 +3,26 @@
 ///
 import 'package:cognito/models/assignment.dart';
 class GradeCalculator {
+
+  /// Grade book that maps assignment to a category
   Map<Assignment, Category> gradeBook;
+
+  /// Grade book that is meant to be hypothetical grade
   Map<Assignment, Category> mutableGradeBook;
+
+  /// Letter grade representation
   String letterGrade;
+
+  /// Grade as a percentage
   double percentage;
+
+  /// Map of letter grade to minimum percentage
   Map<String, double> gradeScale;
+
+  /// List of categories
   List<Category> categories;
+
+  /// Grade point multiplier to be used in calculating GPA
   double gradePointMultiplier;
 
   GradeCalculator() {
@@ -16,6 +30,8 @@ class GradeCalculator {
     mutableGradeBook = Map();
     letterGrade = "";
     percentage = 0.0;
+
+    /// Default grade scale
     gradeScale = {
       "A+": 97.0,
       "A": 93.0,
@@ -36,10 +52,20 @@ class GradeCalculator {
     gradePointMultiplier = 0.0;
   }
 
+  /// Adds a new category to the list of categories
+  ///
+  /// @param  categoryTitle       title of new category
+  /// @param  weightInPercentage  weight of category in percentage
   void addCategory({String categoryTitle, double weightInPercentage}) {
     categories.add(Category(title: categoryTitle, weightInPercentage: weightInPercentage));
   }
 
+  /// Adds grade to grade book
+  ///
+  /// Recalculates grade with every new grade added
+  ///
+  /// @param  assignment    Assignment to add to grade book
+  /// @param  category      Category of assignment
   void addGrade(Assignment assignment, Category category) {
     if (!categories.contains(category)) {
       print("Could not add grade--category does not exist.");
@@ -50,24 +76,29 @@ class GradeCalculator {
     }
   }
 
+  /// Calculates grade
   void calculateGrade() {
+    // Reset points for each category
     categories.forEach((category) {
       category.pointsEarned = 0.0;
       category.pointsPossible = 0.0;
     });
-    
+
+    // Re-count points for every assignment
     for (Assignment assignment in gradeBook.keys) {
       Category category = categories[categories.indexOf(gradeBook[assignment])];
       category.pointsEarned += assignment.pointsEarned;
       category.pointsPossible += assignment.pointsPossible;
     }
 
+    // Reset and recalculate percentage
     percentage = 0.0;
     categories.forEach((category) {
       percentage += double.parse(((category.pointsEarned / category.pointsPossible)
           * category.weightInPercentage).toStringAsFixed(2));
     });
 
+    // Determine letter grade from percentage value
     if (percentage >= gradeScale["F"] && percentage < gradeScale["F+"]) {
       letterGrade = "F";
     }
@@ -114,6 +145,7 @@ class GradeCalculator {
     setGradePointMultiplier();
   }
 
+  /// Sets grade point multiplier
   void setGradePointMultiplier() {
     switch (letterGrade) {
       case "F":
@@ -155,6 +187,7 @@ class GradeCalculator {
   }
 }
 
+/// Models a category of an assignment in a grade book
 class Category {
   String title;
   double weightInPercentage, pointsEarned, pointsPossible;
