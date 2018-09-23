@@ -35,6 +35,8 @@ class Event {
     _title = value;
   }
 
+  Map<DateTime, DateTime> get timeBlock => _timeBlock;
+
   /// Adds a time block to the map
   addTimeBlock(DateTime start, DateTime end) {
     _timeBlock[start] = end;
