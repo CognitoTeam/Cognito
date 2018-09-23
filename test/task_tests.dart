@@ -18,4 +18,21 @@ void main() {
     expect(DateTime(2018, 9, 24, 12), equals(testTask.timeBlock[DateTime(2018, 9, 24, 10)]));
     expect(DateTime(2018, 9, 25, 23, 59), equals(testTask.dueDate));
   });
+
+  test("Task addSubTask Tests", () {
+    Task testTask = Task(
+      title: "Test Task",
+      dueDate: DateTime(2018, 9, 25, 23, 59)
+    );
+
+    Task testSubTask = Task(
+      title: "Test Subtask",
+      dueDate: DateTime(2018, 9, 25, 23, 59)
+    );
+
+    testTask.addSubTask(testSubTask);
+    expect(1, equals(testTask.subTasks.length));
+    expect("Test Subtask", equals(testTask.subTasks[0].title));
+    expect(DateTime(2018, 9, 25, 23, 59), equals(testTask.subTasks[0].dueDate));
+  });
 }
