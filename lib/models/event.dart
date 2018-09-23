@@ -7,6 +7,7 @@ class Event {
 
   /// Default constructor that creates an Event from all information
   Event(this._title, this._description, this._location, DateTime start, DateTime end) {
+    _timeBlock = Map();
     _timeBlock[start] = end;
   }
 
