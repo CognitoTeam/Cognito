@@ -16,19 +16,19 @@ void main(){
       subjectArea: "Computer Science",
       units: 3
     );
-    expect("Test Class title", equals(testClass.title));
-    expect("This is a test", equals(testClass.description));
-    expect("Test location", testClass.location);
-    expect("146", testClass.courseNumber);
-    expect("Test instructor", testClass.instructor);
-    expect("Test location", testClass.location);
-    expect("Computer Science", testClass.subjectArea);
+    expect(testClass.title, equals("Test Class title"));
+    expect(testClass.description, equals("This is a test"));
+    expect(testClass.location, equals("Test location"));
+    expect(testClass.courseNumber, equals("146"));
+    expect(testClass.instructor, equals("Test instructor"));
+    expect(testClass.location, equals("Test location"));
+    expect(testClass.subjectArea, equals("Computer Science"));
 
     testClass.officeHours.clear();
-    expect(0, testClass.officeHours.length);
+    expect(testClass.officeHours.length, equals(0));
 
     testClass.addOfficeHours(DateTime(1997), DateTime(2018));
-    expect(1, testClass.officeHours.length);
+    expect(testClass.officeHours.length, equals(1));
     
   });
 }
