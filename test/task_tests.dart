@@ -1,0 +1,21 @@
+/// Tester file for Task class
+import 'package:test/test.dart';
+import 'package:cognito/models/task.dart';
+
+void main() {
+  test("Task Constructor Tests", () {
+    Task testTask = Task(
+      title: "CS 160 - Project Update",
+      description: "Second project update",
+      start: DateTime(2018, 9, 24, 10),
+      end: DateTime(2018, 9, 24, 12),
+      dueDate: DateTime(2018, 9, 25, 23, 59)
+    );
+
+    expect("CS 160 - Project Update", equals(testTask.title));
+    expect("Second project update", equals(testTask.description));
+    expect("", equals(testTask.location));
+    expect(DateTime(2018, 9, 24, 12), equals(testTask.timeBlock[DateTime(2018, 9, 24, 10)]));
+    expect(DateTime(2018, 9, 25, 23, 59), equals(testTask.dueDate));
+  });
+}
