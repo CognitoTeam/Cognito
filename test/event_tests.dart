@@ -24,8 +24,9 @@ void main() {
     expect("School", testEvent.location);
 
     testEvent.timeBlock.clear();
-    expect(0, testEvent.timeBlock.length);
+    expect(0, equals(testEvent.timeBlock.length));
 
     testEvent.addTimeBlock(DateTime.now(), DateTime(2018, 12, 12));
+    expect(1, equals(testEvent.timeBlock.length));
   });
 }
