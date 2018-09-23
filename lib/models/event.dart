@@ -6,9 +6,14 @@ class Event {
   Map<DateTime, DateTime> timeBlock;
 
   /// Default constructor that creates an Event from all information
-  Event(this.title, this.description, this.location, DateTime start, DateTime end) {
-    timeBlock = Map();
-    timeBlock[start] = end;
+  Event({String title, String description = "", String location = "", DateTime start, DateTime end}) {
+    this.title = title;
+    this.description = description;
+    this.location = location;
+    this.timeBlock = Map();
+    if (start != null && end != null) {
+      this.timeBlock[start] = end;
+    }
   }
 
   /// Adds a time block to the map
