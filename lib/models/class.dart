@@ -10,9 +10,15 @@ class Class extends Event {
   //GradeCalculator gradeCalculator;
   //Map<String, List<Task>> todo;
 
-  Class ({String title, String description, String location, DateTime start, DateTime end, 
+  Class ({String title, String description = "", String location = "", DateTime start, DateTime end, 
   String courseNumber, String instructor, String officeLocation, String subjectArea, int units}):
-  super(title, description, location, start, end){
+  super(
+    title: title,
+    description: description,
+    location: location,
+    start: start,
+    end: end,
+  ){
     this.courseNumber = courseNumber;
     this.instructor = instructor;
     this.officeLocation = officeLocation;
