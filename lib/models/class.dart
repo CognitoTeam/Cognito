@@ -21,7 +21,6 @@ class Class extends Event {
     officeHours = Map();
   }
 
-
   addOfficeHours(DateTime start, DateTime end){
         officeHours[start] = end;
   }
