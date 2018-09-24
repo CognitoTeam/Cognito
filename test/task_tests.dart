@@ -12,11 +12,11 @@ void main() {
       dueDate: DateTime(2018, 9, 25, 23, 59)
     );
 
-    expect("CS 160 - Project Update", equals(testTask.title));
-    expect("Second project update", equals(testTask.description));
-    expect("", equals(testTask.location));
-    expect(DateTime(2018, 9, 24, 12), equals(testTask.timeBlock[DateTime(2018, 9, 24, 10)]));
-    expect(DateTime(2018, 9, 25, 23, 59), equals(testTask.dueDate));
+    expect(testTask.title, equals("CS 160 - Project Update"));
+    expect(testTask.description, equals("Second project update"));
+    expect(testTask.location, equals(""));
+    expect(testTask.timeBlock[DateTime(2018, 9, 24, 10)], equals(DateTime(2018, 9, 24, 12)));
+    expect(testTask.dueDate, equals(DateTime(2018, 9, 25, 23, 59)));
   });
 
   test("Task addSubTask Tests", () {
@@ -31,9 +31,9 @@ void main() {
     );
 
     testTask.addSubTask(testSubTask);
-    expect(1, equals(testTask.subTasks.length));
-    expect("Test Subtask", equals(testTask.subTasks[0].title));
-    expect(DateTime(2018, 9, 25, 23, 59), equals(testTask.subTasks[0].dueDate));
+    expect(testTask.subTasks.length, equals(1));
+    expect(testTask.subTasks[0].title, equals("Test Subtask"));
+    expect(testTask.subTasks[0].dueDate, equals(DateTime(2018, 9, 25, 23, 59)));
     
     Task testSubSubTask = Task(
       title: "Test Subsubtask",
@@ -41,9 +41,9 @@ void main() {
     );
     
     testSubTask.addSubTask(testSubSubTask);
-    expect(1, equals(testTask.subTasks.length));
-    expect(1, equals(testTask.subTasks[0].subTasks.length));
-    expect("Test Subsubtask", equals(testTask.subTasks[0].subTasks[0].title));
-    expect(DateTime(2018, 9, 25, 23, 59), equals(testTask.subTasks[0].subTasks[0].dueDate));
+    expect(testTask.subTasks.length, equals(1));
+    expect(testTask.subTasks[0].subTasks.length, equals(1));
+    expect(testTask.subTasks[0].subTasks[0].title, equals("Test Subsubtask"));
+    expect(testTask.subTasks[0].subTasks[0].dueDate, equals(DateTime(2018, 9, 25, 23, 59)));
   });
 }
