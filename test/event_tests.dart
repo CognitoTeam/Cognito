@@ -11,10 +11,10 @@ void main() {
         start: DateTime.now(),
         end: DateTime(2018, 12, 12)
     );
-    expect("Test Event Title", equals(testEvent.title));
-    expect("This is a test Event object.", equals(testEvent.description));
-    expect("Home", equals(testEvent.location));
-    expect(1, equals(testEvent.timeBlock.length));
+    expect(testEvent.title, equals("Test Event Title"));
+    expect(testEvent.description, "This is a test Event object");
+    expect(testEvent.location, equals("Home"));
+    expect(testEvent.timeBlock.length, equals(1));
   });
 
   test("Event Modification Tests", () {
@@ -27,19 +27,19 @@ void main() {
     );
 
     testEvent.title = "Changed event title";
-    expect("Changed event title", equals(testEvent.title));
+    expect(testEvent.title, equals("Changed event title"));
 
     testEvent.description = "Changed event description";
-    expect("Changed event description", equals(testEvent.description));
+    expect(testEvent.description, equals("Changed event description"));
 
     testEvent.location = "School";
-    expect("School", testEvent.location);
+    expect(testEvent.location, equals("School"));
 
     testEvent.timeBlock.clear();
-    expect(0, equals(testEvent.timeBlock.length));
+    expect(testEvent.timeBlock.length, equals(0));
 
     testEvent.addTimeBlock(DateTime.now(), DateTime(2018, 12, 12));
-    expect(1, equals(testEvent.timeBlock.length));
+    expect(testEvent.timeBlock.length, equals(1));
   });
 
   test("Optional Arguments Constructor Tests", () {
@@ -47,10 +47,10 @@ void main() {
       title: "Test Event with Optional Arguments"
     );
 
-    expect("Test Event with Optional Arguments", equals(testEvent.title));
-    expect("", equals(testEvent.description));
-    expect("", equals(testEvent.location));
-    expect(0, equals(testEvent.timeBlock.length));
+    expect(testEvent.title, equals("Test Event with Optional Arguments"));
+    expect(testEvent.description, equals(""));
+    expect(testEvent.location, equals(""));
+    expect(testEvent.timeBlock.length, equals(0));
 
     Event testEvent2 = Event(
       title: "Second Event",
@@ -59,9 +59,9 @@ void main() {
       start: DateTime.now(),
     );
 
-    expect("Second Event", equals(testEvent2.title));
-    expect("Home", equals(testEvent2.location));
-    expect("Out of order description", equals(testEvent2.description));
-    expect(0, equals(testEvent2.timeBlock.length));
+    expect(testEvent2.title, equals("Second Event"));
+    expect(testEvent2.location, equals("Home"));
+    expect(testEvent2.description, equals("Out of order description"));
+    expect(testEvent2.timeBlock.length, equals(0));
   });
 }
