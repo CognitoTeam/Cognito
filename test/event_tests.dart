@@ -12,7 +12,7 @@ void main() {
         end: DateTime(2018, 12, 12)
     );
     expect(testEvent.title, equals("Test Event Title"));
-    expect(testEvent.description, "This is a test Event object");
+    expect(testEvent.description, "This is a test Event object.");
     expect(testEvent.location, equals("Home"));
     expect(testEvent.timeBlock.length, equals(1));
   });
