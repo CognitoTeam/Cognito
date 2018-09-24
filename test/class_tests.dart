@@ -1,15 +1,8 @@
-<<<<<<< HEAD
 import 'package:cognito/models/assignment.dart';
 ///Tester for Class class
 import 'package:test/test.dart';
 import 'package:cognito/models/class.dart';
-import 'package:cognito/models/grade_calculator.dart';
 import 'package:cognito/models/task.dart';
-=======
-///Tester for Class class
-import 'package:test/test.dart';
-import 'package:cognito/models/class.dart';
->>>>>>> class-model
 
 void main(){
   test("Class Constructor Tests", (){
@@ -32,7 +25,6 @@ void main(){
     expect(testClass.instructor, equals("Test instructor"));
     expect(testClass.location, equals("Test location"));
     expect(testClass.subjectArea, equals("Computer Science"));
-<<<<<<< HEAD
     expect(testClass.units, equals(3));
   });
 
@@ -126,14 +118,5 @@ void main(){
 
     testClass5.addTodoItem(key, assignment: assignTest1);
     expect(testClass5.todo[key].length, equals(2));
-=======
-
-    testClass.officeHours.clear();
-    expect(testClass.officeHours.length, equals(0));
-
-    testClass.addOfficeHours(DateTime(1997), DateTime(2018));
-    expect(testClass.officeHours.length, equals(1));
-    
->>>>>>> class-model
   });
 }

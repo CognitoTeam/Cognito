@@ -1,11 +1,7 @@
-<<<<<<< HEAD
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/models/grade_calculator.dart';
 import 'package:cognito/models/task.dart';
-=======
-import 'package:cognito/models/event.dart';
->>>>>>> class-model
 
 /// Class extends event class
 /// @author Praneet Singh
@@ -14,7 +10,6 @@ class Class extends Event {
   String subjectArea, courseNumber, instructor, officeLocation;
   int units;
   Map<DateTime, DateTime> officeHours;
-<<<<<<< HEAD
   GradeCalculator gradeCalculator;
   Map<String, List<Task>> todo;
 
@@ -84,30 +79,9 @@ class Class extends Event {
           todo[key] = assment;
         }
         break;
+
+        default:
+        print("Invalid key");
     }
-=======
-  //GradeCalculator gradeCalculator;
-  //Map<String, List<Task>> todo;
-
-  Class ({String title, String description = "", String location = "", DateTime start, DateTime end, 
-  String courseNumber, String instructor, String officeLocation, String subjectArea, int units}):
-  super(
-    title: title,
-    description: description,
-    location: location,
-    start: start,
-    end: end,
-  ){
-    this.courseNumber = courseNumber;
-    this.instructor = instructor;
-    this.officeLocation = officeLocation;
-    this.subjectArea = subjectArea;
-    this.units = units;
-    officeHours = Map();
-  }
-
-  addOfficeHours(DateTime start, DateTime end){
-        officeHours[start] = end;
->>>>>>> class-model
   }
 }
