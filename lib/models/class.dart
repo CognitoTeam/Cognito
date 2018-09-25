@@ -48,7 +48,7 @@ class Class extends Event {
   ///Based on the key passed in addTodoItem will add 
   ///A new task, assignment or assessment to its 
   ///specific List
-  addTodoItem(String key, {Task task, Assignment assignment}){
+  addTodoItem(String key, {Task task, Assignment assignment, Category category}){
     switch (key){
       case "task":
         if(todo.containsKey(key)){
@@ -68,6 +68,7 @@ class Class extends Event {
           assign.add(assignment);
           todo[key] = assign;
         }
+        gradeCalculator.addGrade(assignment, category);
         break;
 
       case "assessment":
@@ -78,6 +79,7 @@ class Class extends Event {
           assment.add(assignment);
           todo[key] = assment;
         }
+        gradeCalculator.addGrade(assignment, category);
         break;
 
         default:

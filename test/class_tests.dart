@@ -1,4 +1,5 @@
 import 'package:cognito/models/assignment.dart';
+import 'package:cognito/models/grade_calculator.dart';
 ///Tester for Class class
 import 'package:test/test.dart';
 import 'package:cognito/models/class.dart';
@@ -65,7 +66,7 @@ void main(){
 
   test("Test todo list Assigment", (){
     Class testClass3 = Class(
-      title: "Test optional constructor", 
+      title: "Test todo list Assigment", 
       courseNumber: "146",
       instructor: "Test instructor",
       officeLocation: "San Jose",
@@ -84,7 +85,7 @@ void main(){
 
   test("Test todo list Task", (){
     Class testClass4 = Class(
-      title: "Test optional constructor", 
+      title: "Test todo list task", 
       courseNumber: "146",
       instructor: "Test instructor",
       officeLocation: "San Jose",
@@ -103,7 +104,7 @@ void main(){
 
   test("Test todo list Assessment", (){
     Class testClass5 = Class(
-      title: "Test optional constructor", 
+      title: "Test todo list Assessment", 
       courseNumber: "146",
       instructor: "Test instructor",
       officeLocation: "San Jose",
@@ -118,5 +119,23 @@ void main(){
 
     testClass5.addTodoItem(key, assignment: assignTest1);
     expect(testClass5.todo[key].length, equals(2));
+  });
+
+  test("Adding todo item with category", (){
+    Class testClass6 = Class(
+      title: "Test assessment with category", 
+      courseNumber: "146",
+      instructor: "Test instructor",
+      officeLocation: "San Jose",
+      subjectArea: "Computer Science",
+      units: 3
+    );
+    String key = "assessment";
+    Category category = Category(title: "Homework", weightInPercentage: 0.20);
+    Assignment assignTest = Assignment(isAssessment: true);
+    //Assignment assignTest1 = Assignment(isAssessment: true);
+    testClass6.gradeCalculator.addCategory(category);
+    testClass6.addTodoItem(key, assignment: assignTest, category: category);
+    expect(testClass6.gradeCalculator.gradeBook.length, equals(1));
   });
 }

@@ -12,20 +12,17 @@ void main() {
   test("Grade Calculator Usage Tests", () {
     GradeCalculator testGradeCalculator = GradeCalculator();
 
-    testGradeCalculator.addCategory(
-      categoryTitle: "Homework",
-      weightInPercentage: 30.0,
-    );
+    testGradeCalculator.addCategory(Category(
+      title: "Homework", 
+      weightInPercentage: 30.0));
 
-    testGradeCalculator.addCategory(
-      categoryTitle: "Midterm",
-      weightInPercentage: 30.0,
-    );
+    testGradeCalculator.addCategory(Category(
+      title: "Midterm",
+      weightInPercentage: 30.0));
 
-    testGradeCalculator.addCategory(
-      categoryTitle: "Final",
-      weightInPercentage: 40.0
-    );
+    testGradeCalculator.addCategory(Category(
+      title: "Final",
+      weightInPercentage: 40.0));
 
     Assignment hw1 = Assignment(
       title: "hw1",

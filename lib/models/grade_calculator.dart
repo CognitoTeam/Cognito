@@ -56,8 +56,8 @@ class GradeCalculator {
   ///
   /// @param  categoryTitle       title of new category
   /// @param  weightInPercentage  weight of category in percentage
-  void addCategory({String categoryTitle, double weightInPercentage}) {
-    categories.add(Category(title: categoryTitle, weightInPercentage: weightInPercentage));
+  void addCategory(Category category) {
+    categories.add(category);
   }
 
   /// Adds grade to grade book
