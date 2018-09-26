@@ -5,14 +5,13 @@ import 'package:cognito/models/grade_calculator.dart';
 ///Model for the GPA calculator
 ///@author Praneet Singh
 
-class GPACalculator{
+class GPACalculator {
 
   double gpa = 0.0;
-  List<AcademicTerm> terms = List();
-  Map<AcademicTerm, double> termsMap = Map();//maps an academic term to its GPA
-  GradeCalculator grader = GradeCalculator();
+  List<AcademicTerm> terms = List();            // List of the Academic terms
+  Map<AcademicTerm, double> termsMap = Map();   // Maps an academic term to its GPA
   
-  Map<String, double> gradePointsMultiplier = {
+  Map<String, double> gradePointsMultiplier = { //Maps Letter grade to GP multiplier
      "A+": 4.0,
       "A": 4.0,
       "A-": 3.7,
@@ -37,25 +36,31 @@ void addTerm(AcademicTerm term){
   calculateGPA();
 }
 
+///Calculates the GPA for each term and 
+///stores in the map
 void calculateTermGPA(AcademicTerm term){
   double gradePointsEarned = 0.0;
   double gradePointMultiplier = 0.0;
   double gradePointsPossible = 0.0;
   int units = 0;
   double gpaTemp = 0.0;
-  for(Class c in term.classes){
-    c.gradeCalculator.calculateGrade();
-    String g = c.gradeCalculator.letterGrade;
-    gradePointMultiplier= gradePointsMultiplier[g];
-    units = c.units;
-    gradePointsEarned += gradePointMultiplier*units;
-    gradePointsPossible += (units*4.0);
-  }
-  gpaTemp = ((gradePointsEarned/gradePointsPossible)*4.0);
-  termsMap[term] = gpaTemp;
-
+  if(term.classes.isEmpty){
+    print("No classes have been added to the class yet");
+  }else{
+    for(Class c in term.classes){
+      c.gradeCalculator.calculateGrade();
+      String g = c.gradeCalculator.letterGrade;
+      gradePointMultiplier= gradePointsMultiplier[g];
+      units = c.units;
+      gradePointsEarned += gradePointMultiplier*units;
+      gradePointsPossible += (units*4.0);
+    }
+    gpaTemp = ((gradePointsEarned/gradePointsPossible)*4.0);
+    termsMap[term] = gpaTemp;
+}
 }
 
+//Calculates the final GPA for all terms
 void calculateGPA(){
    double finalGPA = 0.0;
   if(termsMap.isEmpty){

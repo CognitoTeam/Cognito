@@ -490,5 +490,7 @@ void main(){
     gp.addTerm(term);
     gp.addTerm(term1);
     print(gp.gpa);
+    expect(gp.termsMap.length, equals(2));
+    
   });
 }
