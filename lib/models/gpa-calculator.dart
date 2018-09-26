@@ -1,5 +1,6 @@
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/class.dart';
+import 'package:cognito/models/grade_calculator.dart';
 
 ///Model for the GPA calculator
 ///@author Praneet Singh
@@ -7,7 +8,9 @@ import 'package:cognito/models/class.dart';
 class GPACalculator{
 
   double gpa = 0.0;
+  List<AcademicTerm> terms = List();
   Map<AcademicTerm, double> termsMap = Map();//maps an academic term to its GPA
+  GradeCalculator grader = GradeCalculator();
   
   Map<String, double> gradePointsMultiplier = {
      "A+": 4.0,
@@ -26,28 +29,42 @@ class GPACalculator{
       "F": 0.0
   };
 
+///Everytime a new term is added 
+///the GPA is recalculated
+void addTerm(AcademicTerm term){
+  terms.add(term);
+  calculateTermGPA(term);
+  calculateGPA();
+}
+
 void calculateTermGPA(AcademicTerm term){
+  double gradePointsEarned = 0.0;
+  double gradePointMultiplier = 0.0;
+  double gradePointsPossible = 0.0;
+  int units = 0;
   double gpaTemp = 0.0;
   for(Class c in term.classes){
     c.gradeCalculator.calculateGrade();
     String g = c.gradeCalculator.letterGrade;
-    gpaTemp += gradePointsMultiplier[g];
+    gradePointMultiplier= gradePointsMultiplier[g];
+    units = c.units;
+    gradePointsEarned += gradePointMultiplier*units;
+    gradePointsPossible += (units*4.0);
   }
-  gpaTemp = gpaTemp/term.classes.length;
+  gpaTemp = ((gradePointsEarned/gradePointsPossible)*4.0);
   termsMap[term] = gpaTemp;
+
 }
 
 void calculateGPA(){
+   double finalGPA = 0.0;
   if(termsMap.isEmpty){
     print("No terms have been added yet");
   }else{
-    termsMap.forEach((academicTerm, termGPA) => gpa+= termGPA);
+    for(AcademicTerm t in termsMap.keys){
+      finalGPA += termsMap[t];
+    }
   }
-  gpa = gpa/termsMap.length;
-  print(gpa);
+  gpa = finalGPA/termsMap.length;
 }
-
-
-
-
 }
