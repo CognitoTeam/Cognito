@@ -7,7 +7,7 @@ import 'package:cognito/models/club.dart';
 
 void main(){
   test('Add class to set of classes', () {
-    AcademicTerm term = AcademicTerm(DateTime(2018), DateTime(2019));
+    AcademicTerm term = AcademicTerm("Spring 2018", DateTime(2018), DateTime(2019));
     Class class1 = Class(subjectArea: "CS", courseNumber: "160", location: "SJSU", units: 3);
     Class class2 = Class(subjectArea: "CS", courseNumber: "157A", location: "SJSU", units: 3);
     Class class3 = Class(subjectArea: "CS", courseNumber: "175", location: "SJSU", units: 3);

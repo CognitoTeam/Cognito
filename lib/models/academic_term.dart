@@ -5,14 +5,14 @@ import 'package:cognito/models/class.dart';
 import 'package:cognito/models/club.dart';
 
 class AcademicTerm {
-
+    String termName;
     DateTime startTime; //Academic term start 
     DateTime endTime;   //Academic term end
 
     Set<Class> classes;
     Set<Club> clubs;
 
-    AcademicTerm(this.startTime, this.endTime){
+    AcademicTerm(this.termName, this.startTime, this.endTime){
       classes = Set();
       clubs = Set();
     }
