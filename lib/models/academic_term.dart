@@ -4,10 +4,10 @@
 import 'package:cognito/models/class.dart';
 import 'package:cognito/models/club.dart';
 
-class AcademicTerm{
+class AcademicTerm {
 
-    DateTime startTime;
-    DateTime endTime;
+    DateTime startTime; //Academic term start 
+    DateTime endTime;   //Academic term end
 
     Set<Class> classes;
     Set<Club> clubs;
@@ -15,14 +15,6 @@ class AcademicTerm{
     AcademicTerm(this.startTime, this.endTime){
       classes = Set();
       clubs = Set();
-    }
-
-    void setStartDate(DateTime start){
-      startTime = start;
-    }
-
-    void setEndDate(DateTime end){
-          endTime = end;
     }
 
    void addClass(Class aClass){
