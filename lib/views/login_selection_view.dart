@@ -3,6 +3,8 @@
 /// @author Julian Vu
 import 'package:flutter/material.dart';
 import 'package:cognito/views/login_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginSelectionView extends StatefulWidget {
   static String tag = "login-selection-view";

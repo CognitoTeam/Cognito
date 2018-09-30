@@ -1,8 +1,13 @@
 /// Login view screen
 /// @author Julian Vu
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginView extends StatefulWidget {
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   static String tag = "login-view";
   @override
   _LoginViewState createState() => _LoginViewState();
