@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "682743222752",
+    "firebase_url": "https://congnito-21a75.firebaseio.com",
+    "project_id": "congnito-21a75",
+    "storage_bucket": "congnito-21a75.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:682743222752:android:4878d44f6f65b16a",
+        "android_client_info": {
+          "package_name": "io.flutter.app.FlutterApplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "682743222752-mo8o5beefauabu33brcadpqru0j5c5vs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.flutter.app.FlutterApplication",
+            "certificate_hash": "8e52f4e7e812b874bb4e2dc850a931036e948acf"
+          }
+        },
+        {
+          "client_id": "682743222752-earvuj8b764uoa8ipp9nkg8653hhmpam.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBna9wgR6ibLIl1DwAspK3Ov91Zh1P-FoQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "682743222752-earvuj8b764uoa8ipp9nkg8653hhmpam.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
