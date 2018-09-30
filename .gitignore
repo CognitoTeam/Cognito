@@ -17,3 +17,5 @@ ios/.generated/
 pubspec.lock
 
 .flutter-plugins
+
+\.vscode/settings\.json

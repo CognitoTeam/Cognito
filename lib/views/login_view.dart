@@ -1,19 +1,20 @@
+import 'package:cognito/views/firebase_login.dart';
 /// Login view screen
 /// @author Julian Vu
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginView extends StatefulWidget {
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
+  
   static String tag = "login-view";
   @override
   _LoginViewState createState() => _LoginViewState();
 }
 
 class _LoginViewState extends State<LoginView> {
+
+  FireBaseLogin _fireBaseLogin = FireBaseLogin();
+  String _email;
+  String _password;
   @override
   Widget build(BuildContext context) {
 
@@ -54,7 +55,9 @@ class _LoginViewState extends State<LoginView> {
         minWidth: 200.0,
         height: 42.0,
         child: RaisedButton(
-          onPressed: () {},
+          onPressed: () {
+            _fireBaseLogin.signIn(_email, _password).catchError((e)=> print(e));
+          },
           color: Theme.of(context).accentColor,
           child: Text("Login", style: Theme.of(context).accentTextTheme.body1,),
         ),

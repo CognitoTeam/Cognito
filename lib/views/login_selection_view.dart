@@ -1,8 +1,10 @@
+import 'package:cognito/views/firebase_login.dart';
 /// Login selection view
 /// View screen to select mode of authentication
 /// @author Julian Vu
 import 'package:flutter/material.dart';
 import 'package:cognito/views/login_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginSelectionView extends StatefulWidget {
   static String tag = "login-selection-view";
@@ -11,6 +13,7 @@ class LoginSelectionView extends StatefulWidget {
 }
 
 class _LoginSelectionViewState extends State<LoginSelectionView> {
+  FireBaseLogin _fireBaseLogin = FireBaseLogin();
   @override
   Widget build(BuildContext context) {
 
@@ -30,10 +33,17 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
         minWidth: 200.0,
         height: 42.0,
         child: RaisedButton.icon(
-          onPressed: () {},
-          color: Colors.red,
-          label: Text("Sign in with Google", style: Theme.of(context).accentTextTheme.body1),
-          icon: Icon(Icons.explore),
+          onPressed: () => _fireBaseLogin.signInUser().then((FirebaseUser user) => print(user))
+                  .catchError((e) => print(e)),
+          color: Colors.white,
+          label: Text(
+            "Sign in with Google",
+            style:  TextStyle(
+              fontFamily: 'Roboto',
+              color: Color.fromRGBO(68, 68, 76, .8),
+            ),
+          ),
+          icon: Image.asset('assets/google.png', width: 35.0,),
           textColor: Colors.black,
         ),
       ),
