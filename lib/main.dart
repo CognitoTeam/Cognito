@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:cognito/views/login_view.dart';
+import 'package:cognito/views/login_selection_view.dart';
 
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+  final routes = <String, WidgetBuilder> {
+    LoginSelectionView.tag: (context)=>LoginSelectionView(),
+    LoginView.tag: (context)=>LoginView(),
+  };
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -20,9 +26,16 @@ class MyApp extends StatelessWidget {
         ),
         accentTextTheme: TextTheme(
           body1: TextStyle(color: Colors.black)
-        )
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          hintStyle: TextStyle(color: Colors.white70,),
+          contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+
+        ),
+        hintColor: Color(0xFFfbc02d),
       ),
-      home: LoginView(),
+      home: LoginSelectionView(),
+      routes: routes,
     );
   }
 }

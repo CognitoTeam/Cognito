@@ -15,19 +15,20 @@ class _LoginViewState extends State<LoginView> {
     final logo = Hero(
       tag: "hero",
       child: CircleAvatar(
+
         backgroundColor: Colors.transparent,
-        radius: 48.0,
-        child: Image.asset("assets/logo.png"),
+        radius: 128.0,
+        child: Image.asset("assets/circle_logo.png"),
       ),
     );
     
     final email = TextFormField(
       keyboardType: TextInputType.emailAddress,
       autofocus: false,
-      style: Theme.of(context).accentTextTheme.body1,
+      style: Theme.of(context).primaryTextTheme.body1,
       decoration: InputDecoration(
         hintText: "Email",
-        hintStyle: TextStyle(color: Colors.black54,),
+        hintStyle: TextStyle(color: Colors.white70,),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
     );
@@ -35,24 +36,22 @@ class _LoginViewState extends State<LoginView> {
     final password = TextFormField(
       autofocus: false,
       obscureText: true,
-      style: Theme.of(context).accentTextTheme.body1,
+      style: Theme.of(context).primaryTextTheme.body1,
       decoration: InputDecoration(
         hintText: "Password",
-        hintStyle: TextStyle(color: Colors.black54,),
-        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+
       ),
     );
 
     final loginButton = Padding(
       padding: EdgeInsets.symmetric(vertical: 16.0),
-      child: Material(
-        shadowColor: Theme.of(context).primaryColorLight,
-        child: MaterialButton(
-          minWidth: 200.0,
-          height: 42.0,
+      child: ButtonTheme(
+        minWidth: 200.0,
+        height: 42.0,
+        child: RaisedButton(
           onPressed: () {},
-          color: Theme.of(context).primaryColor,
-          child: Text("Login", style: Theme.of(context).primaryTextTheme.body1,),
+          color: Theme.of(context).accentColor,
+          child: Text("Login", style: Theme.of(context).accentTextTheme.body1,),
         ),
       ),
     );
@@ -63,7 +62,7 @@ class _LoginViewState extends State<LoginView> {
     );
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).primaryColor,
       body: Center(
         child: ListView(
           shrinkWrap: true,
