@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cognito/views/login_view.dart';
 import 'package:cognito/views/login_selection_view.dart';
+import 'package:cognito/views/academic_term_view.dart';
 
 void main() => runApp(new MyApp());
 
@@ -9,6 +10,7 @@ class MyApp extends StatelessWidget {
   final routes = <String, WidgetBuilder> {
     LoginSelectionView.tag: (context)=>LoginSelectionView(),
     LoginView.tag: (context)=>LoginView(),
+    AcademicTermView.tag: (context) => AcademicTermView(),
   };
 
   @override
@@ -21,6 +23,7 @@ class MyApp extends StatelessWidget {
         primaryColorDark: Color(0xFF00227a),
         accentColor: Color(0xFFfbc02d),
         primaryTextTheme: TextTheme(
+          title: TextStyle(color: Colors.white),
           body1: TextStyle(color: Colors.white),
           body2: TextStyle(color: Colors.white70)
         ),
@@ -34,7 +37,7 @@ class MyApp extends StatelessWidget {
         ),
         hintColor: Color(0xFFfbc02d),
       ),
-      home: LoginSelectionView(),
+      home: AcademicTermView(),
       routes: routes,
     );
   }
