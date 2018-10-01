@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cognito/views/firebase_login.dart';
 import 'package:cognito/views/home_view.dart';
+import 'package:cognito/views/signup_view.dart';
 /// Login selection view
 /// View screen to select mode of authentication
 /// @author Julian Vu
@@ -91,7 +92,7 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
         minWidth: 200.0,
         height: 42.0,
         child: RaisedButton(
-          onPressed: () => {},
+          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SignUpView())),
           color: Theme.of(context).primaryColorLight,
           child: Text("Sign Up", style: Theme.of(context).accentTextTheme.body1,),
         ),
