@@ -19,3 +19,5 @@ pubspec.lock
 .flutter-plugins
 
 \.vscode/settings\.json
+
+\.vscode/launch\.json

@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:cognito/views/firebase_login.dart';
+import 'package:cognito/views/home_view.dart';
 /// Login selection view
 /// View screen to select mode of authentication
 /// @author Julian Vu
@@ -14,6 +17,16 @@ class LoginSelectionView extends StatefulWidget {
 
 class _LoginSelectionViewState extends State<LoginSelectionView> {
   FireBaseLogin _fireBaseLogin = FireBaseLogin();
+
+  Future<bool> _loginUser() async {
+    final firebaseUser = await _fireBaseLogin.signInGoogleUser();
+    if (firebaseUser != null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
   @override
   Widget build(BuildContext context) {
 
@@ -33,8 +46,16 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
         minWidth: 200.0,
         height: 42.0,
         child: RaisedButton.icon(
-          onPressed: () => _fireBaseLogin.signInUser().then((FirebaseUser user) => print(user))
-                  .catchError((e) => print(e)),
+          onPressed: () async {
+                          bool b = await _loginUser();
+
+                          b ? Navigator.push(context, MaterialPageRoute(builder: (context) => HomeView()))
+                              : Scaffold.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Wrong Email!'),
+                                    ),
+                                  );
+                          },
           color: Colors.white,
           label: Text(
             "Sign in with Google",
@@ -70,7 +91,7 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
         minWidth: 200.0,
         height: 42.0,
         child: RaisedButton(
-          onPressed: () {},
+          onPressed: () => {},
           color: Theme.of(context).primaryColorLight,
           child: Text("Sign Up", style: Theme.of(context).accentTextTheme.body1,),
         ),

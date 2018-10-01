@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:cognito/views/firebase_login.dart';
+import 'package:cognito/views/home_view.dart';
 /// Login view screen
 /// @author Julian Vu
 import 'package:flutter/material.dart';
@@ -15,6 +18,27 @@ class _LoginViewState extends State<LoginView> {
   FireBaseLogin _fireBaseLogin = FireBaseLogin();
   String _email;
   String _password;
+
+final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  Future<bool> _loginUser() async {
+    _email = _emailController.text;
+    _password = _passwordController.text;
+    if(_email == null || _password == null){
+      //print("Error null password or email " + "Email: " + _email + " Password: " + _password);
+      return false;
+    }else{
+      final firebaseUser = await _fireBaseLogin.signEmailIn(_email, _password);
+      if (firebaseUser != null) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+
+  
   @override
   Widget build(BuildContext context) {
 
@@ -32,6 +56,7 @@ class _LoginViewState extends State<LoginView> {
       keyboardType: TextInputType.emailAddress,
       autofocus: false,
       style: Theme.of(context).primaryTextTheme.body1,
+      controller: _emailController,
       decoration: InputDecoration(
         hintText: "Email",
         hintStyle: TextStyle(color: Colors.white70,),
@@ -42,6 +67,7 @@ class _LoginViewState extends State<LoginView> {
     final password = TextFormField(
       autofocus: false,
       obscureText: true,
+      controller: _passwordController,
       style: Theme.of(context).primaryTextTheme.body1,
       decoration: InputDecoration(
         hintText: "Password",
@@ -55,9 +81,14 @@ class _LoginViewState extends State<LoginView> {
         minWidth: 200.0,
         height: 42.0,
         child: RaisedButton(
-          onPressed: () {
-            _fireBaseLogin.signIn(_email, _password).catchError((e)=> print(e));
-          },
+          onPressed: () async {
+                          bool b = await _loginUser();
+
+                          b ? Navigator.push(context, MaterialPageRoute(builder: (context) => HomeView()))
+                              : print("Error Login failed!");
+                                
+                          },
+                          
           color: Theme.of(context).accentColor,
           child: Text("Login", style: Theme.of(context).accentTextTheme.body1,),
         ),
