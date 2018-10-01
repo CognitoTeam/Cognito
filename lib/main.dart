@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cognito/views/login_view.dart';
 import 'package:cognito/views/login_selection_view.dart';
 import 'package:cognito/views/academic_term_view.dart';
+import 'package:cognito/views/add_term_view.dart';
 
 void main() => runApp(new MyApp());
 
@@ -11,6 +12,7 @@ class MyApp extends StatelessWidget {
     LoginSelectionView.tag: (context)=>LoginSelectionView(),
     LoginView.tag: (context)=>LoginView(),
     AcademicTermView.tag: (context) => AcademicTermView(),
+    AddTermView.tag: (context) => AddTermView(),
   };
 
   @override
