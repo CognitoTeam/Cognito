@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
         ),
         hintColor: Color(0xFFfbc02d),
       ),
-      home: AcademicTermView(),
+      home: LoginSelectionView(),
       routes: routes,
     );
   }

@@ -15,14 +15,6 @@ class AcademicTermView extends StatefulWidget {
 class _AcademicTermViewState extends State<AcademicTermView> {
   List<AcademicTerm> _terms = List();
 
-
-
-  _addTerm() {
-    print("Adding new term...");
-
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,10 +36,52 @@ class _AcademicTermViewState extends State<AcademicTermView> {
             ),
           ],
         ),
+
+        body: _terms.isNotEmpty ? ListView.builder(
+            itemCount: _terms.length,
+            itemBuilder: (BuildContext context, int index) {
+              final AcademicTerm term = _terms[index];
+              return Container(
+                margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
+                child: SizedBox(
+                  height: 256.0,
+                  child: InkWell(
+                    onTap: () {
+                      print("Tapped on Card");
+                    },
+                    child: Card(
+                      child: Column(
+                        children: <Widget>[
+                          ListTile(
+                            leading: Icon(Icons.label),
+                            title: Text(term.termName),
+                          ),
+                          Divider(),
+                          ListTile(
+                            leading: Icon(Icons.calendar_today),
+                            title: Text(term.startDateAsString),
+                            subtitle: Text("Start Date"),
+                          ),
+                          Divider(),
+                          ListTile(
+                            leading: Icon(Icons.calendar_today),
+                            title: Text(term.endDateAsString),
+                            subtitle: Text("End Date"),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }
+        ) : null,
+
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            print("Pressed floating button.");
-            Navigator.of(context).pushNamed(AddTermView.tag);
+          onPressed: () async {
+            // Retrieve Academic Term object from AddTermView
+            final result = await Navigator.of(context).pushNamed(AddTermView.tag);
+            _terms.add(result);
           },
           child: Icon(
             Icons.add,
