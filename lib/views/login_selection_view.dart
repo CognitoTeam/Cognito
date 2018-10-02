@@ -1,10 +1,3 @@
-import 'dart:async';
-
-import 'package:cognito/views/firebase_login.dart';
-import 'package:cognito/views/home_view.dart';
-import 'package:cognito/views/academic_term_view.dart';
-import 'package:cognito/views/signup_view.dart';
-
 /// Login selection view
 /// View screen to select mode of authentication
 /// @author Julian Vu
@@ -53,13 +46,12 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
         child: RaisedButton.icon(
           onPressed: () async {
             bool b = await _loginUser();
-
             b
-                ? Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AcademicTermView()))
+                ? print("Go to Academic page")
+                //Navigator.push(context, MaterialPageRoute(builder: (context) => AcademicTermView()))
                 : Scaffold.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Wrong Email!'),
+                      content: Text('Google login failed!'),
                     ),
                   );
           },

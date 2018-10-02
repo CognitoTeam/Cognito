@@ -1,7 +1,3 @@
-import 'dart:async';
-
-import 'package:cognito/views/firebase_login.dart';
-import 'package:cognito/views/academic_term_view.dart';
 /// Login view screen
 /// @author Julian Vu
 import 'package:flutter/material.dart';
@@ -108,17 +104,10 @@ void _submit() {
         minWidth: 200.0,
         height: 42.0,
         child: RaisedButton(
-          onPressed: () async {
-                          bool b = await _loginUser();
-
-                          b ? Navigator.push(context, MaterialPageRoute(builder: (context) => AcademicTermView()))
-                              : print("Error Login failed!");
-                                
-                          },
-                          
-          color: Theme.of(context).accentColor,
-          child: Text("Login", style: Theme.of(context).accentTextTheme.body1,),
-        ),
+                   child: Text("Login", style: Theme.of(context).accentTextTheme.body1,),
+                  color: Theme.of(context).accentColor,
+                  onPressed: _submit,
+                )
       ),
     );
 
