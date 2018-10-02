@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:cognito/models/academic_term.dart';
 
 class AddTermView extends StatefulWidget {
   static String tag = "add-term.view";
@@ -11,6 +12,8 @@ class AddTermView extends StatefulWidget {
 class _AddTermViewState extends State<AddTermView> {
   DateTime newStartDate, newEndDate;
   String newTermName;
+
+  final _termNameController = TextEditingController();
 
   Future<Null> _selectStartDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(
@@ -52,7 +55,9 @@ class _AddTermViewState extends State<AddTermView> {
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.check),
-              onPressed: () => {},
+              onPressed: () {
+                Navigator.of(context).pop(AcademicTerm(_termNameController.text, newStartDate, newEndDate));
+              },
             ),
           ],
         ),
@@ -62,6 +67,7 @@ class _AddTermViewState extends State<AddTermView> {
             children: <Widget>[
               Padding(padding: EdgeInsets.all(0.0)),
               TextFormField(
+                controller: _termNameController,
                 keyboardType: TextInputType.text,
                 autofocus: false,
                 style: Theme.of(context).accentTextTheme.body1,
@@ -69,6 +75,11 @@ class _AddTermViewState extends State<AddTermView> {
                   hintText: "Term title (e.g. \"Spring 2019\")",
                   hintStyle: TextStyle(color: Colors.black45),
                 ),
+                onFieldSubmitted: (newTermName) {
+                  setState(() {
+                    newTermName = _termNameController.text;
+                  });
+                },
               ),
               SizedBox(
                 height: 32.0,

@@ -8,6 +8,7 @@ class AcademicTerm {
     String termName;
     DateTime startTime; //Academic term start 
     DateTime endTime;   //Academic term end
+    String startDateAsString, endDateAsString;
 
     Set<Class> classes;
     Set<Club> clubs;
@@ -15,6 +16,9 @@ class AcademicTerm {
     AcademicTerm(this.termName, this.startTime, this.endTime){
       classes = Set();
       clubs = Set();
+
+      startDateAsString = "${startTime.month}/${startTime.day}/${startTime.year}";
+      endDateAsString = "${endTime.month}/${endTime.day}/${endTime.year}";
     }
 
    void addClass(Class aClass){
