@@ -142,22 +142,21 @@ void _submit() {
       backgroundColor: Theme.of(context).primaryColor,
       resizeToAvoidBottomPadding: false, 
       key: _scaffoldKey,
-      body: new Padding(
-          padding: const EdgeInsets.all(30.0),
+      body: Center(
           child: new Form(
             key: _formKey,
-            child: new Column(
+            child: new ListView(
+              shrinkWrap: true,
+              padding: EdgeInsets.only(bottom: 1.0, left: 24.0, right: 24.0),
               children: <Widget>[
                 logo,
-                SizedBox(height: 64.0,),
+                SizedBox(height: 16.0,),
                 email,
-                SizedBox(height: 24.0,),
+                SizedBox(height: 16.0,),
                 password,
-                SizedBox(height: 24.0,),
+                SizedBox(height: 16.0,),
                 confirmPassword,
-                new Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                ),
+                SizedBox(height: 16.0,),
                 signUpButton,
                 cancelLabel,
               ],

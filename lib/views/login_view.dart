@@ -123,20 +123,19 @@ void _submit() {
       key: _scaffoldKey,
       backgroundColor: Theme.of(context).primaryColor,
       resizeToAvoidBottomPadding: false, 
-      body: new Padding(
-          padding: const EdgeInsets.all(30.0),
+      body: Center(
           child: new Form(
             key: _formKey,
-            child: new Column(
+            child: new ListView(
+              shrinkWrap: true,
+               padding: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 25.0),
               children: <Widget>[
                 logo,
-                SizedBox(height: 64.0,),
+                SizedBox(height: 15.0,),
                 email,
-                SizedBox(height: 24.0,),
+                SizedBox(height: 15.0,),
                 password,
-                new Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                ),
+                
                 loginButton,
                 forgotLabel,
                 cancelLabel,
