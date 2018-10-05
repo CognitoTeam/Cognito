@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "682743222752",
+    "firebase_url": "https://congnito-21a75.firebaseio.com",
+    "project_id": "congnito-21a75",
+    "storage_bucket": "congnito-21a75.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:682743222752:android:7891c4933cb7ba82",
+        "android_client_info": {
+          "package_name": "com.example.cognito"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "682743222752-4ndga7afb711ee15j9od3mgnui7vpdlr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.cognito",
+            "certificate_hash": "8e52f4e7e812b874bb4e2dc850a931036e948acf"
+          }
+        },
+        {
+          "client_id": "682743222752-earvuj8b764uoa8ipp9nkg8653hhmpam.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBna9wgR6ibLIl1DwAspK3Ov91Zh1P-FoQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "682743222752-earvuj8b764uoa8ipp9nkg8653hhmpam.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "682743222752-48nu0b1s59vd66c0uc2djko8vin0cno7.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.cognito"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
