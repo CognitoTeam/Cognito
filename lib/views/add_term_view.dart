@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:cognito/models/academic_term.dart';
 
 class AddTermView extends StatefulWidget {
-  static String tag = "add-term.view";
+  static String tag = "add-term-view";
 
   @override
   _AddTermViewState createState() => _AddTermViewState();
@@ -83,7 +83,6 @@ class _AddTermViewState extends State<AddTermView> {
           Padding(padding: EdgeInsets.all(0.0)),
           TextFormField(
             controller: _termNameController,
-            keyboardType: TextInputType.text,
             autofocus: false,
             style: Theme.of(context).accentTextTheme.body1,
             decoration: InputDecoration(

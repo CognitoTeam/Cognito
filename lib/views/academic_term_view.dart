@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/views/add_term_view.dart';
+import 'package:cognito/views/term_details_view.dart';
 import 'dart:async';
 
 class AcademicTermView extends StatefulWidget {
@@ -30,17 +31,6 @@ class _AcademicTermViewState extends State<AcademicTermView> {
           style: Theme.of(context).primaryTextTheme.title,
         ),
         backgroundColor: Theme.of(context).primaryColorDark,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(
-              Icons.add_circle,
-              color: Theme.of(context).accentColor,
-            ),
-            onPressed: () {
-              print("Pressed plug button.");
-            },
-          ),
-        ],
       ),
       body: _terms.isNotEmpty
           ? ListView.builder(
@@ -54,6 +44,9 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                     child: InkWell(
                       onTap: () {
                         print("Tapped on Card");
+                        Navigator.push(context, MaterialPageRoute(
+                            builder: (context) => TermDetailsView(term: term))
+                        );
                       },
                       child: Dismissible(
                         key: Key(_terms[index].termName),
@@ -65,52 +58,24 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                               content: Text("${term.termName} deleted"),
                             )
                           );
-                          setState(() {
-
-                          });
                         },
                         child: Card(
                           child: Column(
                             children: <Widget>[
                               ListTile(
-                                  leading: Icon(Icons.label),
-                                  title: Text(term.termName),
-                                  trailing: PopupMenuButton(
-                                    itemBuilder: (BuildContext context) {
-                                      return <PopupMenuItem<String>>[
-                                        PopupMenuItem(
-                                          child: Text("Edit"),
-                                          value: "Edit",
-                                        ),
-                                        PopupMenuItem(
-                                          child: Text("Delete"),
-                                          value: "Delete",
-                                        )
-                                      ];
-                                    },
-                                    onSelected: (_) {
-                                      switch (_) {
-                                        case "Edit":
-                                          print("Edit");
-                                          break;
-                                        case "Delete":
-                                          removeTerm(term);
-                                          break;
-                                        default:
-                                          print("Dunno");
-                                      }
-                                    },
-                                  )),
+                                leading: Icon(Icons.label),
+                                title: Text(term.termName),
+                              ),
                               Divider(),
                               ListTile(
                                 leading: Icon(Icons.calendar_today),
-                                title: Text(term.startDateAsString),
+                                title: Text(term.getStartDateAsString()),
                                 subtitle: Text("Start Date"),
                               ),
                               Divider(),
                               ListTile(
                                 leading: Icon(Icons.calendar_today),
-                                title: Text(term.endDateAsString),
+                                title: Text(term.getEndDateAsString()),
                                 subtitle: Text("End Date"),
                               )
                             ],
