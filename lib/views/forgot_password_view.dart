@@ -1,52 +1,41 @@
-/// Login view screen
-/// @author Julian Vu
+/// Forgot password view screen
+/// @author Praneet Singh
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'dart:io';
 import 'dart:async';
 import 'package:cognito/views/firebase_login.dart';
-import 'package:cognito/views/forgot_password_view.dart';
-//import 'package:cognito/views/academic_term_view.dart';
-class LoginView extends StatefulWidget {
-  static String tag = "login-view";
+class ForgotPasswordView extends StatefulWidget {
+  
+  static String tag = "Forgot_Password_View_view";
   @override
-  _LoginViewState createState() => _LoginViewState();
+  _ForgotPasswordViewState createState() => _ForgotPasswordViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _ForgotPasswordViewState extends State<ForgotPasswordView > {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   FireBaseLogin _fireBaseLogin = FireBaseLogin();
   String _email;
-  String _password;
 
 void _submit() {
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
-      _loginUser();
+      _forgotPassword();
     }
   }
 
-  Future<bool> _loginUser() async {
+  Future<bool> _forgotPassword() async {
     print(_email);
-    print(_password);
-    if(_email == null || _password == null){
-      print("Error null password or email " + "Email: " + _email + " Password: " + _password);
+    if(_email == null){
+      print("Error null email " + "Email: " + _email);
       return false;
     }else{
       try{
-      final firebaseUser = await _fireBaseLogin.signEmailIn(_email, _password);
-      if(firebaseUser.isEmailVerified == false){
-          firebaseUser.sendEmailVerification();
-      }
-      if (firebaseUser != null) {
-        print("Logged in!");
-        //Navigator.push(context, MaterialPageRoute(builder: (context) => AcademicTermView()));
+       await _fireBaseLogin.sendPasswordResetEmail(_email);
+       Navigator.pop(context);
         return true;
-      } else {
-        return false;
-      }
       }on PlatformException catch(e){
         if(Platform.isIOS){
           _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(e.details)));
@@ -54,7 +43,8 @@ void _submit() {
           _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(e.message)));
         }
       }
-  }}
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,38 +72,19 @@ void _submit() {
         onSaved: (val) => _email = val,
       );
 
-    final password = TextFormField(
-        autofocus: false,
-        obscureText: true,
-        style: Theme.of(context).primaryTextTheme.body1,
-         decoration: InputDecoration(
-        hintText: "Password",
-        hintStyle: TextStyle(color: Colors.white70,),
-        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-      ),
-        validator: (val) =>
-        val.length < 6 ? 'Password too short' : null,
-        onSaved: (val) => _password = val,
-        );
-
-    final loginButton = Padding(
+    final resetButton = Padding(
       padding: EdgeInsets.symmetric(vertical: 16.0),
       child: ButtonTheme(
         minWidth: 200.0,
         height: 42.0,
         child: RaisedButton(
-                   child: Text("Login", style: Theme.of(context).accentTextTheme.body1,),
+                   child: Text("Request reset email", style: Theme.of(context).accentTextTheme.body1,),
                   color: Theme.of(context).accentColor,
                   onPressed: _submit,
                 )
       ),
     );
-
-    final forgotLabel = FlatButton(
-      child: Text("Forgot password?", style: TextStyle(color: Colors.black54),),
-      onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPasswordView()));},
-    );
-
+    
     final cancelLabel = FlatButton(
       child: Text("Cancel", style: TextStyle(color: Colors.black54),),
       onPressed: () {Navigator.pop(context);},
@@ -133,12 +104,7 @@ void _submit() {
                 SizedBox(height: 64.0,),
                 email,
                 SizedBox(height: 24.0,),
-                password,
-                new Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                ),
-                loginButton,
-                forgotLabel,
+                resetButton,
                 cancelLabel,
               ],
             ),

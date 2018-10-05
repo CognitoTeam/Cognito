@@ -1,11 +1,12 @@
-import 'dart:async';
-
-import 'package:cognito/views/firebase_login.dart';
-import 'package:cognito/views/home_view.dart';
 /// Sign up view screen
 /// @author Praneet Singh
-/// 
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
+import 'dart:async';
+import 'dart:io';
+//import 'package:cognito/views/academic_term_view.dart';
+import 'package:cognito/views/firebase_login.dart';
+import 'package:flutter/services.dart' show PlatformException;
 
 class SignUpView extends StatefulWidget {
   
@@ -15,33 +16,47 @@ class SignUpView extends StatefulWidget {
 }
 
 class _SignUpViewState extends State<SignUpView> {
-
+  final _formKey = GlobalKey<FormState>();
+  final _passKey = GlobalKey<FormFieldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   FireBaseLogin _fireBaseLogin = FireBaseLogin();
   String _email;
   String _password;
   String _confirmPassword;
 
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
 
-  Future<bool> _SignUpUser() async {
-    _email = _emailController.text;
-    _password = _passwordController.text;
-    _confirmPassword = _confirmPasswordController.text;
+void _submit() {
+    final form = _formKey.currentState;
+
+    if (form.validate()) {
+      form.save();
+      _signUpUser();
+    }
+  }
+  Future<bool> _signUpUser() async {
     if(_email == null || _password == null || _confirmPassword == null){
       print("Error null password or email " + "Email: " + _email + " Password: " + _password);
       return false;
       
     }else if(_password != _confirmPassword){
-      print("Password");
+      print("Password Dont match");
         return false;
-    }else{
-      final firebaseUser = await _fireBaseLogin.createEmailUser(_email, _password);
-      if (firebaseUser != null) {
-        return true;
-      } else {
-        return false;
+    }else {
+      try {
+        final firebaseUser = await _fireBaseLogin.createEmailUser(_email, _password);
+          firebaseUser.sendEmailVerification();
+        if (firebaseUser != null) {
+          //Navigator.push(context, MaterialPageRoute(builder: (context) => AcademicTermView()));
+          return true;
+        } else {
+          return false;
+        }
+      } on PlatformException catch(e){
+        if(Platform.isIOS){
+          _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(e.details)));
+        }else if(Platform.isAndroid){
+          _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(e.message)));
+        }
       }
     }
   }
@@ -53,94 +68,102 @@ class _SignUpViewState extends State<SignUpView> {
     final logo = Hero(
       tag: "hero",
       child: CircleAvatar(
-
         backgroundColor: Colors.transparent,
-        radius: 128.0,
+        radius: 100.0,
         child: Image.asset("assets/circle_logo.png"),
       ),
     );
     
     final email = TextFormField(
-      keyboardType: TextInputType.emailAddress,
-      autofocus: false,
-      style: Theme.of(context).primaryTextTheme.body1,
-      controller: _emailController,
-      decoration: InputDecoration(
+        keyboardType: TextInputType.emailAddress,
+        autofocus: false,
+        style: Theme.of(context).primaryTextTheme.body1,
+        decoration: InputDecoration(
         hintText: "Email",
         hintStyle: TextStyle(color: Colors.white70,),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
-    );
+        validator: (val) =>
+                !val.contains('@') ? 'Invalid Email' : null,
+        onSaved: (val) => _email = val,
+      );
 
     final password = TextFormField(
-      autofocus: false,
-      obscureText: true,
-      controller: _passwordController,
-      style: Theme.of(context).primaryTextTheme.body1,
-      decoration: InputDecoration(
+      key: _passKey,
+        autofocus: false,
+        obscureText: true,
+        style: Theme.of(context).primaryTextTheme.body1,
+         decoration: InputDecoration(
         hintText: "Password",
-
+        hintStyle: TextStyle(color: Colors.white70,),
+        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
-    );
+        validator: (val) =>
+        val.length < 6 ? 'Password too short' : null,
+        onSaved: (val) => _password = val,
+        
+        
+        );
     final confirmPassword = TextFormField(
-      autofocus: false,
-      obscureText: true,
-      controller: _confirmPasswordController,
-      validator: (value) {
-        if(value != _password){
-          print("value");
-          return 'Passwords do not match!';
-        }
-      },
-      style: Theme.of(context).primaryTextTheme.body1,
-      decoration: InputDecoration(
-        hintText: "Confirm Password",
+        autofocus: false,
+        obscureText: true,
+        style: Theme.of(context).primaryTextTheme.body1,
+         decoration: InputDecoration(
+        hintText: "Confirm password",
+        hintStyle: TextStyle(color: Colors.white70,),
+        contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
-    );
-
-    final loginButton = Padding(
+       validator: (confirmation){
+          var password = _passKey.currentState.value;
+          return equals(confirmation, password) ? null : "Passwords do not match!";
+        },
+        onSaved: (val) => _confirmPassword = val,
+        
+        );
+    final signUpButton = Padding(
       padding: EdgeInsets.symmetric(vertical: 16.0),
       child: ButtonTheme(
         minWidth: 200.0,
         height: 42.0,
         child: RaisedButton(
-          onPressed: () async {
-                          bool b = await _SignUpUser();
-                          b ? Navigator.push(context, MaterialPageRoute(builder: (context) => HomeView()))
-                              : print("Error SignUp failed!");
-                                
-                          },
-                          
-          color: Theme.of(context).accentColor,
-          child: Text("Login", style: Theme.of(context).accentTextTheme.body1,),
-        ),
+                   child: Text("Sign Up", style: Theme.of(context).accentTextTheme.body1,),
+                  color: Theme.of(context).accentColor,
+                  onPressed: _submit,
+                ),
       ),
     );
 
-    final forgotLabel = FlatButton(
-      child: Text("Forgot password?", style: TextStyle(color: Colors.black54),),
-      onPressed: () {},
+    final cancelLabel = FlatButton(
+      child: Text("Cancel", style: TextStyle(color: Colors.black54),),
+      onPressed: () {Navigator.pop(context);},
     );
 
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
-      body: Center(
-        child: ListView(
-          shrinkWrap: true,
-          padding: EdgeInsets.only(left: 24.0, right: 24.0),
-          children: <Widget>[
-            logo,
-            SizedBox(height: 64.0,),
-            email,
-            SizedBox(height: 8.0,),
-            password,
-            confirmPassword,
-            SizedBox(height: 24.0,),
-            loginButton,
-            forgotLabel,
-          ],
-        ),
-      ),
+      resizeToAvoidBottomPadding: false, 
+      key: _scaffoldKey,
+      body: new Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: new Form(
+            key: _formKey,
+            child: new Column(
+              children: <Widget>[
+                logo,
+                SizedBox(height: 64.0,),
+                email,
+                SizedBox(height: 24.0,),
+                password,
+                SizedBox(height: 24.0,),
+                confirmPassword,
+                new Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                ),
+                signUpButton,
+                cancelLabel,
+              ],
+            ),
+          ),
+        )
     );
   }
 }

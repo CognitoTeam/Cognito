@@ -1,14 +1,12 @@
-import 'dart:async';
-
-import 'package:cognito/views/firebase_login.dart';
-import 'package:cognito/views/home_view.dart';
-import 'package:cognito/views/signup_view.dart';
 /// Login selection view
 /// View screen to select mode of authentication
 /// @author Julian Vu
 import 'package:flutter/material.dart';
 import 'package:cognito/views/login_view.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:async';
+import 'package:cognito/views/firebase_login.dart';
+//import 'package:cognito/views/academic_term_view.dart';
+import 'package:cognito/views/signup_view.dart';
 
 class LoginSelectionView extends StatefulWidget {
   static String tag = "login-selection-view";
@@ -27,16 +25,14 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
       return false;
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
-
     final logo = Hero(
       tag: "hero",
       child: CircleAvatar(
-
         backgroundColor: Colors.transparent,
-        radius: 128.0,
+        radius: 100.0,
         child: Image.asset("assets/circle_logo.png"),
       ),
     );
@@ -48,24 +44,28 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
         height: 42.0,
         child: RaisedButton.icon(
           onPressed: () async {
-                          bool b = await _loginUser();
-
-                          b ? Navigator.push(context, MaterialPageRoute(builder: (context) => HomeView()))
-                              : Scaffold.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Wrong Email!'),
-                                    ),
-                                  );
-                          },
+            bool b = await _loginUser();
+            b
+                ? print("Go to Academic page")
+                //Navigator.push(context, MaterialPageRoute(builder: (context) => AcademicTermView()))
+                : Scaffold.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Google login failed!'),
+                    ),
+                  );
+          },
           color: Colors.white,
           label: Text(
             "Sign in with Google",
-            style:  TextStyle(
+            style: TextStyle(
               fontFamily: 'Roboto',
               color: Color.fromRGBO(68, 68, 76, .8),
             ),
           ),
-          icon: Image.asset('assets/google.png', width: 35.0,),
+          icon: Image.asset(
+            'assets/google.png',
+            width: 35.0,
+          ),
           textColor: Colors.black,
         ),
       ),
@@ -81,7 +81,8 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
             Navigator.of(context).pushNamed(LoginView.tag);
           },
           color: Theme.of(context).accentColor,
-          child: Text("Sign in with Email", style: Theme.of(context).accentTextTheme.body1),
+          child: Text("Sign in with Email",
+              style: Theme.of(context).accentTextTheme.body1),
         ),
       ),
     );
@@ -92,9 +93,13 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
         minWidth: 200.0,
         height: 42.0,
         child: RaisedButton(
-          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SignUpView())),
+          onPressed: () => Navigator.push(
+              context, MaterialPageRoute(builder: (context) => SignUpView())),
           color: Theme.of(context).primaryColorLight,
-          child: Text("Sign Up", style: Theme.of(context).accentTextTheme.body1,),
+          child: Text(
+            "Sign Up",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
         ),
       ),
     );
@@ -107,7 +112,9 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
           padding: EdgeInsets.only(left: 24.0, right: 24.0),
           children: <Widget>[
             logo,
-            SizedBox(height: 64.0,),
+            SizedBox(
+              height: 64.0,
+            ),
             withGoogle,
             withEmail,
             signUp,

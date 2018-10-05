@@ -41,7 +41,9 @@ class FireBaseLogin {
       print('signInEmail succeeded: $user');
      return user;
   }
-  
+  Future<void> sendPasswordResetEmail(String email) async {
+     return _auth.sendPasswordResetEmail(email: email);
+  }
     Future<FirebaseUser> signOutUser() async{
       await _auth.signOut();
       await _googleSignIn.signOut();
