@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class TermDetailsView extends StatefulWidget {
   @override
   _TermDetailsViewState createState() => _TermDetailsViewState();
