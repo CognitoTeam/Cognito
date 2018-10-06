@@ -28,6 +28,8 @@ void _submit() {
     }
   }
 
+///User can login if email and passowrd are not null and 
+///firebase accepts the account
   Future<bool> _loginUser() async {
     print(_email);
     print(_password);

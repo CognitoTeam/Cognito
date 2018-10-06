@@ -33,6 +33,8 @@ void _submit() {
       _signUpUser();
     }
   }
+
+  ///User sign up with email and password
   Future<bool> _signUpUser() async {
     if(_email == null || _password == null || _confirmPassword == null){
       print("Error null password or email " + "Email: " + _email + " Password: " + _password);

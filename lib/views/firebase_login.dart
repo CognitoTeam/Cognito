@@ -18,7 +18,7 @@ class FireBaseLogin {
       print("User Name : ${_user.displayName}");
      return _user;
     }
-
+  ///User can sign in with email and password
     Future<FirebaseUser> signEmailIn(String email, String password) async {
       FirebaseUser user = await _auth.signInWithEmailAndPassword(email: email, password: password);
       assert(user != null);
@@ -30,6 +30,8 @@ class FireBaseLogin {
       print('signInEmail succeeded: $user');
      return user;
     }
+    
+    ///User can create a new account
   Future<FirebaseUser> createEmailUser(String email, String password) async {
    FirebaseUser user = await _auth.createUserWithEmailAndPassword(email: email, password: password);
       assert(user != null);
@@ -41,6 +43,8 @@ class FireBaseLogin {
       print('signInEmail succeeded: $user');
      return user;
   }
+
+  ///User can reset password through email varification
   Future<void> sendPasswordResetEmail(String email) async {
      return _auth.sendPasswordResetEmail(email: email);
   }
