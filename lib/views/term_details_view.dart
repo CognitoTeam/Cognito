@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/academic_term.dart';
+import 'package:cognito/models/class.dart';
 
 class TermDetailsView extends StatefulWidget {
   // Hold academic term object
@@ -36,29 +37,13 @@ class _TermDetailsViewState extends State<TermDetailsView> {
           style: Theme.of(context).primaryTextTheme.title,
         ),
         backgroundColor: Theme.of(context).primaryColorDark,
-      ),
 
-      body: Container(
-        child: Column(
-          children: <Widget>[
-            // Start Date
-            DateRow(true, widget.term),
-            Divider(),
-
-            // End Date
-            DateRow(false, widget.term),
-            Divider(),
-
-            // Change Term Title
-            ListTile(
-              leading: Icon(Icons.label),
-              title: Text(
-                "Change Term Title",
-                style: Theme.of(context).accentTextTheme.body2,
-              ),
-              onTap: () async {
-                print("Tapped on change term title");
-                showDialog(
+        actions: <Widget>[
+          // Edit term title
+          IconButton(
+            icon: Icon(Icons.edit, color: Colors.white,),
+            onPressed: () async {
+              showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return SimpleDialog(
@@ -84,9 +69,25 @@ class _TermDetailsViewState extends State<TermDetailsView> {
                       ],
                     );
                   }
-                );
-              },
-            )
+              );
+            },
+          ),
+        ],
+      ),
+
+      body: Container(
+        child: Column(
+          children: <Widget>[
+            // Start Date
+            DateRow(true, widget.term),
+            Divider(),
+
+            // End Date
+            DateRow(false, widget.term),
+            Divider(),
+
+            // Classes
+            ExpandableClassList(widget.term),
           ],
         ),
       ),
@@ -148,5 +149,36 @@ class _DateRowState extends State<DateRow> {
     );
   }
 }
+
+class ExpandableClassList extends StatefulWidget {
+
+  final AcademicTerm term;
+
+  ExpandableClassList(this.term);
+
+  @override
+  _ExpandableClassListState createState() => _ExpandableClassListState();
+}
+
+class _ExpandableClassListState extends State<ExpandableClassList> {
+  @override
+  Widget build(BuildContext context) {
+    return ExpansionTile(
+      leading: Icon(Icons.book),
+      title: Text("Classes", style: Theme.of(context).accentTextTheme.body2,),
+      children: widget.term.classes.isNotEmpty ?
+        widget.term.classes.map((element) => ListTile(
+          title: Text(element.title, style: Theme.of(context).accentTextTheme.body2,),
+        )).toList()
+          :
+          <Widget>[
+            ListTile(
+              title: Text("No classes so far"),
+            )
+          ],
+    );
+  }
+}
+
 
 
