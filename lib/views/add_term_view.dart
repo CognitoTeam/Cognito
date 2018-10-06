@@ -35,8 +35,8 @@ class _AddTermViewState extends State<AddTermView> {
     if (picked != null) {
       print("Date selected: ${picked.toString()}");
       setState(() {
-        isStart? newStartDate = picked : newEndDate = picked;
-        print(isStart? newStartDate.toString() : newEndDate.toString());
+        isStart ? newStartDate = picked : newEndDate = picked;
+        print(isStart ? newStartDate.toString() : newEndDate.toString());
       });
     }
   }
@@ -58,74 +58,57 @@ class _AddTermViewState extends State<AddTermView> {
           ),
         ],
       ),
+
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Padding(padding: EdgeInsets.all(0.0)),
-          TextFormField(
-            controller: _termNameController,
-            autofocus: false,
-            style: Theme.of(context).accentTextTheme.body1,
-            decoration: InputDecoration(
-              hintText: "Term title (e.g. \"Spring 2019\")",
-              hintStyle: TextStyle(color: Colors.black45),
-            ),
-            onFieldSubmitted: (newTermName) {
-              setState(() {
-                newTermName = _termNameController.text;
-              });
-            },
-          ),
-          SizedBox(
-            height: 32.0,
-          ),
-          Divider(),
-          SizedBox(
-            height: 32.0,
-            width: double.infinity,
-            child: FlatButton(
-              onPressed: () => _selectDate(true, context),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Expanded(
-                    child: Text("Select Start Date"),
-                  ),
-                  Expanded(
-                    child: Text(
-                      newStartDate != null
-                          ? "${newStartDate.month.toString()}/${newStartDate.day.toString()}/${newStartDate.year.toString()}"
-                          : "",
-                      textAlign: TextAlign.end,
-                    ),
-                  )
-                ],
+          ListTile(
+            leading: Icon(Icons.label),
+            title: TextFormField(
+              controller: _termNameController,
+              autofocus: false,
+              style: Theme.of(context).accentTextTheme.body1,
+              decoration: InputDecoration(
+                hintText: "Term title (e.g. \"Spring 2019\")",
+                hintStyle: TextStyle(color: Colors.black45),
               ),
+              onFieldSubmitted: (newTermName) {
+                setState(() {
+                  newTermName = _termNameController.text;
+                });
+              },
             ),
           ),
           Divider(),
-          SizedBox(
-            height: 32.0,
-            width: double.infinity,
-            child: FlatButton(
-              onPressed: () => _selectDate(false, context),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Expanded(
-                    child: Text("Select End Date"),
-                  ),
-                  Expanded(
-                    child: Text(
-                      newEndDate != null
-                          ? "${newEndDate.month.toString()}/${newEndDate.day.toString()}/${newEndDate.year.toString()}"
-                          : "",
-                      textAlign: TextAlign.end,
-                    ),
-                  )
-                ],
-              ),
+
+          ListTile(
+            leading: Icon(Icons.calendar_today),
+            title: Text(
+            "Select Start Date",
+            style: Theme.of(context).accentTextTheme.body2,
             ),
+            trailing: Text(
+            newStartDate != null
+            ? "${newStartDate.month.toString()}/${newStartDate.day.toString()}/${newStartDate.year.toString()}"
+                : "",
+            ),
+            onTap: () => _selectDate(true, context),
+          ),
+          Divider(),
+
+          ListTile(
+            leading: Icon(Icons.calendar_today),
+            title: Text(
+              "Select End Date",
+              style: Theme.of(context).accentTextTheme.body2,
+            ),
+            trailing: Text(
+              newEndDate != null
+                  ? "${newEndDate.month.toString()}/${newEndDate.day.toString()}/${newEndDate.year.toString()}"
+                  : "",
+            ),
+            onTap: () => _selectDate(false, context),
           ),
           Divider()
         ],
@@ -133,3 +116,4 @@ class _AddTermViewState extends State<AddTermView> {
     );
   }
 }
+
