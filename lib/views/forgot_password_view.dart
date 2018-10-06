@@ -25,7 +25,7 @@ void _submit() {
       _forgotPassword();
     }
   }
-
+  ///User can request password through email varification 
   Future<bool> _forgotPassword() async {
     print(_email);
     if(_email == null){

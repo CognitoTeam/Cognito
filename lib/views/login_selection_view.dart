@@ -17,6 +17,7 @@ class LoginSelectionView extends StatefulWidget {
 class _LoginSelectionViewState extends State<LoginSelectionView> {
   FireBaseLogin _fireBaseLogin = FireBaseLogin();
 
+///Login user with Google signin
   Future<bool> _loginUser() async {
     final firebaseUser = await _fireBaseLogin.signInGoogleUser();
     if (firebaseUser != null) {
