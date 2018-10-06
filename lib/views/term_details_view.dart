@@ -14,6 +14,10 @@ class TermDetailsView extends StatefulWidget {
 }
 
 class _TermDetailsViewState extends State<TermDetailsView> {
+  void setTermName() {
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,10 +33,47 @@ class _TermDetailsViewState extends State<TermDetailsView> {
           children: <Widget>[
             DateRow(true, widget.term),
             Divider(),
-            DateRow(false, widget.term)
+            DateRow(false, widget.term),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.label),
+              title: Text(
+                "Change Term Title",
+                style: Theme.of(context).accentTextTheme.body2,
+              ),
+              onTap: () async {
+                print("Tapped on change term title");
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return SimpleDialog(
+                      title: Text("Change Term Title"),
+                      children: <Widget>[
+                        TextFormField(
+                          style: Theme.of(context).accentTextTheme.body2,
+                          decoration: InputDecoration(
+                            hintText: "Term Title",
+                            hintStyle: TextStyle(color: Colors.black45),
+                            contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                          ),
+                          onFieldSubmitted: (val) {
+                            print(val);
+                            setState(() {
+                              widget.term.termName = val;
+                            });
+                            Navigator.pop(context);
+                          },
+                          textInputAction: TextInputAction.done,
+                        )
+                      ],
+                    );
+                  }
+                );
+              },
+            )
           ],
         ),
-      )
+      ),
     );
   }
 }
