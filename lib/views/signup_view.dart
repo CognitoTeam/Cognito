@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'dart:async';
 import 'dart:io';
-//import 'package:cognito/views/academic_term_view.dart';
+import 'package:cognito/views/academic_term_view.dart';
 import 'package:cognito/views/firebase_login.dart';
 import 'package:flutter/services.dart' show PlatformException;
 
 class SignUpView extends StatefulWidget {
-  
+
   static String tag = "SignUp-view";
   @override
   _SignUpViewState createState() => _SignUpViewState();
@@ -25,30 +25,30 @@ class _SignUpViewState extends State<SignUpView> {
   String _confirmPassword;
 
 
-void _submit() {
+  void _submit(BuildContext context) {
     final form = _formKey.currentState;
 
     if (form.validate()) {
       form.save();
-      _signUpUser();
+      _signUpUser(context);
     }
   }
 
   ///User sign up with email and password
-  Future<bool> _signUpUser() async {
+  Future<bool> _signUpUser(BuildContext context) async {
     if(_email == null || _password == null || _confirmPassword == null){
       print("Error null password or email " + "Email: " + _email + " Password: " + _password);
       return false;
-      
+
     }else if(_password != _confirmPassword){
       print("Password Dont match");
-        return false;
+      return false;
     }else {
       try {
         final firebaseUser = await _fireBaseLogin.createEmailUser(_email, _password);
-          firebaseUser.sendEmailVerification();
+        firebaseUser.sendEmailVerification();
         if (firebaseUser != null) {
-          //Navigator.push(context, MaterialPageRoute(builder: (context) => AcademicTermView()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AcademicTermView()));
           return true;
         } else {
           return false;
@@ -63,7 +63,7 @@ void _submit() {
     }
   }
 
-  
+
   @override
   Widget build(BuildContext context) {
 
@@ -75,63 +75,63 @@ void _submit() {
         child: Image.asset("assets/circle_logo.png"),
       ),
     );
-    
+
     final email = TextFormField(
-        keyboardType: TextInputType.emailAddress,
-        autofocus: false,
-        style: Theme.of(context).primaryTextTheme.body1,
-        decoration: InputDecoration(
+      keyboardType: TextInputType.emailAddress,
+      autofocus: false,
+      style: Theme.of(context).primaryTextTheme.body1,
+      decoration: InputDecoration(
         hintText: "Email",
         hintStyle: TextStyle(color: Colors.white70,),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
-        validator: (val) =>
-                !val.contains('@') ? 'Invalid Email' : null,
-        onSaved: (val) => _email = val,
-      );
+      validator: (val) =>
+      !val.contains('@') ? 'Invalid Email' : null,
+      onSaved: (val) => _email = val,
+    );
 
     final password = TextFormField(
       key: _passKey,
-        autofocus: false,
-        obscureText: true,
-        style: Theme.of(context).primaryTextTheme.body1,
-         decoration: InputDecoration(
+      autofocus: false,
+      obscureText: true,
+      style: Theme.of(context).primaryTextTheme.body1,
+      decoration: InputDecoration(
         hintText: "Password",
         hintStyle: TextStyle(color: Colors.white70,),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
-        validator: (val) =>
-        val.length < 6 ? 'Password too short' : null,
-        onSaved: (val) => _password = val,
-        
-        
-        );
+      validator: (val) =>
+      val.length < 6 ? 'Password too short' : null,
+      onSaved: (val) => _password = val,
+
+
+    );
     final confirmPassword = TextFormField(
-        autofocus: false,
-        obscureText: true,
-        style: Theme.of(context).primaryTextTheme.body1,
-         decoration: InputDecoration(
+      autofocus: false,
+      obscureText: true,
+      style: Theme.of(context).primaryTextTheme.body1,
+      decoration: InputDecoration(
         hintText: "Confirm password",
         hintStyle: TextStyle(color: Colors.white70,),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
-       validator: (confirmation){
-          var password = _passKey.currentState.value;
-          return equals(confirmation, password) ? null : "Passwords do not match!";
-        },
-        onSaved: (val) => _confirmPassword = val,
-        
-        );
+      validator: (confirmation){
+        var password = _passKey.currentState.value;
+        return equals(confirmation, password) ? null : "Passwords do not match!";
+      },
+      onSaved: (val) => _confirmPassword = val,
+
+    );
     final signUpButton = Padding(
       padding: EdgeInsets.symmetric(vertical: 16.0),
       child: ButtonTheme(
         minWidth: 200.0,
         height: 42.0,
         child: RaisedButton(
-                   child: Text("Sign Up", style: Theme.of(context).accentTextTheme.body1,),
-                  color: Theme.of(context).accentColor,
-                  onPressed: _submit,
-                ),
+          child: Text("Sign Up", style: Theme.of(context).accentTextTheme.body1,),
+          color: Theme.of(context).accentColor,
+          onPressed: () => _submit(context),
+        ),
       ),
     );
 
@@ -141,10 +141,10 @@ void _submit() {
     );
 
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
-      resizeToAvoidBottomPadding: false, 
-      key: _scaffoldKey,
-      body: Center(
+        backgroundColor: Theme.of(context).primaryColor,
+        resizeToAvoidBottomPadding: false,
+        key: _scaffoldKey,
+        body: Center(
           child: new Form(
             key: _formKey,
             child: new ListView(
