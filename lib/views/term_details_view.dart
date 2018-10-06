@@ -1,3 +1,7 @@
+/// Academic term details view
+/// View screen to edit an AcademicTerm object
+/// @author Julian Vu
+///
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/academic_term.dart';
@@ -14,9 +18,6 @@ class TermDetailsView extends StatefulWidget {
 }
 
 class _TermDetailsViewState extends State<TermDetailsView> {
-  void setTermName() {
-
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,13 +29,19 @@ class _TermDetailsViewState extends State<TermDetailsView> {
         ),
         backgroundColor: Theme.of(context).primaryColorDark,
       ),
+
       body: Container(
         child: Column(
           children: <Widget>[
+            // Start Date
             DateRow(true, widget.term),
             Divider(),
+
+            // End Date
             DateRow(false, widget.term),
             Divider(),
+
+            // Change Term Title
             ListTile(
               leading: Icon(Icons.label),
               title: Text(
@@ -78,7 +85,10 @@ class _TermDetailsViewState extends State<TermDetailsView> {
   }
 }
 
+// Helper class to modularize date row creation
 class DateRow extends StatefulWidget {
+
+  // Flag for whether this date is start date
   final bool _isStart;
   final AcademicTerm term;
 
@@ -90,6 +100,8 @@ class DateRow extends StatefulWidget {
 
 class _DateRowState extends State<DateRow> {
   Future<Null> _selectDate(BuildContext context) async {
+
+    // Make sure keyboard is hidden before showing date picker
     FocusScope.of(context).requestFocus(FocusNode());
 
     await Future.delayed(Duration(milliseconds:  200));
