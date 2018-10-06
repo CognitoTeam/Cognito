@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:cognito/views/login_view.dart';
 import 'dart:async';
 import 'package:cognito/views/firebase_login.dart';
-//import 'package:cognito/views/academic_term_view.dart';
 import 'package:cognito/views/signup_view.dart';
+import 'package:cognito/views/academic_term_view.dart';
 
 class LoginSelectionView extends StatefulWidget {
   static String tag = "login-selection-view";
@@ -17,7 +17,7 @@ class LoginSelectionView extends StatefulWidget {
 class _LoginSelectionViewState extends State<LoginSelectionView> {
   FireBaseLogin _fireBaseLogin = FireBaseLogin();
 
-///Login user with Google signin
+  ///Login user with Google signin
   Future<bool> _loginUser() async {
     final firebaseUser = await _fireBaseLogin.signInGoogleUser();
     if (firebaseUser != null) {
@@ -46,14 +46,14 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
         child: RaisedButton.icon(
           onPressed: () async {
             bool b = await _loginUser();
+
             b
-                ? print("Go to Academic page")
-                //Navigator.push(context, MaterialPageRoute(builder: (context) => AcademicTermView()))
+                ? Navigator.push(context, MaterialPageRoute(builder: (context) => AcademicTermView()))
                 : Scaffold.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Google login failed!'),
-                    ),
-                  );
+              SnackBar(
+                content: Text('Google login failed!'),
+              ),
+            );
           },
           color: Colors.white,
           label: Text(

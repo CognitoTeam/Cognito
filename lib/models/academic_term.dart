@@ -17,7 +17,15 @@ class AcademicTerm {
       clubs = Set();
     }
 
-   void addClass(Class aClass){
+    String getStartDateAsString() {
+      return "${startTime.month}/${startTime.day}/${startTime.year}";
+    }
+
+    String getEndDateAsString() {
+      return "${endTime.month}/${endTime.day}/${endTime.year}";
+    }
+
+    void addClass(Class aClass){
       classes.add(aClass);
     }
 

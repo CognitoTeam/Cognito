@@ -5,9 +5,10 @@ import 'package:flutter/services.dart' show PlatformException;
 import 'dart:io';
 import 'dart:async';
 import 'package:cognito/views/firebase_login.dart';
+
 class ForgotPasswordView extends StatefulWidget {
-  
   static String tag = "Forgot_Password_View_view";
+
   @override
   _ForgotPasswordViewState createState() => _ForgotPasswordViewState();
 }
@@ -18,14 +19,14 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView > {
   FireBaseLogin _fireBaseLogin = FireBaseLogin();
   String _email;
 
-void _submit() {
+  void _submit() {
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
       _forgotPassword();
     }
   }
-  ///User can request password through email varification 
+  ///User can request password through email verification
   Future<bool> _forgotPassword() async {
     print(_email);
     if(_email == null){
@@ -33,8 +34,8 @@ void _submit() {
       return false;
     }else{
       try{
-       await _fireBaseLogin.sendPasswordResetEmail(_email);
-       Navigator.pop(context);
+        await _fireBaseLogin.sendPasswordResetEmail(_email);
+        Navigator.pop(context);
         return true;
       }on PlatformException catch(e){
         if(Platform.isIOS){
@@ -57,44 +58,44 @@ void _submit() {
         child: Image.asset("assets/circle_logo.png"),
       ),
     );
-    
+
     final email = TextFormField(
-        keyboardType: TextInputType.emailAddress,
-        autofocus: false,
-        style: Theme.of(context).primaryTextTheme.body1,
-        decoration: InputDecoration(
+      keyboardType: TextInputType.emailAddress,
+      autofocus: false,
+      style: Theme.of(context).primaryTextTheme.body1,
+      decoration: InputDecoration(
         hintText: "Email",
         hintStyle: TextStyle(color: Colors.white70,),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
-        validator: (val) =>
-                !val.contains('@') ? 'Invalid Email' : null,
-        onSaved: (val) => _email = val,
-      );
+      validator: (val) =>
+      !val.contains('@') ? 'Invalid Email' : null,
+      onSaved: (val) => _email = val,
+    );
 
     final resetButton = Padding(
       padding: EdgeInsets.symmetric(vertical: 16.0),
       child: ButtonTheme(
-        minWidth: 200.0,
-        height: 42.0,
-        child: RaisedButton(
-                   child: Text("Request reset email", style: Theme.of(context).accentTextTheme.body1,),
-                  color: Theme.of(context).accentColor,
-                  onPressed: _submit,
-                )
+          minWidth: 200.0,
+          height: 42.0,
+          child: RaisedButton(
+            child: Text("Request reset email", style: Theme.of(context).accentTextTheme.body1,),
+            color: Theme.of(context).accentColor,
+            onPressed: _submit,
+          )
       ),
     );
-    
+
     final cancelLabel = FlatButton(
       child: Text("Cancel", style: TextStyle(color: Colors.black54),),
       onPressed: () {Navigator.pop(context);},
     );
 
     return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: Theme.of(context).primaryColor,
-      resizeToAvoidBottomPadding: false, 
-      body: Center(
+        key: _scaffoldKey,
+        backgroundColor: Theme.of(context).primaryColor,
+        resizeToAvoidBottomPadding: false,
+        body: Center(
           child: new Form(
             key: _formKey,
             child: new ListView(
