@@ -1,3 +1,7 @@
+/// Academic term creation view
+/// View screen to create a new AcademicTerm
+/// @author Julian Vu
+///
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/academic_term.dart';
@@ -15,7 +19,7 @@ class _AddTermViewState extends State<AddTermView> {
 
   final _termNameController = TextEditingController();
 
-  Future<Null> _selectStartDate(BuildContext context) async {
+  Future<Null> _selectDate(bool isStart, BuildContext context) async {
     // Hide keyboard before showing date picker
     FocusScope.of(context).requestFocus(FocusNode());
 
@@ -31,31 +35,8 @@ class _AddTermViewState extends State<AddTermView> {
     if (picked != null) {
       print("Date selected: ${picked.toString()}");
       setState(() {
-        newStartDate = picked;
-        print(newStartDate.toString());
-      });
-    }
-  }
-
-  Future<Null> _selectEndDate(BuildContext context) async {
-    // Hide keyboard before showing date picker
-    FocusScope.of(context).requestFocus(FocusNode());
-
-    // Add delay to be sure keyboard is no longer visible
-    await Future.delayed(Duration(milliseconds: 200));
-
-    final DateTime picked = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(1990),
-        lastDate: DateTime(3000)
-    );
-
-    if (picked != null) {
-      print("Date selected: ${picked.toString()}");
-      setState(() {
-        newEndDate = picked;
-        print(newEndDate.toString());
+        isStart? newStartDate = picked : newEndDate = picked;
+        print(isStart? newStartDate.toString() : newEndDate.toString());
       });
     }
   }
@@ -103,7 +84,7 @@ class _AddTermViewState extends State<AddTermView> {
             height: 32.0,
             width: double.infinity,
             child: FlatButton(
-              onPressed: () => _selectStartDate(context),
+              onPressed: () => _selectDate(true, context),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
@@ -127,7 +108,7 @@ class _AddTermViewState extends State<AddTermView> {
             height: 32.0,
             width: double.infinity,
             child: FlatButton(
-              onPressed: () => _selectEndDate(context),
+              onPressed: () => _selectDate(false, context),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
