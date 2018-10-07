@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/class.dart';
+import 'package:cognito/views/add_class_view.dart';
 
 class TermDetailsView extends StatefulWidget {
   // Hold academic term object
@@ -91,6 +92,20 @@ class _TermDetailsViewState extends State<TermDetailsView> {
           ],
         ),
       ),
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          print("Tapped on plus button");
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddClassView()));
+        },
+
+        child: Icon(
+          Icons.add,
+          size: 42.0,
+        ),
+        backgroundColor: Theme.of(context).accentColor,
+        foregroundColor: Colors.black,
+      ),
     );
   }
 }
@@ -164,7 +179,7 @@ class _ExpandableClassListState extends State<ExpandableClassList> {
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
-      leading: Icon(Icons.book),
+      leading: Icon(Icons.collections_bookmark),
       title: Text("Classes", style: Theme.of(context).accentTextTheme.body2,),
       children: widget.term.classes.isNotEmpty ?
         widget.term.classes.map((element) => ListTile(
