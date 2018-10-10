@@ -1,21 +1,21 @@
 /// Tester file for Task class
 import 'package:test/test.dart';
 import 'package:cognito/models/task.dart';
+import 'package:flutter/material.dart';
 
 void main() {
   test("Task Constructor Tests", () {
     Task testTask = Task(
       title: "CS 160 - Project Update",
       description: "Second project update",
-      start: DateTime(2018, 9, 24, 10),
-      end: DateTime(2018, 9, 24, 12),
+      start: TimeOfDay(hour: 10),
+      end: TimeOfDay(hour: 12),
       dueDate: DateTime(2018, 9, 25, 23, 59)
     );
 
     expect(testTask.title, equals("CS 160 - Project Update"));
     expect(testTask.description, equals("Second project update"));
     expect(testTask.location, equals(""));
-    expect(testTask.timeBlock[DateTime(2018, 9, 24, 10)], equals(DateTime(2018, 9, 24, 12)));
     expect(testTask.dueDate, equals(DateTime(2018, 9, 25, 23, 59)));
   });
 

@@ -4,6 +4,7 @@ import 'package:cognito/models/grade_calculator.dart';
 import 'package:test/test.dart';
 import 'package:cognito/models/class.dart';
 import 'package:cognito/models/task.dart';
+import 'package:flutter/material.dart';
 
 void main(){
   test("Class Constructor Tests", (){
@@ -11,8 +12,8 @@ void main(){
       title: "Test Class title",
       description: "This is a test", 
       location: "Test location",
-      start: DateTime.now(),
-      end: DateTime(2018, 12, 12), 
+      start: TimeOfDay.now(),
+      end: TimeOfDay(hour: 11, minute: 59),
       courseNumber: "146",
       instructor: "Test instructor",
       officeLocation: "Test location",
@@ -48,8 +49,8 @@ void main(){
   test("Test optional arguments constuctor", (){
     Class testClass2 = Class(
       title: "Test optional constructor",
-      start: DateTime.now(),
-      end: DateTime(2018, 12, 12), 
+      start: TimeOfDay.now(),
+      end: TimeOfDay(hour: 11, minute: 59),
       courseNumber: "146",
       instructor: "Test instructor",
       officeLocation: "San Jose",
