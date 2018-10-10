@@ -2,6 +2,7 @@
 /// @author Julian Vu
 import 'package:cognito/models/event.dart';
 import 'package:cognito/models/task.dart';
+import 'package:flutter/material.dart';
 
 class Club extends Event {
   List<String> officers;
@@ -12,8 +13,8 @@ class Club extends Event {
       {String title,
       String description = "",
       String location = "",
-      DateTime start,
-      DateTime end})
+      TimeOfDay start,
+      TimeOfDay end})
       : super(
             title: title,
             description: description,

@@ -2,6 +2,7 @@
 /// @author Julian Vu
 ///
 import 'package:cognito/models/task.dart';
+import 'package:flutter/material.dart';
 
 class Assignment extends Task {
   double pointsPossible, pointsEarned, _rawScore;
@@ -11,8 +12,8 @@ class Assignment extends Task {
       {String title,
         String description = "",
         String location = "",
-        DateTime start,
-        DateTime end,
+        TimeOfDay start,
+        TimeOfDay end,
         DateTime dueDate,
         double pointsPossible = 0.0,
         double pointsEarned = 0.0,
