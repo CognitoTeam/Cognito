@@ -1,4 +1,5 @@
 
+import 'package:cognito/models/Category.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/class.dart';

@@ -1,6 +1,7 @@
+import 'package:cognito/models/Category.dart';
 /// Calculates grade
 /// @author Julian Vu
-///
+
 import 'package:cognito/models/assignment.dart';
 class GradeCalculator {
 
@@ -187,15 +188,3 @@ class GradeCalculator {
   }
 }
 
-/// Models a category of an assignment in a grade book
-class Category {
-  String title;
-  double weightInPercentage, pointsEarned, pointsPossible;
-
-  Category({String title, double weightInPercentage}) {
-    this.title = title;
-    this.weightInPercentage = weightInPercentage;
-    this.pointsEarned = 0.0;
-    this.pointsPossible = 0.0;
-  }
-}
