@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:cognito/models/all_terms.dart';
+import 'package:cognito/views/term_storage.dart';
 /// Academic term view screen
 /// Displays AcademicTerm objects in the form of cards
 /// @author Julian Vu
@@ -7,20 +11,38 @@ import 'package:cognito/views/add_term_view.dart';
 import 'package:cognito/views/term_details_view.dart';
 
 class AcademicTermView extends StatefulWidget {
+  final TermStorage storage = TermStorage();
   static String tag = "academic-term-view";
   @override
   _AcademicTermViewState createState() => _AcademicTermViewState();
 }
 
 class _AcademicTermViewState extends State<AcademicTermView> {
-
+  AllTerms _allTerms = AllTerms();
   // List of academic terms
-  List<AcademicTerm> _terms = List();
+ 
 
+@override
+  void initState() {
+    super.initState();
+    widget.storage.readJSON().then((String jsonString) {
+      setState(() {
+        final jsonTerms = json.decode(jsonString);
+        AllTerms allTerms = AllTerms.fromJson(jsonTerms);
+        _allTerms.terms = allTerms.terms;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    //WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
   // Remove terms of list
   void removeTerm(AcademicTerm termToRemove) {
     setState(() {
-      _terms.remove(termToRemove);
+      _allTerms.terms.remove(termToRemove);
     });
   }
 
@@ -35,12 +57,12 @@ class _AcademicTermViewState extends State<AcademicTermView> {
         backgroundColor: Theme.of(context).primaryColorDark,
       ),
 
-      body: _terms.isNotEmpty
+      body: _allTerms.terms.isNotEmpty
           ? ListView.builder(
-              itemCount: _terms.length,
+              itemCount: _allTerms.terms.length,
               itemBuilder: (BuildContext context, int index) {
                 // Grab academic term from list
-                AcademicTerm term = _terms[index];
+                AcademicTerm term = _allTerms.terms[index];
 
                 // Academic Term Card
                 return Container(
@@ -60,10 +82,12 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                       child: Dismissible(
                         // Key needs to be unique for card dismissal to work
                         // Use start date's string representation as key
-                        key: Key(_terms[index].startTime.toString()),
+                        key: Key(_allTerms.terms[index].startTime.toString()),
                         direction: DismissDirection.endToStart,
                         onDismissed: (direction) {
                           removeTerm(term);
+                          String jsonString = json.encode(_allTerms);
+                          widget.storage.writeJSON(jsonString);
                           Scaffold.of(context).showSnackBar(
                             SnackBar(
                               content: Text("${term.termName} deleted"),
@@ -110,7 +134,9 @@ class _AcademicTermViewState extends State<AcademicTermView> {
           // Retrieve Academic Term object from AddTermView
           final result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddTermView()));
           if (result != null) {
-            _terms.add(result);
+            _allTerms.terms.add(result);
+            String jsonString = json.encode(_allTerms);
+            widget.storage.writeJSON(jsonString);
           }
         },
         child: Icon(

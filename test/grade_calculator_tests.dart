@@ -1,3 +1,4 @@
+import 'package:cognito/models/Category.dart';
 /// Tester file for GradeCalculator class
 import 'package:test/test.dart';
 import 'package:cognito/models/grade_calculator.dart';

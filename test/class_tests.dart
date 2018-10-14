@@ -1,3 +1,4 @@
+import 'package:cognito/models/Category.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/grade_calculator.dart';
 ///Tester for Class class
@@ -12,8 +13,8 @@ void main(){
       title: "Test Class title",
       description: "This is a test", 
       location: "Test location",
-      start: TimeOfDay.now(),
-      end: TimeOfDay(hour: 11, minute: 59),
+      start: DateTime.now(),
+      end: DateTime(2018, 0, 0, 11, 44),
       courseNumber: "146",
       instructor: "Test instructor",
       officeLocation: "Test location",
@@ -49,8 +50,8 @@ void main(){
   test("Test optional arguments constuctor", (){
     Class testClass2 = Class(
       title: "Test optional constructor",
-      start: TimeOfDay.now(),
-      end: TimeOfDay(hour: 11, minute: 59),
+      start: DateTime.now(),
+      end: DateTime(2018, 0, 0, 11, 44),
       courseNumber: "146",
       instructor: "Test instructor",
       officeLocation: "San Jose",
