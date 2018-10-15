@@ -4,7 +4,6 @@ import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/class.dart';
 import 'package:cognito/models/gpa-calculator.dart';
-import 'package:cognito/models/grade_calculator.dart';
 import 'package:test/test.dart';
 
 void main(){

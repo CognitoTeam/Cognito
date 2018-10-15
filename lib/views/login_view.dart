@@ -45,7 +45,7 @@ class _LoginViewState extends State<LoginView> {
         }
         if (firebaseUser != null) {
           print("Logged in!");
-          Navigator.push(context, MaterialPageRoute(builder: (context) => AcademicTermView()));
+          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => AcademicTermView()), ModalRoute.withName("/Home"));
           return true;
         } else {
           return false;

@@ -1,6 +1,8 @@
 import 'package:path_provider/path_provider.dart';
 import 'dart:async';
 import 'dart:io';
+///Local storage for terms
+/// @author Praneet Singh
 class TermStorage {
 
   Future<String> get _localPath async {
