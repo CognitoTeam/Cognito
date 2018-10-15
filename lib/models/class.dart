@@ -2,6 +2,7 @@ import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/models/grade_calculator.dart';
 import 'package:cognito/models/task.dart';
+import 'package:flutter/material.dart';
 
 /// Class extends event class
 /// @author Praneet Singh
@@ -17,8 +18,8 @@ class Class extends Event {
       {String title, 
       String description = "", 
       String location = "", 
-      DateTime start, 
-      DateTime end, 
+      TimeOfDay start,
+      TimeOfDay end,
       String courseNumber, 
       String instructor, 
       String officeLocation, 

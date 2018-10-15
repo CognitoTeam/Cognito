@@ -2,6 +2,7 @@
 import 'package:test/test.dart';
 import 'package:cognito/models/club.dart';
 import 'package:cognito/models/event.dart';
+import 'package:flutter/material.dart';
 
 void main() {
   test("Test Club Constructor", () {
@@ -9,14 +10,13 @@ void main() {
       title: "STEM",
       description: "Science Technology Engineering Math club",
       location: "BGHS",
-      start: DateTime.now(),
-      end: DateTime.now()
+      start: TimeOfDay.now(),
+      end: TimeOfDay.now()
     );
 
     expect(stem.title, equals("STEM"));
     expect(stem.description, equals("Science Technology Engineering Math club"));
     expect(stem.location, equals("BGHS"));
-    expect(stem.timeBlock.length, equals(1));
     expect(stem.officers.isEmpty, isTrue);
     expect(stem.events.isEmpty, isTrue);
     expect(stem.tasks.isEmpty, isTrue);
@@ -27,8 +27,8 @@ void main() {
         title: "STEM",
         description: "Science Technology Engineering Math club",
         location: "BGHS",
-        start: DateTime.now(),
-        end: DateTime.now()
+        start: TimeOfDay.now(),
+        end: TimeOfDay.now()
     );
 
     stem.addOfficer("David Chuong");
