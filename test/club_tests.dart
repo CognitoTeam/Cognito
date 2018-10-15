@@ -2,7 +2,6 @@
 import 'package:test/test.dart';
 import 'package:cognito/models/club.dart';
 import 'package:cognito/models/event.dart';
-import 'package:flutter/material.dart';
 
 void main() {
   test("Test Club Constructor", () {

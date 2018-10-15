@@ -1,7 +1,10 @@
 import 'dart:convert';
-
 import 'package:cognito/models/all_terms.dart';
+import 'package:cognito/views/database.dart';
+import 'package:cognito/views/firebase_login.dart';
+import 'package:cognito/views/login_selection_view.dart';
 import 'package:cognito/views/term_storage.dart';
+
 /// Academic term view screen
 /// Displays AcademicTerm objects in the form of cards
 /// @author Julian Vu
@@ -18,27 +21,38 @@ class AcademicTermView extends StatefulWidget {
 }
 
 class _AcademicTermViewState extends State<AcademicTermView> {
+  final FireBaseLogin _fireBaseLogin = FireBaseLogin();
   AllTerms _allTerms = AllTerms();
   // List of academic terms
- 
+  DataBase dataBase = DataBase();
 
-@override
-  void initState() {
-    super.initState();
-    widget.storage.readJSON().then((String jsonString) {
-      setState(() {
-        final jsonTerms = json.decode(jsonString);
-        AllTerms allTerms = AllTerms.fromJson(jsonTerms);
-        _allTerms.terms = allTerms.terms;
-      });
+  Future<bool> startFireStore() async {
+    String jsonString = await dataBase.initializeFireStore();
+    setState(() {
+      print("Read from the disk and populate UI");
+      final jsonTerms = json.decode(jsonString);
+      AllTerms allTerms = AllTerms.fromJson(jsonTerms);
+      _allTerms.terms = allTerms.terms;
     });
   }
 
   @override
-  void dispose() {
-    //WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
+  void initState() {
+    super.initState();
+    setState(() {
+      startFireStore();
+    });
   }
+
+  Future<bool> _signOutUser() async {
+    final api = await _fireBaseLogin.signOutUser();
+    if (api != null) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   // Remove terms of list
   void removeTerm(AcademicTerm termToRemove) {
     setState(() {
@@ -55,6 +69,26 @@ class _AcademicTermViewState extends State<AcademicTermView> {
           style: Theme.of(context).primaryTextTheme.title,
         ),
         backgroundColor: Theme.of(context).primaryColorDark,
+        actions: <Widget>[
+          FlatButton(
+            child: Text(
+              "Sign out",
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+            onPressed: () async {
+              bool b = await _signOutUser();
+
+              b
+                  ? Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => LoginSelectionView()))
+                  : print("Error SignOut!");
+            },
+          ),
+        ],
       ),
 
       body: _allTerms.terms.isNotEmpty
@@ -73,9 +107,11 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                     // Inkwell makes card "tappable"
                     child: InkWell(
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => TermDetailsView(term: term))
-                        );
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    TermDetailsView(term: term)));
                       },
 
                       // Dismissible allows for swiping to delete
@@ -88,11 +124,10 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                           removeTerm(term);
                           String jsonString = json.encode(_allTerms);
                           widget.storage.writeJSON(jsonString);
-                          Scaffold.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("${term.termName} deleted"),
-                            )
-                          );
+                          dataBase.update();
+                          Scaffold.of(context).showSnackBar(SnackBar(
+                            content: Text("${term.termName} deleted"),
+                          ));
                         },
                         child: Card(
                           child: Column(
@@ -132,11 +167,13 @@ class _AcademicTermViewState extends State<AcademicTermView> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           // Retrieve Academic Term object from AddTermView
-          final result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddTermView()));
+          final result = await Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => AddTermView()));
           if (result != null) {
             _allTerms.terms.add(result);
             String jsonString = json.encode(_allTerms);
             widget.storage.writeJSON(jsonString);
+            dataBase.update();
           }
         },
         child: Icon(

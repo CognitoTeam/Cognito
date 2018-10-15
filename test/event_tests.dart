@@ -1,7 +1,6 @@
 /// Tester file for Event class
 import 'package:test/test.dart';
 import 'package:cognito/models/event.dart';
-import 'package:flutter/material.dart';
 import 'dart:convert';
 
 void main() {

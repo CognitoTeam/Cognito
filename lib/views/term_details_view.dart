@@ -67,6 +67,7 @@ class _TermDetailsViewState extends State<TermDetailsView> {
                             print(val);
                             setState(() {
                               widget.term.termName = val;
+                              
                             });
                             Navigator.pop(context);
                           },

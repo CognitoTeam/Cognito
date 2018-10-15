@@ -11,16 +11,24 @@ class FireBaseLogin {
 
   Future<FirebaseUser> signInGoogleUser() async {
     GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
-    GoogleSignInAuthentication googleSignInAuthentication= await googleSignInAccount.authentication;
+    GoogleSignInAuthentication googleSignInAuthentication =
+        await googleSignInAccount.authentication;
 
     _user = await _auth.signInWithGoogle(
-        idToken: googleSignInAuthentication.idToken, accessToken: googleSignInAuthentication.accessToken);
+        idToken: googleSignInAuthentication.idToken,
+        accessToken: googleSignInAuthentication.accessToken);
     print("User Name : ${_user.displayName}");
     return _user;
   }
+
+  Future<String> fireBaseUserID() async{
+  final FirebaseUser currentUser =  await _auth.currentUser();
+  return currentUser.uid;
+  }
   ///User can sign in with email and password
   Future<FirebaseUser> signEmailIn(String email, String password) async {
-    FirebaseUser user = await _auth.signInWithEmailAndPassword(email: email, password: password);
+    FirebaseUser user = await _auth.signInWithEmailAndPassword(
+        email: email, password: password);
     assert(user != null);
     assert(await user.getIdToken() != null);
 
@@ -33,7 +41,8 @@ class FireBaseLogin {
 
   ///User can create a new account
   Future<FirebaseUser> createEmailUser(String email, String password) async {
-    FirebaseUser user = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+    FirebaseUser user = await _auth.createUserWithEmailAndPassword(
+        email: email, password: password);
     assert(user != null);
     assert(await user.getIdToken() != null);
 
@@ -44,14 +53,20 @@ class FireBaseLogin {
     return user;
   }
 
+  Future<String> currentUser() async {
+    FirebaseUser user = await _auth.currentUser();
+    return user?.uid;
+  }
+
   ///User can reset password through email verification
   Future<void> sendPasswordResetEmail(String email) async {
     return _auth.sendPasswordResetEmail(email: email);
   }
+
   Future<FirebaseUser> signOutUser() async {
     await _auth.signOut();
     await _googleSignIn.signOut();
     print("User Signed out");
+    return _auth.currentUser();
   }
-
 }

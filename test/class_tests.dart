@@ -1,11 +1,9 @@
+///Tester for Class class
 import 'package:cognito/models/Category.dart';
 import 'package:cognito/models/assignment.dart';
-import 'package:cognito/models/grade_calculator.dart';
-///Tester for Class class
 import 'package:test/test.dart';
 import 'package:cognito/models/class.dart';
 import 'package:cognito/models/task.dart';
-import 'package:flutter/material.dart';
 
 void main(){
   test("Class Constructor Tests", (){

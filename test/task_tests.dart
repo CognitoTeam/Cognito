@@ -1,8 +1,6 @@
 /// Tester file for Task class
 import 'package:test/test.dart';
 import 'package:cognito/models/task.dart';
-import 'package:flutter/material.dart';
-import 'dart:convert';
 void main() {
   test("Task Constructor Tests", () {
     Task testTask = Task(
@@ -33,13 +31,6 @@ void main() {
       title: "Test Subtask",
       dueDate: DateTime(2018, 9, 25, 23, 59)
     );
-
-    //testTask.addSubTask(testSubTask);
-  // String jsonString = json.encode(testTask);
-  //final jsonEvent = json.decode(jsonString);
-  //Task event = Task.fromJson(jsonEvent);
-
-  //print(jsonString);
 
     expect(testTask.title, equals("CS 160 - Project Update"));
     expect(testTask.description, equals("Second project update"));
