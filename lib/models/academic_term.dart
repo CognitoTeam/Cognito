@@ -48,5 +48,11 @@ class AcademicTerm {
     void removeClub(Club club){
       clubs.remove(club);
     }
-  
+
+    @override
+    String toString() {
+      return this.termName + this.startTime.toIso8601String() + this.endTime.toIso8601String();
+    }
+
+
 }
