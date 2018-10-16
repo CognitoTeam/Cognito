@@ -15,6 +15,7 @@ class TermDetailsView extends StatefulWidget {
 
   @override
   _TermDetailsViewState createState() => _TermDetailsViewState();
+
 }
 
 class _TermDetailsViewState extends State<TermDetailsView> {
@@ -24,8 +25,9 @@ class _TermDetailsViewState extends State<TermDetailsView> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: BackButton(),
+          icon: BackButtonIcon(),
           onPressed: () {
+            print("Returning a term");
             Navigator.of(context).pop(widget.term);
           },
         ),

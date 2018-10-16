@@ -110,12 +110,23 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                         // Reference changed to object modified in details
                         // The term should be updated upoen returning from
                         // this navigation
-                        term = await Navigator.push(
+                        await Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => TermDetailsView(term: term)
-                            )
-                        );
+                                builder: (context) =>
+                                    TermDetailsView(term: term))).then((term) {
+                          if (term != null) {
+                            print("Term returned");
+                            String jsonString = json.encode(_allTerms);
+                            print("Encoding terms");
+                            widget.storage.writeJSON(jsonString);
+                            print("Writing database to storage");
+                            dataBase.update();
+                            print("Update database");
+                          }else{
+                            print("Term was null");
+                          }
+                        });
                       },
 
                       // Dismissible allows for swiping to delete
