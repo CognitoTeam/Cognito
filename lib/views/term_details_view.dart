@@ -23,6 +23,12 @@ class _TermDetailsViewState extends State<TermDetailsView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: BackButton(),
+          onPressed: () {
+            Navigator.of(context).pop(widget.term);
+          },
+        ),
         title: Text(
           widget.term.termName,
           style: Theme.of(context).primaryTextTheme.title,

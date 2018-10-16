@@ -106,12 +106,16 @@ class _AcademicTermViewState extends State<AcademicTermView> {
 
                     // Inkwell makes card "tappable"
                     child: InkWell(
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        // Reference changed to object modified in details
+                        // The term should be updated upoen returning from
+                        // this navigation
+                        term = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) =>
-                                    TermDetailsView(term: term)));
+                                builder: (context) => TermDetailsView(term: term)
+                            )
+                        );
                       },
 
                       // Dismissible allows for swiping to delete
