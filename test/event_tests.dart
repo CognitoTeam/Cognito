@@ -1,7 +1,7 @@
 /// Tester file for Event class
 import 'package:test/test.dart';
 import 'package:cognito/models/event.dart';
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
 void main() {
   test("Event Constructor Tests", () {
@@ -9,21 +9,67 @@ void main() {
         title: "Test Event Title",
         description: "This is a test Event object.",
         location: "Home",
-        start: TimeOfDay.now(),
-        end: TimeOfDay(hour: 11, minute: 59)
+        start: DateTime.now(),
+        end: DateTime(2018, 0, 0, 11, 44),
     );
     expect(testEvent.title, equals("Test Event Title"));
     expect(testEvent.description, "This is a test Event object.");
     expect(testEvent.location, equals("Home"));
   });
 
+  test("Event JSon Tests", () {
+    List<int> days = [1,2,3];
+    Event testEvent = Event(
+        title: "Test Event Title",
+        description: "This is a test Event object.",
+        location: "Home",
+        start: DateTime.now(),
+        end: DateTime(2018, 0, 0, 11, 44),
+        isRepeated: true,
+        daysOfEvent: days
+
+    );
+
+  
+  String jsonString = json.encode(testEvent);
+  final jsonEvent = json.decode(jsonString);
+  Event event = Event.fromJson(jsonEvent);
+  print(jsonString);
+  
+
+    expect(testEvent.title, equals(event.title));
+    expect(testEvent.description, equals(event.description));
+    expect(testEvent.location, equals(event.location));
+    expect(testEvent.startTime, equals(event.startTime));
+    expect(testEvent.endTime, equals(event.endTime));
+    expect(testEvent.isRepeated, equals(event.isRepeated));
+    expect(testEvent.daysOfEvent, equals(event.daysOfEvent));
+
+  });
+test("Event Time Parse Tests", () {
+    List<int> days = [1,2,3];
+    Event testEvent = Event(
+        title: "Test Event Title",
+        description: "This is a test Event object.",
+        location: "Home",
+        start: DateTime.now(),
+        end: DateTime(2018, 0, 0, 11, 44),
+        isRepeated: true,
+        daysOfEvent: days
+
+    );
+
+
+
+
+  });
   test("Event Modification Tests", () {
     Event testEvent = Event(
         title: "Test Event Title",
         description: "This is a test Event object.",
         location: "Home",
-        start: TimeOfDay.now(),
-        end: TimeOfDay(hour: 11, minute: 59)
+        start: DateTime.now(),
+        end: DateTime(2018, 0, 0, 11, 44),
     );
 
     testEvent.title = "Changed event title";
@@ -49,7 +95,8 @@ void main() {
       title: "Second Event",
       location: "Home",
       description: "Out of order description",
-      start: TimeOfDay.now(),
+      start: DateTime.now(),
+        end: DateTime(2018, 0, 0, 11, 44),
     );
 
     expect(testEvent2.title, equals("Second Event"));

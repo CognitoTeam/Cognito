@@ -3,6 +3,10 @@
 
 import 'package:cognito/models/class.dart';
 import 'package:cognito/models/club.dart';
+import 'package:json_annotation/json_annotation.dart';
+part 'academic_term.g.dart';
+
+@JsonSerializable()
 
 class AcademicTerm {
     String termName;
@@ -16,6 +20,10 @@ class AcademicTerm {
       classes = Set();
       clubs = Set();
     }
+    factory AcademicTerm.fromJson(Map<String, dynamic> json) => _$AcademicTermFromJson(json);
+
+
+  Map<String, dynamic> toJson() => _$AcademicTermToJson(this);
 
     String getStartDateAsString() {
       return "${startTime.month}/${startTime.day}/${startTime.year}";
@@ -40,4 +48,11 @@ class AcademicTerm {
     void removeClub(Club club){
       clubs.remove(club);
     }
+
+    @override
+    String toString() {
+      return this.termName + this.startTime.toIso8601String() + this.endTime.toIso8601String();
+    }
+
+
 }

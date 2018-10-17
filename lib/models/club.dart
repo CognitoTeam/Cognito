@@ -2,7 +2,11 @@
 /// @author Julian Vu
 import 'package:cognito/models/event.dart';
 import 'package:cognito/models/task.dart';
-import 'package:flutter/material.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'club.g.dart';
+
+@JsonSerializable()
 
 class Club extends Event {
   List<String> officers;
@@ -13,8 +17,8 @@ class Club extends Event {
       {String title,
       String description = "",
       String location = "",
-      TimeOfDay start,
-      TimeOfDay end})
+      DateTime start,
+      DateTime end})
       : super(
             title: title,
             description: description,
@@ -25,7 +29,9 @@ class Club extends Event {
     events = List();
     tasks = List();
   }
+factory Club.fromJson(Map<String, dynamic> json) => _$ClubFromJson(json);
 
+  Map<String, dynamic> toJson() => _$ClubToJson(this);
   /// Adds a club event to list of events
   void addEvent(Event event) {
     events.add(event);
