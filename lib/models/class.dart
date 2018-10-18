@@ -1,4 +1,4 @@
-import 'package:cognito/models/Category.dart';
+import 'package:cognito/models/category.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/models/grade_calculator.dart';

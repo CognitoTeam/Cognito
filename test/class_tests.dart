@@ -1,5 +1,5 @@
 ///Tester for Class class
-import 'package:cognito/models/Category.dart';
+import 'package:cognito/models/category.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:test/test.dart';
 import 'package:cognito/models/class.dart';

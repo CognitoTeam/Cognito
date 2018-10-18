@@ -1,4 +1,4 @@
-import 'package:cognito/models/Category.dart';
+import 'package:cognito/models/category.dart';
 /// Models an assignment for a class
 /// @author Julian Vu
 ///
