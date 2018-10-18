@@ -1,4 +1,4 @@
-import 'package:cognito/models/Category.dart';
+import 'package:cognito/models/category.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/models/grade_calculator.dart';
@@ -32,13 +32,16 @@ class Class extends Event {
       String instructor,
       String officeLocation,
       String subjectArea,
-      int units})
+      int units,
+      List<int> daysOfEvent})
       : super(
           title: title,
           description: description,
           location: location,
           start: start,
           end: end,
+          isRepeated: true,
+          daysOfEvent: daysOfEvent
         ) {
     this.courseNumber = courseNumber;
     this.instructor = instructor;
@@ -105,4 +108,11 @@ class Class extends Event {
         print("Invalid key");
     }
   }
+
+  @override
+  String toString() {
+    return "Title: " + this.title + "\n";
+  }
+
+
 }

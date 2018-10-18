@@ -1,4 +1,4 @@
-import 'package:cognito/models/Category.dart';
+import 'package:cognito/models/category.dart';
 /// Calculates grade
 /// @author Julian Vu
 

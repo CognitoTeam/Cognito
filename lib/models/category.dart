@@ -1,6 +1,6 @@
 /// Models a category of an assignment in a grade book
 import 'package:json_annotation/json_annotation.dart';
-part 'Category.g.dart';
+part 'category.g.dart';
 
 @JsonSerializable()
 
