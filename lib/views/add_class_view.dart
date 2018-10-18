@@ -119,7 +119,9 @@ class _AddClassViewState extends State<AddClassView> {
                       instructor: _instructorController.text,
                       officeLocation: _officeLocationController.text,
                       description: _descriptionController.text,
-                      daysOfEvent: daysOfEvent)
+                      daysOfEvent: daysOfEvent,
+                      start: startTime,
+                      end: endTime)
                   : null);
             },
           ),
