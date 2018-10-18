@@ -6,15 +6,16 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/class.dart';
 
-class AddClassView extends StatefulWidget {
+enum Day {M, Tu, W, Th, F, Sat, Sun}
 
+class AddClassView extends StatefulWidget {
   @override
   _AddClassViewState createState() => _AddClassViewState();
 }
 
 class _AddClassViewState extends State<AddClassView> {
-  TimeOfDay startTime, endTime;
-  String className;
+  DateTime startTime, endTime;
+  List<int> daysOfEvent = List();
 
   final _subjectController = TextEditingController();
   final _courseNumberController = TextEditingController();
@@ -25,7 +26,13 @@ class _AddClassViewState extends State<AddClassView> {
   final _officeLocationController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  ListTile textFieldTile({Widget leading, Widget trailing, TextInputType keyboardType, String hint, Widget subtitle, TextEditingController controller}) {
+  ListTile textFieldTile(
+      {Widget leading,
+      Widget trailing,
+      TextInputType keyboardType,
+      String hint,
+      Widget subtitle,
+      TextEditingController controller}) {
     return ListTile(
       leading: leading,
       trailing: trailing,
@@ -40,7 +47,33 @@ class _AddClassViewState extends State<AddClassView> {
         ),
       ),
       subtitle: subtitle,
+    );
+  }
 
+  void selectDay(Day day) {
+    setState(() {
+      daysOfEvent.add(day.index + 1);
+    });
+  }
+
+  void deselectDay(Day day) {
+    setState(() {
+      daysOfEvent.remove(day.index + 1);
+    });
+  }
+
+  Column daySelectionColumn(Day day) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Text(day.toString().substring(4)),
+        Checkbox(
+          value: daysOfEvent.contains(day.index + 1),
+          onChanged: (bool e) {
+            daysOfEvent.contains(day.index + 1) ? deselectDay(day) : selectDay(day);
+          },
+        ),
+      ],
     );
   }
 
@@ -59,7 +92,9 @@ class _AddClassViewState extends State<AddClassView> {
     if (picked != null) {
       print("Date selected: ${picked.toString()}");
       setState(() {
-        isStart ? startTime = picked : endTime = picked;
+        isStart
+            ? startTime = DateTime(2018, 1, 1, picked.hour, picked.minute)
+            : endTime = DateTime(2018, 1, 1, picked.hour, picked.minute);
         print(isStart ? startTime.toString() : endTime.toString());
       });
     }
@@ -69,58 +104,41 @@ class _AddClassViewState extends State<AddClassView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add New Academic Term"),
+        title: Text("Add New Class"),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.check),
             onPressed: () {
               Navigator.of(context).pop(_subjectController != null
-                  ? Class(subjectArea: _subjectController.text)
+                  ? Class(
+                      subjectArea: _subjectController.text,
+                      courseNumber: _courseNumberController.text,
+                      title: _courseTitleController.text,
+                      units: int.parse(_unitCountController.text),
+                      location: _locationController.text,
+                      instructor: _instructorController.text,
+                      officeLocation: _officeLocationController.text,
+                      description: _descriptionController.text,
+                      daysOfEvent: daysOfEvent)
                   : null);
             },
           ),
         ],
       ),
-
       body: ListView(
         children: <Widget>[
           Padding(padding: EdgeInsets.all(0.0)),
-
+          textFieldTile(hint: "Subject", controller: _subjectController),
           textFieldTile(
-            hint: "Subject",
-            controller: _subjectController
-          ),
-
+              hint: "Course number", controller: _courseNumberController),
           textFieldTile(
-            hint: "Course number",
-            controller: _courseNumberController
-          ),
-
+              hint: "Course title", controller: _courseTitleController),
           textFieldTile(
-            hint: "Course title",
-            controller: _courseTitleController
-          ),
-
+              hint: "Number of units", controller: _unitCountController),
+          textFieldTile(hint: "Location", controller: _locationController),
+          textFieldTile(hint: "Instructor", controller: _instructorController),
           textFieldTile(
-            hint: "Number of units",
-            controller: _unitCountController
-          ),
-
-          textFieldTile(
-            hint: "Location",
-            controller: _locationController
-          ),
-
-          textFieldTile(
-            hint: "Instructor",
-            controller: _instructorController
-          ),
-
-          textFieldTile(
-            hint: "Office location",
-            controller: _officeLocationController
-          ),
-
+              hint: "Office location", controller: _officeLocationController),
           ListTile(
             title: TextFormField(
               controller: _descriptionController,
@@ -130,12 +148,10 @@ class _AddClassViewState extends State<AddClassView> {
               textInputAction: TextInputAction.done,
               maxLines: 5,
               decoration: InputDecoration(
-                hintText: "Description",
-                hintStyle: TextStyle(color: Colors.black45)
-              ),
+                  hintText: "Description",
+                  hintStyle: TextStyle(color: Colors.black45)),
             ),
           ),
-
           ListTile(
             leading: Icon(Icons.access_time),
             title: Text(
@@ -143,14 +159,11 @@ class _AddClassViewState extends State<AddClassView> {
               style: Theme.of(context).accentTextTheme.body2,
             ),
             trailing: Text(
-              startTime != null
-                  ? startTime.toString()
-                  : "",
+              startTime != null ? startTime.toString() : "",
             ),
             onTap: () => _selectTime(true, context),
           ),
           Divider(),
-
           ListTile(
             leading: Icon(Icons.access_time),
             title: Text(
@@ -158,88 +171,22 @@ class _AddClassViewState extends State<AddClassView> {
               style: Theme.of(context).accentTextTheme.body2,
             ),
             trailing: Text(
-              endTime != null
-                  ? endTime.toString()
-                  : "",
+              endTime != null ? endTime.toString() : "",
             ),
             onTap: () => _selectTime(false, context),
           ),
           Divider(),
-
           ListTile(
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text("Sun"),
-                    Checkbox(
-                      value: false,
-                      onChanged: (bool e) {},
-                    ),
-                  ],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text("M"),
-                    Checkbox(
-                      value: false,
-                      onChanged: (bool e) {},
-                    ),
-                  ],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text("Tu"),
-                    Checkbox(
-                      value: false,
-                      onChanged: (bool e) {},
-                    ),
-                  ],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text("W"),
-                    Checkbox(
-                      value: false,
-                      onChanged: (bool e) {},
-                    ),
-                  ],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text("Th"),
-                    Checkbox(
-                      value: false,
-                      onChanged: (bool e) {},
-                    ),
-                  ],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text("F"),
-                    Checkbox(
-                      value: false,
-                      onChanged: (bool e) {},
-                    ),
-                  ],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text("Sat"),
-                    Checkbox(
-                      value: false,
-                      onChanged: (bool e) {},
-                    ),
-                  ],
-                ),
+                daySelectionColumn(Day.Sun),
+                daySelectionColumn(Day.M),
+                daySelectionColumn(Day.Tu),
+                daySelectionColumn(Day.W),
+                daySelectionColumn(Day.Th),
+                daySelectionColumn(Day.F),
+                daySelectionColumn(Day.Sat),
               ],
             ),
           ),
@@ -248,6 +195,3 @@ class _AddClassViewState extends State<AddClassView> {
     );
   }
 }
-
-
-

@@ -94,9 +94,13 @@ class _TermDetailsViewState extends State<TermDetailsView> {
       ),
 
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           print("Tapped on plus button");
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddClassView()));
+          Class result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddClassView()));
+          if (result != null) {
+            print(result.toString());
+            widget.term.addClass(result);
+          }
         },
 
         child: Icon(
