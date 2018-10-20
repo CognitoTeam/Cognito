@@ -50,18 +50,26 @@ class _AddClassViewState extends State<AddClassView> {
     );
   }
 
+  /// Helper function for selecting a day
+  /// Adds a day to the list of repeated days for this class
+  /// The day to add is the index of the day + 1 since enums start from 0
   void selectDay(Day day) {
     setState(() {
       daysOfEvent.add(day.index + 1);
     });
   }
 
+  /// Helper function for deselcting a day
+  /// Removes a day from list of repeated days for this class
+  /// The day to remove is the index of the day + 1 since enums start from 0
   void deselectDay(Day day) {
     setState(() {
       daysOfEvent.remove(day.index + 1);
     });
   }
 
+  /// Creates a Column object that contains a label for the day to be selected
+  /// and a check box for that day
   Column daySelectionColumn(Day day) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -130,17 +138,17 @@ class _AddClassViewState extends State<AddClassView> {
       body: ListView(
         children: <Widget>[
           Padding(padding: EdgeInsets.all(0.0)),
-          textFieldTile(hint: "Subject", controller: _subjectController),
+          textFieldTile(hint: "Subject e.g. CS", controller: _subjectController),
           textFieldTile(
-              hint: "Course number", controller: _courseNumberController),
+              hint: "Course number e.g. 146", controller: _courseNumberController),
           textFieldTile(
-              hint: "Course title", controller: _courseTitleController),
+              hint: "Course title e.g. Data Structures and Algorithms", controller: _courseTitleController),
           textFieldTile(
-              hint: "Number of units", controller: _unitCountController),
-          textFieldTile(hint: "Location", controller: _locationController),
-          textFieldTile(hint: "Instructor", controller: _instructorController),
+              hint: "Number of units e.g. 4", controller: _unitCountController),
+          textFieldTile(hint: "Location e.g. MQH 222", controller: _locationController),
+          textFieldTile(hint: "Instructor e.g. Dr. Potika", controller: _instructorController),
           textFieldTile(
-              hint: "Office location", controller: _officeLocationController),
+              hint: "Office location e.g. MQH 232", controller: _officeLocationController),
           ListTile(
             title: TextFormField(
               controller: _descriptionController,
@@ -161,7 +169,7 @@ class _AddClassViewState extends State<AddClassView> {
               style: Theme.of(context).accentTextTheme.body2,
             ),
             trailing: Text(
-              startTime != null ? startTime.toString() : "",
+              startTime != null ? startTime.hour.toString() + ":" + startTime.minute.toString() : "",
             ),
             onTap: () => _selectTime(true, context),
           ),
@@ -173,7 +181,7 @@ class _AddClassViewState extends State<AddClassView> {
               style: Theme.of(context).accentTextTheme.body2,
             ),
             trailing: Text(
-              endTime != null ? endTime.toString() : "",
+              endTime != null ? endTime.hour.toString() + ":" + endTime.minute.toString() : "",
             ),
             onTap: () => _selectTime(false, context),
           ),
