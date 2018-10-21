@@ -115,6 +115,7 @@ class _AddTaskViewState extends State<AddTaskView> {
                         description: _descriptionController.text,
                         daysOfEvent: daysOfEvent,
                         isRepeated: _isRepeated,
+                        dueDate: dueDate
                         )
                     : null);
               },
