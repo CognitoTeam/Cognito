@@ -15,7 +15,9 @@ Class _$ClassFromJson(Map<String, dynamic> json) {
       instructor: json['instructor'] as String,
       officeLocation: json['officeLocation'] as String,
       subjectArea: json['subjectArea'] as String,
-      units: json['units'] as int)
+      units: json['units'] as int,
+      daysOfEvent:
+          (json['daysOfEvent'] as List)?.map((e) => e as int)?.toList())
     ..startTime = json['startTime'] == null
         ? null
         : DateTime.parse(json['startTime'] as String)
@@ -23,8 +25,6 @@ Class _$ClassFromJson(Map<String, dynamic> json) {
         ? null
         : DateTime.parse(json['endTime'] as String)
     ..isRepeated = json['isRepeated'] as bool
-    ..daysOfEvent =
-        (json['daysOfEvent'] as List)?.map((e) => e as int)?.toList()
     ..officeHours = (json['officeHours'] as Map<String, dynamic>)?.map((k, e) =>
         MapEntry(
             k,

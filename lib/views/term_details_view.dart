@@ -1,3 +1,5 @@
+import 'package:cognito/models/task.dart';
+import 'package:cognito/views/add_task_view.dart';
 /// Academic term details view
 /// View screen to edit an AcademicTerm object
 /// @author Julian Vu
@@ -89,6 +91,7 @@ class _TermDetailsViewState extends State<TermDetailsView> {
 
             // Classes
             ExpandableClassList(widget.term),
+            ExpandableTaskList(widget.term),
           ],
         ),
       ),
@@ -199,5 +202,53 @@ class _ExpandableClassListState extends State<ExpandableClassList> {
   }
 }
 
+class ExpandableTaskList extends StatefulWidget {
 
+  final AcademicTerm term;
 
+  ExpandableTaskList(this.term);
+
+  @override
+  _ExpandableTaskListState createState() => _ExpandableTaskListState();
+}
+
+class _ExpandableTaskListState extends State<ExpandableTaskList> {
+
+  List<Widget> _listOfTasks(){
+    List<Widget> listTasks = List();
+    if(widget.term.tasks.isNotEmpty){
+        for(Task t in widget.term.tasks){
+            listTasks.add(ListTile(
+          title: Text(t.title, style: Theme.of(context).accentTextTheme.body2,),
+        ));
+        }
+    }else{
+        listTasks.add(ListTile(
+              title: Text("No tasks so far"),
+            ));
+    }
+    listTasks.add(ListTile(
+              title: Text("Add a new Task", style: Theme.of(context).accentTextTheme.body2,),
+              leading: Icon(Icons.add),
+              onTap: () async{ 
+                //TODO
+                Task result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddTaskView()));
+          if (result != null) {
+            print(result.title);
+            widget.term.addTask(result);
+          }else{
+
+          }
+                },
+            ),);
+      return listTasks;
+  }
+  @override
+  Widget build(BuildContext context) {
+    return ExpansionTile(
+      leading: Icon(Icons.check_box),
+      title: Text("Tasks", style: Theme.of(context).accentTextTheme.body2,),
+      children: _listOfTasks()  
+    );
+  }
+}
