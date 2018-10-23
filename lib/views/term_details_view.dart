@@ -78,8 +78,7 @@ class _TermDetailsViewState extends State<TermDetailsView> {
           ),
         ],
       ),
-      body: Container(
-        child: Column(
+      body: ListView(
           children: <Widget>[
             // Start Date
             DateRow(true, widget.term),
@@ -94,16 +93,16 @@ class _TermDetailsViewState extends State<TermDetailsView> {
             ExpandableTaskList(widget.term),
           ],
         ),
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           print("Tapped on plus button");
+          /*
           Class result = await Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => AddClassView()));
           if (result != null) {
             print(result.toString());
             widget.term.addClass(result);
-          }
+          }*/
         },
         child: Icon(
           Icons.add,
@@ -181,29 +180,56 @@ class ExpandableClassList extends StatefulWidget {
 }
 
 class _ExpandableClassListState extends State<ExpandableClassList> {
+    List<Widget> _listOfClass() {
+    List<Widget> listTasks = List();
+    if (widget.term.classes.isNotEmpty) {
+      for (Class c in widget.term.classes) {
+        listTasks.add(
+          ListTile(
+              title: Text(
+                c.title,
+                style: Theme.of(context).accentTextTheme.body2,
+              ),
+              onTap: () {
+              }),
+        );
+      }
+    } else {
+      listTasks.add(ListTile(
+        title: Text("No Classes so far"),
+      ));
+    }
+    listTasks.add(
+      ListTile(
+        title: Text(
+          "Add a new Class",
+          style: Theme.of(context).accentTextTheme.body2,
+        ),
+        leading: Icon(Icons.add),
+        onTap: () async {
+          //TODO
+          Class result = await Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => AddClassView()));
+          if (result != null) {
+            print(result.title);
+            widget.term.addClass(result);
+          } else {
+
+          }
+        },
+      ),
+    );
+    return listTasks;
+  }
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
-      leading: Icon(Icons.collections_bookmark),
-      title: Text(
-        "Classes",
-        style: Theme.of(context).accentTextTheme.body2,
-      ),
-      children: widget.term.classes.isNotEmpty
-          ? widget.term.classes
-              .map((element) => ListTile(
-                    title: Text(
-                      element.title,
-                      style: Theme.of(context).accentTextTheme.body2,
-                    ),
-                  ))
-              .toList()
-          : <Widget>[
-              ListTile(
-                title: Text("No classes so far"),
-              )
-            ],
-    );
+        leading: Icon(Icons.check_box),
+        title: Text(
+          "Classes",
+          style: Theme.of(context).accentTextTheme.body2,
+        ),
+        children: _listOfClass());
   }
 }
 

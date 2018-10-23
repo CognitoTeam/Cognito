@@ -3,29 +3,29 @@ import 'package:flutter/material.dart';
 
 class TaskDetailsView extends StatefulWidget {
   // Hold academic term object
-   Task task;
+  Task task;
 
   // Constructor that takes in an academic term object
   TaskDetailsView({Key key, @required this.task}) : super(key: key);
-String getLocation(){
-  return task.location;
-}
+  String getLocation() {
+    return task.location;
+  }
+
   @override
   _TaskDetailsViewState createState() => _TaskDetailsViewState();
 }
 
 class _TaskDetailsViewState extends State<TaskDetailsView> {
   TextEditingController _locationController;
- TextEditingController _descriptionController;
+  TextEditingController _descriptionController;
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    _descriptionController = TextEditingController(text: widget.task.description);
+    _descriptionController =
+        TextEditingController(text: widget.task.description);
     _locationController = TextEditingController(text: widget.task.location);
   }
 
-  
-  
   bool _isRepeated = false;
 
   DateTime dueDate;
@@ -56,6 +56,7 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
       subtitle: subtitle,
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,8 +65,8 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
           icon: BackButtonIcon(),
           onPressed: () {
             print("Returning a task");
-             widget.task.location = _locationController.text;
-             widget.task.description = _descriptionController.text;
+            widget.task.location = _locationController.text;
+            widget.task.description = _descriptionController.text;
             Navigator.of(context).pop(widget.task);
           },
         ),
@@ -112,11 +113,11 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
           ),
         ],
       ),
-     body: Container(
-       child: Column(
-         children: <Widget>[
-           textFieldTile(controller: _locationController),
-           ListTile(
+      body: Container(
+          child: Column(
+        children: <Widget>[
+          textFieldTile(controller: _locationController),
+          ListTile(
             title: TextFormField(
               controller: _descriptionController,
               autofocus: false,
@@ -126,13 +127,13 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
               maxLines: 5,
             ),
           ),
-           DateRow(widget.task),
-         ],
-       )
-     ),
+          DateRow(widget.task),
+        ],
+      )),
     );
   }
 }
+
 // Helper class to modularize date row creation
 class DateRow extends StatefulWidget {
   // Flag for whether this date is start date
@@ -145,12 +146,10 @@ class DateRow extends StatefulWidget {
 }
 
 class _DateRowState extends State<DateRow> {
-
   String getDueDateAsString() {
-      return "${widget.task.dueDate.month}/${widget.task.dueDate.day}/${widget.task.dueDate.year}";
-    }
+    return "${widget.task.dueDate.month}/${widget.task.dueDate.day}/${widget.task.dueDate.year}";
+  }
 
-    
   Future<Null> _selectDate(BuildContext context) async {
     // Make sure keyboard is hidden before showing date picker
     FocusScope.of(context).requestFocus(FocusNode());
@@ -167,7 +166,7 @@ class _DateRowState extends State<DateRow> {
     if (picked != null) {
       print("Date selected: ${picked.toString()}");
       setState(() {
-       widget.task.dueDate = picked;
+        widget.task.dueDate = picked;
       });
     }
   }
