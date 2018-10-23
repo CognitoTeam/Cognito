@@ -15,12 +15,17 @@ String getLocation(){
 }
 
 class _TaskDetailsViewState extends State<TaskDetailsView> {
+  TextEditingController _locationController;
+ TextEditingController _descriptionController;
+  @override
+  void initState(){
+    super.initState();
+    _descriptionController = TextEditingController(text: widget.task.description);
+    _locationController = TextEditingController(text: widget.task.location);
+  }
 
-String getLocation(){
-  return widget.task.location;
-}
-  final _locationController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  
+  
   bool _isRepeated = false;
 
   DateTime dueDate;
@@ -59,6 +64,8 @@ String getLocation(){
           icon: BackButtonIcon(),
           onPressed: () {
             print("Returning a task");
+             widget.task.location = _locationController.text;
+             widget.task.description = _descriptionController.text;
             Navigator.of(context).pop(widget.task);
           },
         ),
@@ -108,7 +115,7 @@ String getLocation(){
      body: Container(
        child: Column(
          children: <Widget>[
-           textFieldTile( hint: "Location: "+widget.task.location, controller: _locationController),
+           textFieldTile(controller: _locationController),
            ListTile(
             title: TextFormField(
               controller: _descriptionController,
@@ -117,9 +124,6 @@ String getLocation(){
               keyboardType: TextInputType.multiline,
               textInputAction: TextInputAction.done,
               maxLines: 5,
-              decoration: InputDecoration(
-                  hintText: "Description: " + widget.task.description,
-                  hintStyle: TextStyle(color: Colors.black45)),
             ),
           ),
            DateRow(widget.task),
