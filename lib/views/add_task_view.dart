@@ -66,17 +66,19 @@ class _AddTaskViewState extends State<AddTaskView> {
             daysOfEvent.contains(day.index + 1)
                 ? deselectDay(day)
                 : selectDay(day);
-                if(daysOfEvent.isEmpty){
-                  _isRepeated = false;
-                }else{
-                  _isRepeated = true;
-                }
-                 print(_isRepeated);
+            if (daysOfEvent.isEmpty) {
+              _isRepeated = false;
+            } 
+            else {
+              _isRepeated = true;
+            }
+            print(_isRepeated);
           },
         ),
       ],
     );
   }
+
   Future<Null> _selectDate(BuildContext context) async {
     // Hide keyboard before showing date picker
     FocusScope.of(context).requestFocus(FocusNode());
@@ -115,8 +117,7 @@ class _AddTaskViewState extends State<AddTaskView> {
                         description: _descriptionController.text,
                         daysOfEvent: daysOfEvent,
                         isRepeated: _isRepeated,
-                        dueDate: dueDate
-                        )
+                        dueDate: dueDate)
                     : null);
               },
             )
@@ -141,19 +142,18 @@ class _AddTaskViewState extends State<AddTaskView> {
               ),
             ),
             ListTile(
-            leading: Icon(Icons.calendar_today),
-            title: Text(
-            "Select Due Date",
-            style: Theme.of(context).accentTextTheme.body2,
+              leading: Icon(Icons.calendar_today),
+              title: Text(
+                "Select Due Date",
+                style: Theme.of(context).accentTextTheme.body2,
+              ),
+              trailing: Text(
+                dueDate != null
+                    ? "${dueDate.month.toString()}/${dueDate.day.toString()}/${dueDate.year.toString()}"
+                    : "",
+              ),
+              onTap: () => _selectDate(context),
             ),
-            trailing: Text(
-            dueDate != null
-            ? "${dueDate.month.toString()}/${dueDate.day.toString()}/${dueDate.year.toString()}"
-                : "",
-            ),
-            onTap: () => _selectDate(context),
-          ),
-            
           ],
         ));
   }
