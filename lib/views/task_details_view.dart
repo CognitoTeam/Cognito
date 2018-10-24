@@ -7,10 +7,6 @@ class TaskDetailsView extends StatefulWidget {
 
   // Constructor that takes in an academic term object
   TaskDetailsView({Key key, @required this.task}) : super(key: key);
-  String getLocation() {
-    return task.location;
-  }
-
   @override
   _TaskDetailsViewState createState() => _TaskDetailsViewState();
 }
@@ -25,8 +21,6 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
         TextEditingController(text: widget.task.description);
     _locationController = TextEditingController(text: widget.task.location);
   }
-
-  bool _isRepeated = false;
 
   DateTime dueDate;
   List<int> daysOfEvent = List();
