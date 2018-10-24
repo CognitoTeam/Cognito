@@ -6,10 +6,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'event.g.dart';
 
 @JsonSerializable()
-/**
- * TODO: Default values???? for daysofevents, starttime, end time??
- * 
- */
+
 class Event {
   /// Instance variables
   String title, description, location;
@@ -42,26 +39,7 @@ class Event {
 factory Event.fromJson(Map<String, dynamic> json) => _$EventFromJson(json);
 
   Map<String, dynamic> toJson() => _$EventToJson(this);
-  /*Event.fromJson(Map<String, dynamic> parsedJson) {
-    title = parsedJson['title'];
-    description = parsedJson['description'];
-    location = parsedJson['location'];
-    startTime = stringToTimeOfDay(parsedJson['start']);
-    endTime = stringToTimeOfDay(parsedJson['end']);
-    isRepeated = parsedJson['isRepeated'];
-    var eventsFromJson = parsedJson['daysOfEvent'];
-    daysOfEvent = List<int>.from(eventsFromJson);
-  }
-  Map<String, dynamic> toJson() => {
-        'title': title,
-        'description': description,
-        'location': location,
-        'start': timeOfDatToDateTime(startTime),
-        'end': timeOfDatToDateTime(endTime),
-        'isRepeated': isRepeated,
-        'daysOfEvent': daysOfEvent
-      };*/
-
+ 
   List<int> get getDaysOfEvent => daysOfEvent;
 
   void addDayOfEvent(int dayOfWeek) {
