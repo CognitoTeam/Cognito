@@ -191,7 +191,8 @@ class _ExpandableClassListState extends State<ExpandableClassList> {
                 c.title,
                 style: Theme.of(context).accentTextTheme.body2,
               ),
-              onTap: () {
+              onTap: () async {
+                c = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => ClassDetailsView(classObj: c)));
               }),
         );
       }
