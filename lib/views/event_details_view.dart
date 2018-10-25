@@ -19,6 +19,7 @@ class _EventDetailsViewState extends State<EventDetailsView> {
   TextEditingController _descriptionController = TextEditingController();
   bool _isRepeated = false;
   DateTime startTime, endTime;
+  TimeOfDay _start, _end;
   List<int> daysOfEvent = List();
   ListTile textFieldTile(
       {Widget leading,
@@ -43,14 +44,21 @@ class _EventDetailsViewState extends State<EventDetailsView> {
       subtitle: subtitle,
     );
   }
+
   @override
   void initState() {
     super.initState();
-    _descriptionController = TextEditingController(text: widget.event.description);
+    _descriptionController =
+        TextEditingController(text: widget.event.description);
     _locationController = TextEditingController(text: widget.event.location);
     setState(() {
-          daysOfEvent = widget.event.daysOfEvent;
-        });
+      daysOfEvent = widget.event.daysOfEvent;
+      startTime = widget.event.startTime;
+      endTime = widget.event.endTime;
+      _start = TimeOfDay(hour: widget.event.startTime.hour, minute: widget.event.startTime.minute);
+      _end = TimeOfDay(hour: widget.event.endTime.hour, minute: widget.event.endTime.minute);
+
+    });
   }
 
   void selectDay(Day day) {
@@ -82,7 +90,6 @@ class _EventDetailsViewState extends State<EventDetailsView> {
             } else {
               _isRepeated = true;
               print(_isRepeated);
-
             }
           },
         ),
@@ -96,11 +103,18 @@ class _EventDetailsViewState extends State<EventDetailsView> {
 
     // Add delay to be sure keyboard is no longer visible
     await Future.delayed(Duration(milliseconds: 200));
-
-    final TimeOfDay picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
+    TimeOfDay picked;
+    if (isStart) {
+      picked = await showTimePicker(
+        context: context,
+        initialTime: _start,
+      );
+    } else {
+       picked = await showTimePicker(
+        context: context,
+        initialTime: _end,
+       );
+    }
 
     if (picked != null) {
       print("Date selected: ${picked.toString()}");
@@ -191,7 +205,7 @@ class _EventDetailsViewState extends State<EventDetailsView> {
               style: Theme.of(context).accentTextTheme.body2,
             ),
             trailing: Text(
-              startTime != null ? startTime.toString() : "",
+              startTime != null ? startTime.hour.toString() +":" +startTime.minute.toString() : "",
             ),
             onTap: () => _selectTime(true, context),
           ),
@@ -203,7 +217,7 @@ class _EventDetailsViewState extends State<EventDetailsView> {
               style: Theme.of(context).accentTextTheme.body2,
             ),
             trailing: Text(
-              endTime != null ? endTime.toString() : "",
+              endTime != null ? endTime.hour.toString() +":" +startTime.minute.toString() : "",
             ),
             onTap: () => _selectTime(false, context),
           ),

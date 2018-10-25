@@ -196,7 +196,8 @@ class _ExpandableClassListState extends State<ExpandableClassList> {
       }
     } else {
       listTasks.add(ListTile(
-        title: Text("No Classes so far"),
+        title: Text("No Classes so far",
+        style: Theme.of(context).accentTextTheme.body2,)
       ));
     }
     listTasks.add(
@@ -229,7 +230,8 @@ class _ExpandableClassListState extends State<ExpandableClassList> {
           "Classes",
           style: Theme.of(context).accentTextTheme.body2,
         ),
-        children: _listOfClass());
+        children: _listOfClass()
+        );
   }
 }
 
@@ -264,7 +266,8 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
       }
     } else {
       listTasks.add(ListTile(
-        title: Text("No Tasks so far"),
+        title: Text("No Tasks so far",
+        style: Theme.of(context).accentTextTheme.body2,),
       ));
     }
     listTasks.add(
@@ -332,7 +335,8 @@ class _ExpandableEventListState extends State<ExpandableEventList> {
       }
     } else {
       listEvents.add(ListTile(
-        title: Text("No Events so far"),
+        title: Text("No Events so far",
+        style: Theme.of(context).accentTextTheme.body2,)
       ));
     }
     listEvents.add(
@@ -401,7 +405,8 @@ class _ExpandableClubListState extends State<ExpandableClubList> {
       }
     } else {
       listClubs.add(ListTile(
-        title: Text("No Clubs so far"),
+        title: Text("No Clubs so far",
+        style: Theme.of(context).accentTextTheme.body2,),
       ));
     }
     listClubs.add(
