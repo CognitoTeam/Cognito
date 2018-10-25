@@ -84,6 +84,7 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
                       title: Text("Change Task Title"),
                       children: <Widget>[
                         TextFormField(
+                          initialValue: widget.task.title,
                           style: Theme.of(context).accentTextTheme.body2,
                           decoration: InputDecoration(
                             hintText: "Task Title",
