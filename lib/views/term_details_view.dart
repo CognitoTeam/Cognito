@@ -15,6 +15,7 @@ import 'dart:async';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/class.dart';
 import 'package:cognito/views/add_class_view.dart';
+import 'package:cognito/views/class_details_view.dart';
 
 class TermDetailsView extends StatefulWidget {
   // Hold academic term object
@@ -231,7 +232,7 @@ class _ExpandableClassListState extends State<ExpandableClassList> {
           style: Theme.of(context).accentTextTheme.body2,
         ),
         children: _listOfClass()
-        );
+    );
   }
 }
 
