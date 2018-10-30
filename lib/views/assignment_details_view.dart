@@ -1,30 +1,35 @@
-import 'package:cognito/models/task.dart';
+import 'package:cognito/models/assignment.dart';
 import 'package:flutter/material.dart';
 
-class TaskDetailsView extends StatefulWidget {
+/// Assignment details view
+/// @author Praneet Singh
+
+class AssignmentDetailsView extends StatefulWidget {
   // Hold academic term object
-  Task task;
+  Assignment assignment;
 
   // Constructor that takes in an academic term object
-  TaskDetailsView({Key key, @required this.task}) : super(key: key);
+  AssignmentDetailsView({Key key, @required this.assignment}) : super(key: key);
   @override
-  _TaskDetailsViewState createState() => _TaskDetailsViewState();
+  _AssignmentDetailsViewState createState() => _AssignmentDetailsViewState();
 }
 
-class _TaskDetailsViewState extends State<TaskDetailsView> {
-  TextEditingController _locationController;
+class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
   TextEditingController _descriptionController;
+  TextEditingController _earnedController;
+  TextEditingController _possibleController;
   @override
   void initState() {
     super.initState();
     _descriptionController =
-        TextEditingController(text: widget.task.description);
-    _locationController = TextEditingController(text: widget.task.location);
-    dueDate = widget.task.dueDate;
+        TextEditingController(text: widget.assignment.description);
+    _earnedController =
+        TextEditingController(text: widget.assignment.pointsEarned.toString());
+    _possibleController = TextEditingController(
+        text: widget.assignment.pointsPossible.toString());
   }
 
   DateTime dueDate;
-  List<int> daysOfEvent = List();
 
   ListTile textFieldTile(
       {String intiialText,
@@ -59,14 +64,18 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
         leading: IconButton(
           icon: BackButtonIcon(),
           onPressed: () {
-            print("Returning a task");
-            widget.task.location = _locationController.text;
-            widget.task.description = _descriptionController.text;
-            Navigator.of(context).pop(widget.task);
+            print("Returning a assignment");
+            widget.assignment.description = _descriptionController.text;
+            widget.assignment.pointsEarned =
+                double.parse(_earnedController.text);
+            widget.assignment.pointsPossible =
+                double.parse(_possibleController.text);
+
+            Navigator.of(context).pop(widget.assignment);
           },
         ),
         title: Text(
-          widget.task.title,
+          widget.assignment.title,
           style: Theme.of(context).primaryTextTheme.title,
         ),
         backgroundColor: Theme.of(context).primaryColorDark,
@@ -82,13 +91,13 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
                   context: context,
                   builder: (BuildContext context) {
                     return SimpleDialog(
-                      title: Text("Change Task Title"),
+                      title: Text("Change Assignment Title"),
                       children: <Widget>[
                         TextFormField(
-                          initialValue: widget.task.title,
+                          initialValue: widget.assignment.title,
                           style: Theme.of(context).accentTextTheme.body2,
                           decoration: InputDecoration(
-                            hintText: "Task Title",
+                            hintText: "Assignment Title",
                             hintStyle: TextStyle(color: Colors.black45),
                             contentPadding:
                                 EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
@@ -96,7 +105,7 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
                           onFieldSubmitted: (val) {
                             print(val);
                             setState(() {
-                              widget.task.title = val;
+                              widget.assignment.title = val;
                             });
                             Navigator.pop(context);
                           },
@@ -112,7 +121,6 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
       body: Container(
           child: Column(
         children: <Widget>[
-          textFieldTile(controller: _locationController),
           ListTile(
             title: TextFormField(
               controller: _descriptionController,
@@ -123,7 +131,31 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
               maxLines: 5,
             ),
           ),
-          DateRow(widget.task),
+          ListTile(
+            title: TextFormField(
+              controller: _earnedController,
+              autofocus: false,
+              style: Theme.of(context).accentTextTheme.body1,
+              keyboardType: TextInputType.number,
+              textInputAction: TextInputAction.done,
+              decoration: InputDecoration(
+                  hintText: "Points earned",
+                  hintStyle: TextStyle(color: Colors.black45)),
+            ),
+          ),
+          ListTile(
+            title: TextFormField(
+              controller: _possibleController,
+              autofocus: false,
+              style: Theme.of(context).accentTextTheme.body1,
+              keyboardType: TextInputType.number,
+              textInputAction: TextInputAction.done,
+              decoration: InputDecoration(
+                  hintText: "Possible points",
+                  hintStyle: TextStyle(color: Colors.black45)),
+            ),
+          ),
+          DateRow(widget.assignment),
         ],
       )),
     );
@@ -133,9 +165,9 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
 // Helper class to modularize date row creation
 class DateRow extends StatefulWidget {
   // Flag for whether this date is start date
-  final Task task;
+  final Assignment assignment;
 
-  DateRow(this.task);
+  DateRow(this.assignment);
 
   @override
   _DateRowState createState() => _DateRowState();
@@ -143,7 +175,7 @@ class DateRow extends StatefulWidget {
 
 class _DateRowState extends State<DateRow> {
   String getDueDateAsString() {
-    return "${widget.task.dueDate.month}/${widget.task.dueDate.day}/${widget.task.dueDate.year}";
+    return "${widget.assignment.dueDate.month}/${widget.assignment.dueDate.day}/${widget.assignment.dueDate.year}";
   }
 
   Future<Null> _selectDate(BuildContext context) async {
@@ -154,7 +186,7 @@ class _DateRowState extends State<DateRow> {
 
     final DateTime picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: widget.assignment.dueDate,
       firstDate: DateTime(1990),
       lastDate: DateTime(3000),
     );
@@ -162,7 +194,7 @@ class _DateRowState extends State<DateRow> {
     if (picked != null) {
       print("Date selected: ${picked.toString()}");
       setState(() {
-        widget.task.dueDate = picked;
+        widget.assignment.dueDate = picked;
       });
     }
   }
