@@ -13,7 +13,6 @@ class FireBaseLogin {
     GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
     GoogleSignInAuthentication googleSignInAuthentication =
         await googleSignInAccount.authentication;
-
     _user = await _auth.signInWithGoogle(
         idToken: googleSignInAuthentication.idToken,
         accessToken: googleSignInAuthentication.accessToken);
@@ -21,10 +20,25 @@ class FireBaseLogin {
     return _user;
   }
 
+  Future<bool> updateUser(String firstName, String lastName, {String photoUrl = ""}) async{
+    print("Here");
+    final FirebaseUser currentUser =  await _auth.currentUser();
+    UserUpdateInfo userUpdateInfo = UserUpdateInfo();
+    userUpdateInfo.displayName = firstName + " " + lastName;
+    userUpdateInfo.photoUrl = photoUrl;
+    await currentUser.updateProfile(userUpdateInfo);
+    print(currentUser);
+  }
   Future<String> fireBaseUserID() async{
   final FirebaseUser currentUser =  await _auth.currentUser();
   return currentUser.uid;
   }
+
+  Future<String> userName() async{
+    final FirebaseUser currentUser =  await _auth.currentUser();
+    return currentUser.displayName;
+  }
+
   ///User can sign in with email and password
   Future<FirebaseUser> signEmailIn(String email, String password) async {
     FirebaseUser user = await _auth.signInWithEmailAndPassword(
@@ -34,7 +48,7 @@ class FireBaseLogin {
 
     final FirebaseUser currentUser = await _auth.currentUser();
     assert(user.uid == currentUser.uid);
-
+    _user = currentUser;
     print('signInEmail succeeded: $user');
     return user;
   }

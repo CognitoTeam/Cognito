@@ -1,3 +1,4 @@
+import 'package:cognito/views/welcome_view.dart';
 /// Sign up view screen
 /// @author Praneet Singh
 import 'package:flutter/material.dart';
@@ -48,7 +49,7 @@ class _SignUpViewState extends State<SignUpView> {
         final firebaseUser = await _fireBaseLogin.createEmailUser(_email, _password);
         firebaseUser.sendEmailVerification();
         if (firebaseUser != null) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => AcademicTermView()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => WelcomeView()));
           return true;
         } else {
           return false;
