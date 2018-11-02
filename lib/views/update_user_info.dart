@@ -119,9 +119,9 @@ class _UpdateUserInfoState extends State<UpdateUserInfo>
                             String user = await _fireBaseLogin.userName();
                             print(user);
                             print(_firstName.text+ _lastName.text);
-                            Navigator.push(context, 
+                            Navigator.pushAndRemoveUntil(context, 
                             MaterialPageRoute(builder: (context) => 
-                                AcademicTermView()));
+                                AcademicTermView()), ModalRoute.withName("/Home"));
                                 },
                           color: Theme.of(context).accentColor,
                           child: Text(

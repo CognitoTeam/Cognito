@@ -1,4 +1,6 @@
 import 'package:cognito/models/assignment.dart';
+import 'package:cognito/models/category.dart';
+import 'package:cognito/models/class.dart';
 import 'package:flutter/material.dart';
 
 /// Assignment details view
@@ -6,10 +8,10 @@ import 'package:flutter/material.dart';
 
 class AssignmentDetailsView extends StatefulWidget {
   // Hold academic term object
-  Assignment assignment;
-
+  final Assignment assignment;
+final Class aClass;
   // Constructor that takes in an academic term object
-  AssignmentDetailsView({Key key, @required this.assignment}) : super(key: key);
+  AssignmentDetailsView({Key key, @required this.assignment, @required this.aClass}) : super(key: key);
   @override
   _AssignmentDetailsViewState createState() => _AssignmentDetailsViewState();
 }
@@ -18,6 +20,11 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
   TextEditingController _descriptionController;
   TextEditingController _earnedController;
   TextEditingController _possibleController;
+
+   TextEditingController _categoryTitle = TextEditingController();
+TextEditingController _categoryWeight = TextEditingController();
+  TextEditingController _categoryTitleEdit = TextEditingController();
+   TextEditingController _categoryWeightEdit = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -27,6 +34,8 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
         TextEditingController(text: widget.assignment.pointsEarned.toString());
     _possibleController = TextEditingController(
         text: widget.assignment.pointsPossible.toString());
+
+        _categoryListTitle = widget.assignment.category.title + ": "+ widget.assignment.category.weightInPercentage.toString()+"%";
   }
 
   DateTime dueDate;
@@ -56,7 +65,146 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
       subtitle: subtitle,
     );
   }
-
+  String _categoryListTitle = "Select a category";
+  List<Widget> _listOfCategories() {
+    List<Widget> listCategories = List();
+    if (widget.aClass.categories.isNotEmpty) {
+      for (Category c in widget.aClass.categories) {
+        listCategories.add(
+          ListTile(
+              title: Text(
+                c.title + ": "+ c.weightInPercentage.toString()+"%",
+                style: Theme.of(context).accentTextTheme.body2,
+              ),
+              onTap: () async {
+                setState(() {
+                    _categoryListTitle = c.title + ": "+ c.weightInPercentage.toString()+"%";
+                    widget.assignment.category = c;
+                  },
+                  );
+              }, 
+              onLongPress: (){
+                setState(() {
+                  _categoryTitleEdit.text = c.title;
+                  _categoryWeightEdit.text = c.weightInPercentage.toString();
+                                });
+                showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                
+                
+                return SimpleDialog(
+                  title: Text("Edit category"),
+                  children: <Widget>[
+                    TextFormField(
+                      controller: _categoryTitleEdit,
+                      style: Theme.of(context).accentTextTheme.body2,
+                      decoration: InputDecoration(
+                        hintText: "Category title",
+                        hintStyle: TextStyle(color: Colors.black45),
+                        contentPadding:
+                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                      ),
+                      
+                        //Navigator.pop(context);
+                      textInputAction: TextInputAction.done,
+                    ),
+                    TextFormField(
+                      controller: _categoryWeightEdit,
+                      style: Theme.of(context).accentTextTheme.body2,
+                      decoration: InputDecoration(
+                        hintText: "Category Weight",
+                        hintStyle: TextStyle(color: Colors.black45),
+                        contentPadding:
+                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                      ),
+                      textInputAction: TextInputAction.done,
+                    ),
+                    RaisedButton(
+                      child: Text("Done"),
+                      onPressed: () {
+                        setState(() {
+                          c.title = _categoryTitleEdit.text;
+                         c.weightInPercentage = double.parse(_categoryWeightEdit.text);
+                        });
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                );
+              });
+              },),
+        );
+      }
+    } else {
+      listCategories.add(ListTile(
+        title: Text(
+          "No Categories so far",
+          style: Theme.of(context).accentTextTheme.body2,
+        ),
+      ));
+    }
+    listCategories.add(
+      ListTile(
+        title: Text(
+          "Add a new Category",
+          style: Theme.of(context).accentTextTheme.body2,
+        ),
+        leading: Icon(Icons.add),
+        onTap: () {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                
+                Category cat = Category();
+                return SimpleDialog(
+                  title: Text("Create a new category"),
+                  children: <Widget>[
+                    TextFormField(
+                      controller: _categoryTitle,
+                      style: Theme.of(context).accentTextTheme.body2,
+                      decoration: InputDecoration(
+                        hintText: "Category title",
+                        hintStyle: TextStyle(color: Colors.black45),
+                        contentPadding:
+                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                      ),
+                      
+                        //Navigator.pop(context);
+                      textInputAction: TextInputAction.done,
+                    ),
+                    TextFormField(
+                      controller: _categoryWeight,
+                      style: Theme.of(context).accentTextTheme.body2,
+                      decoration: InputDecoration(
+                        hintText: "Category Weight",
+                        hintStyle: TextStyle(color: Colors.black45),
+                        contentPadding:
+                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                      ),
+                      textInputAction: TextInputAction.done,
+                    ),
+                    RaisedButton(
+                      child: Text("Done"),
+                      onPressed: () {
+                        setState(() {
+                          cat.title = _categoryTitle.text;
+                         cat.weightInPercentage = double.parse(_categoryWeight.text);
+                          widget.aClass.addCategory(cat);
+                        });
+                        _categoryTitle.text = "";
+                        _categoryWeight.text = "";
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                );
+              });
+        },
+      ),
+    );
+    return listCategories;
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -156,6 +304,13 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
             ),
           ),
           DateRow(widget.assignment),
+          ExpansionTile(
+        leading: Icon(Icons.category),
+        title: Text(
+          _categoryListTitle,
+          style: Theme.of(context).accentTextTheme.body2,
+        ),
+        children: _listOfCategories()),
         ],
       )),
     );

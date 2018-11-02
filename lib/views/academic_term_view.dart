@@ -176,6 +176,9 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                         // Use start date's string representation as key
                         key: Key(_allTerms.terms[index].toString()),
                         direction: DismissDirection.endToStart,
+                        onResize: (){
+                          print("Swipped");
+                        },
                         onDismissed: (direction) {
                           removeTerm(term);
                           String jsonString = json.encode(_allTerms);
