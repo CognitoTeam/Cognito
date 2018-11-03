@@ -1,3 +1,4 @@
+import 'package:cognito/views/welcome_view.dart';
 /// Login selection view
 /// View screen to select mode of authentication
 /// @author Julian Vu

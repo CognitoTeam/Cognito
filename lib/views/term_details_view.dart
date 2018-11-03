@@ -1,5 +1,9 @@
+import 'package:cognito/models/club.dart';
+import 'package:cognito/models/event.dart';
 import 'package:cognito/models/task.dart';
+import 'package:cognito/views/add_event_view.dart';
 import 'package:cognito/views/add_task_view.dart';
+import 'package:cognito/views/event_details_view.dart';
 import 'package:cognito/views/task_details_view.dart';
 
 /// Academic term details view
@@ -90,19 +94,15 @@ class _TermDetailsViewState extends State<TermDetailsView> {
 
             // Classes
             ExpandableClassList(widget.term),
+            ExpandableEventList(widget.term),
             ExpandableTaskList(widget.term),
+            ExpandableClubList(widget.term)
           ],
         ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           print("Tapped on plus button");
-          /*
-          Class result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddClassView()));
-          if (result != null) {
-            print(result.toString());
-            widget.term.addClass(result);
-          }*/
+          
         },
         child: Icon(
           Icons.add,
@@ -196,7 +196,8 @@ class _ExpandableClassListState extends State<ExpandableClassList> {
       }
     } else {
       listTasks.add(ListTile(
-        title: Text("No Classes so far"),
+        title: Text("No Classes so far",
+        style: Theme.of(context).accentTextTheme.body2,)
       ));
     }
     listTasks.add(
@@ -224,12 +225,13 @@ class _ExpandableClassListState extends State<ExpandableClassList> {
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
-        leading: Icon(Icons.check_box),
+        leading: Icon(Icons.class_),
         title: Text(
           "Classes",
           style: Theme.of(context).accentTextTheme.body2,
         ),
-        children: _listOfClass());
+        children: _listOfClass()
+        );
   }
 }
 
@@ -257,15 +259,15 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
                 Task result = await Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => TaskDetailsView(task:t)));
                 if (result != null) {
-                  print(result.title);
-                  widget.term.addTask(result);
+                  print("Task updated: " + result.title);
                 }
               }),
         );
       }
     } else {
       listTasks.add(ListTile(
-        title: Text("No tasks so far"),
+        title: Text("No Tasks so far",
+        style: Theme.of(context).accentTextTheme.body2,),
       ));
     }
     listTasks.add(
@@ -282,7 +284,9 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
           if (result != null) {
             print(result.title);
             widget.term.addTask(result);
-          } else {}
+          } else {
+            print("Task returned null");
+          }
         },
       ),
     );
@@ -298,5 +302,144 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
           style: Theme.of(context).accentTextTheme.body2,
         ),
         children: _listOfTasks());
+  }
+}
+class ExpandableEventList extends StatefulWidget {
+  final AcademicTerm term;
+
+  ExpandableEventList(this.term);
+
+  @override
+  _ExpandableEventListState createState() => _ExpandableEventListState();
+}
+
+class _ExpandableEventListState extends State<ExpandableEventList> {
+  List<Widget> _listOfEvents() {
+    List<Widget> listEvents = List();
+    if (widget.term.events.isNotEmpty) {
+      for (Event e in widget.term.events) {
+        listEvents.add(
+          ListTile(
+              title: Text(
+                e.title,
+                style: Theme.of(context).accentTextTheme.body2,
+              ),
+              onTap: () async {
+                Event result = await Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => EventDetailsView(event: e)));
+                if (result != null) {
+                  print("Event updated "+result.title);
+                }
+              }),
+        );
+      }
+    } else {
+      listEvents.add(ListTile(
+        title: Text("No Events so far",
+        style: Theme.of(context).accentTextTheme.body2,)
+      ));
+    }
+    listEvents.add(
+      ListTile(
+        title: Text(
+          "Add a new Event",
+          style: Theme.of(context).accentTextTheme.body2,
+        ),
+        leading: Icon(Icons.add),
+        onTap: () async {
+          //TODO
+          Event result = await Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => AddEventView()));
+          if (result != null) {
+            print(result.title);
+            widget.term.addEvent(result);
+          } else {
+            print("Event returned null");
+          }
+        },
+      ),
+    );
+    return listEvents;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpansionTile(
+        leading: Icon(Icons.event),
+        title: Text(
+          "Events",
+          style: Theme.of(context).accentTextTheme.body2,
+        ),
+        children: _listOfEvents());
+  }
+}
+class ExpandableClubList extends StatefulWidget {
+  final AcademicTerm term;
+
+  ExpandableClubList(this.term);
+
+  @override
+  _ExpandableClubListState createState() => _ExpandableClubListState();
+}
+
+class _ExpandableClubListState extends State<ExpandableClubList> {
+  List<Widget> _listOfClus() {
+    List<Widget> listClubs = List();
+    if (widget.term.clubs.isNotEmpty) {
+      for (Club c in widget.term.clubs) {
+        listClubs.add(
+          ListTile(
+              title: Text(
+                c.title,
+                style: Theme.of(context).accentTextTheme.body2,
+              ),
+              onTap: () async {
+                /*Task result = await Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => TaskDetailsView(task:t)));
+                if (result != null) {
+                  print(result.title);
+                  widget.term.addTask(result);
+                }*/
+              }),
+        );
+      }
+    } else {
+      listClubs.add(ListTile(
+        title: Text("No Clubs so far",
+        style: Theme.of(context).accentTextTheme.body2,),
+      ));
+    }
+    listClubs.add(
+      ListTile(
+        title: Text(
+          "Add a new Club",
+          style: Theme.of(context).accentTextTheme.body2,
+        ),
+        leading: Icon(Icons.add),
+        onTap: () async {
+          //TODO
+          /*Club result = await Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => AddEventView()));
+          if (result != null) {
+            print(result.title);
+            widget.term.addEvent(result);
+          } else {
+            print("Event returned null");
+          }*/
+        },
+      ),
+    );
+    return listClubs;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpansionTile(
+        leading: Icon(Icons.people),
+        title: Text(
+          "Clubs",
+          style: Theme.of(context).accentTextTheme.body2,
+        ),
+        children: _listOfClus());
   }
 }

@@ -74,8 +74,11 @@ void main(){
       units: 3
     );
     String key = "assignment";
+    Category cat1 = Category(title: "Exam", weightInPercentage: 30.0);
     Assignment assignTest = Assignment();
+    assignTest.category = cat1;
     Assignment assignTest1 = Assignment();
+    assignTest1.category = cat1;
     testClass3.addTodoItem(key, assignment: assignTest);
     expect(testClass3.todo[key].length, equals(1));
 
@@ -113,7 +116,10 @@ void main(){
     );
     String key = "assessment";
     Assignment assignTest = Assignment(isAssessment: true);
+    Category cat1 = Category(title: "Exam", weightInPercentage: 30.0);
+    assignTest.category = cat1;
     Assignment assignTest1 = Assignment(isAssessment: true);
+    assignTest1.category = cat1;
     testClass5.addTodoItem(key, assignment: assignTest);
     expect(testClass5.todo[key].length, equals(1));
 
@@ -133,9 +139,10 @@ void main(){
     String key = "assessment";
     Category category = Category(title: "Homework", weightInPercentage: 0.20);
     Assignment assignTest = Assignment(isAssessment: true);
+    assignTest.category = Category(title: "Exam", weightInPercentage: 30.0);
     //Assignment assignTest1 = Assignment(isAssessment: true);
     testClass6.gradeCalculator.addCategory(category);
-    testClass6.addTodoItem(key, assignment: assignTest, category: category);
+    testClass6.addTodoItem(key, assignment: assignTest);
     expect(testClass6.gradeCalculator.gradeBook.length, equals(1));
   });
 }

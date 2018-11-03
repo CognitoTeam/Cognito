@@ -20,6 +20,7 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
     _descriptionController =
         TextEditingController(text: widget.task.description);
     _locationController = TextEditingController(text: widget.task.location);
+    dueDate = widget.task.dueDate;
   }
 
   DateTime dueDate;
@@ -84,6 +85,7 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
                       title: Text("Change Task Title"),
                       children: <Widget>[
                         TextFormField(
+                          initialValue: widget.task.title,
                           style: Theme.of(context).accentTextTheme.body2,
                           decoration: InputDecoration(
                             hintText: "Task Title",

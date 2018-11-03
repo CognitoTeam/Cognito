@@ -31,6 +31,10 @@ Class _$ClassFromJson(Map<String, dynamic> json) {
             (e as List)
                 ?.map((e) => e == null ? null : DateTime.parse(e as String))
                 ?.toList()))
+    ..categories = (json['categories'] as List)
+        ?.map((e) =>
+            e == null ? null : Category.fromJson(e as Map<String, dynamic>))
+        ?.toList()
     ..todo = (json['todo'] as Map<String, dynamic>)?.map((k, e) => MapEntry(
         k,
         (e as List)
@@ -54,5 +58,6 @@ Map<String, dynamic> _$ClassToJson(Class instance) => <String, dynamic>{
       'units': instance.units,
       'officeHours': instance.officeHours?.map(
           (k, e) => MapEntry(k, e?.map((e) => e?.toIso8601String())?.toList())),
+      'categories': instance.categories,
       'todo': instance.todo
     };

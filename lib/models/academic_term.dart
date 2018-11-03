@@ -3,6 +3,7 @@
 
 import 'package:cognito/models/class.dart';
 import 'package:cognito/models/club.dart';
+import 'package:cognito/models/event.dart';
 import 'package:cognito/models/task.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'academic_term.g.dart';
@@ -17,10 +18,12 @@ class AcademicTerm {
     Set<Class> classes;
     Set<Club> clubs;
     Set<Task> tasks;
+    Set<Event> events;
     AcademicTerm(this.termName, this.startTime, this.endTime){
       classes = Set();
       clubs = Set();
       tasks = Set();
+      events = Set();
     }
     factory AcademicTerm.fromJson(Map<String, dynamic> json) => _$AcademicTermFromJson(json);
 
@@ -35,6 +38,13 @@ class AcademicTerm {
       return "${endTime.month}/${endTime.day}/${endTime.year}";
     }
 
+    void addEvent(Event event){
+      events.add(event);
+    }
+
+    void removeEvent(Event event){
+      events.remove(event);
+    }
     void addTask(Task task){
       tasks.add(task);
     }

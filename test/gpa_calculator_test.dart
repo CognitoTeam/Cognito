@@ -73,46 +73,56 @@ void main(){
       class1.gradeCalculator.addCategory(homework);
       class1.gradeCalculator.addCategory(exam1);
       class1.gradeCalculator.addCategory(exam2);
-      class1.addTodoItem("assignment", assignment: hw1, category: homework);
-      class1.addTodoItem("assignment", assignment: hw2, category: homework);
-      class1.addTodoItem("assignment", assignment: hw3, category: homework);
-      class1.addTodoItem("assignment", assignment: hw4, category: homework);
-      class1.addTodoItem("assignment", assignment: hw5, category: homework);
-      class1.addTodoItem("assessment", assignment: midterm, category: exam1);
-      class1.addTodoItem("assessment", assignment: finalExam, category: exam2);
+      hw1.category = homework;
+      hw2.category = homework;
+      hw3.category = homework;
+      hw4.category = homework;
+      hw5.category = homework;
+      midterm.category = exam1;
+      finalExam.category = exam2;
+      class1.addTodoItem("assignment", assignment: hw1);
+      class1.addTodoItem("assignment", assignment: hw2);
+      class1.addTodoItem("assignment", assignment: hw3);
+      class1.addTodoItem("assignment", assignment: hw4);
+      class1.addTodoItem("assignment", assignment: hw5);
+      class1.addTodoItem("assessment", assignment: midterm);
+      class1.addTodoItem("assessment", assignment: finalExam);
 
       class2.gradeCalculator.addCategory(homework);
       class2.gradeCalculator.addCategory(exam1);
       class2.gradeCalculator.addCategory(exam2);
-      class2.addTodoItem("assignment", assignment: hw1, category: homework);
-      class2.addTodoItem("assignment", assignment: hw2, category: homework);
-      class2.addTodoItem("assignment", assignment: hw3, category: homework);
-      class2.addTodoItem("assignment", assignment: hw4, category: homework);
-      class2.addTodoItem("assignment", assignment: hw5, category: homework);
-      class2.addTodoItem("assessment", assignment: midterm, category: exam1);
-      class2.addTodoItem("assessment", assignment: finalExam, category: exam2);
+      class2.addTodoItem("assignment", assignment: hw1);
+      class2.addTodoItem("assignment", assignment: hw2);
+      class2.addTodoItem("assignment", assignment: hw3);
+      class2.addTodoItem("assignment", assignment: hw4);
+      class2.addTodoItem("assignment", assignment: hw5);
+      class2.addTodoItem("assessment", assignment: midterm);
+      class2.addTodoItem("assessment", assignment: finalExam);
 
       class3.gradeCalculator.addCategory(homework);
       class3.gradeCalculator.addCategory(exam1);
       class3.gradeCalculator.addCategory(exam2);
-      class3.addTodoItem("assignment", assignment: hw1, category: homework);
-      class3.addTodoItem("assignment", assignment: hw2, category: homework);
-      class3.addTodoItem("assignment", assignment: hw3, category: exam1);
-      class3.addTodoItem("assignment", assignment: hw4, category: homework);
-      class3.addTodoItem("assignment", assignment: hw5, category: homework);
-      class3.addTodoItem("assessment", assignment: midterm, category: exam1);
-      class3.addTodoItem("assessment", assignment: finalExam, category: exam2);
+      class3.addTodoItem("assignment", assignment: hw1);
+      class3.addTodoItem("assignment", assignment: hw2);
+      hw3.category = exam1;
+      class3.addTodoItem("assignment", assignment: hw3);
+      class3.addTodoItem("assignment", assignment: hw4);
+      class3.addTodoItem("assignment", assignment: hw5);
+      class3.addTodoItem("assessment", assignment: midterm);
+      class3.addTodoItem("assessment", assignment: finalExam);
 
       class4.gradeCalculator.addCategory(homework);
       class4.gradeCalculator.addCategory(exam1);
       class4.gradeCalculator.addCategory(exam2);
-      class4.addTodoItem("assignment", assignment: hw1, category: exam1);
-      class4.addTodoItem("assignment", assignment: hw2, category: homework);
-      class4.addTodoItem("assignment", assignment: hw3, category: homework);
-      class4.addTodoItem("assignment", assignment: hw4, category: homework);
-      class4.addTodoItem("assignment", assignment: hw5, category: homework);
-      class4.addTodoItem("assessment", assignment: midterm, category: exam1);
-      class4.addTodoItem("assessment", assignment: finalExam, category: exam2);
+      hw1.category = exam1;
+      hw3.category = homework;
+      class4.addTodoItem("assignment", assignment: hw1);
+      class4.addTodoItem("assignment", assignment: hw2);
+      class4.addTodoItem("assignment", assignment: hw3);
+      class4.addTodoItem("assignment", assignment: hw4);
+      class4.addTodoItem("assignment", assignment: hw5);
+      class4.addTodoItem("assessment", assignment: midterm);
+      class4.addTodoItem("assessment", assignment: finalExam);
 
       term.addClass(class1);
       term.addClass(class2);
@@ -184,46 +194,56 @@ void main(){
       class11.gradeCalculator.addCategory(homework1);
       class11.gradeCalculator.addCategory(exam11);
       class11.gradeCalculator.addCategory(exam21);
-      class11.addTodoItem("assignment", assignment: hw11, category: homework1);
-      class11.addTodoItem("assignment", assignment: hw21, category: homework1);
-      class11.addTodoItem("assignment", assignment: hw31, category: homework1);
-      class11.addTodoItem("assignment", assignment: hw41, category: homework1);
-      class11.addTodoItem("assignment", assignment: hw51, category: homework1);
-      class11.addTodoItem("assessment", assignment: midterm1, category: exam11);
-      class11.addTodoItem("assessment", assignment: finalExam1, category: exam21);
+      hw11.category = homework1;
+      hw21.category = homework1;
+      hw31.category = homework1;
+      hw41.category = homework1;
+      hw51.category = homework1;
+      midterm1.category = exam11;
+      finalExam1.category = exam21;
+      class11.addTodoItem("assignment", assignment: hw11);
+      class11.addTodoItem("assignment", assignment: hw21);
+      class11.addTodoItem("assignment", assignment: hw31);
+      class11.addTodoItem("assignment", assignment: hw41);
+      class11.addTodoItem("assignment", assignment: hw51);
+      class11.addTodoItem("assessment", assignment: midterm1);
+      class11.addTodoItem("assessment", assignment: finalExam1);
 
       class21.gradeCalculator.addCategory(homework1);
       class21.gradeCalculator.addCategory(exam11);
       class21.gradeCalculator.addCategory(exam21);
-      class21.addTodoItem("assignment", assignment: hw11, category: homework1);
-      class21.addTodoItem("assignment", assignment: hw21, category: homework1);
-      class21.addTodoItem("assignment", assignment: hw31, category: homework1);
-      class21.addTodoItem("assignment", assignment: hw41, category: homework1);
-      class21.addTodoItem("assignment", assignment: hw51, category: homework1);
-      class21.addTodoItem("assessment", assignment: midterm1, category: exam11);
-      class21.addTodoItem("assessment", assignment: finalExam1, category: exam21);
+      class21.addTodoItem("assignment", assignment: hw11);
+      class21.addTodoItem("assignment", assignment: hw21);
+      class21.addTodoItem("assignment", assignment: hw31);
+      class21.addTodoItem("assignment", assignment: hw41);
+      class21.addTodoItem("assignment", assignment: hw51);
+      class21.addTodoItem("assessment", assignment: midterm1);
+      class21.addTodoItem("assessment", assignment: finalExam1);
 
       class31.gradeCalculator.addCategory(homework1);
       class31.gradeCalculator.addCategory(exam11);
       class31.gradeCalculator.addCategory(exam21);
-      class31.addTodoItem("assignment", assignment: hw11, category: homework1);
-      class31.addTodoItem("assignment", assignment: hw21, category: homework1);
-      class31.addTodoItem("assignment", assignment: hw31, category: exam11);
-      class31.addTodoItem("assignment", assignment: hw41, category: homework1);
-      class31.addTodoItem("assignment", assignment: hw51, category: homework1);
-      class31.addTodoItem("assessment", assignment: midterm1, category: exam11);
-      class31.addTodoItem("assessment", assignment: finalExam1, category: exam21);
+      hw31.category = exam11;
+      class31.addTodoItem("assignment", assignment: hw11);
+      class31.addTodoItem("assignment", assignment: hw21);
+      class31.addTodoItem("assignment", assignment: hw31);
+      class31.addTodoItem("assignment", assignment: hw41);
+      class31.addTodoItem("assignment", assignment: hw51);
+      class31.addTodoItem("assessment", assignment: midterm1);
+      class31.addTodoItem("assessment", assignment: finalExam1);
 
       class41.gradeCalculator.addCategory(homework1);
       class41.gradeCalculator.addCategory(exam11);
       class41.gradeCalculator.addCategory(exam21);
-      class41.addTodoItem("assignment", assignment: hw11, category: exam11);
-      class41.addTodoItem("assignment", assignment: hw21, category: homework1);
-      class41.addTodoItem("assignment", assignment: hw31, category: homework1);
-      class41.addTodoItem("assignment", assignment: hw41, category: homework1);
-      class41.addTodoItem("assignment", assignment: hw51, category: homework1);
-      class41.addTodoItem("assessment", assignment: midterm1, category: exam11);
-      class41.addTodoItem("assessment", assignment: finalExam1, category: exam21);
+      hw11.category = exam11;
+      hw31.category = homework1;
+      class41.addTodoItem("assignment", assignment: hw11);
+      class41.addTodoItem("assignment", assignment: hw21);
+      class41.addTodoItem("assignment", assignment: hw31);
+      class41.addTodoItem("assignment", assignment: hw41);
+      class41.addTodoItem("assignment", assignment: hw51);
+      class41.addTodoItem("assessment", assignment: midterm1);
+      class41.addTodoItem("assessment", assignment: finalExam1);
 
       term1.addClass(class11);
       term1.addClass(class21);
@@ -279,9 +299,12 @@ void main(){
       class1.gradeCalculator.addCategory(homework);
       class1.gradeCalculator.addCategory(exam1);
       class1.gradeCalculator.addCategory(exam2);
-      class1.addTodoItem("assignment", assignment: hw1, category: homework);
-      class1.addTodoItem("assessment", assignment: midterm, category: exam1);
-      class1.addTodoItem("assessment", assignment: finalExam, category: exam2);
+      hw1.category = homework;
+      midterm.category = exam1;
+      finalExam.category = exam2;
+      class1.addTodoItem("assignment", assignment: hw1);
+      class1.addTodoItem("assessment", assignment: midterm);
+      class1.addTodoItem("assessment", assignment: finalExam);
 
       Assignment hw2 = Assignment(
       title: "hw1",
@@ -301,12 +324,16 @@ void main(){
       pointsEarned: 100.0,
       pointsPossible: 100.0
     );
+
+      hw2.category = homework;
+      midterm2.category = exam1;
+      finalExam2.category = exam2;
       class2.gradeCalculator.addCategory(homework);
       class2.gradeCalculator.addCategory(exam1);
       class2.gradeCalculator.addCategory(exam2);
-      class2.addTodoItem("assignment", assignment: hw2, category: homework);
-      class2.addTodoItem("assessment", assignment: midterm2, category: exam1);
-      class2.addTodoItem("assessment", assignment: finalExam2, category: exam2);
+      class2.addTodoItem("assignment", assignment: hw2);
+      class2.addTodoItem("assessment", assignment: midterm2);
+      class2.addTodoItem("assessment", assignment: finalExam2);
 
       Assignment hw3 = Assignment(
       title: "hw1",
@@ -329,9 +356,12 @@ void main(){
       class3.gradeCalculator.addCategory(homework);
       class3.gradeCalculator.addCategory(exam1);
       class3.gradeCalculator.addCategory(exam2);
-      class3.addTodoItem("assignment", assignment: hw3, category: homework);
-      class3.addTodoItem("assessment", assignment: midterm3, category: exam1);
-      class3.addTodoItem("assessment", assignment: finalExam3, category: exam2);
+      hw3.category = homework;
+      midterm3.category = exam1;
+      finalExam3.category = exam2;
+      class3.addTodoItem("assignment", assignment: hw3);
+      class3.addTodoItem("assessment", assignment: midterm3);
+      class3.addTodoItem("assessment", assignment: finalExam3);
 
       Assignment hw4 = Assignment(
       title: "hw1",
@@ -353,10 +383,13 @@ void main(){
     );
       class4.gradeCalculator.addCategory(homework);
       class4.gradeCalculator.addCategory(exam1);
-      class4.gradeCalculator.addCategory(exam2);
-      class4.addTodoItem("assignment", assignment: hw4, category: homework);
-      class4.addTodoItem("assessment", assignment: midterm4, category: exam1);
-      class4.addTodoItem("assessment", assignment: finalExam4, category: exam2);
+      class4.gradeCalculator.addCategory(exam2);hw3.category = homework;
+      hw4.category = homework;
+      midterm4.category = exam1;
+      finalExam4.category = exam2;
+      class3.addTodoItem("assignment", assignment: hw4);
+      class3.addTodoItem("assessment", assignment: midterm4);
+      class3.addTodoItem("assessment", assignment: finalExam4);
 
       term.addClass(class1);
       term.addClass(class2);
@@ -403,9 +436,13 @@ void main(){
       class11.gradeCalculator.addCategory(homework1);
       class11.gradeCalculator.addCategory(exam11);
       class11.gradeCalculator.addCategory(exam21);
-      class11.addTodoItem("assignment", assignment: hw11, category: homework1);
-      class11.addTodoItem("assessment", assignment: midterm1, category: exam11);
-      class11.addTodoItem("assessment", assignment: finalExam1, category: exam21);
+
+      hw11.category = homework1;
+      midterm1.category = exam11;
+      finalExam1.category = exam21;
+      class3.addTodoItem("assignment", assignment: hw11);
+      class3.addTodoItem("assessment", assignment: midterm1);
+      class3.addTodoItem("assessment", assignment: finalExam1);
 
       Assignment hw21 = Assignment(
       title: "hw1",
@@ -428,9 +465,12 @@ void main(){
       class21.gradeCalculator.addCategory(homework1);
       class21.gradeCalculator.addCategory(exam11);
       class21.gradeCalculator.addCategory(exam21);
-      class21.addTodoItem("assignment", assignment: hw21, category: homework1);
-      class21.addTodoItem("assessment", assignment: midterm21, category: exam11);
-      class21.addTodoItem("assessment", assignment: finalExam21, category: exam21);
+      hw21.category = homework1;
+      midterm21.category = exam11;
+      finalExam21.category = exam21;
+      class3.addTodoItem("assignment", assignment: hw21);
+      class3.addTodoItem("assessment", assignment: midterm21);
+      class3.addTodoItem("assessment", assignment: finalExam21);
 
       Assignment hw31 = Assignment(
       title: "hw1",
@@ -453,9 +493,12 @@ void main(){
       class31.gradeCalculator.addCategory(homework1);
       class31.gradeCalculator.addCategory(exam11);
       class31.gradeCalculator.addCategory(exam21);
-      class31.addTodoItem("assignment", assignment: hw31, category: homework1);
-      class31.addTodoItem("assessment", assignment: midterm31, category: exam11);
-      class31.addTodoItem("assessment", assignment: finalExam31, category: exam21);
+      hw31.category = homework1;
+      midterm31.category = exam11;
+      finalExam31.category = exam21;
+      class3.addTodoItem("assignment", assignment: hw31);
+      class3.addTodoItem("assessment", assignment: midterm31);
+      class3.addTodoItem("assessment", assignment: finalExam31);
 
       Assignment hw41 = Assignment(
       title: "hw1",
@@ -478,9 +521,12 @@ void main(){
       class41.gradeCalculator.addCategory(homework1);
       class41.gradeCalculator.addCategory(exam11);
       class41.gradeCalculator.addCategory(exam21);
-      class41.addTodoItem("assignment", assignment: hw41, category: homework1);
-      class41.addTodoItem("assessment", assignment: midterm41, category: exam11);
-      class41.addTodoItem("assessment", assignment: finalExam41, category: exam21);
+      hw41.category = homework1;
+      midterm41.category = exam11;
+      finalExam41.category = exam21;
+      class3.addTodoItem("assignment", assignment: hw41);
+      class3.addTodoItem("assessment", assignment: midterm41);
+      class3.addTodoItem("assessment", assignment: finalExam41);
 
       term1.addClass(class11);
       term1.addClass(class21);

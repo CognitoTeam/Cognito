@@ -13,13 +13,16 @@ part 'class.g.dart';
 /// @author Praneet Singh
 
 class Class extends Event {
+  final String ASSIGNMENTTAG = "assignment";
+  final String ASSESSMENTTAG = "assessment";
+  final String TASKTAG = "task";
   String subjectArea, courseNumber, instructor, officeLocation;
   int units;
   Map<String, List<DateTime>> officeHours;
-  
+  List<Category> categories;
   @JsonKey(ignore: true)
   GradeCalculator gradeCalculator;
-
+  
   Map<String, List<Task>> todo;
 
   Class(
@@ -51,6 +54,7 @@ class Class extends Event {
     officeHours = Map();
     gradeCalculator = GradeCalculator();
     todo = Map();
+    categories = List();
   }
   factory Class.fromJson(Map<String, dynamic> json) => _$ClassFromJson(json);
 
@@ -62,13 +66,15 @@ class Class extends Event {
     List<DateTime> temp = [start, end];
     officeHours[(officeHours.length+1).toString()] = temp;
   }
-
+addCategory(Category category) {
+    categories.add(category);
+  }
   ///
   ///Based on the key passed in addTodoItem will add
   ///A new task, assignment or assessment to its
   ///specific List
   addTodoItem(String key,
-      {Task task, Assignment assignment, Category category}) {
+      {Task task, Assignment assignment}) {
     switch (key) {
       case "task":
         if (todo.containsKey(key)) {
@@ -88,8 +94,11 @@ class Class extends Event {
           assign.add(assignment);
           todo[key] = assign;
         }
-        assignment.category = category;
-        gradeCalculator.addGrade(assignment, category);
+        print("Added a assignment to the class");
+        if (!gradeCalculator.categories.contains(assignment.category)) {
+          gradeCalculator.addCategory(assignment.category);
+        }
+        gradeCalculator.addGrade(assignment, assignment.category);
         break;
 
       case "assessment":
@@ -100,8 +109,12 @@ class Class extends Event {
           assment.add(assignment);
           todo[key] = assment;
         }
-        assignment.category = category;
-        gradeCalculator.addGrade(assignment, category);
+        print("Added a assessment to the class");
+
+        if (!gradeCalculator.categories.contains(assignment.category)) {
+          gradeCalculator.addCategory(assignment.category);
+        }
+        gradeCalculator.addGrade(assignment, assignment.category);
         break;
 
       default:

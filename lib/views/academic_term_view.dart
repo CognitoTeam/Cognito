@@ -25,7 +25,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
   AllTerms _allTerms = AllTerms();
   // List of academic terms
   DataBase dataBase = DataBase();
-
+  String _userID = "";
   Future<bool> startFireStore() async {
     String jsonString = await dataBase.initializeFireStore();
     setState(() {
@@ -41,6 +41,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
     super.initState();
     setState(() {
       startFireStore();
+      _getUserID();
     });
   }
 
@@ -53,6 +54,18 @@ class _AcademicTermViewState extends State<AcademicTermView> {
     }
   }
 
+  Future<String> _getUserID() async{
+    String userID = await _fireBaseLogin.userName();
+    if(userID != null){
+      setState(() {
+          _userID = userID;
+
+            });
+    }else {
+      print("User ID null");
+    }
+    return userID;
+  }
   // Remove terms of list
   void removeTerm(AcademicTerm termToRemove) {
     setState(() {
@@ -62,7 +75,35 @@ class _AcademicTermViewState extends State<AcademicTermView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Scaffold (
+      drawer: Drawer(
+        child: ListView(
+          
+          padding: EdgeInsets.zero,
+    children: <Widget>[
+      DrawerHeader(
+        child: Text( _userID, style: Theme.of(context).primaryTextTheme.title,),
+        decoration: BoxDecoration(
+          color: Theme.of(context).accentColor,
+        ),
+      ),
+      ListTile(
+        title: Text('Item 1'),
+        onTap: () {
+          // Update the state of the app
+          // ...
+        },
+      ),
+      ListTile(
+        title: Text('Item 2'),
+        onTap: () {
+          // Update the state of the app
+          // ...
+        },
+      ),
+    ],
+  ),
+        ),
       appBar: AppBar(
         title: Text(
           "Academic Terms",
@@ -135,6 +176,9 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                         // Use start date's string representation as key
                         key: Key(_allTerms.terms[index].toString()),
                         direction: DismissDirection.endToStart,
+                        onResize: (){
+                          print("Swipped");
+                        },
                         onDismissed: (direction) {
                           removeTerm(term);
                           String jsonString = json.encode(_allTerms);
