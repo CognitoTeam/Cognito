@@ -95,6 +95,9 @@ addCategory(Category category) {
           todo[key] = assign;
         }
         print("Added a assignment to the class");
+        if (!gradeCalculator.categories.contains(assignment.category)) {
+          gradeCalculator.addCategory(assignment.category);
+        }
         gradeCalculator.addGrade(assignment, assignment.category);
         break;
 
@@ -107,6 +110,10 @@ addCategory(Category category) {
           todo[key] = assment;
         }
         print("Added a assessment to the class");
+
+        if (!gradeCalculator.categories.contains(assignment.category)) {
+          gradeCalculator.addCategory(assignment.category);
+        }
         gradeCalculator.addGrade(assignment, assignment.category);
         break;
 
