@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/views/add_term_view.dart';
 import 'package:cognito/views/term_details_view.dart';
+import 'package:cognito/views/main_drawer.dart';
 
 class AcademicTermView extends StatefulWidget {
   final TermStorage storage = TermStorage();
@@ -73,37 +74,19 @@ class _AcademicTermViewState extends State<AcademicTermView> {
     });
   }
 
+  AcademicTerm getCurrentTerm() {
+    for (AcademicTerm term in _allTerms.terms) {
+      if (DateTime.now().isAfter(term.startTime) && DateTime.now().isBefore(term.endTime)) {
+        return term;
+      }
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold (
-      drawer: Drawer(
-        child: ListView(
-          
-          padding: EdgeInsets.zero,
-    children: <Widget>[
-      DrawerHeader(
-        child: Text( _userID, style: Theme.of(context).primaryTextTheme.title,),
-        decoration: BoxDecoration(
-          color: Theme.of(context).accentColor,
-        ),
-      ),
-      ListTile(
-        title: Text('Item 1'),
-        onTap: () {
-          // Update the state of the app
-          // ...
-        },
-      ),
-      ListTile(
-        title: Text('Item 2'),
-        onTap: () {
-          // Update the state of the app
-          // ...
-        },
-      ),
-    ],
-  ),
-        ),
+      drawer: MainDrawer(term: getCurrentTerm(),),
       appBar: AppBar(
         title: Text(
           "Academic Terms",

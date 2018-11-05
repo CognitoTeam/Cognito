@@ -4,10 +4,11 @@
 import 'package:flutter/material.dart';
 import 'package:cognito/models/class.dart';
 import 'package:cognito/models/academic_term.dart';
+import 'package:cognito/views/main_drawer.dart';
 
 class ClassView extends StatefulWidget {
   // Academic term object
-  final AcademicTerm term;
+  AcademicTerm term;
 
   // Constructor that takes in an academic term object
   ClassView({Key key, @required this.term}) : super(key: key);
@@ -20,6 +21,7 @@ class _ClassViewState extends State<ClassView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: MainDrawer(term: widget.term),
       appBar: AppBar(
         title: Text(
           widget.term.termName + " - Classes",
@@ -27,6 +29,7 @@ class _ClassViewState extends State<ClassView> {
         ),
         backgroundColor: Theme.of(context).primaryColorDark,
       ),
+      
     );
   }
 }
