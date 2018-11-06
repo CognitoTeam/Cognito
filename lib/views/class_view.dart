@@ -24,7 +24,7 @@ class _ClassViewState extends State<ClassView> {
   DataBase database = DataBase();
   void removeClass(Class classToRemove) {
     setState(() {
-      widget.term.classes.remove(classToRemove);
+      widget.term.removeClass(classToRemove);
     });
   }
 
@@ -96,12 +96,16 @@ class _ClassViewState extends State<ClassView> {
                           MaterialPageRoute(
                               builder: (context) =>
                                   ClassDetailsView(classObj: classObj)));
+                      database.allTerms.updateTerm(widget.term);
+                      database.updateDatabase();
                     },
                     child: Dismissible(
                       key: Key(widget.term.classes[index].toString()),
                       direction: DismissDirection.endToStart,
                       onDismissed: (direction) {
                         removeClass(classObj);
+                        database.allTerms.updateTerm(widget.term);
+                        database.updateDatabase();
                         Scaffold.of(context).showSnackBar(SnackBar(
                           content: Text("${classObj.title} deleted"),
                         ));
