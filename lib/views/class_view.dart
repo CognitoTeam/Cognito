@@ -1,3 +1,4 @@
+import 'package:cognito/database/database.dart';
 /// Class view
 /// Displays list of Class cards
 /// @author Julian Vu
@@ -10,8 +11,7 @@ import 'package:cognito/views/class_details_view.dart';
 
 class ClassView extends StatefulWidget {
   // Academic term object
-  AcademicTerm term;
-
+  final AcademicTerm term;
   // Constructor that takes in an academic term object
   ClassView({Key key, @required this.term}) : super(key: key);
 
@@ -20,6 +20,8 @@ class ClassView extends StatefulWidget {
 }
 
 class _ClassViewState extends State<ClassView> {
+
+  DataBase database = DataBase();
   void removeClass(Class classToRemove) {
     setState(() {
       widget.term.classes.remove(classToRemove);
