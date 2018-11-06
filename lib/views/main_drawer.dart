@@ -5,7 +5,7 @@ import 'package:cognito/views/class_view.dart';
 import 'package:cognito/views/academic_term_view.dart';
 
 class MainDrawer extends StatefulWidget {
-  final AcademicTerm term;
+  AcademicTerm term;
 
   MainDrawer({Key key, @required this.term});
 

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:cognito/models/all_terms.dart';
 import 'package:cognito/database/database.dart';
 import 'package:cognito/database/firebase_login.dart';
 import 'package:cognito/views/login_selection_view.dart';

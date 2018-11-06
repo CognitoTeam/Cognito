@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/firebase_login.dart';
-import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/all_terms.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -10,7 +9,9 @@ import 'package:path_provider/path_provider.dart';
 /// @author Praneet Singh
 class DataBase {
   final FireBaseLogin _fireBaseLogin = FireBaseLogin();
+
   DocumentReference _documentReference;
+  
   AllTerms allTerms = AllTerms();
   Future<bool> startFireStore() async {
     String jsonString = await initializeFireStore();
@@ -94,11 +95,13 @@ class DataBase {
   }
 
   Future<void> updateDatabase() {
+     print("Encoding terms");
     String jsonString = json.encode(allTerms);
-    print("Encoding terms");
-    writeJSON(jsonString);
+    print(jsonString);
     print("Writing database to storage");
-    update();
+    writeJSON(jsonString);
     print("Update database");
+    update();
+   
   }
 }
