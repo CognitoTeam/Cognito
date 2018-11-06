@@ -67,7 +67,7 @@ class _LoginViewState extends State<LoginView> {
       child: CircleAvatar(
         backgroundColor: Colors.transparent,
         radius: 100.0,
-        child: Image.asset("assets/circle_logo.png"),
+        child: Image.asset("assets/logo.png"),
       ),
     );
 

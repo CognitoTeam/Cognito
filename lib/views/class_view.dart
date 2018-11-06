@@ -61,33 +61,33 @@ class _ClassViewState extends State<ClassView> {
 
           return Container(
             margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
-            child: SizedBox(
-              height: 256.0,
+            child: InkWell(
+              onTap: () async {
+                await Navigator.push(context, MaterialPageRoute(builder: (context) => ClassDetailsView(classObj: classObj)));
+              },
 
-              child: InkWell(
-                onTap: () async {
-                  await Navigator.push(context, MaterialPageRoute(builder: (context) => ClassDetailsView(classObj: classObj)));
+              child: Dismissible(
+                key: Key(widget.term.classes[index].toString()),
+                direction: DismissDirection.endToStart,
+                onDismissed: (direction) {
+                  removeClass(classObj);
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                    content: Text("${classObj.title} deleted"),
+                  ));
                 },
 
-                child: Dismissible(
-                  key: Key(widget.term.classes[index].toString()),
-                  direction: DismissDirection.endToStart,
-                  onDismissed: (direction) {
-                    removeClass(classObj);
-                    Scaffold.of(context).showSnackBar(SnackBar(
-                      content: Text("${classObj.title} deleted"),
-                    ));
-                  },
-
-                  child: Card(
-                    child: Column(
-                      children: <Widget>[
-                        ListTile(
-                          leading: Icon(Icons.label),
-                          title: Text(classObj.subjectArea + " " + classObj.courseNumber + " - " + classObj.title),
-                        )
-                      ],
-                    ),
+                child: Card(
+                  color: Theme.of(context).primaryColor,
+                  child: Column(
+                    children: <Widget>[
+                      ListTile(
+                        leading: Icon(Icons.label),
+                        title: Text(
+                            classObj.subjectArea + " " + classObj.courseNumber + " - " + classObj.title,
+                          style: Theme.of(context).primaryTextTheme.body1,
+                        ),
+                      )
+                    ],
                   ),
                 ),
               ),

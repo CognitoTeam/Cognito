@@ -55,8 +55,8 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
         tag: "hero",
         child: CircleAvatar(
           backgroundColor: Colors.transparent,
-          radius: 100.0,
-          child: Image.asset("assets/circle_logo.png"),
+          radius: 128.0,
+          child: Image.asset("assets/logo-1024.png"),
         ),
       );
 
@@ -130,7 +130,7 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
       );
 
       return Scaffold(
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Colors.white,
         body: Center(
           child: ListView(
             shrinkWrap: true,
