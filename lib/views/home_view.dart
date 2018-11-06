@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:cognito/views/firebase_login.dart';
+import 'package:cognito/database/firebase_login.dart';
 import 'package:cognito/views/login_selection_view.dart';
 import 'package:flutter/material.dart';
 

@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:cognito/models/all_terms.dart';
-import 'package:cognito/views/database.dart';
-import 'package:cognito/views/firebase_login.dart';
+import 'package:cognito/database/database.dart';
+import 'package:cognito/database/firebase_login.dart';
 import 'package:cognito/views/login_selection_view.dart';
-import 'package:cognito/views/term_storage.dart';
+import 'package:cognito/database/term_storage.dart';
 
 /// Academic term view screen
 /// Displays AcademicTerm objects in the form of cards

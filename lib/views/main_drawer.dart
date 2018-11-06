@@ -1,5 +1,5 @@
 import 'package:cognito/models/academic_term.dart';
-import 'package:cognito/views/firebase_login.dart';
+import 'package:cognito/database/firebase_login.dart';
 import 'package:flutter/material.dart';
 import 'package:cognito/views/class_view.dart';
 import 'package:cognito/views/academic_term_view.dart';

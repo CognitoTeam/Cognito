@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'dart:io';
 import 'dart:async';
-import 'package:cognito/views/firebase_login.dart';
+import 'package:cognito/database/firebase_login.dart';
 import 'package:cognito/views/forgot_password_view.dart';
 import 'package:cognito/views/academic_term_view.dart';
 

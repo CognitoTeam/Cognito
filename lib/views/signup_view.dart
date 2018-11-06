@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'dart:async';
 import 'dart:io';
-import 'package:cognito/views/academic_term_view.dart';
-import 'package:cognito/views/firebase_login.dart';
+import 'package:cognito/database/firebase_login.dart';
 import 'package:flutter/services.dart' show PlatformException;
 
 class SignUpView extends StatefulWidget {

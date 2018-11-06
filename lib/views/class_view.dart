@@ -43,6 +43,7 @@ class _ClassViewState extends State<ClassView> {
           final result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddClassView()));
           if (result != null) {
             widget.term.classes.add(result);
+            
           }
         },
         child: Icon(

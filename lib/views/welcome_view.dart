@@ -1,6 +1,5 @@
 import 'package:cognito/views/update_user_info.dart';
 import 'package:flutter/material.dart';
-import 'package:cognito/views/firebase_login.dart';
 
 class WelcomeView extends StatefulWidget {
   static String tag = "home-view";

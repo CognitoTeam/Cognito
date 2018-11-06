@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cognito/views/firebase_login.dart';
-import 'package:cognito/views/term_storage.dart';
+import 'package:cognito/database/firebase_login.dart';
+import 'package:cognito/database/term_storage.dart';
 /// FireStore storage for terms
 /// @author Praneet Singh
 class DataBase {
@@ -8,7 +8,7 @@ class DataBase {
   DocumentReference _documentReference;
   final TermStorage _storage = TermStorage();
   
-
+    
     Future<String> initializeFireStore() async{
       String uID = await _fireBaseLogin.currentUser();
       assert(uID != null);
