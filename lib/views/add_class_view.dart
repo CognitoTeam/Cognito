@@ -113,6 +113,7 @@ class _AddClassViewState extends State<AddClassView> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Add New Class"),
+        backgroundColor: Theme.of(context).primaryColorDark,
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.check),

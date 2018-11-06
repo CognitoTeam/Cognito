@@ -26,7 +26,6 @@ class _AcademicTermViewState extends State<AcademicTermView> {
   AllTerms _allTerms = AllTerms();
   // List of academic terms
   DataBase dataBase = DataBase();
-  String _userID = "";
   Future<bool> startFireStore() async {
     String jsonString = await dataBase.initializeFireStore();
     setState(() {
@@ -42,8 +41,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
     super.initState();
     setState(() {
       startFireStore();
-      _getUserID();
-    });
+          });
   }
 
   Future<bool> _signOutUser() async {
@@ -55,18 +53,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
     }
   }
 
-  Future<String> _getUserID() async{
-    String userID = await _fireBaseLogin.userName();
-    if(userID != null){
-      setState(() {
-          _userID = userID;
-
-            });
-    }else {
-      print("User ID null");
-    }
-    return userID;
-  }
+  
   // Remove terms of list
   void removeTerm(AcademicTerm termToRemove) {
     setState(() {
