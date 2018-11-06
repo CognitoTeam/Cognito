@@ -38,6 +38,9 @@ dev_dependencies:
 flutter:
   assets:
     - assets/logo.png
+    - assets/logo-256.png
+    - assets/logo-512.png
+    - assets/logo-1024.png
     - assets/circle_logo.png
     - assets/google.png
   # The following line ensures that the Material Icons font is

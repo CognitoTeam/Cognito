@@ -1,5 +1,5 @@
-/// Class creation view
-/// View screen to create a new Class object
+/// Class details view
+/// View screen to edit a Class object
 /// @author Julian Vu
 ///
 import 'package:flutter/material.dart';
@@ -8,31 +8,50 @@ import 'package:cognito/models/class.dart';
 
 enum Day {M, Tu, W, Th, F, Sat, Sun}
 
-class AddClassView extends StatefulWidget {
+class ClassDetailsView extends StatefulWidget {
+  // Underlying class object
+  Class classObj;
+
+  // Ctor
+  ClassDetailsView({Key key, @required this.classObj}) : super(key: key);
+
   @override
-  _AddClassViewState createState() => _AddClassViewState();
+  _ClassDetailsViewState createState() => _ClassDetailsViewState();
 }
 
-class _AddClassViewState extends State<AddClassView> {
+class _ClassDetailsViewState extends State<ClassDetailsView> {
   DateTime startTime, endTime;
   List<int> daysOfEvent = List();
 
-  final _subjectController = TextEditingController();
-  final _courseNumberController = TextEditingController();
-  final _courseTitleController = TextEditingController();
-  final _unitCountController = TextEditingController();
-  final _locationController = TextEditingController();
-  final _instructorController = TextEditingController();
-  final _officeLocationController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  TextEditingController _subjectController, _courseNumberController,
+      _courseTitleController, _unitCountController, _locationController,
+      _instructorController, _officeLocationController, _descriptionController;
+
+  @override
+  void initState() {
+    super.initState();
+    _subjectController = TextEditingController(text: widget.classObj.subjectArea);
+    _courseNumberController = TextEditingController(text: widget.classObj.courseNumber);
+    _courseTitleController = TextEditingController(text: widget.classObj.title);
+    _unitCountController = TextEditingController(text: widget.classObj.units.toString());
+    _locationController = TextEditingController(text: widget.classObj.location);
+    _instructorController = TextEditingController(text: widget.classObj.instructor);
+    _officeLocationController = TextEditingController(text: widget.classObj.officeLocation);
+    _descriptionController = TextEditingController(text: widget.classObj.description);
+    setState(() {
+      startTime = widget.classObj.startTime;
+      endTime = widget.classObj.endTime;
+      daysOfEvent = widget.classObj.daysOfEvent;
+    });
+  }
 
   ListTile textFieldTile(
       {Widget leading,
-      Widget trailing,
-      TextInputType keyboardType,
-      String hint,
-      Widget subtitle,
-      TextEditingController controller}) {
+        Widget trailing,
+        TextInputType keyboardType,
+        String hint,
+        Widget subtitle,
+        TextEditingController controller}) {
     return ListTile(
       leading: leading,
       trailing: trailing,
@@ -112,28 +131,25 @@ class _AddClassViewState extends State<AddClassView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add New Class"),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.check),
-            onPressed: () {
-              Navigator.of(context).pop(_subjectController != null
-                  ? Class(
-                      subjectArea: _subjectController.text,
-                      courseNumber: _courseNumberController.text,
-                      title: _courseTitleController.text,
-                      units: int.parse(_unitCountController.text),
-                      location: _locationController.text,
-                      instructor: _instructorController.text,
-                      officeLocation: _officeLocationController.text,
-                      description: _descriptionController.text,
-                      daysOfEvent: daysOfEvent,
-                      start: startTime,
-                      end: endTime)
-                  : null);
-            },
-          ),
-        ],
+        backgroundColor: Theme.of(context).primaryColorDark,
+        title: Text(_subjectController.text + _courseNumberController.text),
+        leading: IconButton(
+          icon: BackButtonIcon(),
+          onPressed: () {
+            widget.classObj.subjectArea = _subjectController.text;
+            widget.classObj.courseNumber = _courseNumberController.text;
+            widget.classObj.title = _courseTitleController.text;
+            widget.classObj.units = int.parse(_unitCountController.text);
+            widget.classObj.location = _locationController.text;
+            widget.classObj.instructor = _instructorController.text;
+            widget.classObj.officeLocation = _officeLocationController.text;
+            widget.classObj.description = _descriptionController.text;
+            widget.classObj.startTime = startTime;
+            widget.classObj.endTime = endTime;
+            widget.classObj.daysOfEvent = daysOfEvent;
+            Navigator.of(context).pop(widget.classObj);
+          },
+        ),
       ),
       body: ListView(
         children: <Widget>[

@@ -15,12 +15,12 @@ class AcademicTerm {
     DateTime startTime; //Academic term start 
     DateTime endTime;   //Academic term end
 
-    Set<Class> classes;
+    List<Class> classes;
     Set<Club> clubs;
     Set<Task> tasks;
     Set<Event> events;
     AcademicTerm(this.termName, this.startTime, this.endTime){
-      classes = Set();
+      classes = List();
       clubs = Set();
       tasks = Set();
       events = Set();
