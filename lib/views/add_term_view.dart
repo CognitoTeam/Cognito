@@ -46,6 +46,7 @@ class _AddTermViewState extends State<AddTermView> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Add New Academic Term"),
+        backgroundColor: Theme.of(context).primaryColorDark,
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.check),
