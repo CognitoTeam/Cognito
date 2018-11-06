@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'dart:async';
 import 'dart:io';
-import 'package:cognito/views/academic_term_view.dart';
-import 'package:cognito/views/firebase_login.dart';
+import 'package:cognito/database/firebase_login.dart';
 import 'package:flutter/services.dart' show PlatformException;
 
 class SignUpView extends StatefulWidget {
@@ -72,18 +71,18 @@ class _SignUpViewState extends State<SignUpView> {
       tag: "hero",
       child: CircleAvatar(
         backgroundColor: Colors.transparent,
-        radius: 100.0,
-        child: Image.asset("assets/circle_logo.png"),
+        radius: 110.0,
+        child: Image.asset("assets/logo-1024.png"),
       ),
     );
 
     final email = TextFormField(
       keyboardType: TextInputType.emailAddress,
       autofocus: false,
-      style: Theme.of(context).primaryTextTheme.body1,
+      style: TextStyle(color: Colors.black,),
       decoration: InputDecoration(
         hintText: "Email",
-        hintStyle: TextStyle(color: Colors.white70,),
+        hintStyle: TextStyle(color: Colors.black,),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
       validator: (val) =>
@@ -95,10 +94,10 @@ class _SignUpViewState extends State<SignUpView> {
       key: _passKey,
       autofocus: false,
       obscureText: true,
-      style: Theme.of(context).primaryTextTheme.body1,
+      style: TextStyle(color: Colors.black),
       decoration: InputDecoration(
         hintText: "Password",
-        hintStyle: TextStyle(color: Colors.white70,),
+        hintStyle: TextStyle(color: Colors.black,),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
       validator: (val) =>
@@ -110,10 +109,10 @@ class _SignUpViewState extends State<SignUpView> {
     final confirmPassword = TextFormField(
       autofocus: false,
       obscureText: true,
-      style: Theme.of(context).primaryTextTheme.body1,
+      style: TextStyle(color: Colors.black),
       decoration: InputDecoration(
         hintText: "Confirm password",
-        hintStyle: TextStyle(color: Colors.white70,),
+        hintStyle: TextStyle(color: Colors.black,),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
       validator: (confirmation){
@@ -142,7 +141,7 @@ class _SignUpViewState extends State<SignUpView> {
     );
 
     return Scaffold(
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Colors.white,
         resizeToAvoidBottomPadding: false,
         key: _scaffoldKey,
         body: Center(

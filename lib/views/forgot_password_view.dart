@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'dart:io';
 import 'dart:async';
-import 'package:cognito/views/firebase_login.dart';
+import 'package:cognito/database/firebase_login.dart';
 
 class ForgotPasswordView extends StatefulWidget {
   static String tag = "Forgot_Password_View_view";

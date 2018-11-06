@@ -1,6 +1,6 @@
 import 'package:cognito/views/academic_term_view.dart';
 import 'package:flutter/material.dart';
-import 'package:cognito/views/firebase_login.dart';
+import 'package:cognito/database/firebase_login.dart';
 
 class UpdateUserInfo extends StatefulWidget {
   static String tag = "home-view";

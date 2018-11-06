@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'package:cognito/models/all_terms.dart';
-import 'package:cognito/views/database.dart';
-import 'package:cognito/views/firebase_login.dart';
+import 'package:cognito/database/database.dart';
+import 'package:cognito/database/firebase_login.dart';
 import 'package:cognito/views/login_selection_view.dart';
-import 'package:cognito/views/term_storage.dart';
 
 /// Academic term view screen
 /// Displays AcademicTerm objects in the form of cards
@@ -15,7 +13,6 @@ import 'package:cognito/views/term_details_view.dart';
 import 'package:cognito/views/main_drawer.dart';
 
 class AcademicTermView extends StatefulWidget {
-  final TermStorage storage = TermStorage();
   static String tag = "academic-term-view";
   @override
   _AcademicTermViewState createState() => _AcademicTermViewState();
@@ -23,29 +20,20 @@ class AcademicTermView extends StatefulWidget {
 
 class _AcademicTermViewState extends State<AcademicTermView> {
   final FireBaseLogin _fireBaseLogin = FireBaseLogin();
-  AllTerms _allTerms = AllTerms();
   // List of academic terms
-  DataBase dataBase = DataBase();
-  String _userID = "";
-  Future<bool> startFireStore() async {
-    String jsonString = await dataBase.initializeFireStore();
-    setState(() {
-      print("Read from the disk and populate UI");
-      final jsonTerms = json.decode(jsonString);
-      AllTerms allTerms = AllTerms.fromJson(jsonTerms);
-      _allTerms.terms = allTerms.terms;
-    });
-  }
-
+  DataBase database = DataBase();
   @override
   void initState() {
     super.initState();
     setState(() {
-      startFireStore();
-      _getUserID();
+      _initializeDatabase();
     });
   }
-
+ Future<bool> _initializeDatabase() async{
+      await database.startFireStore();
+      setState(() {}); //update the view
+      
+ }
   Future<bool> _signOutUser() async {
     final api = await _fireBaseLogin.signOutUser();
     if (api != null) {
@@ -55,28 +43,17 @@ class _AcademicTermViewState extends State<AcademicTermView> {
     }
   }
 
-  Future<String> _getUserID() async{
-    String userID = await _fireBaseLogin.userName();
-    if(userID != null){
-      setState(() {
-          _userID = userID;
-
-            });
-    }else {
-      print("User ID null");
-    }
-    return userID;
-  }
   // Remove terms of list
   void removeTerm(AcademicTerm termToRemove) {
     setState(() {
-      _allTerms.terms.remove(termToRemove);
+      database.allTerms.terms.remove(termToRemove);
     });
   }
 
   AcademicTerm getCurrentTerm() {
-    for (AcademicTerm term in _allTerms.terms) {
-      if (DateTime.now().isAfter(term.startTime) && DateTime.now().isBefore(term.endTime)) {
+    for (AcademicTerm term in database.allTerms.terms) {
+      if (DateTime.now().isAfter(term.startTime) &&
+          DateTime.now().isBefore(term.endTime)) {
         return term;
       }
     }
@@ -85,8 +62,10 @@ class _AcademicTermViewState extends State<AcademicTermView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold (
-      drawer: MainDrawer(term: getCurrentTerm(),),
+    return Scaffold(
+      drawer: MainDrawer(
+        term: getCurrentTerm(),
+      ),
       appBar: AppBar(
         title: Text(
           "Academic Terms",
@@ -115,12 +94,12 @@ class _AcademicTermViewState extends State<AcademicTermView> {
         ],
       ),
 
-      body: _allTerms.terms.isNotEmpty
+      body: database.allTerms.terms.isNotEmpty
           ? ListView.builder(
-              itemCount: _allTerms.terms.length,
+              itemCount: database.allTerms.terms.length,
               itemBuilder: (BuildContext context, int index) {
                 // Grab academic term from list
-                AcademicTerm term = _allTerms.terms[index];
+                AcademicTerm term = database.allTerms.terms[index];
 
                 // Academic Term Card
                 return Container(
@@ -141,13 +120,8 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                                     TermDetailsView(term: term))).then((term) {
                           if (term != null) {
                             print("Term returned");
-                            String jsonString = json.encode(_allTerms);
-                            print("Encoding terms");
-                            widget.storage.writeJSON(jsonString);
-                            print("Writing database to storage");
-                            dataBase.update();
-                            print("Update database");
-                          }else{
+                            database.updateDatabase();
+                          } else {
                             print("Term was null");
                           }
                         });
@@ -157,16 +131,16 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                       child: Dismissible(
                         // Key needs to be unique for card dismissal to work
                         // Use start date's string representation as key
-                        key: Key(_allTerms.terms[index].toString()),
+                        key: Key(database.allTerms.terms[index].toString()),
                         direction: DismissDirection.endToStart,
-                        onResize: (){
+                        onResize: () {
                           print("Swipped");
                         },
                         onDismissed: (direction) {
                           removeTerm(term);
-                          String jsonString = json.encode(_allTerms);
-                          widget.storage.writeJSON(jsonString);
-                          dataBase.update();
+                          String jsonString = json.encode(database.allTerms);
+                          database.writeJSON(jsonString);
+                          database.update();
                           Scaffold.of(context).showSnackBar(SnackBar(
                             content: Text("${term.termName} deleted"),
                           ));
@@ -212,10 +186,10 @@ class _AcademicTermViewState extends State<AcademicTermView> {
           final result = await Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => AddTermView()));
           if (result != null) {
-            _allTerms.terms.add(result);
-            String jsonString = json.encode(_allTerms);
-            widget.storage.writeJSON(jsonString);
-            dataBase.update();
+            database.allTerms.terms.add(result);
+            String jsonString = json.encode(database.allTerms);
+            database.writeJSON(jsonString);
+            database.update();
           }
         },
         child: Icon(

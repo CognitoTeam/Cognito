@@ -1,4 +1,5 @@
 import 'package:cognito/models/academic_term.dart';
+import 'package:cognito/database/firebase_login.dart';
 import 'package:flutter/material.dart';
 import 'package:cognito/views/class_view.dart';
 import 'package:cognito/views/academic_term_view.dart';
@@ -13,6 +14,28 @@ class MainDrawer extends StatefulWidget {
 }
 
 class _MainDrawerState extends State<MainDrawer> {
+  final FireBaseLogin _fireBaseLogin = FireBaseLogin();
+  String _userID = "";
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _getUserID();
+    });
+  }
+  Future<String> _getUserID() async{
+    String userID = await _fireBaseLogin.userName();
+    if(userID != null){
+      setState(() {
+          _userID = userID;
+
+            });
+    }else {
+      print("User ID null");
+    }
+    return userID;
+  }
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -21,7 +44,7 @@ class _MainDrawerState extends State<MainDrawer> {
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
-            child: Text( "Test", style: Theme.of(context).accentTextTheme.title,),
+            child: Text( _userID, style: Theme.of(context).accentTextTheme.title,),
             decoration: BoxDecoration(
               color: Theme.of(context).accentColor,
             ),
