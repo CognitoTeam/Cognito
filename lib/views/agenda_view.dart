@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 
 class AgendaView extends StatefulWidget {
+  DateTime selectedDate = DateTime.now();
+
   @override
   _AgendaViewState createState() => _AgendaViewState();
 }
@@ -20,9 +22,18 @@ class _AgendaViewState extends State<AgendaView> {
           style: Theme.of(context).primaryTextTheme.title,
         ),
       ),
-      body: Calendar(
+      body: ListView(
+        children: <Widget>[
+          Calendar(
+            onDateSelected: (DateTime date) {
+              widget.selectedDate = date;
+            },
+          ),
+          ExpansionTile(
 
-      ),
+          ),
+        ],
+      )
     );
   }
 }
