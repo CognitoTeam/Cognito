@@ -16,14 +16,14 @@ class AcademicTerm {
     DateTime endTime;   //Academic term end
 
     List<Class> classes;
-    Set<Club> clubs;
-    Set<Task> tasks;
-    Set<Event> events;
+    List<Club> clubs;
+    List<Task> tasks;
+    List<Event> events;
     AcademicTerm(this.termName, this.startTime, this.endTime){
       classes = List();
-      clubs = Set();
-      tasks = Set();
-      events = Set();
+      clubs = List();
+      tasks = List();
+      events = List();
     }
     factory AcademicTerm.fromJson(Map<String, dynamic> json) => _$AcademicTermFromJson(json);
 

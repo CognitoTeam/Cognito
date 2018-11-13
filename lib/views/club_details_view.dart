@@ -1,3 +1,8 @@
+/// Club details view
+/// View screen to edit an Club object
+/// @author Praneet Singh
+///
+import 'package:flutter/material.dart';
 import 'package:cognito/models/club.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/models/officer.dart';
@@ -6,13 +11,6 @@ import 'package:cognito/views/add_event_view.dart';
 import 'package:cognito/views/add_task_view.dart';
 import 'package:cognito/views/event_details_view.dart';
 import 'package:cognito/views/task_details_view.dart';
-
-/// Club details view
-/// View screen to edit an Club object
-/// @author Praneet Singh
-///
-import 'package:flutter/material.dart';
-import 'dart:async';
 
 class ClubDetailsView extends StatefulWidget {
   // Hold Club object
@@ -67,6 +65,8 @@ class _ClubDetailsViewState extends State<ClubDetailsView> {
           icon: BackButtonIcon(),
           onPressed: () {
             print("Returning a club");
+            widget.club.description = _descriptionController.text;
+            widget.club.location = _locationController.text;
             Navigator.of(context).pop(widget.club);
           },
         ),
