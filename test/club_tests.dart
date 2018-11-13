@@ -1,3 +1,4 @@
+import 'package:cognito/models/officer.dart';
 /// Tester file for Club class
 import 'package:test/test.dart';
 import 'package:cognito/models/club.dart';
@@ -30,12 +31,15 @@ void main() {
         end: DateTime.now(),
     );
 
-    stem.addOfficer("David Chuong");
-    stem.addOfficer("Hector Flores");
+    Officer david = Officer("David Chuong", "President");
+    Officer hector = Officer("Hector Flores", "Vice President");
+
+    stem.addOfficer(david);
+    stem.addOfficer(hector);
     expect(stem.officers.isNotEmpty, isTrue);
     expect(stem.officers.length, equals(2));
-    expect(stem.officers[0], equals("David Chuong"));
-    expect(stem.officers[1], equals("Hector Flores"));
+    expect(stem.officers[0].officerName, equals("David Chuong"));
+    expect(stem.officers[1].officerName, equals("Hector Flores"));
 
     stem.addEvent(
       Event(

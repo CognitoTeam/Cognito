@@ -1,5 +1,5 @@
 /// Models a officer
-/// @ Praneet Singh
+/// @Praneet Singh
 import 'package:json_annotation/json_annotation.dart';
 
 part 'officer.g.dart';
