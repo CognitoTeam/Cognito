@@ -1,6 +1,7 @@
 /// Models a club
 /// @author Julian Vu
 import 'package:cognito/models/event.dart';
+import 'package:cognito/models/officer.dart';
 import 'package:cognito/models/task.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -9,7 +10,7 @@ part 'club.g.dart';
 @JsonSerializable()
 
 class Club extends Event {
-  List<String> officers;
+  List<Officer> officers;
   List<Event> events;
   List<Task> tasks;
 
@@ -38,8 +39,8 @@ factory Club.fromJson(Map<String, dynamic> json) => _$ClubFromJson(json);
   }
 
   /// Adds an officer to list of officers
-  void addOfficer(String name) {
-    officers.add(name);
+  void addOfficer(Officer officer) {
+    officers.add(officer);
   }
   /// Adds a task to list of tasks
   void addTask(Task task) {

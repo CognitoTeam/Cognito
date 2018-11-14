@@ -1,8 +1,10 @@
 import 'package:cognito/models/club.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/models/task.dart';
+import 'package:cognito/views/add_club_view.dart';
 import 'package:cognito/views/add_event_view.dart';
 import 'package:cognito/views/add_task_view.dart';
+import 'package:cognito/views/club_details_view.dart';
 import 'package:cognito/views/event_details_view.dart';
 import 'package:cognito/views/task_details_view.dart';
 
@@ -396,12 +398,11 @@ class _ExpandableClubListState extends State<ExpandableClubList> {
                 style: Theme.of(context).accentTextTheme.body2,
               ),
               onTap: () async {
-                /*Task result = await Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => TaskDetailsView(task:t)));
+                Club result = await Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => ClubDetailsView(club: c,)));
                 if (result != null) {
-                  print(result.title);
-                  widget.term.addTask(result);
-                }*/
+                  print("CLub updated: "+ result.title);
+                }
               }),
         );
       }
@@ -419,15 +420,15 @@ class _ExpandableClubListState extends State<ExpandableClubList> {
         ),
         leading: Icon(Icons.add),
         onTap: () async {
-          //TODO
-          /*Club result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddEventView()));
+          
+          Club result = await Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => AddClubView()));
           if (result != null) {
             print(result.title);
-            widget.term.addEvent(result);
+            widget.term.addClub(result);
           } else {
-            print("Event returned null");
-          }*/
+            print("Club returned null");
+          }
         },
       ),
     );

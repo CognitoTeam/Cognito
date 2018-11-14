@@ -20,7 +20,10 @@ Club _$ClubFromJson(Map<String, dynamic> json) {
     ..isRepeated = json['isRepeated'] as bool
     ..daysOfEvent =
         (json['daysOfEvent'] as List)?.map((e) => e as int)?.toList()
-    ..officers = (json['officers'] as List)?.map((e) => e as String)?.toList()
+    ..officers = (json['officers'] as List)
+        ?.map((e) =>
+            e == null ? null : Officer.fromJson(e as Map<String, dynamic>))
+        ?.toList()
     ..events = (json['events'] as List)
         ?.map(
             (e) => e == null ? null : Event.fromJson(e as Map<String, dynamic>))
