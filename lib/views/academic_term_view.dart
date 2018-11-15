@@ -20,6 +20,7 @@ class AcademicTermView extends StatefulWidget {
 
 class _AcademicTermViewState extends State<AcademicTermView> {
   final FireBaseLogin _fireBaseLogin = FireBaseLogin();
+  AcademicTerm deletedTerm;
   // List of academic terms
   DataBase database = DataBase();
   @override
@@ -29,20 +30,18 @@ class _AcademicTermViewState extends State<AcademicTermView> {
       _initializeDatabase();
     });
   }
- Future<bool> _initializeDatabase() async{
-      await database.startFireStore();
-      setState(() {}); //update the view
-      
- }
-  Future<bool> _signOutUser() async {
-    final api = await _fireBaseLogin.signOutUser();
-    if (api != null) {
-      return false;
-    } else {
-      return true;
-    }
+
+  Future<bool> _initializeDatabase() async {
+    await database.startFireStore();
+    setState(() {}); //update the view
   }
 
+  
+void undo(AcademicTerm undo){
+  setState(() {
+      database.allTerms.terms.add(undo);
+    });
+}
   // Remove terms of list
   void removeTerm(AcademicTerm termToRemove) {
     setState(() {
@@ -72,26 +71,6 @@ class _AcademicTermViewState extends State<AcademicTermView> {
           style: Theme.of(context).primaryTextTheme.title,
         ),
         backgroundColor: Theme.of(context).primaryColorDark,
-        actions: <Widget>[
-          FlatButton(
-            child: Text(
-              "Sign out",
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-            onPressed: () async {
-              bool b = await _signOutUser();
-
-              b
-                  ? Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => LoginSelectionView()))
-                  : print("Error SignOut!");
-            },
-          ),
-        ],
       ),
 
       body: database.allTerms.terms.isNotEmpty
@@ -105,8 +84,6 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                 return Container(
                   margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
                   child: SizedBox(
-                    height: 256.0,
-
                     // Inkwell makes card "tappable"
                     child: InkWell(
                       onTap: () async {
@@ -138,36 +115,42 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                         },
                         onDismissed: (direction) {
                           removeTerm(term);
+                          deletedTerm = term;
                           String jsonString = json.encode(database.allTerms);
                           database.writeJSON(jsonString);
                           database.update();
                           Scaffold.of(context).showSnackBar(SnackBar(
                             content: Text("${term.termName} deleted"),
+                            action: SnackBarAction(
+                              label: "Undo",
+                              onPressed: () {
+                                  undo(deletedTerm);
+                                  database.updateDatabase();
+                              },
+                            ),
+                            duration: Duration(seconds: 7),
                           ));
                         },
                         child: Card(
+                          color: Theme.of(context).primaryColor,
                           child: Column(
                             children: <Widget>[
                               // Term name
                               ListTile(
-                                leading: Icon(Icons.label),
-                                title: Text(term.termName),
-                              ),
-                              Divider(),
-
-                              // Start date
-                              ListTile(
-                                leading: Icon(Icons.calendar_today),
-                                title: Text(term.getStartDateAsString()),
-                                subtitle: Text("Start Date"),
-                              ),
-                              Divider(),
-
-                              // End date
-                              ListTile(
-                                leading: Icon(Icons.calendar_today),
-                                title: Text(term.getEndDateAsString()),
-                                subtitle: Text("End Date"),
+                                leading: Icon(
+                                  Icons.label,
+                                  color: Colors.white,
+                                ),
+                                title: Text(
+                                  term.termName,
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                subtitle: Text(
+                                  term.getStartDateAsString() +
+                                      " - " +
+                                      term.getEndDateAsString(),
+                                  style: TextStyle(color: Colors.grey),
+                                ),
                               )
                             ],
                           ),
@@ -184,7 +167,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
         onPressed: () async {
           // Retrieve Academic Term object from AddTermView
           final result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddTermView()));
+              .push(MaterialPageRoute(builder: (context) => AddTermView(allTerms: database.allTerms)));
           if (result != null) {
             database.allTerms.terms.add(result);
             String jsonString = json.encode(database.allTerms);
@@ -199,7 +182,6 @@ class _AcademicTermViewState extends State<AcademicTermView> {
         backgroundColor: Theme.of(context).accentColor,
         foregroundColor: Colors.black,
       ),
-      backgroundColor: Theme.of(context).primaryColor,
     );
   }
 }
