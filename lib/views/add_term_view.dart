@@ -1,3 +1,5 @@
+import 'package:cognito/models/all_terms.dart';
+
 /// Academic term creation view
 /// View screen to create a new AcademicTerm
 /// @author Julian Vu
@@ -8,7 +10,8 @@ import 'package:cognito/models/academic_term.dart';
 
 class AddTermView extends StatefulWidget {
   static String tag = "add-term-view";
-
+  AllTerms allTerms;
+  AddTermView({Key key, @required this.allTerms}) : super(key: key);
   @override
   _AddTermViewState createState() => _AddTermViewState();
 }
@@ -40,6 +43,20 @@ class _AddTermViewState extends State<AddTermView> {
       });
     }
   }
+  String conflictTerm = "";
+  bool timeConflict(DateTime startTime, DateTime endTime) {
+    bool cond = false;
+    for (AcademicTerm t in widget.allTerms.terms) {
+      if ((startTime.isAfter(t.startTime) && startTime.isBefore(t.endTime)) ||
+          (endTime.isAfter(t.startTime) && endTime.isBefore(t.endTime)) ||
+          (startTime.compareTo(t.startTime) == 0) &&
+              endTime.compareTo(t.endTime) == 0) {
+        conflictTerm = t.termName;
+        cond = true;
+      }
+    }
+    return cond;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,18 +65,31 @@ class _AddTermViewState extends State<AddTermView> {
         title: Text("Add New Academic Term"),
         backgroundColor: Theme.of(context).primaryColorDark,
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.check),
-            onPressed: () {
-              Navigator.of(context).pop(_termNameController != null
-                  ? AcademicTerm(
-                      _termNameController.text, newStartDate, newEndDate)
-                  : null);
-            },
+          Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+              icon: Icon(Icons.check),
+              onPressed: () {
+                 if (!timeConflict(newStartDate, newEndDate)) {
+                    Navigator.of(context).pop(_termNameController != null
+                        ? AcademicTerm(
+                            _termNameController.text, newStartDate, newEndDate)
+                        : null);
+                  } else {
+                    Scaffold.of(context).showSnackBar(SnackBar(
+                      content: Text(
+                          "There is a time conflict with term: " + conflictTerm),
+                      duration: Duration(seconds: 7),
+                    ));
+                  }
+                  
+                
+              });
+            }
           ),
+          
         ],
       ),
-
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -82,22 +112,20 @@ class _AddTermViewState extends State<AddTermView> {
             ),
           ),
           Divider(),
-
           ListTile(
             leading: Icon(Icons.calendar_today),
             title: Text(
-            "Select Start Date",
-            style: Theme.of(context).accentTextTheme.body2,
+              "Select Start Date",
+              style: Theme.of(context).accentTextTheme.body2,
             ),
             trailing: Text(
-            newStartDate != null
-            ? "${newStartDate.month.toString()}/${newStartDate.day.toString()}/${newStartDate.year.toString()}"
-                : "",
+              newStartDate != null
+                  ? "${newStartDate.month.toString()}/${newStartDate.day.toString()}/${newStartDate.year.toString()}"
+                  : "",
             ),
             onTap: () => _selectDate(true, context),
           ),
           Divider(),
-
           ListTile(
             leading: Icon(Icons.calendar_today),
             title: Text(
@@ -117,4 +145,3 @@ class _AddTermViewState extends State<AddTermView> {
     );
   }
 }
-
