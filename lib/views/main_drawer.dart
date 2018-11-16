@@ -73,11 +73,11 @@ class _MainDrawerState extends State<MainDrawer> {
               onTap: () {
                 Navigator.of(context).pushReplacement(MaterialPageRoute(
                     builder: (context) => ClubView(term: widget.term)));
-              })
+              }),
           ListTile(
             title: Text("Agenda"),
             onTap: () {
-              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => AgendaView()));
+              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => AgendaView(term: widget.term,)));
             },
           )
         ],
