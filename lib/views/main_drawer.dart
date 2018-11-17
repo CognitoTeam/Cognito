@@ -70,23 +70,22 @@ class _MainDrawerState extends State<MainDrawer> {
                       ],
                     ),
                     FlatButton(
-                          child: Text(
-                            "Sign out",
-                            style: TextStyle(
-                              color: Colors.black,
-                            ),
-                          ),
-                          onPressed: () async {
-                            bool b = await _signOutUser();
-                            b
-                                ? Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            LoginSelectionView()))
-                                : print("Error SignOut!");
-                          },
+                      child: Text(
+                        "Sign out",
+                        style: TextStyle(
+                          color: Colors.black,
                         ),
+                      ),
+                      onPressed: () async {
+                        bool b = await _signOutUser();
+                        b
+                            ? Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LoginSelectionView()))
+                            : print("Error SignOut!");
+                      },
+                    ),
                   ],
                 ),
                 decoration: BoxDecoration(
@@ -112,7 +111,15 @@ class _MainDrawerState extends State<MainDrawer> {
                   onTap: () {
                     Navigator.of(context).pushReplacement(MaterialPageRoute(
                         builder: (context) => ClubView(term: widget.term)));
-                  })
+                  }),
+              ListTile(
+                  title: Text("Agenda"),
+                  onTap: () {
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (context) => AgendaView(
+                              term: widget.term,
+                            )));
+                  }),
             ],
           ),
         ));
