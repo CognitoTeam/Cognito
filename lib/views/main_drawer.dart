@@ -4,6 +4,7 @@ import 'package:cognito/views/clubs_view.dart';
 import 'package:flutter/material.dart';
 import 'package:cognito/views/class_view.dart';
 import 'package:cognito/views/academic_term_view.dart';
+import 'package:cognito/views/agenda_view.dart';
 
 class MainDrawer extends StatefulWidget {
   AcademicTerm term;
@@ -72,7 +73,13 @@ class _MainDrawerState extends State<MainDrawer> {
               onTap: () {
                 Navigator.of(context).pushReplacement(MaterialPageRoute(
                     builder: (context) => ClubView(term: widget.term)));
-              })
+              }),
+          ListTile(
+            title: Text("Agenda"),
+            onTap: () {
+              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => AgendaView(term: widget.term,)));
+            },
+          )
         ],
       ),
     );
