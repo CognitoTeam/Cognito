@@ -114,7 +114,7 @@ class _ClubViewState extends State<ClubView> {
                         child: Column(
                           children: <Widget>[
                             ListTile(
-                              leading: Icon(Icons.people),
+                              leading: Icon(Icons.people, color: Colors.white,),
                               title: Text(
                                 clubObj.title,
                                 style: Theme.of(context).primaryTextTheme.body1,

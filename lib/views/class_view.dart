@@ -115,7 +115,7 @@ class _ClassViewState extends State<ClassView> {
                         child: Column(
                           children: <Widget>[
                             ListTile(
-                              leading: Icon(Icons.label),
+                              leading: Icon(Icons.label, color: Colors.white,),
                               title: Text(
                                 classObj.subjectArea +
                                     " " +
