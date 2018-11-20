@@ -232,13 +232,13 @@ class _AgendaViewState extends State<AgendaView>
           Event result = await Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => AddEventView()));
           if (result != null) {
-            setState(() {
-              animate();
-            });
             print("Event returned: " + result.title);
             widget.term.addEvent(result);
             database.updateDatabase();
           }
+           setState(() {
+              animate();
+            });
         },
         tooltip: 'Event',
         child: Icon(Icons.event),
