@@ -346,6 +346,7 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
               if (result != null) {
                 print("Class updated: " + result.title);
                 widget.database.updateDatabase();
+                setState(() {});
               }
             },
           ));
@@ -365,7 +366,6 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
-      initiallyExpanded: true,
       leading: Icon(Icons.class_),
       title: Text(
         "Classes",
@@ -396,63 +396,62 @@ class _FilteredAssignmentExpansionState
     List<Widget> assignmentList = List();
     if (widget.term.classes.isNotEmpty) {
       for (Class c in widget.term.classes) {
-        if (c.todo.isNotEmpty) {
-          if (widget.isAssessment) {
-            if (c.todo.containsKey(c.ASSESSMENTTAG)) {
-              //ERROR: type 'Task' is not a subtype of type 'Assignment'
-              for (Task a in c.todo[c.ASSESSMENTTAG]) {
-                if (widget.date.day == a.dueDate.day &&
-                    widget.date.month == a.dueDate.month &&
-                    widget.date.year == a.dueDate.year) {
-                  assignmentList.add(ListTile(
-                    title: Text(a.title),
-                    subtitle: Text(
-                      c.title,
-                      style: Theme.of(context).accentTextTheme.body2,
-                    ),
-                    onTap: () async {
-                      Assignment result =
-                          await Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => AssessmentDetailsView(
-                                    aClass: c,
-                                    assignment: a,
-                                  )));
-                      if (result != null) {
-                        print("Assessment updated: " + result.title);
-                        widget.database.updateDatabase();
-                      }
-                    },
-                  ));
-                }
+        if (widget.isAssessment) {
+          if (c.assessments.isNotEmpty) {
+            //ERROR: type 'Task' is not a subtype of type 'Assignment'
+
+            for (Assignment a in c.assessments) {
+              if (widget.date.day == a.dueDate.day &&
+                  widget.date.month == a.dueDate.month &&
+                  widget.date.year == a.dueDate.year) {
+                assignmentList.add(ListTile(
+                  title: Text(a.title),
+                  subtitle: Text(
+                    c.title,
+                  ),
+                  onTap: () async {
+                    Assignment result =
+                        await Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => AssessmentDetailsView(
+                                  aClass: c,
+                                  assignment: a,
+                                )));
+                    if (result != null) {
+                      print("Assessment updated: " + result.title);
+                      widget.database.updateDatabase();
+                      setState(() {});
+                    }
+                  },
+                ));
               }
             }
-          } else {
-            if (c.todo.containsKey(c.ASSIGNMENTTAG)) {
-              //ERROR: type 'Task' is not a subtype of type 'Assignment'
-              for (Task a in c.todo[c.ASSIGNMENTTAG]) {
-                if (widget.date.day == a.dueDate.day &&
-                    widget.date.month == a.dueDate.month &&
-                    widget.date.year == a.dueDate.year) {
-                  assignmentList.add(ListTile(
-                    title: Text(a.title),
-                    subtitle: Text(
-                      c.title,
-                      style: Theme.of(context).accentTextTheme.body2,
-                    ),
-                    onTap: () async {
-                      Assignment result =
-                          await Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => AssessmentDetailsView(
-                                    aClass: c,
-                                    assignment: a,
-                                  )));
-                      if (result != null) {
-                        print("Assignment updated: " + result.title);
-                        widget.database.updateDatabase();
-                      }
-                    },
-                  ));
-                }
+          }
+        } else {
+          if (c.assignments.isNotEmpty) {
+            //ERROR: type 'Task' is not a subtype of type 'Assignment'
+            for (Assignment a in c.assignments) {
+              if (widget.date.day == a.dueDate.day &&
+                  widget.date.month == a.dueDate.month &&
+                  widget.date.year == a.dueDate.year) {
+                assignmentList.add(ListTile(
+                  title: Text(a.title),
+                  subtitle: Text(
+                    c.title,
+                  ),
+                  onTap: () async {
+                    Assignment result =
+                        await Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => AssessmentDetailsView(
+                                  aClass: c,
+                                  assignment: a,
+                                )));
+                    if (result != null) {
+                      print("Assignment updated: " + result.title);
+                      widget.database.updateDatabase();
+                      setState(() {});
+                    }
+                  },
+                ));
               }
             }
           }

@@ -80,10 +80,10 @@ void main(){
     Assignment assignTest1 = Assignment();
     assignTest1.category = cat1;
     testClass3.addTodoItem(key, assignment: assignTest);
-    expect(testClass3.todo[key].length, equals(1));
+    expect(testClass3.assignments.length, equals(1));
 
     testClass3.addTodoItem(key, assignment: assignTest1);
-    expect(testClass3.todo[key].length, equals(2));
+    expect(testClass3.assignments.length, equals(2));
   });
 
   test("Test todo list Task", (){
@@ -99,10 +99,10 @@ void main(){
     Task taskTest = Task();
      Task taskTest1 = Task();
     testClass4.addTodoItem(key, task: taskTest);
-    expect(testClass4.todo[key].length, equals(1));
+    expect(testClass4.tasks.length, equals(1));
 
     testClass4.addTodoItem(key, task: taskTest1);
-    expect(testClass4.todo[key].length, equals(2));
+    expect(testClass4.tasks.length, equals(2));
   });
 
   test("Test todo list Assessment", (){
@@ -121,10 +121,10 @@ void main(){
     Assignment assignTest1 = Assignment(isAssessment: true);
     assignTest1.category = cat1;
     testClass5.addTodoItem(key, assignment: assignTest);
-    expect(testClass5.todo[key].length, equals(1));
+    expect(testClass5.assessments.length, equals(1));
 
     testClass5.addTodoItem(key, assignment: assignTest1);
-    expect(testClass5.todo[key].length, equals(2));
+    expect(testClass5.assessments.length, equals(2));
   });
 
   test("Adding todo item with category", (){
