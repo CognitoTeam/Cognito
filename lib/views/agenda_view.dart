@@ -185,6 +185,9 @@ class _AgendaViewState extends State<AgendaView>
       child: FloatingActionButton(
         heroTag: "assessmentButton",
         onPressed: () {
+          setState(() {
+              animate();
+            });
           showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -204,6 +207,9 @@ class _AgendaViewState extends State<AgendaView>
       child: FloatingActionButton(
         heroTag: "assignmentButton",
         onPressed: () {
+          setState(() {
+              animate();
+            });
           showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -226,6 +232,9 @@ class _AgendaViewState extends State<AgendaView>
           Event result = await Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => AddEventView()));
           if (result != null) {
+            setState(() {
+              animate();
+            });
             print("Event returned: " + result.title);
             widget.term.addEvent(result);
             database.updateDatabase();
