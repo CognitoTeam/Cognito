@@ -194,7 +194,15 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
                           cat.title = _categoryTitle.text;
                           cat.weightInPercentage =
                               double.parse(_categoryWeight.text);
-                          widget.aClass.addCategory(cat);
+                          try {
+                            widget.aClass.addCategory(cat);
+                          } catch (e) {
+                            Scaffold.of(context).showSnackBar(SnackBar(
+                            content: Text(e),
+                            
+                            duration: Duration(seconds: 7),
+                          ));
+                          }
                         });
                         _categoryTitle.text = "";
                         _categoryWeight.text = "";

@@ -46,7 +46,10 @@ Class _$ClassFromJson(Map<String, dynamic> json) {
     ..tasks = (json['tasks'] as List)
         ?.map(
             (e) => e == null ? null : Task.fromJson(e as Map<String, dynamic>))
-        ?.toList();
+        ?.toList()
+    ..starting = json['starting'] == null
+        ? null
+        : Category.fromJson(json['starting'] as Map<String, dynamic>);
 }
 
 Map<String, dynamic> _$ClassToJson(Class instance) => <String, dynamic>{
@@ -67,5 +70,6 @@ Map<String, dynamic> _$ClassToJson(Class instance) => <String, dynamic>{
       'categories': instance.categories,
       'assignments': instance.assignments,
       'assessments': instance.assessments,
-      'tasks': instance.tasks
+      'tasks': instance.tasks,
+      'starting': instance.starting
     };

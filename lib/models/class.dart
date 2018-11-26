@@ -23,6 +23,7 @@ class Class extends Event {
   List<Assignment> assignments;
   List<Assignment> assessments;
   List<Task> tasks;
+  Category starting;
 
   Class(
       {String title,
@@ -54,6 +55,7 @@ class Class extends Event {
     assessments = List();
     assignments = List();
     tasks = List();
+    starting = Category(title: "Default", weightInPercentage: 100.0);
   }
   factory Class.fromJson(Map<String, dynamic> json) => _$ClassFromJson(json);
 
@@ -65,24 +67,35 @@ class Class extends Event {
     List<DateTime> temp = [start, end];
     officeHours[(officeHours.length + 1).toString()] = temp;
   }
-  String getGrade(){
-     Map<Assignment, Category> gradebook = Map();
-     for(Assignment a in assessments){
-       gradebook[a] = a.category;
-     }
-     for(Assignment a in assignments){
-       gradebook[a] = a.category;
-     }
-     if(gradebook.isEmpty){
-       return "No Grades yet";
-     }
-    GradeCalculator gradeCalculator = GradeCalculator(categories, gradebook);
+
+  String getGrade() {
+    Map<Assignment, Category> gradebook = Map();
+    for (Assignment a in assessments) {
+      gradebook[a] = a.category;
+    }
+    for (Assignment a in assignments) {
+      gradebook[a] = a.category;
+    }
+    if (gradebook.isEmpty) {
+      return "No Grades yet";
+    }
+    List<Category> cat = List();
+    for(Category c in categories){
+      cat.add(c);
+    }
+    cat.add(starting);
+    GradeCalculator gradeCalculator = GradeCalculator(cat, gradebook);
     gradeCalculator.calculateGrade();
     return gradeCalculator.letterGrade;
   }
 
   addCategory(Category category) {
-    categories.add(category);
+    if (starting.weightInPercentage < category.weightInPercentage) {
+      throw Exception("Error categories more than 100%");
+    } else {
+      starting.weightInPercentage -= category.weightInPercentage;
+      categories.add(category);
+    }
   }
 
   ///

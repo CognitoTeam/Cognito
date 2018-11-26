@@ -1,10 +1,11 @@
 import 'package:cognito/models/category.dart';
+
 /// Calculates grade
 /// @author Julian Vu
 
 import 'package:cognito/models/assignment.dart';
-class GradeCalculator {
 
+class GradeCalculator {
   /// Grade book that maps assignment to a category
   Map<Assignment, Category> gradeBook;
 
@@ -26,12 +27,13 @@ class GradeCalculator {
   /// Grade point multiplier to be used in calculating GPA
   double gradePointMultiplier;
 
-  GradeCalculator(List<Category> categories, Map<Assignment, Category> gradeBook) {
+  GradeCalculator(
+      List<Category> categories, Map<Assignment, Category> gradeBook) {
     this.gradeBook = gradeBook;
     mutableGradeBook = Map();
     letterGrade = "";
     percentage = 0.0;
-    
+
     /// Default grade scale
     gradeScale = {
       "A+": 97.0,
@@ -53,21 +55,24 @@ class GradeCalculator {
     gradePointMultiplier = 0.0;
   }
 
- 
-
   /// Calculates grade
   void calculateGrade() {
     // Reset points for each category
     categories.forEach((category) {
-      category.pointsEarned = 0.0;
-      category.pointsPossible = 0.0;
+      if (category.title.toLowerCase() == "default") {
+        category.pointsEarned = 1.0;
+        category.pointsPossible = 1.0;
+      } else {
+        category.pointsEarned = 0.0;
+        category.pointsPossible = 0.0;
+      }
     });
 
     // Re-count points for every assignment
     for (Assignment assignment in gradeBook.keys) {
       Category category;
-      for(Category c in categories){
-        if(c.title == assignment.category.title){
+      for (Category c in categories) {
+        if (c.title == assignment.category.title) {
           category = c;
         }
       }
@@ -78,51 +83,44 @@ class GradeCalculator {
     // Reset and recalculate percentage
     percentage = 0.0;
     categories.forEach((category) {
-      percentage += double.parse(((category.pointsEarned / category.pointsPossible)
-          * category.weightInPercentage).toStringAsFixed(2));
+      percentage += double.parse(
+          ((category.pointsEarned / category.pointsPossible) *
+                  category.weightInPercentage)
+              .toStringAsFixed(2));
     });
 
     // Determine letter grade from percentage value
     if (percentage >= gradeScale["F"] && percentage < gradeScale["F+"]) {
       letterGrade = "F";
-    }
-    else if (percentage >= gradeScale["F+"] && percentage < gradeScale["D-"]) {
+    } else if (percentage >= gradeScale["F+"] &&
+        percentage < gradeScale["D-"]) {
       letterGrade = "F+";
-    }
-    else if (percentage >= gradeScale["D-"] && percentage < gradeScale["D"]) {
+    } else if (percentage >= gradeScale["D-"] && percentage < gradeScale["D"]) {
       letterGrade = "D-";
-    }
-    else if (percentage >= gradeScale["D"] && percentage < gradeScale["D+"]) {
+    } else if (percentage >= gradeScale["D"] && percentage < gradeScale["D+"]) {
       letterGrade = "D";
-    }
-    else if (percentage >= gradeScale["D+"] && percentage < gradeScale["C-"]) {
+    } else if (percentage >= gradeScale["D+"] &&
+        percentage < gradeScale["C-"]) {
       letterGrade = "D+";
-    }
-    else if (percentage >= gradeScale["C-"] && percentage < gradeScale["C"]) {
+    } else if (percentage >= gradeScale["C-"] && percentage < gradeScale["C"]) {
       letterGrade = "C-";
-    }
-    else if (percentage >= gradeScale["C"] && percentage < gradeScale["C+"]) {
+    } else if (percentage >= gradeScale["C"] && percentage < gradeScale["C+"]) {
       letterGrade = "C";
-    }
-    else if (percentage >= gradeScale["C+"] && percentage < gradeScale["B-"]) {
+    } else if (percentage >= gradeScale["C+"] &&
+        percentage < gradeScale["B-"]) {
       letterGrade = "C+";
-    }
-    else if (percentage >= gradeScale["B-"] && percentage < gradeScale["B"]) {
+    } else if (percentage >= gradeScale["B-"] && percentage < gradeScale["B"]) {
       letterGrade = "B-";
-    }
-    else if (percentage >= gradeScale["B"] && percentage < gradeScale["B+"]) {
+    } else if (percentage >= gradeScale["B"] && percentage < gradeScale["B+"]) {
       letterGrade = "B";
-    }
-    else if (percentage >= gradeScale["B+"] && percentage < gradeScale["A-"]) {
+    } else if (percentage >= gradeScale["B+"] &&
+        percentage < gradeScale["A-"]) {
       letterGrade = "B+";
-    }
-    else if (percentage >= gradeScale["A-"] && percentage < gradeScale["A"]) {
+    } else if (percentage >= gradeScale["A-"] && percentage < gradeScale["A"]) {
       letterGrade = "A-";
-    }
-    else if (percentage >= gradeScale["A"] && percentage < gradeScale["A+"]) {
+    } else if (percentage >= gradeScale["A"] && percentage < gradeScale["A+"]) {
       letterGrade = "A";
-    }
-    else {
+    } else {
       letterGrade = "A+";
     }
 
@@ -170,4 +168,3 @@ class GradeCalculator {
     }
   }
 }
-
