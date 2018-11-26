@@ -20,8 +20,6 @@ class Class extends Event {
   int units;
   Map<String, List<DateTime>> officeHours;
   List<Category> categories;
-  @JsonKey(ignore: true)
-  GradeCalculator gradeCalculator;
   List<Assignment> assignments;
   List<Assignment> assessments;
   List<Task> tasks;
@@ -52,7 +50,6 @@ class Class extends Event {
     this.subjectArea = subjectArea;
     this.units = units;
     officeHours = Map();
-    gradeCalculator = GradeCalculator();
     categories = List();
     assessments = List();
     assignments = List();
@@ -67,6 +64,21 @@ class Class extends Event {
   addOfficeHours(DateTime start, DateTime end) {
     List<DateTime> temp = [start, end];
     officeHours[(officeHours.length + 1).toString()] = temp;
+  }
+  String getGrade(){
+     Map<Assignment, Category> gradebook = Map();
+     for(Assignment a in assessments){
+       gradebook[a] = a.category;
+     }
+     for(Assignment a in assignments){
+       gradebook[a] = a.category;
+     }
+     if(gradebook.isEmpty){
+       return "No Grades yet";
+     }
+    GradeCalculator gradeCalculator = GradeCalculator(categories, gradebook);
+    gradeCalculator.calculateGrade();
+    return gradeCalculator.letterGrade;
   }
 
   addCategory(Category category) {
@@ -85,21 +97,10 @@ class Class extends Event {
 
       case "assignment":
         assignments.add(assignment);
-        print("Added a assignment to the class");
-        if (!gradeCalculator.categories.contains(assignment.category)) {
-          gradeCalculator.addCategory(assignment.category);
-        }
-        gradeCalculator.addGrade(assignment, assignment.category);
         break;
 
       case "assessment":
         assessments.add(assignment);
-        print("Added a assessment to the class");
-
-        if (!gradeCalculator.categories.contains(assignment.category)) {
-          gradeCalculator.addCategory(assignment.category);
-        }
-        gradeCalculator.addGrade(assignment, assignment.category);
         break;
 
       default:

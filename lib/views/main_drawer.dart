@@ -1,5 +1,6 @@
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/database/firebase_login.dart';
+import 'package:cognito/views/GPAView.dart';
 import 'package:cognito/views/clubs_view.dart';
 import 'package:cognito/views/login_selection_view.dart';
 import 'package:flutter/material.dart';
@@ -51,9 +52,7 @@ class _MainDrawerState extends State<MainDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-        width: 270,
-        child: Drawer(
+    return Drawer(
           child: ListView(
             padding: EdgeInsets.zero,
             children: <Widget>[
@@ -120,8 +119,14 @@ class _MainDrawerState extends State<MainDrawer> {
                               term: widget.term,
                             )));
                   }),
+                  ListTile(
+                  title: Text("GPA"),
+                  onTap: () {
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (context) => GPAView()));
+                  }),
             ],
           ),
-        ));
+        );
   }
 }

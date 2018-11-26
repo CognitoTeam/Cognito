@@ -26,12 +26,12 @@ class GradeCalculator {
   /// Grade point multiplier to be used in calculating GPA
   double gradePointMultiplier;
 
-  GradeCalculator() {
-    gradeBook = Map();
+  GradeCalculator(List<Category> categories, Map<Assignment, Category> gradeBook) {
+    this.gradeBook = gradeBook;
     mutableGradeBook = Map();
     letterGrade = "";
     percentage = 0.0;
-
+    
     /// Default grade scale
     gradeScale = {
       "A+": 97.0,
@@ -49,33 +49,11 @@ class GradeCalculator {
       "F+": 57.0,
       "F": 0.0
     };
-    categories = List();
+    this.categories = categories;
     gradePointMultiplier = 0.0;
   }
 
-  /// Adds a new category to the list of categories
-  ///
-  /// @param  categoryTitle       title of new category
-  /// @param  weightInPercentage  weight of category in percentage
-  void addCategory(Category category) {
-    categories.add(category);
-  }
-
-  /// Adds grade to grade book
-  ///
-  /// Recalculates grade with every new grade added
-  ///
-  /// @param  assignment    Assignment to add to grade book
-  /// @param  category      Category of assignment
-  void addGrade(Assignment assignment, Category category) {
-    if (!categories.contains(category)) {
-      print("Could not add grade--category does not exist.");
-    }
-    else {
-      gradeBook[assignment] = category;
-      calculateGrade();
-    }
-  }
+ 
 
   /// Calculates grade
   void calculateGrade() {
@@ -87,7 +65,12 @@ class GradeCalculator {
 
     // Re-count points for every assignment
     for (Assignment assignment in gradeBook.keys) {
-      Category category = categories[categories.indexOf(gradeBook[assignment])];
+      Category category;
+      for(Category c in categories){
+        if(c.title == assignment.category.title){
+          category = c;
+        }
+      }
       category.pointsEarned += assignment.pointsEarned;
       category.pointsPossible += assignment.pointsPossible;
     }
