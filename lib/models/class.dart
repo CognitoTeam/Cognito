@@ -20,11 +20,10 @@ class Class extends Event {
   int units;
   Map<String, List<DateTime>> officeHours;
   List<Category> categories;
-  @JsonKey(ignore: true)
-  GradeCalculator gradeCalculator;
   List<Assignment> assignments;
   List<Assignment> assessments;
   List<Task> tasks;
+  Category starting;
 
   Class(
       {String title,
@@ -52,11 +51,11 @@ class Class extends Event {
     this.subjectArea = subjectArea;
     this.units = units;
     officeHours = Map();
-    gradeCalculator = GradeCalculator();
     categories = List();
     assessments = List();
     assignments = List();
     tasks = List();
+    starting = Category(title: "Default", weightInPercentage: 100.0);
   }
   factory Class.fromJson(Map<String, dynamic> json) => _$ClassFromJson(json);
 
@@ -69,8 +68,34 @@ class Class extends Event {
     officeHours[(officeHours.length + 1).toString()] = temp;
   }
 
+  String getGrade() {
+    Map<Assignment, Category> gradebook = Map();
+    for (Assignment a in assessments) {
+      gradebook[a] = a.category;
+    }
+    for (Assignment a in assignments) {
+      gradebook[a] = a.category;
+    }
+    if (gradebook.isEmpty) {
+      return "No Grades yet";
+    }
+    List<Category> cat = List();
+    for(Category c in categories){
+      cat.add(c);
+    }
+    cat.add(starting);
+    GradeCalculator gradeCalculator = GradeCalculator(cat, gradebook);
+    gradeCalculator.calculateGrade();
+    return gradeCalculator.letterGrade;
+  }
+
   addCategory(Category category) {
-    categories.add(category);
+    if (starting.weightInPercentage < category.weightInPercentage) {
+      throw Exception("Error categories more than 100%");
+    } else {
+      starting.weightInPercentage -= category.weightInPercentage;
+      categories.add(category);
+    }
   }
 
   ///
@@ -85,21 +110,10 @@ class Class extends Event {
 
       case "assignment":
         assignments.add(assignment);
-        print("Added a assignment to the class");
-        if (!gradeCalculator.categories.contains(assignment.category)) {
-          gradeCalculator.addCategory(assignment.category);
-        }
-        gradeCalculator.addGrade(assignment, assignment.category);
         break;
 
       case "assessment":
         assessments.add(assignment);
-        print("Added a assessment to the class");
-
-        if (!gradeCalculator.categories.contains(assignment.category)) {
-          gradeCalculator.addCategory(assignment.category);
-        }
-        gradeCalculator.addGrade(assignment, assignment.category);
         break;
 
       default:

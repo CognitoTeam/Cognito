@@ -137,12 +137,12 @@ void main(){
       units: 3
     );
     String key = "assessment";
-    Category category = Category(title: "Homework", weightInPercentage: 0.20);
-    Assignment assignTest = Assignment(isAssessment: true);
-    assignTest.category = Category(title: "Exam", weightInPercentage: 30.0);
-    //Assignment assignTest1 = Assignment(isAssessment: true);
-    testClass6.gradeCalculator.addCategory(category);
+    Assignment assignTest = Assignment(isAssessment: true, pointsEarned: 0.0, pointsPossible: 15.0);
+    Category category = Category(title: "Exam", weightInPercentage: 40.0);
+    assignTest.category = category;
+    testClass6.addCategory(category);
     testClass6.addTodoItem(key, assignment: assignTest);
-    expect(testClass6.gradeCalculator.gradeBook.length, equals(1));
+    expect(testClass6.assessments.length, equals(1));
+    print(testClass6.getGrade());
   });
 }

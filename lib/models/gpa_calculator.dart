@@ -8,8 +8,7 @@ class GPACalculator {
   final double maxGPMultiplier = 4.0;
   double gpa = 0.0;
   List<AcademicTerm> terms = List(); // List of the Academic terms
-  Map<AcademicTerm, double> termsMap =
-      Map(); // Maps an academic term to its GPA
+  Map<AcademicTerm, double> termsMap = Map(); // Maps an academic term to its GPA
 
   Map<String, double> gradePointsMultiplier = {
     //Maps Letter grade to GP multiplier
@@ -50,8 +49,7 @@ class GPACalculator {
     }
     else {
       for (Class c in term.classes) {
-        c.gradeCalculator.calculateGrade();
-        String g = c.gradeCalculator.letterGrade;
+        String g = c.getGrade();
         gradePointMultiplier = gradePointsMultiplier[g];
         units = c.units;
         gradePointsEarned += gradePointMultiplier * units;

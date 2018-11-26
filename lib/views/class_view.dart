@@ -21,6 +21,7 @@ class ClassView extends StatefulWidget {
 }
 
 class _ClassViewState extends State<ClassView> {
+  Class undoClass;
   DataBase database = DataBase();
   void removeClass(Class classToRemove) {
     setState(() {
@@ -53,6 +54,14 @@ class _ClassViewState extends State<ClassView> {
     setState(() {}); //update the view
   }
 
+  void undo(Class undo) {
+    setState(() {
+      widget.term.addClass(undo);
+    });
+  }
+  String calculateGrade(Class c){
+     return "Grade: "+ c.getGrade();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,11 +112,20 @@ class _ClassViewState extends State<ClassView> {
                       key: Key(widget.term.classes[index].toString()),
                       direction: DismissDirection.endToStart,
                       onDismissed: (direction) {
+                        undoClass = classObj;
                         removeClass(classObj);
                         database.allTerms.updateTerm(widget.term);
                         database.updateDatabase();
                         Scaffold.of(context).showSnackBar(SnackBar(
                           content: Text("${classObj.title} deleted"),
+                          action: SnackBarAction(
+                            label: "Undo",
+                            onPressed: () {
+                              undo(undoClass);
+                              database.updateDatabase();
+                            },
+                          ),
+                          duration: Duration(seconds: 7),
                         ));
                       },
                       child: Card(
@@ -115,7 +133,14 @@ class _ClassViewState extends State<ClassView> {
                         child: Column(
                           children: <Widget>[
                             ListTile(
-                              leading: Icon(Icons.label, color: Colors.white,),
+                              leading: Icon(
+                                Icons.label,
+                                color: Colors.white,
+                              ),
+                              subtitle: Text(
+                                calculateGrade(classObj),
+                                style: Theme.of(context).primaryTextTheme.body1,
+                              ),
                               title: Text(
                                 classObj.subjectArea +
                                     " " +
