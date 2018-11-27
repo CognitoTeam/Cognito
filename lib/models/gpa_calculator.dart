@@ -8,7 +8,8 @@ class GPACalculator {
   final double maxGPMultiplier = 4.0;
   double gpa = 0.0;
   List<AcademicTerm> terms = List(); // List of the Academic terms
-  Map<AcademicTerm, double> termsMap = Map(); // Maps an academic term to its GPA
+  Map<AcademicTerm, double> termsMap =
+      Map(); // Maps an academic term to its GPA
 
   Map<String, double> gradePointsMultiplier = {
     //Maps Letter grade to GP multiplier
@@ -46,17 +47,23 @@ class GPACalculator {
     double gpaTemp = 0.0;
     if (term.classes.isEmpty) {
       print("No classes have been added to the class yet");
-    }
-    else {
+    } else {
       for (Class c in term.classes) {
         String g = c.getGrade();
-        gradePointMultiplier = gradePointsMultiplier[g];
-        units = c.units;
-        gradePointsEarned += gradePointMultiplier * units;
-        gradePointsPossible += (units * maxGPMultiplier);
+        if (g != "No Grades yet") {
+          gradePointMultiplier = gradePointsMultiplier[g];
+          units = c.units;
+          gradePointsEarned += gradePointMultiplier * units;
+          gradePointsPossible += (units * maxGPMultiplier);
+        }
       }
-      gpaTemp = ((gradePointsEarned / gradePointsPossible) * maxGPMultiplier);
-      termsMap[term] = gpaTemp;
+      if(gradePointsEarned != 0.0 && gradePointsPossible != 0.0){
+        gpaTemp = ((gradePointsEarned / gradePointsPossible) * maxGPMultiplier);
+        termsMap[term] = gpaTemp;
+      }else{
+        termsMap[term] = 4.0;
+      }
+     
     }
   }
 
@@ -65,8 +72,7 @@ class GPACalculator {
     double finalGPA = 0.0;
     if (termsMap.isEmpty) {
       print("No terms have been added yet");
-    }
-    else {
+    } else {
       for (AcademicTerm t in termsMap.keys) {
         finalGPA += termsMap[t];
       }

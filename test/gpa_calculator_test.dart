@@ -422,4 +422,17 @@ void main() {
     print(gp.gpa);
     expect(gp.termsMap.length, equals(2));
   });
+   test("Test No assignments", () {
+      AcademicTerm term =
+        AcademicTerm("Spring 2018", DateTime(2018), DateTime(2019));
+    Class class1 = Class(
+        subjectArea: "CS", courseNumber: "160", location: "SJSU", units: 4);
+        term.addClass(class1);
+            GPACalculator gp = GPACalculator();
+            gp.addTerm(term);
+      print(gp.gpa);
+
+  });
 }
+
+ 
