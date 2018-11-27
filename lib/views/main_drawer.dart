@@ -53,80 +53,81 @@ class _MainDrawerState extends State<MainDrawer> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                child: Row(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          DrawerHeader(
+            child: Row(
+              children: <Widget>[
+                Column(
                   children: <Widget>[
-                    Column(
-                      children: <Widget>[
-                        Text(_userID,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 22.0,
-                            )),
-                      ],
-                    ),
-                    FlatButton(
-                      child: Text(
-                        "Sign out",
+                    Text(_userID,
                         style: TextStyle(
                           color: Colors.black,
-                        ),
-                      ),
-                      onPressed: () async {
-                        bool b = await _signOutUser();
-                        b
-                            ? Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => LoginSelectionView()))
-                            : print("Error SignOut!");
-                      },
-                    ),
+                          fontSize: 22.0,
+                        )),
                   ],
                 ),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).accentColor,
-                ),
-              ),
-              ListTile(
-                title: Text('Classes'),
-                onTap: () {
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(
-                      builder: (context) => ClassView(term: widget.term)));
-                },
-              ),
-              ListTile(
-                title: Text('Academic Terms'),
-                onTap: () {
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(
-                      builder: (context) => AcademicTermView()));
-                },
-              ),
-              ListTile(
-                  title: Text('Clubs'),
-                  onTap: () {
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(
-                        builder: (context) => ClubView(term: widget.term)));
-                  }),
-              ListTile(
-                  title: Text("Agenda"),
-                  onTap: () {
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(
-                        builder: (context) => AgendaView(
-                              term: widget.term,
-                            )));
-                  }),
-                  ListTile(
-                  title: Text("GPA"),
-                  onTap: () {
-                    Navigator.of(context).pushReplacement(MaterialPageRoute(
-                        builder: (context) => GPAView()));
-                  }),
-            ],
+              ],
+            ),
+            decoration: BoxDecoration(
+              color: Theme.of(context).accentColor,
+            ),
           ),
-        );
+          ListTile(
+            title: Text('Classes'),
+            onTap: () {
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => ClassView(term: widget.term)));
+            },
+          ),
+          ListTile(
+            title: Text('Academic Terms'),
+            onTap: () {
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => AcademicTermView()));
+            },
+          ),
+          ListTile(
+              title: Text('Clubs'),
+              onTap: () {
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => ClubView(term: widget.term)));
+              }),
+          ListTile(
+              title: Text("Agenda"),
+              onTap: () {
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => AgendaView(
+                          term: widget.term,
+                        )));
+              }),
+          ListTile(
+              title: Text("GPA"),
+              onTap: () {
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => GPAView()));
+              }),
+          RaisedButton(
+            color: Colors.red,
+            child: Text(
+              "Sign out",
+              style: TextStyle(
+                color: Colors.black,
+              ),
+            ),
+            onPressed: () async {
+              bool b = await _signOutUser();
+              b
+                  ? Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                          builder: (context) => LoginSelectionView()),
+                      ModalRoute.withName("/LoginSelection"))
+                  : print("Error SignOut!");
+            },
+          ),
+        ],
+      ),
+    );
   }
 }

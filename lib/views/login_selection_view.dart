@@ -102,7 +102,7 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
           height: 42.0,
           child: RaisedButton(
             onPressed: () {
-              Navigator.of(context).pushNamed(LoginView.tag);
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginView()));
             },
             color: Theme.of(context).accentColor,
             child: Text("Sign in with Email",
