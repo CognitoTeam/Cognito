@@ -1,4 +1,5 @@
 import 'package:cognito/database/database.dart';
+import 'package:cognito/views/gradebook_view.dart';
 
 /// Class view
 /// Displays list of Class cards
@@ -59,9 +60,11 @@ class _ClassViewState extends State<ClassView> {
       widget.term.addClass(undo);
     });
   }
-  String calculateGrade(Class c){
-     return "Grade: "+ c.getGrade();
+
+  String calculateGrade(Class c) {
+    return "Grade: " + c.getGrade();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,6 +75,20 @@ class _ClassViewState extends State<ClassView> {
           style: Theme.of(context).primaryTextTheme.title,
         ),
         backgroundColor: Theme.of(context).primaryColorDark,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.grade,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => GradeBookView(
+                        term: widget.term,
+                      )));
+            },
+          )
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
