@@ -57,7 +57,7 @@ class _AgendaViewState extends State<AgendaView>
       getCurrentTerm();
     });
     _animationController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 500))
+        AnimationController(vsync: this, duration: Duration(milliseconds: 200))
           ..addListener(() {
             setState(() {});
           });
@@ -381,6 +381,7 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
         style: Theme.of(context).accentTextTheme.body2,
       ),
       children: _classes(),
+      initiallyExpanded: true,
     );
   }
 }
@@ -401,23 +402,23 @@ class FilteredAssignmentExpansion extends StatefulWidget {
 
 class _FilteredAssignmentExpansionState
     extends State<FilteredAssignmentExpansion> {
+  DateTime oneWeekFromToday = DateTime.now().add(Duration(days: 7));
   List<Widget> _assignments() {
     List<Widget> assignmentList = List();
     if (widget.term.classes.isNotEmpty) {
       for (Class c in widget.term.classes) {
         if (widget.isAssessment) {
           if (c.assessments.isNotEmpty) {
-            //ERROR: type 'Task' is not a subtype of type 'Assignment'
-
             for (Assignment a in c.assessments) {
-              if (widget.date.day == a.dueDate.day &&
+              bool isWithinWeek = a.dueDate.isAfter(widget.date) && a.dueDate.isBefore(oneWeekFromToday);
+              bool isDueToday = widget.date.day == a.dueDate.day &&
                   widget.date.month == a.dueDate.month &&
-                  widget.date.year == a.dueDate.year) {
+                  widget.date.year == a.dueDate.year;
+              if (isWithinWeek || isDueToday) {
                 assignmentList.add(ListTile(
                   title: Text(a.title),
-                  subtitle: Text(
-                    c.title,
-                  ),
+                  subtitle: Text(c.title,),
+                  trailing: Text((a.dueDate.difference(DateTime.now()).inDays + 1).toString() + " days"),
                   onTap: () async {
                     Assignment result =
                         await Navigator.of(context).push(MaterialPageRoute(
@@ -437,16 +438,16 @@ class _FilteredAssignmentExpansionState
           }
         } else {
           if (c.assignments.isNotEmpty) {
-            //ERROR: type 'Task' is not a subtype of type 'Assignment'
             for (Assignment a in c.assignments) {
-              if (widget.date.day == a.dueDate.day &&
+              bool isWithinWeek = a.dueDate.isAfter(widget.date) && a.dueDate.isBefore(oneWeekFromToday);
+              bool isDueToday = widget.date.day == a.dueDate.day &&
                   widget.date.month == a.dueDate.month &&
-                  widget.date.year == a.dueDate.year) {
+                  widget.date.year == a.dueDate.year;
+              if (isWithinWeek || isDueToday) {
                 assignmentList.add(ListTile(
                   title: Text(a.title),
-                  subtitle: Text(
-                    c.title,
-                  ),
+                  subtitle: Text(c.title,),
+                  trailing: isDueToday ? Text("Due today", style: TextStyle(color: Colors.red),) : Text("Due in " + (a.dueDate.difference(DateTime.now()).inDays + 1).toString() + " days"),
                   onTap: () async {
                     Assignment result =
                         await Navigator.of(context).push(MaterialPageRoute(
@@ -489,6 +490,7 @@ class _FilteredAssignmentExpansionState
         style: Theme.of(context).accentTextTheme.body2,
       ),
       children: _assignments(),
+      initiallyExpanded: true,
     );
   }
 }
@@ -548,6 +550,7 @@ class _FilteredEventExpansionState extends State<FilteredEventExpansion> {
         style: Theme.of(context).accentTextTheme.body2,
       ),
       children: _events(),
+      initiallyExpanded: true,
     );
   }
 }

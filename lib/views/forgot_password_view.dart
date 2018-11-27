@@ -54,8 +54,8 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView > {
       tag: "hero",
       child: CircleAvatar(
         backgroundColor: Colors.transparent,
-        radius: 100.0,
-        child: Image.asset("assets/circle_logo.png"),
+        radius: 110.0,
+        child: Image.asset("assets/logo-1024.png"),
       ),
     );
 
@@ -65,7 +65,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView > {
       style: Theme.of(context).primaryTextTheme.body1,
       decoration: InputDecoration(
         hintText: "Email",
-        hintStyle: TextStyle(color: Colors.white70,),
+        hintStyle: TextStyle(color: Colors.black45,),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
       validator: (val) =>
@@ -93,7 +93,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView > {
 
     return Scaffold(
         key: _scaffoldKey,
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Colors.white,
         resizeToAvoidBottomPadding: false,
         body: Center(
           child: new Form(
