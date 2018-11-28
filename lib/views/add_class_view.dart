@@ -125,12 +125,51 @@ class _AddClassViewState extends State<AddClassView> {
   }
 
   List<Widget> _listOfSubjects() {
-    List<Widget> listSubjects = database.allTerms.subjects.map((String subjectItem) {
-        return ListTile(
-          title: Text(subjectItem),
-        );
-      }).toList(growable: true);
-    listSubjects.add(ListTile(onTap: () => print("Pressed add subjects button"), title: Text("Add subject")));
+    List<Widget> listSubjects =
+        database.allTerms.subjects.map((String subjectItem) {
+      return ListTile(
+        title: Text(subjectItem),
+        onTap: () {
+          setState(() {
+            _subjectController.text = subjectItem;
+          });
+          Navigator.pop(context);
+        },
+      );
+    }).toList(growable: true);
+    listSubjects.add(ListTile(
+        onTap: () {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return SimpleDialog(
+                  title: Text("Enter New Subject Name"),
+                  children: <Widget>[
+                    TextFormField(
+                      style: Theme.of(context).accentTextTheme.body1,
+                      decoration: InputDecoration(
+                        hintText: "Subject e.g. CS",
+                        hintStyle: TextStyle(color: Colors.black45),
+                        contentPadding:
+                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                      ),
+                      onFieldSubmitted: (val) {
+                        print(val);
+                        setState(() {
+                          database.allTerms.addSubject(val);
+                          database.updateDatabase();
+                          print(database.allTerms.subjects);
+
+                        });
+                        Navigator.pop(context);
+                      },
+                      textInputAction: TextInputAction.done,
+                    ),
+                  ],
+                );
+              });
+        },
+        title: Text("Add subject")));
     return listSubjects;
   }
 
@@ -166,17 +205,24 @@ class _AddClassViewState extends State<AddClassView> {
         children: <Widget>[
           Padding(padding: EdgeInsets.all(0.0)),
           ListTile(
-            title: Text("Subject"),
+            leading: Icon(Icons.chevron_right),
+            title: _subjectController.text.isNotEmpty
+                ? Text("Subject: " +
+                    _subjectController.text,
+                    style: Theme.of(context).accentTextTheme.body1,
+                  )
+                : Text(
+                    "Choose a subject",
+                    style: Theme.of(context).accentTextTheme.body1,
+                  ),
             onTap: () {
               showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return SimpleDialog(
-                    title: Text("Choose a subject"),
-                    children: _listOfSubjects()
-                  );
-                }
-              );
+                  context: context,
+                  builder: (BuildContext context) {
+                    return SimpleDialog(
+                        title: Text("Choose a subject"),
+                        children: _listOfSubjects());
+                  });
             },
           ),
           textFieldTile(
