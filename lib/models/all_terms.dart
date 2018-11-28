@@ -5,9 +5,11 @@ part 'all_terms.g.dart';
 @JsonSerializable()
 class AllTerms {
   List<AcademicTerm> terms;
+  List<String> subjects;
 
   AllTerms() {
     terms = List();
+    subjects = List();
   }
 
   void addTerms(AcademicTerm term) {
@@ -29,6 +31,16 @@ class AllTerms {
     }
     terms.removeAt(index);
      terms.insert(index, term);
+  }
+
+  void addSubject(String subject) {
+    subjects.add(subject);
+  }
+
+  void removeSubject(String subject) {
+    if (subjects.contains(subject)) {
+      terms.remove(subject);
+    }
   }
 
   factory AllTerms.fromJson(Map<String, dynamic> json) =>
