@@ -1,3 +1,4 @@
+import 'package:cognito/database/database.dart';
 /// Login selection view
 /// View screen to select mode of authentication
 /// @author Julian Vu
@@ -21,6 +22,7 @@ enum AuthStatus {
 }
 
 class _LoginSelectionViewState extends State<LoginSelectionView> {
+  DataBase  database = DataBase();
   FireBaseLogin _fireBaseLogin = FireBaseLogin();
   AuthStatus authStatus = AuthStatus.notDetermined;
 
@@ -44,7 +46,16 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
       return false;
     }
   }
-
+Future<bool> _initializeDatabase() async {
+    await database.startFireStore();
+    setState(() {}); //update the view
+  }
+  @override
+  void initState() {
+    super.initState();
+      _initializeDatabase();
+   
+  }
   @override
   Widget build(BuildContext context) {
     if (authStatus == AuthStatus.signedIn) {

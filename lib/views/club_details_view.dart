@@ -159,7 +159,6 @@ class ExpandableOfficerList extends StatefulWidget {
 }
 
 class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
-
   final _officerNameController = TextEditingController();
   final _officerPosController = TextEditingController();
 
@@ -170,53 +169,53 @@ class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
         listOfficers.add(
           ListTile(
               title: Text(
-                o.officerName +" ("+ o.officerPosition+")",
+                o.officerName + " (" + o.officerPosition + ")",
                 style: Theme.of(context).accentTextTheme.body2,
               ),
-               onTap: () {
+              onTap: () {
                 showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    _officerNameController.text = o.officerName;
-                    _officerPosController.text = o.officerPosition;
-                    return SimpleDialog(
-                      title: Text("Edit an Officer"),
-                      children: <Widget>[
-                        TextField(
-                          controller: _officerNameController,
-                          style: Theme.of(context).accentTextTheme.body2,
-                          decoration: InputDecoration(
-                            hintText: "Officer Name",
-                            hintStyle: TextStyle(color: Colors.black45),
-                            contentPadding:
-                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                    context: context,
+                    builder: (BuildContext context) {
+                      _officerNameController.text = o.officerName;
+                      _officerPosController.text = o.officerPosition;
+                      return SimpleDialog(
+                        title: Text("Edit an Officer"),
+                        children: <Widget>[
+                          TextField(
+                            controller: _officerNameController,
+                            style: Theme.of(context).accentTextTheme.body2,
+                            decoration: InputDecoration(
+                              hintText: "Officer Name",
+                              hintStyle: TextStyle(color: Colors.black45),
+                              contentPadding:
+                                  EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                            ),
+                            textInputAction: TextInputAction.done,
                           ),
-                          textInputAction: TextInputAction.done,
-                        ),
-                        TextField(
-                          controller: _officerPosController,
-                          style: Theme.of(context).accentTextTheme.body2,
-                          decoration: InputDecoration(
-                            hintText: "Officer Position",
-                            hintStyle: TextStyle(color: Colors.black45),
-                            contentPadding:
-                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                          TextField(
+                            controller: _officerPosController,
+                            style: Theme.of(context).accentTextTheme.body2,
+                            decoration: InputDecoration(
+                              hintText: "Officer Position",
+                              hintStyle: TextStyle(color: Colors.black45),
+                              contentPadding:
+                                  EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                            ),
+                            textInputAction: TextInputAction.done,
                           ),
-                          textInputAction: TextInputAction.done,
-                        ), 
-                        RaisedButton(
-                          child: Text("Submit"),
-                          onPressed: (){
-                            o.officerName =_officerNameController.text;
-                            o.officerPosition = _officerPosController.text;
-                            _officerNameController.text = "";
-                            _officerPosController.text = "";
-                             Navigator.pop(context);
-                          },
-                        )
-                      ],
-                    );
-                  });
+                          RaisedButton(
+                            child: Text("Submit"),
+                            onPressed: () {
+                              o.officerName = _officerNameController.text;
+                              o.officerPosition = _officerPosController.text;
+                              _officerNameController.text = "";
+                              _officerPosController.text = "";
+                              Navigator.pop(context);
+                            },
+                          )
+                        ],
+                      );
+                    });
               }),
         );
       }
@@ -236,45 +235,47 @@ class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
         leading: Icon(Icons.add),
         onTap: () {
           showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return SimpleDialog(
-                      title: Text("Add an Officer"),
-                      children: <Widget>[
-                        TextField(
-                          controller: _officerNameController,
-                          style: Theme.of(context).accentTextTheme.body2,
-                          decoration: InputDecoration(
-                            hintText: "Officer Name",
-                            hintStyle: TextStyle(color: Colors.black45),
-                            contentPadding:
-                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                          ),
-                          textInputAction: TextInputAction.done,
-                        ),
-                        TextField(
-                          controller: _officerPosController,
-                          style: Theme.of(context).accentTextTheme.body2,
-                          decoration: InputDecoration(
-                            hintText: "Officer Position",
-                            hintStyle: TextStyle(color: Colors.black45),
-                            contentPadding:
-                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                          ),
-                          textInputAction: TextInputAction.done,
-                        ), 
-                        RaisedButton(
-                          child: Text("Add"),
-                          onPressed: (){
-                            widget.club.addOfficer(Officer(_officerNameController.text, _officerPosController.text));
-                            _officerNameController.text = "";
-                            _officerPosController.text = "";
-                             Navigator.pop(context);
-                          },
-                        )
-                      ],
-                    );
-                  });
+              context: context,
+              builder: (BuildContext context) {
+                return SimpleDialog(
+                  title: Text("Add an Officer"),
+                  children: <Widget>[
+                    TextField(
+                      controller: _officerNameController,
+                      style: Theme.of(context).accentTextTheme.body2,
+                      decoration: InputDecoration(
+                        hintText: "Officer Name",
+                        hintStyle: TextStyle(color: Colors.black45),
+                        contentPadding:
+                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                      ),
+                      textInputAction: TextInputAction.done,
+                    ),
+                    TextField(
+                      controller: _officerPosController,
+                      style: Theme.of(context).accentTextTheme.body2,
+                      decoration: InputDecoration(
+                        hintText: "Officer Position",
+                        hintStyle: TextStyle(color: Colors.black45),
+                        contentPadding:
+                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                      ),
+                      textInputAction: TextInputAction.done,
+                    ),
+                    RaisedButton(
+                      child: Text("Add"),
+                      onPressed: () {
+                        widget.club.addOfficer(Officer(
+                            _officerNameController.text,
+                            _officerPosController.text));
+                        _officerNameController.text = "";
+                        _officerPosController.text = "";
+                        Navigator.pop(context);
+                      },
+                    )
+                  ],
+                );
+              });
         },
       ),
     );

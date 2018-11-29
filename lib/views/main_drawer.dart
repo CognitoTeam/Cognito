@@ -1,4 +1,3 @@
-import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/database/firebase_login.dart';
 import 'package:cognito/views/GPAView.dart';
 import 'package:cognito/views/clubs_view.dart';
@@ -9,10 +8,10 @@ import 'package:cognito/views/academic_term_view.dart';
 import 'package:cognito/views/agenda_view.dart';
 
 class MainDrawer extends StatefulWidget {
-  AcademicTerm term;
-
-  MainDrawer({Key key, @required this.term});
-
+  static MainDrawer _instance;
+  factory MainDrawer() => _instance ??= new MainDrawer._();
+  MainDrawer._();
+  
   @override
   _MainDrawerState createState() => _MainDrawerState();
 }
@@ -78,7 +77,7 @@ class _MainDrawerState extends State<MainDrawer> {
             title: Text('Classes'),
             onTap: () {
               Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => ClassView(term: widget.term)));
+                  builder: (context) => ClassView()));
             },
           ),
           ListTile(
@@ -92,15 +91,13 @@ class _MainDrawerState extends State<MainDrawer> {
               title: Text('Clubs'),
               onTap: () {
                 Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => ClubView(term: widget.term)));
+                    builder: (context) => ClubView()));
               }),
           ListTile(
               title: Text("Agenda"),
               onTap: () {
                 Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => AgendaView(
-                          term: widget.term,
-                        )));
+                    builder: (context) => AgendaView()));
               }),
           ListTile(
               title: Text("GPA"),

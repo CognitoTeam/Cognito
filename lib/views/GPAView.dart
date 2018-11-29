@@ -1,10 +1,12 @@
-
 import 'package:cognito/database/database.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/gpa_calculator.dart';
 import 'package:cognito/views/main_drawer.dart';
 import 'package:flutter/material.dart';
 
+/// GPA view
+/// @author Praneet Singh
+///
 class GPAView extends StatefulWidget {
   @override
   _GPAViewState createState() => _GPAViewState();
@@ -13,38 +15,35 @@ class GPAView extends StatefulWidget {
 class _GPAViewState extends State<GPAView> {
   DataBase database = DataBase();
 
-  Future<bool> _initializeDatabase() async {
-    await database.startFireStore();
-    setState(() {}); //update the view
-  }
-List<Widget> allTermGPA(){
-  List<Widget> all = List();
-   GPACalculator gpa = GPACalculator();
-    for(AcademicTerm t in database.allTerms.terms){
+  List<Widget> allTermGPA() {
+    List<Widget> all = List();
+    GPACalculator gpa = GPACalculator();
+    for (AcademicTerm t in database.allTerms.terms) {
       gpa.addTerm(t);
     }
-  for(AcademicTerm t in gpa.termsMap.keys){
+    for (AcademicTerm t in gpa.termsMap.keys) {
       all.add(ListTile(
         title: Text(t.termName),
         trailing: Text(gpa.termsMap[t].toStringAsFixed(2)),
       ));
+    }
+    return all;
   }
-  return all;
-}
+
   @override
   void initState() {
     super.initState();
-    setState(() {
-      _initializeDatabase();
-    });
+    setState(() {});
   }
-  double calculateGPA(){
+
+  double calculateGPA() {
     GPACalculator gpa = GPACalculator();
-    for(AcademicTerm t in database.allTerms.terms){
+    for (AcademicTerm t in database.allTerms.terms) {
       gpa.addTerm(t);
     }
     return gpa.gpa;
   }
+
   AcademicTerm getCurrentTerm() {
     for (AcademicTerm term in database.allTerms.terms) {
       if (DateTime.now().isAfter(term.startTime) &&
@@ -54,12 +53,11 @@ List<Widget> allTermGPA(){
     }
     return null;
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: MainDrawer(
-        term: getCurrentTerm(),
-      ),
+      drawer: MainDrawer(),
       appBar: AppBar(
         title: Text(
           "GPA",
@@ -73,9 +71,7 @@ List<Widget> allTermGPA(){
             title: Text("Overall GPA:"),
             trailing: Text(calculateGPA().toStringAsFixed(2)),
           ),
-          Column(
-            children: allTermGPA()
-          )
+          Column(children: allTermGPA())
         ],
       ),
     );

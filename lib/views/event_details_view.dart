@@ -1,14 +1,14 @@
-/// Event Details view
-/// @author Praneet Singh
-
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/event.dart';
 
+/// Event Details view
+/// @author Praneet Singh
+
 enum Day { M, Tu, W, Th, F, Sat, Sun }
 
 class EventDetailsView extends StatefulWidget {
-  Event event;
+  final Event event;
   EventDetailsView({Key key, @required this.event}) : super(key: key);
   @override
   _EventDetailsViewState createState() => _EventDetailsViewState();
@@ -55,9 +55,11 @@ class _EventDetailsViewState extends State<EventDetailsView> {
       daysOfEvent = widget.event.daysOfEvent;
       startTime = widget.event.startTime;
       endTime = widget.event.endTime;
-      _start = TimeOfDay(hour: widget.event.startTime.hour, minute: widget.event.startTime.minute);
-      _end = TimeOfDay(hour: widget.event.endTime.hour, minute: widget.event.endTime.minute);
-
+      _start = TimeOfDay(
+          hour: widget.event.startTime.hour,
+          minute: widget.event.startTime.minute);
+      _end = TimeOfDay(
+          hour: widget.event.endTime.hour, minute: widget.event.endTime.minute);
     });
   }
 
@@ -110,10 +112,10 @@ class _EventDetailsViewState extends State<EventDetailsView> {
         initialTime: _start,
       );
     } else {
-       picked = await showTimePicker(
+      picked = await showTimePicker(
         context: context,
         initialTime: _end,
-       );
+      );
     }
 
     if (picked != null) {
@@ -205,7 +207,11 @@ class _EventDetailsViewState extends State<EventDetailsView> {
               style: Theme.of(context).accentTextTheme.body2,
             ),
             trailing: Text(
-              startTime != null ? startTime.hour.toString() +":" +startTime.minute.toString() : "",
+              startTime != null
+                  ? startTime.hour.toString() +
+                      ":" +
+                      startTime.minute.toString()
+                  : "",
             ),
             onTap: () => _selectTime(true, context),
           ),
@@ -217,7 +223,9 @@ class _EventDetailsViewState extends State<EventDetailsView> {
               style: Theme.of(context).accentTextTheme.body2,
             ),
             trailing: Text(
-              endTime != null ? endTime.hour.toString() +":" +startTime.minute.toString() : "",
+              endTime != null
+                  ? endTime.hour.toString() + ":" + startTime.minute.toString()
+                  : "",
             ),
             onTap: () => _selectTime(false, context),
           ),

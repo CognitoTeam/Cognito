@@ -1,9 +1,9 @@
-/// Event creation view
-/// @author Praneet Singh
-
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/event.dart';
+
+/// Event creation view
+/// @author Praneet Singh
 
 enum Day { M, Tu, W, Th, F, Sat, Sun }
 
@@ -72,7 +72,6 @@ class _AddEventViewState extends State<AddEventView> {
             } else {
               _isRepeated = true;
               print(_isRepeated);
-
             }
           },
         ),

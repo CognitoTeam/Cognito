@@ -1,16 +1,14 @@
 import 'dart:convert';
 import 'package:cognito/database/database.dart';
-import 'package:cognito/database/firebase_login.dart';
-import 'package:cognito/views/login_selection_view.dart';
-
-/// Academic term view screen
-/// Displays AcademicTerm objects in the form of cards
-/// @author Julian Vu
 import 'package:flutter/material.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/views/add_term_view.dart';
 import 'package:cognito/views/term_details_view.dart';
 import 'package:cognito/views/main_drawer.dart';
+
+/// Academic term view screen
+/// Displays AcademicTerm objects in the form of cards
+/// @author Julian Vu
 
 class AcademicTermView extends StatefulWidget {
   static String tag = "academic-term-view";
@@ -19,29 +17,21 @@ class AcademicTermView extends StatefulWidget {
 }
 
 class _AcademicTermViewState extends State<AcademicTermView> {
-  final FireBaseLogin _fireBaseLogin = FireBaseLogin();
   AcademicTerm deletedTerm;
   // List of academic terms
   DataBase database = DataBase();
   @override
   void initState() {
     super.initState();
+    setState(() {});
+  }
+
+  void undo(AcademicTerm undo) {
     setState(() {
-      _initializeDatabase();
-    });
-  }
-
-  Future<bool> _initializeDatabase() async {
-    await database.startFireStore();
-    setState(() {}); //update the view
-  }
-
-  
-void undo(AcademicTerm undo){
-  setState(() {
       database.allTerms.terms.add(undo);
     });
-}
+  }
+
   // Remove terms of list
   void removeTerm(AcademicTerm termToRemove) {
     setState(() {
@@ -62,9 +52,7 @@ void undo(AcademicTerm undo){
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: MainDrawer(
-        term: getCurrentTerm(),
-      ),
+      drawer: MainDrawer(),
       appBar: AppBar(
         title: Text(
           "Academic Terms",
@@ -124,8 +112,8 @@ void undo(AcademicTerm undo){
                             action: SnackBarAction(
                               label: "Undo",
                               onPressed: () {
-                                  undo(deletedTerm);
-                                  database.updateDatabase();
+                                undo(deletedTerm);
+                                database.updateDatabase();
                               },
                             ),
                             duration: Duration(seconds: 7),
@@ -167,7 +155,7 @@ void undo(AcademicTerm undo){
         onPressed: () async {
           // Retrieve Academic Term object from AddTermView
           final result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddTermView(allTerms: database.allTerms)));
+              .push(MaterialPageRoute(builder: (context) => AddTermView()));
           if (result != null) {
             database.allTerms.terms.add(result);
             String jsonString = json.encode(database.allTerms);

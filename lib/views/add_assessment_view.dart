@@ -197,10 +197,9 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                             widget.aClass.addCategory(cat);
                           } catch (e) {
                             Scaffold.of(context).showSnackBar(SnackBar(
-                            content: Text(e),
-                            
-                            duration: Duration(seconds: 7),
-                          ));
+                              content: Text(e),
+                              duration: Duration(seconds: 7),
+                            ));
                           }
                         });
                         _categoryTitle.text = "";

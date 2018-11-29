@@ -1,9 +1,5 @@
 import 'package:cognito/database/database.dart';
 import 'package:cognito/views/gradebook_view.dart';
-
-/// Class view
-/// Displays list of Class cards
-/// @author Julian Vu
 import 'package:flutter/material.dart';
 import 'package:cognito/models/class.dart';
 import 'package:cognito/models/academic_term.dart';
@@ -11,22 +7,22 @@ import 'package:cognito/views/main_drawer.dart';
 import 'package:cognito/views/add_class_view.dart';
 import 'package:cognito/views/class_details_view.dart';
 
-class ClassView extends StatefulWidget {
-  // Academic term object
-  AcademicTerm term;
-  // Constructor that takes in an academic term object
-  ClassView({Key key, @required this.term}) : super(key: key);
+/// Class view
+/// Displays list of Class cards
+/// @author Julian Vu
 
+class ClassView extends StatefulWidget {
   @override
   _ClassViewState createState() => _ClassViewState();
 }
 
 class _ClassViewState extends State<ClassView> {
+  AcademicTerm term;
   Class undoClass;
   DataBase database = DataBase();
   void removeClass(Class classToRemove) {
     setState(() {
-      widget.term.removeClass(classToRemove);
+      term.removeClass(classToRemove);
     });
   }
 
@@ -34,7 +30,7 @@ class _ClassViewState extends State<ClassView> {
     for (AcademicTerm term in database.allTerms.terms) {
       if (DateTime.now().isAfter(term.startTime) &&
           DateTime.now().isBefore(term.endTime)) {
-        widget.term = term;
+        this.term = term;
         return term;
       }
     }
@@ -45,19 +41,13 @@ class _ClassViewState extends State<ClassView> {
   void initState() {
     super.initState();
     setState(() {
-      _initializeDatabase();
       getCurrentTerm();
     });
   }
 
-  Future<bool> _initializeDatabase() async {
-    await database.startFireStore();
-    setState(() {}); //update the view
-  }
-
   void undo(Class undo) {
     setState(() {
-      widget.term.addClass(undo);
+      term.addClass(undo);
     });
   }
 
@@ -68,24 +58,23 @@ class _ClassViewState extends State<ClassView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: MainDrawer(term: widget.term),
+      drawer: MainDrawer(),
       appBar: AppBar(
         title: Text(
-          widget.term.termName + " - Classes",
+          term.termName + " - Classes",
           style: Theme.of(context).primaryTextTheme.title,
         ),
         backgroundColor: Theme.of(context).primaryColorDark,
         actions: <Widget>[
           IconButton(
+            tooltip: "Grades",
             icon: Icon(
-              Icons.grade,
+              Icons.poll,
               color: Colors.white,
             ),
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => GradeBookView(
-                        term: widget.term,
-                      )));
+                  builder: (context) => GradeBookView()));
             },
           )
         ],
@@ -95,8 +84,8 @@ class _ClassViewState extends State<ClassView> {
           final result = await Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => AddClassView()));
           if (result != null) {
-            widget.term.addClass(result);
-            database.allTerms.updateTerm(widget.term);
+            term.addClass(result);
+            database.allTerms.updateTerm(term);
             database.updateDatabase();
           }
         },
@@ -107,11 +96,11 @@ class _ClassViewState extends State<ClassView> {
         backgroundColor: Theme.of(context).accentColor,
         foregroundColor: Colors.black,
       ),
-      body: widget.term.classes.isNotEmpty
+      body: term.classes.isNotEmpty
           ? ListView.builder(
-              itemCount: widget.term.classes.length,
+              itemCount: term.classes.length,
               itemBuilder: (BuildContext context, int index) {
-                Class classObj = widget.term.classes[index];
+                Class classObj = term.classes[index];
 
                 return Container(
                   margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
@@ -122,16 +111,16 @@ class _ClassViewState extends State<ClassView> {
                           MaterialPageRoute(
                               builder: (context) =>
                                   ClassDetailsView(classObj: classObj)));
-                      database.allTerms.updateTerm(widget.term);
+                      database.allTerms.updateTerm(term);
                       database.updateDatabase();
                     },
                     child: Dismissible(
-                      key: Key(widget.term.classes[index].toString()),
+                      key: Key(term.classes[index].toString()),
                       direction: DismissDirection.endToStart,
                       onDismissed: (direction) {
                         undoClass = classObj;
                         removeClass(classObj);
-                        database.allTerms.updateTerm(widget.term);
+                        database.allTerms.updateTerm(term);
                         database.updateDatabase();
                         Scaffold.of(context).showSnackBar(SnackBar(
                           content: Text("${classObj.title} deleted"),
