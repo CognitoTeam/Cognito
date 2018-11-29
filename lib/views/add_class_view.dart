@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/class.dart';
-
+import 'package:cognito/database/database.dart';
 /// Class creation view
 /// View screen to create a new Class object
 /// @author Julian Vu
