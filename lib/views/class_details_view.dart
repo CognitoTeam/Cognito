@@ -1,16 +1,17 @@
-/// Class details view
-/// View screen to edit a Class object
-/// @author Julian Vu
-///
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/class.dart';
 
-enum Day {M, Tu, W, Th, F, Sat, Sun}
+/// Class details view
+/// View screen to edit a Class object
+/// @author Julian Vu
+///
+
+enum Day { M, Tu, W, Th, F, Sat, Sun }
 
 class ClassDetailsView extends StatefulWidget {
   // Underlying class object
-  Class classObj;
+  final Class classObj;
 
   // Ctor
   ClassDetailsView({Key key, @required this.classObj}) : super(key: key);
@@ -23,21 +24,32 @@ class _ClassDetailsViewState extends State<ClassDetailsView> {
   DateTime startTime, endTime;
   List<int> daysOfEvent = List();
 
-  TextEditingController _subjectController, _courseNumberController,
-      _courseTitleController, _unitCountController, _locationController,
-      _instructorController, _officeLocationController, _descriptionController;
+  TextEditingController _subjectController,
+      _courseNumberController,
+      _courseTitleController,
+      _unitCountController,
+      _locationController,
+      _instructorController,
+      _officeLocationController,
+      _descriptionController;
 
   @override
   void initState() {
     super.initState();
-    _subjectController = TextEditingController(text: widget.classObj.subjectArea);
-    _courseNumberController = TextEditingController(text: widget.classObj.courseNumber);
+    _subjectController =
+        TextEditingController(text: widget.classObj.subjectArea);
+    _courseNumberController =
+        TextEditingController(text: widget.classObj.courseNumber);
     _courseTitleController = TextEditingController(text: widget.classObj.title);
-    _unitCountController = TextEditingController(text: widget.classObj.units.toString());
+    _unitCountController =
+        TextEditingController(text: widget.classObj.units.toString());
     _locationController = TextEditingController(text: widget.classObj.location);
-    _instructorController = TextEditingController(text: widget.classObj.instructor);
-    _officeLocationController = TextEditingController(text: widget.classObj.officeLocation);
-    _descriptionController = TextEditingController(text: widget.classObj.description);
+    _instructorController =
+        TextEditingController(text: widget.classObj.instructor);
+    _officeLocationController =
+        TextEditingController(text: widget.classObj.officeLocation);
+    _descriptionController =
+        TextEditingController(text: widget.classObj.description);
     setState(() {
       startTime = widget.classObj.startTime;
       endTime = widget.classObj.endTime;
@@ -47,11 +59,11 @@ class _ClassDetailsViewState extends State<ClassDetailsView> {
 
   ListTile textFieldTile(
       {Widget leading,
-        Widget trailing,
-        TextInputType keyboardType,
-        String hint,
-        Widget subtitle,
-        TextEditingController controller}) {
+      Widget trailing,
+      TextInputType keyboardType,
+      String hint,
+      Widget subtitle,
+      TextEditingController controller}) {
     return ListTile(
       leading: leading,
       trailing: trailing,
@@ -97,7 +109,9 @@ class _ClassDetailsViewState extends State<ClassDetailsView> {
         Checkbox(
           value: daysOfEvent.contains(day.index + 1),
           onChanged: (bool e) {
-            daysOfEvent.contains(day.index + 1) ? deselectDay(day) : selectDay(day);
+            daysOfEvent.contains(day.index + 1)
+                ? deselectDay(day)
+                : selectDay(day);
           },
         ),
       ],
@@ -154,17 +168,24 @@ class _ClassDetailsViewState extends State<ClassDetailsView> {
       body: ListView(
         children: <Widget>[
           Padding(padding: EdgeInsets.all(0.0)),
-          textFieldTile(hint: "Subject e.g. CS", controller: _subjectController),
           textFieldTile(
-              hint: "Course number e.g. 146", controller: _courseNumberController),
+              hint: "Subject e.g. CS", controller: _subjectController),
           textFieldTile(
-              hint: "Course title e.g. Data Structures and Algorithms", controller: _courseTitleController),
+              hint: "Course number e.g. 146",
+              controller: _courseNumberController),
+          textFieldTile(
+              hint: "Course title e.g. Data Structures and Algorithms",
+              controller: _courseTitleController),
           textFieldTile(
               hint: "Number of units e.g. 4", controller: _unitCountController),
-          textFieldTile(hint: "Location e.g. MQH 222", controller: _locationController),
-          textFieldTile(hint: "Instructor e.g. Dr. Potika", controller: _instructorController),
           textFieldTile(
-              hint: "Office location e.g. MQH 232", controller: _officeLocationController),
+              hint: "Location e.g. MQH 222", controller: _locationController),
+          textFieldTile(
+              hint: "Instructor e.g. Dr. Potika",
+              controller: _instructorController),
+          textFieldTile(
+              hint: "Office location e.g. MQH 232",
+              controller: _officeLocationController),
           ListTile(
             title: TextFormField(
               controller: _descriptionController,
@@ -185,7 +206,11 @@ class _ClassDetailsViewState extends State<ClassDetailsView> {
               style: Theme.of(context).accentTextTheme.body2,
             ),
             trailing: Text(
-              startTime != null ? startTime.hour.toString() + ":" + startTime.minute.toString() : "",
+              startTime != null
+                  ? startTime.hour.toString() +
+                      ":" +
+                      startTime.minute.toString()
+                  : "",
             ),
             onTap: () => _selectTime(true, context),
           ),
@@ -197,7 +222,9 @@ class _ClassDetailsViewState extends State<ClassDetailsView> {
               style: Theme.of(context).accentTextTheme.body2,
             ),
             trailing: Text(
-              endTime != null ? endTime.hour.toString() + ":" + endTime.minute.toString() : "",
+              endTime != null
+                  ? endTime.hour.toString() + ":" + endTime.minute.toString()
+                  : "",
             ),
             onTap: () => _selectTime(false, context),
           ),

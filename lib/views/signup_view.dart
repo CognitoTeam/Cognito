@@ -1,15 +1,15 @@
-import 'package:cognito/views/welcome_view.dart';
-/// Sign up view screen
-/// @author Praneet Singh
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:cognito/database/firebase_login.dart';
 import 'package:flutter/services.dart' show PlatformException;
+import 'package:cognito/views/welcome_view.dart';
+
+/// Sign up view screen
+/// @author Praneet Singh
 
 class SignUpView extends StatefulWidget {
-
   static String tag = "SignUp-view";
   @override
   _SignUpViewState createState() => _SignUpViewState();
@@ -24,7 +24,6 @@ class _SignUpViewState extends State<SignUpView> {
   String _password;
   String _confirmPassword;
 
-
   void _submit(BuildContext context) {
     final form = _formKey.currentState;
 
@@ -36,37 +35,42 @@ class _SignUpViewState extends State<SignUpView> {
 
   ///User sign up with email and password
   Future<bool> _signUpUser(BuildContext context) async {
-    if(_email == null || _password == null || _confirmPassword == null){
-      print("Error null password or email " + "Email: " + _email + " Password: " + _password);
+    if (_email == null || _password == null || _confirmPassword == null) {
+      print("Error null password or email " +
+          "Email: " +
+          _email +
+          " Password: " +
+          _password);
       return false;
-
-    }else if(_password != _confirmPassword){
+    } else if (_password != _confirmPassword) {
       print("Password Dont match");
       return false;
-    }else {
+    } else {
       try {
-        final firebaseUser = await _fireBaseLogin.createEmailUser(_email, _password);
+        final firebaseUser =
+            await _fireBaseLogin.createEmailUser(_email, _password);
         firebaseUser.sendEmailVerification();
         if (firebaseUser != null) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => WelcomeView()));
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => WelcomeView()));
           return true;
         } else {
           return false;
         }
-      } on PlatformException catch(e){
-        if(Platform.isIOS){
-          _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(e.details)));
-        }else if(Platform.isAndroid){
-          _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(e.message)));
+      } on PlatformException catch (e) {
+        if (Platform.isIOS) {
+          _scaffoldKey.currentState
+              .showSnackBar(SnackBar(content: Text(e.details)));
+        } else if (Platform.isAndroid) {
+          _scaffoldKey.currentState
+              .showSnackBar(SnackBar(content: Text(e.message)));
         }
       }
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     final logo = Hero(
       tag: "hero",
       child: CircleAvatar(
@@ -79,14 +83,17 @@ class _SignUpViewState extends State<SignUpView> {
     final email = TextFormField(
       keyboardType: TextInputType.emailAddress,
       autofocus: false,
-      style: TextStyle(color: Colors.black,),
+      style: TextStyle(
+        color: Colors.black,
+      ),
       decoration: InputDecoration(
         hintText: "Email",
-        hintStyle: TextStyle(color: Colors.black,),
+        hintStyle: TextStyle(
+          color: Colors.black,
+        ),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
-      validator: (val) =>
-      !val.contains('@') ? 'Invalid Email' : null,
+      validator: (val) => !val.contains('@') ? 'Invalid Email' : null,
       onSaved: (val) => _email = val,
     );
 
@@ -97,14 +104,13 @@ class _SignUpViewState extends State<SignUpView> {
       style: TextStyle(color: Colors.black),
       decoration: InputDecoration(
         hintText: "Password",
-        hintStyle: TextStyle(color: Colors.black,),
+        hintStyle: TextStyle(
+          color: Colors.black,
+        ),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
-      validator: (val) =>
-      val.length < 6 ? 'Password too short' : null,
+      validator: (val) => val.length < 6 ? 'Password too short' : null,
       onSaved: (val) => _password = val,
-
-
     );
     final confirmPassword = TextFormField(
       autofocus: false,
@@ -112,15 +118,18 @@ class _SignUpViewState extends State<SignUpView> {
       style: TextStyle(color: Colors.black),
       decoration: InputDecoration(
         hintText: "Confirm password",
-        hintStyle: TextStyle(color: Colors.black,),
+        hintStyle: TextStyle(
+          color: Colors.black,
+        ),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
-      validator: (confirmation){
+      validator: (confirmation) {
         var password = _passKey.currentState.value;
-        return equals(confirmation, password) ? null : "Passwords do not match!";
+        return equals(confirmation, password)
+            ? null
+            : "Passwords do not match!";
       },
       onSaved: (val) => _confirmPassword = val,
-
     );
     final signUpButton = Padding(
       padding: EdgeInsets.symmetric(vertical: 16.0),
@@ -128,7 +137,10 @@ class _SignUpViewState extends State<SignUpView> {
         minWidth: 200.0,
         height: 42.0,
         child: RaisedButton(
-          child: Text("Sign Up", style: Theme.of(context).accentTextTheme.body1,),
+          child: Text(
+            "Sign Up",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
           color: Theme.of(context).accentColor,
           onPressed: () => _submit(context),
         ),
@@ -136,8 +148,13 @@ class _SignUpViewState extends State<SignUpView> {
     );
 
     final cancelLabel = FlatButton(
-      child: Text("Cancel", style: TextStyle(color: Colors.black54),),
-      onPressed: () {Navigator.pop(context);},
+      child: Text(
+        "Cancel",
+        style: TextStyle(color: Colors.black54),
+      ),
+      onPressed: () {
+        Navigator.pop(context);
+      },
     );
 
     return Scaffold(
@@ -152,19 +169,26 @@ class _SignUpViewState extends State<SignUpView> {
               padding: EdgeInsets.only(bottom: 1.0, left: 24.0, right: 24.0),
               children: <Widget>[
                 logo,
-                SizedBox(height: 16.0,),
+                SizedBox(
+                  height: 16.0,
+                ),
                 email,
-                SizedBox(height: 16.0,),
+                SizedBox(
+                  height: 16.0,
+                ),
                 password,
-                SizedBox(height: 16.0,),
+                SizedBox(
+                  height: 16.0,
+                ),
                 confirmPassword,
-                SizedBox(height: 16.0,),
+                SizedBox(
+                  height: 16.0,
+                ),
                 signUpButton,
                 cancelLabel,
               ],
             ),
           ),
-        )
-    );
+        ));
   }
 }

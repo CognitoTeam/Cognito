@@ -1,10 +1,11 @@
-/// Forgot password view screen
-/// @author Praneet Singh
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'dart:io';
 import 'dart:async';
 import 'package:cognito/database/firebase_login.dart';
+
+/// Forgot password view screen
+/// @author Praneet Singh
 
 class ForgotPasswordView extends StatefulWidget {
   static String tag = "Forgot_Password_View_view";
@@ -13,7 +14,7 @@ class ForgotPasswordView extends StatefulWidget {
   _ForgotPasswordViewState createState() => _ForgotPasswordViewState();
 }
 
-class _ForgotPasswordViewState extends State<ForgotPasswordView > {
+class _ForgotPasswordViewState extends State<ForgotPasswordView> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   FireBaseLogin _fireBaseLogin = FireBaseLogin();
@@ -26,22 +27,25 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView > {
       _forgotPassword();
     }
   }
+
   ///User can request password through email verification
   Future<bool> _forgotPassword() async {
     print(_email);
-    if(_email == null){
+    if (_email == null) {
       print("Error null email " + "Email: " + _email);
       return false;
-    }else{
-      try{
+    } else {
+      try {
         await _fireBaseLogin.sendPasswordResetEmail(_email);
         Navigator.pop(context);
         return true;
-      }on PlatformException catch(e){
-        if(Platform.isIOS){
-          _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(e.details)));
-        }else if(Platform.isAndroid){
-          _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(e.message)));
+      } on PlatformException catch (e) {
+        if (Platform.isIOS) {
+          _scaffoldKey.currentState
+              .showSnackBar(SnackBar(content: Text(e.details)));
+        } else if (Platform.isAndroid) {
+          _scaffoldKey.currentState
+              .showSnackBar(SnackBar(content: Text(e.message)));
         }
       }
     }
@@ -49,7 +53,6 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView > {
 
   @override
   Widget build(BuildContext context) {
-
     final logo = Hero(
       tag: "hero",
       child: CircleAvatar(
@@ -65,11 +68,12 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView > {
       style: Theme.of(context).primaryTextTheme.body1,
       decoration: InputDecoration(
         hintText: "Email",
-        hintStyle: TextStyle(color: Colors.black45,),
+        hintStyle: TextStyle(
+          color: Colors.black45,
+        ),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
-      validator: (val) =>
-      !val.contains('@') ? 'Invalid Email' : null,
+      validator: (val) => !val.contains('@') ? 'Invalid Email' : null,
       onSaved: (val) => _email = val,
     );
 
@@ -79,16 +83,23 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView > {
           minWidth: 200.0,
           height: 42.0,
           child: RaisedButton(
-            child: Text("Request reset email", style: Theme.of(context).accentTextTheme.body1,),
+            child: Text(
+              "Request reset email",
+              style: Theme.of(context).accentTextTheme.body1,
+            ),
             color: Theme.of(context).accentColor,
             onPressed: _submit,
-          )
-      ),
+          )),
     );
 
     final cancelLabel = FlatButton(
-      child: Text("Cancel", style: TextStyle(color: Colors.black54),),
-      onPressed: () {Navigator.pop(context);},
+      child: Text(
+        "Cancel",
+        style: TextStyle(color: Colors.black54),
+      ),
+      onPressed: () {
+        Navigator.pop(context);
+      },
     );
 
     return Scaffold(
@@ -100,18 +111,21 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView > {
             key: _formKey,
             child: new ListView(
               shrinkWrap: true,
-              padding: EdgeInsets.only(left: 24.0, right: 24.0, bottom:52.0),
+              padding: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 52.0),
               children: <Widget>[
                 logo,
-                SizedBox(height: 64.0,),
+                SizedBox(
+                  height: 64.0,
+                ),
                 email,
-                SizedBox(height: 24.0,),
+                SizedBox(
+                  height: 24.0,
+                ),
                 resetButton,
                 cancelLabel,
               ],
             ),
           ),
-        )
-    );
+        ));
   }
 }

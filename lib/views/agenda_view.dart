@@ -19,17 +19,14 @@ import 'package:cognito/views/main_drawer.dart';
 /// @author Julian Vu
 
 class AgendaView extends StatefulWidget {
-  AcademicTerm term;
-  DateTime selectedDate = DateTime.now();
-
-  AgendaView({Key key, @required this.term}) : super(key: key);
-
   @override
   _AgendaViewState createState() => _AgendaViewState();
 }
 
 class _AgendaViewState extends State<AgendaView>
     with SingleTickerProviderStateMixin {
+  DateTime selectedDate;
+  AcademicTerm term;
   bool isOpened = false;
   AnimationController _animationController;
   Animation<Color> _buttonColor;
@@ -42,7 +39,7 @@ class _AgendaViewState extends State<AgendaView>
     for (AcademicTerm term in database.allTerms.terms) {
       if (DateTime.now().isAfter(term.startTime) &&
           DateTime.now().isBefore(term.endTime)) {
-        widget.term = term;
+        this.term = term;
         return term;
       }
     }
@@ -53,7 +50,7 @@ class _AgendaViewState extends State<AgendaView>
   void initState() {
     super.initState();
     setState(() {
-      _initializeDatabase();
+      selectedDate = DateTime.now();
       getCurrentTerm();
     });
     _animationController =
@@ -102,8 +99,8 @@ class _AgendaViewState extends State<AgendaView>
 
   List<Widget> _listOfClassAssign() {
     List<Widget> listTasks = List();
-    if (widget.term.classes.isNotEmpty) {
-      for (Class c in widget.term.classes) {
+    if (term.classes.isNotEmpty) {
+      for (Class c in term.classes) {
         listTasks.add(
           ListTile(
               title: Text(
@@ -142,8 +139,8 @@ class _AgendaViewState extends State<AgendaView>
 
   List<Widget> _listOfClassAssess() {
     List<Widget> listTasks = List();
-    if (widget.term.classes.isNotEmpty) {
-      for (Class c in widget.term.classes) {
+    if (term.classes.isNotEmpty) {
+      for (Class c in term.classes) {
         listTasks.add(
           ListTile(
               title: Text(
@@ -186,8 +183,8 @@ class _AgendaViewState extends State<AgendaView>
         heroTag: "assessmentButton",
         onPressed: () {
           setState(() {
-              animate();
-            });
+            animate();
+          });
           showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -208,8 +205,8 @@ class _AgendaViewState extends State<AgendaView>
         heroTag: "assignmentButton",
         onPressed: () {
           setState(() {
-              animate();
-            });
+            animate();
+          });
           showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -233,12 +230,12 @@ class _AgendaViewState extends State<AgendaView>
               .push(MaterialPageRoute(builder: (context) => AddEventView()));
           if (result != null) {
             print("Event returned: " + result.title);
-            widget.term.addEvent(result);
+            term.addEvent(result);
             database.updateDatabase();
           }
-           setState(() {
-              animate();
-            });
+          setState(() {
+            animate();
+          });
         },
         tooltip: 'Event',
         child: Icon(Icons.event),
@@ -255,11 +252,6 @@ class _AgendaViewState extends State<AgendaView>
           tooltip: 'Toggle',
           child: Icon(Icons.add)),
     );
-  }
-
-  Future<bool> _initializeDatabase() async {
-    await database.startFireStore();
-    setState(() {}); //update the view
   }
 
   @override
@@ -295,9 +287,7 @@ class _AgendaViewState extends State<AgendaView>
             toggle(),
           ],
         ),
-        drawer: MainDrawer(
-          term: getCurrentTerm(),
-        ),
+        drawer: MainDrawer(),
         appBar: AppBar(
           title: Text(
             "Agenda",
@@ -310,16 +300,14 @@ class _AgendaViewState extends State<AgendaView>
             Calendar(
               onDateSelected: (DateTime date) {
                 setState(() {
-                  widget.selectedDate = date;
+                  selectedDate = date;
                 });
               },
             ),
-            FilteredClassExpansion(widget.term, widget.selectedDate, database),
-            FilteredAssignmentExpansion(
-                widget.term, widget.selectedDate, false, database),
-            FilteredAssignmentExpansion(
-                widget.term, widget.selectedDate, true, database),
-            FilteredEventExpansion(widget.term, widget.selectedDate, database),
+            FilteredClassExpansion(term, selectedDate, database),
+            FilteredAssignmentExpansion(term, selectedDate, false, database),
+            FilteredAssignmentExpansion(term, selectedDate, true, database),
+            FilteredEventExpansion(term, selectedDate, database),
           ],
         ));
   }
@@ -410,15 +398,21 @@ class _FilteredAssignmentExpansionState
         if (widget.isAssessment) {
           if (c.assessments.isNotEmpty) {
             for (Assignment a in c.assessments) {
-              bool isWithinWeek = a.dueDate.isAfter(widget.date) && a.dueDate.isBefore(oneWeekFromToday);
+              bool isWithinWeek = a.dueDate.isAfter(widget.date) &&
+                  a.dueDate.isBefore(oneWeekFromToday);
               bool isDueToday = widget.date.day == a.dueDate.day &&
                   widget.date.month == a.dueDate.month &&
                   widget.date.year == a.dueDate.year;
               if (isWithinWeek || isDueToday) {
                 assignmentList.add(ListTile(
                   title: Text(a.title),
-                  subtitle: Text(c.title,),
-                  trailing: Text((a.dueDate.difference(DateTime.now()).inDays + 1).toString() + " days"),
+                  subtitle: Text(
+                    c.title,
+                  ),
+                  trailing: Text(
+                      (a.dueDate.difference(DateTime.now()).inDays + 1)
+                              .toString() +
+                          " days"),
                   onTap: () async {
                     Assignment result =
                         await Navigator.of(context).push(MaterialPageRoute(
@@ -439,15 +433,26 @@ class _FilteredAssignmentExpansionState
         } else {
           if (c.assignments.isNotEmpty) {
             for (Assignment a in c.assignments) {
-              bool isWithinWeek = a.dueDate.isAfter(widget.date) && a.dueDate.isBefore(oneWeekFromToday);
+              bool isWithinWeek = a.dueDate.isAfter(widget.date) &&
+                  a.dueDate.isBefore(oneWeekFromToday);
               bool isDueToday = widget.date.day == a.dueDate.day &&
                   widget.date.month == a.dueDate.month &&
                   widget.date.year == a.dueDate.year;
               if (isWithinWeek || isDueToday) {
                 assignmentList.add(ListTile(
                   title: Text(a.title),
-                  subtitle: Text(c.title,),
-                  trailing: isDueToday ? Text("Due today", style: TextStyle(color: Colors.red),) : Text("Due in " + (a.dueDate.difference(DateTime.now()).inDays + 1).toString() + " days"),
+                  subtitle: Text(
+                    c.title,
+                  ),
+                  trailing: isDueToday
+                      ? Text(
+                          "Due today",
+                          style: TextStyle(color: Colors.red),
+                        )
+                      : Text("Due in " +
+                          (a.dueDate.difference(DateTime.now()).inDays + 1)
+                              .toString() +
+                          " days"),
                   onTap: () async {
                     Assignment result =
                         await Navigator.of(context).push(MaterialPageRoute(

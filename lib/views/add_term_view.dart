@@ -1,22 +1,31 @@
+import 'package:cognito/database/database.dart';
 import 'package:cognito/models/all_terms.dart';
+import 'package:flutter/material.dart';
+import 'dart:async';
+import 'package:cognito/models/academic_term.dart';
 
 /// Academic term creation view
 /// View screen to create a new AcademicTerm
 /// @author Julian Vu
 ///
-import 'package:flutter/material.dart';
-import 'dart:async';
-import 'package:cognito/models/academic_term.dart';
 
 class AddTermView extends StatefulWidget {
   static String tag = "add-term-view";
-  AllTerms allTerms;
-  AddTermView({Key key, @required this.allTerms}) : super(key: key);
   @override
   _AddTermViewState createState() => _AddTermViewState();
 }
 
 class _AddTermViewState extends State<AddTermView> {
+  DataBase dataBase = DataBase();
+  AllTerms allTerms;
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      this.allTerms = dataBase.allTerms;
+    });
+  }
+
   DateTime newStartDate, newEndDate;
   String newTermName;
 
@@ -43,10 +52,11 @@ class _AddTermViewState extends State<AddTermView> {
       });
     }
   }
+
   String conflictTerm = "";
   bool timeConflict(DateTime startTime, DateTime endTime) {
     bool cond = false;
-    for (AcademicTerm t in widget.allTerms.terms) {
+    for (AcademicTerm t in allTerms.terms) {
       if ((startTime.isAfter(t.startTime) && startTime.isBefore(t.endTime)) ||
           (endTime.isAfter(t.startTime) && endTime.isBefore(t.endTime)) ||
           (startTime.compareTo(t.startTime) == 0) &&
@@ -65,29 +75,24 @@ class _AddTermViewState extends State<AddTermView> {
         title: Text("Add New Academic Term"),
         backgroundColor: Theme.of(context).primaryColorDark,
         actions: <Widget>[
-          Builder(
-            builder: (BuildContext context) {
-              return IconButton(
-              icon: Icon(Icons.check),
-              onPressed: () {
-                 if (!timeConflict(newStartDate, newEndDate)) {
+          Builder(builder: (BuildContext context) {
+            return IconButton(
+                icon: Icon(Icons.check),
+                onPressed: () {
+                  if (!timeConflict(newStartDate, newEndDate)) {
                     Navigator.of(context).pop(_termNameController != null
                         ? AcademicTerm(
                             _termNameController.text, newStartDate, newEndDate)
                         : null);
                   } else {
                     Scaffold.of(context).showSnackBar(SnackBar(
-                      content: Text(
-                          "There is a time conflict with term: " + conflictTerm),
+                      content: Text("There is a time conflict with term: " +
+                          conflictTerm),
                       duration: Duration(seconds: 7),
                     ));
                   }
-                  
-                
-              });
-            }
-          ),
-          
+                });
+          }),
         ],
       ),
       body: Column(

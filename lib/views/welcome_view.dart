@@ -1,30 +1,37 @@
 import 'package:cognito/views/update_user_info.dart';
 import 'package:flutter/material.dart';
 
+/// Welcome view
+/// @author Praneet Singh
+
 class WelcomeView extends StatefulWidget {
   static String tag = "home-view";
   @override
   _WelcomeViewState createState() => _WelcomeViewState();
 }
 
-class _WelcomeViewState extends State<WelcomeView> with SingleTickerProviderStateMixin{
+class _WelcomeViewState extends State<WelcomeView>
+    with SingleTickerProviderStateMixin {
   AnimationController animationController;
   Animation<double> animation;
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    animationController = new AnimationController(duration: new Duration(milliseconds: 3000), vsync: this);
-    animation = new CurvedAnimation(parent: animationController, curve: Curves.elasticOut)
+    animationController = new AnimationController(
+        duration: new Duration(milliseconds: 3000), vsync: this);
+    animation = new CurvedAnimation(
+        parent: animationController, curve: Curves.elasticOut)
       ..addListener(() => this.setState(() {}))
-      ..addStatusListener((AnimationStatus status) {
-      });
+      ..addStatusListener((AnimationStatus status) {});
     animationController.forward();
   }
-   @override
+
+  @override
   void dispose() {
     animationController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,9 +58,8 @@ class _WelcomeViewState extends State<WelcomeView> with SingleTickerProviderStat
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: animation.value*25),
-                      ), 
-                      
+                            fontSize: animation.value * 25),
+                      ),
                     ],
                   ),
                 ),
@@ -69,7 +75,10 @@ class _WelcomeViewState extends State<WelcomeView> with SingleTickerProviderStat
                         minWidth: 200.0,
                         height: 42.0,
                         child: RaisedButton(
-                          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => UpdateUserInfo())),
+                          onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => UpdateUserInfo())),
                           color: Theme.of(context).accentColor,
                           child: Text(
                             "Let's get started!",

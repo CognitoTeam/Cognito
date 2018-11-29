@@ -1,12 +1,11 @@
-/// Class creation view
-/// View screen to create a new Class object
-/// @author Julian Vu
-///
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/class.dart';
 
-enum Day {M, Tu, W, Th, F, Sat, Sun}
+/// Class creation view
+/// View screen to create a new Class object
+/// @author Julian Vu
+enum Day { M, Tu, W, Th, F, Sat, Sun }
 
 class AddClassView extends StatefulWidget {
   @override
@@ -78,7 +77,9 @@ class _AddClassViewState extends State<AddClassView> {
         Checkbox(
           value: daysOfEvent.contains(day.index + 1),
           onChanged: (bool e) {
-            daysOfEvent.contains(day.index + 1) ? deselectDay(day) : selectDay(day);
+            daysOfEvent.contains(day.index + 1)
+                ? deselectDay(day)
+                : selectDay(day);
           },
         ),
       ],
@@ -139,17 +140,24 @@ class _AddClassViewState extends State<AddClassView> {
       body: ListView(
         children: <Widget>[
           Padding(padding: EdgeInsets.all(0.0)),
-          textFieldTile(hint: "Subject e.g. CS", controller: _subjectController),
           textFieldTile(
-              hint: "Course number e.g. 146", controller: _courseNumberController),
+              hint: "Subject e.g. CS", controller: _subjectController),
           textFieldTile(
-              hint: "Course title e.g. Data Structures and Algorithms", controller: _courseTitleController),
+              hint: "Course number e.g. 146",
+              controller: _courseNumberController),
+          textFieldTile(
+              hint: "Course title e.g. Data Structures and Algorithms",
+              controller: _courseTitleController),
           textFieldTile(
               hint: "Number of units e.g. 4", controller: _unitCountController),
-          textFieldTile(hint: "Location e.g. MQH 222", controller: _locationController),
-          textFieldTile(hint: "Instructor e.g. Dr. Potika", controller: _instructorController),
           textFieldTile(
-              hint: "Office location e.g. MQH 232", controller: _officeLocationController),
+              hint: "Location e.g. MQH 222", controller: _locationController),
+          textFieldTile(
+              hint: "Instructor e.g. Dr. Potika",
+              controller: _instructorController),
+          textFieldTile(
+              hint: "Office location e.g. MQH 232",
+              controller: _officeLocationController),
           ListTile(
             title: TextFormField(
               controller: _descriptionController,
@@ -170,7 +178,11 @@ class _AddClassViewState extends State<AddClassView> {
               style: Theme.of(context).accentTextTheme.body2,
             ),
             trailing: Text(
-              startTime != null ? startTime.hour.toString() + ":" + startTime.minute.toString() : "",
+              startTime != null
+                  ? startTime.hour.toString() +
+                      ":" +
+                      startTime.minute.toString()
+                  : "",
             ),
             onTap: () => _selectTime(true, context),
           ),
@@ -182,7 +194,9 @@ class _AddClassViewState extends State<AddClassView> {
               style: Theme.of(context).accentTextTheme.body2,
             ),
             trailing: Text(
-              endTime != null ? endTime.hour.toString() + ":" + endTime.minute.toString() : "",
+              endTime != null
+                  ? endTime.hour.toString() + ":" + endTime.minute.toString()
+                  : "",
             ),
             onTap: () => _selectTime(false, context),
           ),

@@ -1,9 +1,9 @@
-/// Task creation view
-/// @author Praneet Singh
-
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/task.dart';
+
+/// Task creation view
+/// @author Praneet Singh
 
 enum Day { M, Tu, W, Th, F, Sat, Sun }
 
@@ -68,8 +68,7 @@ class _AddTaskViewState extends State<AddTaskView> {
                 : selectDay(day);
             if (daysOfEvent.isEmpty) {
               _isRepeated = false;
-            } 
-            else {
+            } else {
               _isRepeated = true;
             }
             print(_isRepeated);

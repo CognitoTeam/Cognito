@@ -1,6 +1,3 @@
-/// Club view
-/// Displays list of Club cards
-/// @author Praneet Singh
 import 'package:flutter/material.dart';
 import 'package:cognito/models/club.dart';
 import 'package:cognito/models/academic_term.dart';
@@ -9,21 +6,22 @@ import 'package:cognito/views/add_club_view.dart';
 import 'package:cognito/views/club_details_view.dart';
 import 'package:cognito/database/database.dart';
 
-class ClubView extends StatefulWidget {
-  // Academic term object
-  AcademicTerm term;
-  // Constructor that takes in an academic term object
-  ClubView({Key key, @required this.term}) : super(key: key);
+/// Club view
+/// Displays list of Club cards
+/// @author Praneet Singh
 
+class ClubView extends StatefulWidget {
   @override
   _ClubViewState createState() => _ClubViewState();
 }
 
 class _ClubViewState extends State<ClubView> {
+  AcademicTerm term;
   DataBase database = DataBase();
+
   void removeClub(Club clubToRemove) {
     setState(() {
-      widget.term.removeClub(clubToRemove);
+      term.removeClub(clubToRemove);
     });
   }
 
@@ -31,7 +29,7 @@ class _ClubViewState extends State<ClubView> {
     for (AcademicTerm term in database.allTerms.terms) {
       if (DateTime.now().isAfter(term.startTime) &&
           DateTime.now().isBefore(term.endTime)) {
-        widget.term = term;
+        this.term = term;
         return term;
       }
     }
@@ -42,23 +40,17 @@ class _ClubViewState extends State<ClubView> {
   void initState() {
     super.initState();
     setState(() {
-      _initializeDatabase();
       getCurrentTerm();
     });
-  }
-
-  Future<bool> _initializeDatabase() async {
-    await database.startFireStore();
-    setState(() {}); //update the view
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: MainDrawer(term: widget.term),
+      drawer: MainDrawer(),
       appBar: AppBar(
         title: Text(
-          widget.term.termName + " - Clubs",
+          term.termName + " - Clubs",
           style: Theme.of(context).primaryTextTheme.title,
         ),
         backgroundColor: Theme.of(context).primaryColorDark,
@@ -68,8 +60,8 @@ class _ClubViewState extends State<ClubView> {
           final result = await Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => AddClubView()));
           if (result != null) {
-            widget.term.addClub(result);
-            database.allTerms.updateTerm(widget.term);
+            term.addClub(result);
+            database.allTerms.updateTerm(term);
             database.updateDatabase();
           }
         },
@@ -80,11 +72,11 @@ class _ClubViewState extends State<ClubView> {
         backgroundColor: Theme.of(context).accentColor,
         foregroundColor: Colors.black,
       ),
-      body: widget.term.clubs.isNotEmpty
+      body: term.clubs.isNotEmpty
           ? ListView.builder(
-              itemCount: widget.term.clubs.length,
+              itemCount: term.clubs.length,
               itemBuilder: (BuildContext context, int index) {
-                Club clubObj = widget.term.clubs[index];
+                Club clubObj = term.clubs[index];
 
                 return Container(
                   margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
@@ -95,15 +87,15 @@ class _ClubViewState extends State<ClubView> {
                           MaterialPageRoute(
                               builder: (context) =>
                                   ClubDetailsView(club: clubObj)));
-                      database.allTerms.updateTerm(widget.term);
+                      database.allTerms.updateTerm(term);
                       database.updateDatabase();
                     },
                     child: Dismissible(
-                      key: Key(widget.term.clubs[index].toString()),
+                      key: Key(term.clubs[index].toString()),
                       direction: DismissDirection.endToStart,
                       onDismissed: (direction) {
                         removeClub(clubObj);
-                        database.allTerms.updateTerm(widget.term);
+                        database.allTerms.updateTerm(term);
                         database.updateDatabase();
                         Scaffold.of(context).showSnackBar(SnackBar(
                           content: Text("${clubObj.title} deleted"),
@@ -114,7 +106,10 @@ class _ClubViewState extends State<ClubView> {
                         child: Column(
                           children: <Widget>[
                             ListTile(
-                              leading: Icon(Icons.people, color: Colors.white,),
+                              leading: Icon(
+                                Icons.people,
+                                color: Colors.white,
+                              ),
                               title: Text(
                                 clubObj.title,
                                 style: Theme.of(context).primaryTextTheme.body1,

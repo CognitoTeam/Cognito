@@ -5,15 +5,14 @@ import 'package:cognito/views/add_event_view.dart';
 import 'package:cognito/views/add_task_view.dart';
 import 'package:cognito/views/event_details_view.dart';
 import 'package:cognito/views/task_details_view.dart';
+import 'package:flutter/material.dart';
+import 'package:cognito/models/club.dart';
+
 /// club creation view
 /// View screen to create a new club object
 /// @author Praneet Singh
-///
-import 'package:flutter/material.dart';
-import 'dart:async';
-import 'package:cognito/models/club.dart';
 
-enum Day {M, Tu, W, Th, F, Sat, Sun}
+enum Day { M, Tu, W, Th, F, Sat, Sun }
 
 class AddClubView extends StatefulWidget {
   @override
@@ -60,13 +59,11 @@ class _AddClubViewState extends State<AddClubView> {
           IconButton(
             icon: Icon(Icons.check),
             onPressed: () {
-          club.title = _titleController.text;
-          club.location = _locationController.text;
-          club.description = _descriptionController.text;
-              Navigator.of(context).pop(_titleController.text != null
-                  ? 
-                  club
-                  : null);
+              club.title = _titleController.text;
+              club.location = _locationController.text;
+              club.description = _descriptionController.text;
+              Navigator.of(context)
+                  .pop(_titleController.text != null ? club : null);
             },
           ),
         ],
@@ -74,9 +71,9 @@ class _AddClubViewState extends State<AddClubView> {
       body: ListView(
         children: <Widget>[
           Padding(padding: EdgeInsets.all(0.0)),
+          textFieldTile(hint: "Club title", controller: _titleController),
           textFieldTile(
-              hint: "Club title", controller: _titleController),
-          textFieldTile(hint: "Location (Optional)", controller: _locationController),
+              hint: "Location (Optional)", controller: _locationController),
           ListTile(
             title: TextFormField(
               controller: _descriptionController,
@@ -90,7 +87,6 @@ class _AddClubViewState extends State<AddClubView> {
                   hintStyle: TextStyle(color: Colors.black45)),
             ),
           ),
-
           ExpandableOfficerList(club),
           ExpandableEventList(club),
           ExpandableTaskList(club)
@@ -99,6 +95,7 @@ class _AddClubViewState extends State<AddClubView> {
     );
   }
 }
+
 class ExpandableOfficerList extends StatefulWidget {
   final Club club;
 
@@ -109,7 +106,6 @@ class ExpandableOfficerList extends StatefulWidget {
 }
 
 class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
-
   final _officerNameController = TextEditingController();
   final _officerPosController = TextEditingController();
 
@@ -120,53 +116,53 @@ class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
         listOfficers.add(
           ListTile(
               title: Text(
-                o.officerName +" ("+ o.officerPosition+")",
+                o.officerName + " (" + o.officerPosition + ")",
                 style: Theme.of(context).accentTextTheme.body2,
               ),
               onTap: () {
                 showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    _officerNameController.text = o.officerName;
-                    _officerPosController.text = o.officerPosition;
-                    return SimpleDialog(
-                      title: Text("Edit an Officer"),
-                      children: <Widget>[
-                        TextField(
-                          controller: _officerNameController,
-                          style: Theme.of(context).accentTextTheme.body2,
-                          decoration: InputDecoration(
-                            hintText: "Officer Name",
-                            hintStyle: TextStyle(color: Colors.black45),
-                            contentPadding:
-                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                    context: context,
+                    builder: (BuildContext context) {
+                      _officerNameController.text = o.officerName;
+                      _officerPosController.text = o.officerPosition;
+                      return SimpleDialog(
+                        title: Text("Edit an Officer"),
+                        children: <Widget>[
+                          TextField(
+                            controller: _officerNameController,
+                            style: Theme.of(context).accentTextTheme.body2,
+                            decoration: InputDecoration(
+                              hintText: "Officer Name",
+                              hintStyle: TextStyle(color: Colors.black45),
+                              contentPadding:
+                                  EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                            ),
+                            textInputAction: TextInputAction.done,
                           ),
-                          textInputAction: TextInputAction.done,
-                        ),
-                        TextField(
-                          controller: _officerPosController,
-                          style: Theme.of(context).accentTextTheme.body2,
-                          decoration: InputDecoration(
-                            hintText: "Officer Position",
-                            hintStyle: TextStyle(color: Colors.black45),
-                            contentPadding:
-                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                          TextField(
+                            controller: _officerPosController,
+                            style: Theme.of(context).accentTextTheme.body2,
+                            decoration: InputDecoration(
+                              hintText: "Officer Position",
+                              hintStyle: TextStyle(color: Colors.black45),
+                              contentPadding:
+                                  EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                            ),
+                            textInputAction: TextInputAction.done,
                           ),
-                          textInputAction: TextInputAction.done,
-                        ), 
-                        RaisedButton(
-                          child: Text("Submit"),
-                          onPressed: (){
-                            o.officerName =_officerNameController.text;
-                            o.officerPosition = _officerPosController.text;
-                            _officerNameController.text = "";
-                            _officerPosController.text = "";
-                             Navigator.pop(context);
-                          },
-                        )
-                      ],
-                    );
-                  });
+                          RaisedButton(
+                            child: Text("Submit"),
+                            onPressed: () {
+                              o.officerName = _officerNameController.text;
+                              o.officerPosition = _officerPosController.text;
+                              _officerNameController.text = "";
+                              _officerPosController.text = "";
+                              Navigator.pop(context);
+                            },
+                          )
+                        ],
+                      );
+                    });
               }),
         );
       }
@@ -186,45 +182,47 @@ class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
         leading: Icon(Icons.add),
         onTap: () {
           showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return SimpleDialog(
-                      title: Text("Add an Officer"),
-                      children: <Widget>[
-                        TextField(
-                          controller: _officerNameController,
-                          style: Theme.of(context).accentTextTheme.body2,
-                          decoration: InputDecoration(
-                            hintText: "Officer Name",
-                            hintStyle: TextStyle(color: Colors.black45),
-                            contentPadding:
-                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                          ),
-                          textInputAction: TextInputAction.done,
-                        ),
-                        TextField(
-                          controller: _officerPosController,
-                          style: Theme.of(context).accentTextTheme.body2,
-                          decoration: InputDecoration(
-                            hintText: "Officer Position",
-                            hintStyle: TextStyle(color: Colors.black45),
-                            contentPadding:
-                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                          ),
-                          textInputAction: TextInputAction.done,
-                        ), 
-                        RaisedButton(
-                          child: Text("Add"),
-                          onPressed: (){
-                            widget.club.addOfficer(Officer(_officerNameController.text, _officerPosController.text));
-                            _officerNameController.text = "";
-                            _officerPosController.text = "";
-                             Navigator.pop(context);
-                          },
-                        )
-                      ],
-                    );
-                  });
+              context: context,
+              builder: (BuildContext context) {
+                return SimpleDialog(
+                  title: Text("Add an Officer"),
+                  children: <Widget>[
+                    TextField(
+                      controller: _officerNameController,
+                      style: Theme.of(context).accentTextTheme.body2,
+                      decoration: InputDecoration(
+                        hintText: "Officer Name",
+                        hintStyle: TextStyle(color: Colors.black45),
+                        contentPadding:
+                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                      ),
+                      textInputAction: TextInputAction.done,
+                    ),
+                    TextField(
+                      controller: _officerPosController,
+                      style: Theme.of(context).accentTextTheme.body2,
+                      decoration: InputDecoration(
+                        hintText: "Officer Position",
+                        hintStyle: TextStyle(color: Colors.black45),
+                        contentPadding:
+                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                      ),
+                      textInputAction: TextInputAction.done,
+                    ),
+                    RaisedButton(
+                      child: Text("Add"),
+                      onPressed: () {
+                        widget.club.addOfficer(Officer(
+                            _officerNameController.text,
+                            _officerPosController.text));
+                        _officerNameController.text = "";
+                        _officerPosController.text = "";
+                        Navigator.pop(context);
+                      },
+                    )
+                  ],
+                );
+              });
         },
       ),
     );
@@ -251,6 +249,7 @@ class ExpandableTaskList extends StatefulWidget {
   @override
   _ExpandableTaskListState createState() => _ExpandableTaskListState();
 }
+
 class _ExpandableTaskListState extends State<ExpandableTaskList> {
   List<Widget> _listOfTasks() {
     List<Widget> listTasks = List();
@@ -384,4 +383,3 @@ class _ExpandableEventListState extends State<ExpandableEventList> {
         children: _listOfEvents());
   }
 }
-

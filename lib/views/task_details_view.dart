@@ -1,9 +1,12 @@
 import 'package:cognito/models/task.dart';
 import 'package:flutter/material.dart';
 
+/// Task details view
+/// @author Praneet Singh
+
 class TaskDetailsView extends StatefulWidget {
   // Hold academic term object
-  Task task;
+  final Task task;
 
   // Constructor that takes in an academic term object
   TaskDetailsView({Key key, @required this.task}) : super(key: key);

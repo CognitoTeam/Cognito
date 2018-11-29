@@ -8,6 +8,10 @@ import 'package:path_provider/path_provider.dart';
 /// FireStore storage for terms
 /// @author Praneet Singh
 class DataBase {
+  static DataBase _instance;
+  factory DataBase() => _instance ??= new DataBase._();
+  DataBase._();
+  
   final FireBaseLogin _fireBaseLogin = FireBaseLogin();
 
   DocumentReference _documentReference;

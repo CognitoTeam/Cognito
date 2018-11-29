@@ -2,25 +2,40 @@ import 'package:cognito/database/database.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/class.dart';
-import 'package:cognito/models/gpa_calculator.dart';
-import 'package:cognito/views/main_drawer.dart';
 import 'package:flutter/material.dart';
 
 class GradeBookView extends StatefulWidget {
-  AcademicTerm term;
-  // Constructor that takes in an academic term object
-  GradeBookView({Key key, @required this.term}) : super(key: key);
   @override
   _GradeBookViewtate createState() => _GradeBookViewtate();
 }
 
 class _GradeBookViewtate extends State<GradeBookView> {
+  AcademicTerm term;
+  AcademicTerm getCurrentTerm() {
+    for (AcademicTerm term in database.allTerms.terms) {
+      if (DateTime.now().isAfter(term.startTime) &&
+          DateTime.now().isBefore(term.endTime)) {
+        this.term = term;
+        return term;
+      }
+    }
+    return null;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      getCurrentTerm();
+    });
+  }
+
   Class selected;
   DataBase database = DataBase();
   List<Widget> _listOfClass() {
     List<Widget> listTasks = List();
-    if (widget.term.classes.isNotEmpty) {
-      for (Class c in widget.term.classes) {
+    if (term.classes.isNotEmpty) {
+      for (Class c in term.classes) {
         listTasks.add(
           ListTile(
               title: Text(
@@ -55,7 +70,6 @@ class _GradeBookViewtate extends State<GradeBookView> {
       if (c.assignments.isNotEmpty) {
         for (Assignment a in c.assignments) {
           rowsOfWidgets.add(ListTile(
-            
             title: Text(a.title + "\t"),
             trailing: Text(
                 ((a.pointsEarned / a.pointsPossible) * 100).toString() + "%"),
@@ -82,19 +96,6 @@ class _GradeBookViewtate extends State<GradeBookView> {
       ));
     }
     return rowsOfWidgets;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      _initializeDatabase();
-    });
-  }
-
-  Future<bool> _initializeDatabase() async {
-    await database.startFireStore();
-    setState(() {}); //update the view
   }
 
   @override
