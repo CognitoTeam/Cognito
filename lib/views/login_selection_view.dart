@@ -1,4 +1,5 @@
 import 'package:cognito/database/database.dart';
+import 'package:cognito/views/buffer_view.dart';
 /// Login selection view
 /// View screen to select mode of authentication
 /// @author Julian Vu
@@ -22,7 +23,7 @@ enum AuthStatus {
 }
 
 class _LoginSelectionViewState extends State<LoginSelectionView> {
-  DataBase  database = DataBase();
+
   FireBaseLogin _fireBaseLogin = FireBaseLogin();
   AuthStatus authStatus = AuthStatus.notDetermined;
 
@@ -46,20 +47,11 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
       return false;
     }
   }
-Future<bool> _initializeDatabase() async {
-    await database.startFireStore();
-    setState(() {}); //update the view
-  }
-  @override
-  void initState() {
-    super.initState();
-      _initializeDatabase();
-   
-  }
+
   @override
   Widget build(BuildContext context) {
     if (authStatus == AuthStatus.signedIn) {
-      return AcademicTermView();
+      return BufferView();
     } else {
       final logo = Hero(
         tag: "hero",
@@ -82,7 +74,7 @@ Future<bool> _initializeDatabase() async {
               b
                   ? Navigator.pushAndRemoveUntil(context, 
                   MaterialPageRoute(builder: (context) => 
-                  AcademicTermView()), ModalRoute.withName("/Home"))
+                  BufferView()), ModalRoute.withName("/Home"))
                   : Scaffold.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Google login failed!'),

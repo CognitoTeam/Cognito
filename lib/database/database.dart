@@ -16,15 +16,10 @@ class DataBase {
 
   DocumentReference _documentReference;
   
-  AllTerms allTerms = AllTerms();
-  Future<bool> startFireStore() async {
-    String jsonString = await initializeFireStore();
-    print("Read from the disk and populate UI");
-    final jsonTerms = json.decode(jsonString);
-    AllTerms allTerm = AllTerms.fromJson(jsonTerms);
-    allTerms.terms = allTerm.terms;
+  AllTerms allTerms;
+  void closeDatabase(){
+    _instance = null;
   }
-
   Future<String> initializeFireStore() async {
     String uID = await _fireBaseLogin.currentUser();
     assert(uID != null);
@@ -34,12 +29,15 @@ class DataBase {
     DocumentSnapshot documentSnapshot = await _documentReference.get();
     if (!documentSnapshot.exists) {
       add();
+      allTerms = AllTerms();
       print("No data in database yet");
       return '';
     } else {
       print("Write json to disk from firestore");
       await writeJSON(documentSnapshot.data['terms']);
-      return await readJSON();
+      allTerms = await getAllTermsFromString(documentSnapshot.data['terms']);
+      String jsonString = await readJSON();
+      return jsonString;
     }
   }
 
@@ -60,8 +58,8 @@ class DataBase {
   }
 
   void add() {
-    writeJSON('{"terms":[]}');
-    Map<String, dynamic> data = <String, dynamic>{"terms": '{"terms":[]}'};
+    writeJSON('{"terms":[],"subjects":[]}');
+    Map<String, dynamic> data = <String, dynamic>{"terms": '{"terms":[],"subjects":[]}'};
     _documentReference.setData(data).whenComplete(() {
       print("Document Added");
     }).catchError((e) => print(e));
@@ -71,7 +69,11 @@ class DataBase {
     final directory = await getApplicationDocumentsDirectory();
     return directory.path;
   }
-
+  Future<AllTerms> getAllTermsFromString(String stringObject) async{
+    Map<String, dynamic> allMap = await json.decode(stringObject);
+    AllTerms all = AllTerms.fromJson(allMap);
+    return all;
+  }
   Future<File> get _localFile async {
     final path = await _localPath;
     return File('$path/terms.txt');
@@ -83,6 +85,7 @@ class DataBase {
       // Read the file
       String contents = await file.readAsString();
       print("Reading JSON from local Storage");
+      print("Reading from device: " + contents);
       return contents;
     } catch (e) {
       // If we encounter an error, return 0
@@ -91,6 +94,7 @@ class DataBase {
   }
 
   Future<File> writeJSON(String jsonString) async {
+    print("Write:" + jsonString);
     final file = await _localFile;
     print("Writing JSON to local Storage");
 
