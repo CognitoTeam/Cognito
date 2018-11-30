@@ -19,12 +19,12 @@ class AcademicTermView extends StatefulWidget {
 class _AcademicTermViewState extends State<AcademicTermView> {
   AcademicTerm deletedTerm;
   // List of academic terms
-  DataBase database;
+  DataBase  database = DataBase();
   @override
   void initState() {
     super.initState();
     setState(() {
-      database = DataBase();
+     
     });
   }
 
