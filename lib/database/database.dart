@@ -58,7 +58,7 @@ class DataBase {
   }
 
   void add() {
-    writeJSON('{"terms":[], ,"subjects":[]}');
+    writeJSON('{"terms":[],"subjects":[]}');
     Map<String, dynamic> data = <String, dynamic>{"terms": '{"terms":[],"subjects":[]}'};
     _documentReference.setData(data).whenComplete(() {
       print("Document Added");
