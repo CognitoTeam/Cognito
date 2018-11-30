@@ -1,3 +1,4 @@
+import 'package:cognito/database/database.dart';
 import 'package:cognito/database/firebase_login.dart';
 import 'package:cognito/views/GPAView.dart';
 import 'package:cognito/views/clubs_view.dart';
@@ -45,6 +46,8 @@ class _MainDrawerState extends State<MainDrawer> {
     if (api != null) {
       return false;
     } else {
+      DataBase dataBase = DataBase();
+      dataBase.closeDatabase();
       return true;
     }
   }

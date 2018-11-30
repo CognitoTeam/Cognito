@@ -15,19 +15,6 @@ class AddClassView extends StatefulWidget {
 class _AddClassViewState extends State<AddClassView> {
   DataBase database = DataBase();
 
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      _initializeDatabase();
-    });
-  }
-
-  Future<bool> _initializeDatabase() async {
-    await database.startFireStore();
-    setState(() {}); //update the view
-  }
-
   DateTime startTime, endTime;
   List<int> daysOfEvent = List();
 

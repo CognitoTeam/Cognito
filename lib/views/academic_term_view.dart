@@ -19,11 +19,13 @@ class AcademicTermView extends StatefulWidget {
 class _AcademicTermViewState extends State<AcademicTermView> {
   AcademicTerm deletedTerm;
   // List of academic terms
-  DataBase database = DataBase();
+  DataBase database;
   @override
   void initState() {
     super.initState();
-    setState(() {});
+    setState(() {
+      database = DataBase();
+    });
   }
 
   void undo(AcademicTerm undo) {
@@ -39,15 +41,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
     });
   }
 
-  AcademicTerm getCurrentTerm() {
-    for (AcademicTerm term in database.allTerms.terms) {
-      if (DateTime.now().isAfter(term.startTime) &&
-          DateTime.now().isBefore(term.endTime)) {
-        return term;
-      }
-    }
-    return null;
-  }
+
 
   @override
   Widget build(BuildContext context) {
