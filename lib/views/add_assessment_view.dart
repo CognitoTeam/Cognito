@@ -2,6 +2,7 @@ import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/category.dart';
 import 'package:cognito/models/class.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'dart:async';
 
 /// Assessment creation view
@@ -260,6 +261,25 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
     }
   }
 
+  Future<Null> _selectTime(BuildContext context) async {
+    // Hide keyboard before showing time picker
+    FocusScope.of(context).requestFocus(FocusNode());
+
+    // Add delay to be sure keyboard is no longer visible
+    await Future.delayed(Duration(milliseconds: 200));
+
+    final TimeOfDay picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now()
+    );
+
+    if (picked != null) {
+      setState(() {
+        dueDate = DateTime(dueDate.year, dueDate.month, dueDate.day, picked.hour, picked.minute);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -329,15 +349,28 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
             ListTile(
               leading: Icon(Icons.calendar_today),
               title: Text(
-                "Select Due Date",
-                style: Theme.of(context).accentTextTheme.body2,
+                "Exam/Quiz Date",
+                style: Theme.of(context).accentTextTheme.body1,
               ),
               trailing: Text(
                 dueDate != null
-                    ? "${dueDate.month.toString()}/${dueDate.day.toString()}/${dueDate.year.toString()}"
+                    ? DateFormat.yMd().format(dueDate)
                     : "",
               ),
               onTap: () => _selectDate(context),
+            ),
+            ListTile(
+              leading: Icon(Icons.access_time),
+              title: Text(
+                "Exam/Quiz Time",
+                style: Theme.of(context).accentTextTheme.body1,
+              ),
+              trailing: Text(
+                dueDate != null
+                    ? DateFormat.jm().format(dueDate)
+                    : "",
+              ),
+              onTap: () => _selectTime(context),
             ),
             ExpansionTile(
                 leading: Icon(Icons.category),
