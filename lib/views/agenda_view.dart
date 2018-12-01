@@ -7,6 +7,7 @@ import 'package:cognito/views/add_event_view.dart';
 import 'package:cognito/views/assessment_details_view.dart';
 import 'package:cognito/views/class_details_view.dart';
 import 'package:cognito/views/event_details_view.dart';
+import 'package:cognito/views/login_selection_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:cognito/models/academic_term.dart';
@@ -14,6 +15,7 @@ import 'package:cognito/models/class.dart';
 import 'package:cognito/database/database.dart';
 import 'package:cognito/views/main_drawer.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 /// Agenda view screen
 /// Displays daily agenda
@@ -26,6 +28,9 @@ class AgendaView extends StatefulWidget {
 
 class _AgendaViewState extends State<AgendaView>
     with SingleTickerProviderStateMixin {
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      new FlutterLocalNotificationsPlugin();
+
   DateTime selectedDate;
   AcademicTerm term;
   bool isOpened = false;
@@ -54,6 +59,13 @@ class _AgendaViewState extends State<AgendaView>
       selectedDate = DateTime.now();
       getCurrentTerm();
     });
+    var initializationSettingsAndroid =
+        new AndroidInitializationSettings('app_icon');
+    var initializationSettingsIOS = new IOSInitializationSettings();
+    var initializationSettings = new InitializationSettings(
+        initializationSettingsAndroid, initializationSettingsIOS);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onSelectNotification: onSelectNotification);
     _animationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 200))
           ..addListener(() {
@@ -81,6 +93,38 @@ class _AgendaViewState extends State<AgendaView>
         curve: _curve,
       ),
     ));
+  }
+
+  Future onSelectNotification(String payload) async {
+    if (payload != null) {
+      debugPrint('notification payload: ' + payload);
+    }
+
+    await Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new LoginSelectionView()),
+    );
+  }
+
+  Future _scheduleNotification(
+      {String title, String body, DateTime dateTime}) async {
+    var scheduledNotificationDateTime = dateTime;
+
+    var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
+        'your other channel id',
+        'your other channel name',
+        'your other channel description',
+        sound: 'slow_spring_board',
+        color: Colors.black);
+
+    var iOSPlatformChannelSpecifics =
+        new IOSNotificationDetails(sound: "slow_spring_board.aiff");
+
+    var platformChannelSpecifics = new NotificationDetails(
+        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+
+    await flutterLocalNotificationsPlugin.schedule(0, title, body,
+        scheduledNotificationDateTime, platformChannelSpecifics);
   }
 
   @override
@@ -121,6 +165,10 @@ class _AgendaViewState extends State<AgendaView>
                               aClass: c,
                             )));
                 if (result != null) {
+                  _scheduleNotification(
+                      title: "Assignment due",
+                      body: result.title + " for " + c.title + " is due today.",
+                      dateTime: result.dueDate);
                   c.addTodoItem(c.ASSIGNMENTTAG, assignment: result);
                   database.updateDatabase();
                 }
@@ -161,6 +209,14 @@ class _AgendaViewState extends State<AgendaView>
                               aClass: c,
                             )));
                 if (result != null) {
+                  _scheduleNotification(
+                      title: "Assessment today",
+                      body: result.title +
+                          " for " +
+                          c.title +
+                          " is scheduled for today.",
+                      dateTime: result.dueDate);
+
                   c.addTodoItem(c.ASSESSMENTTAG, assignment: result);
                   database.updateDatabase();
                 }
@@ -230,6 +286,13 @@ class _AgendaViewState extends State<AgendaView>
           Event result = await Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => AddEventView()));
           if (result != null) {
+            _scheduleNotification(
+                title: "Event today",
+                body: result.title +
+                    " for " +
+                    result.title +
+                    " is scheduled for today.",
+                dateTime: result.startTime);
             print("Event returned: " + result.title);
             term.addEvent(result);
             database.updateDatabase();
