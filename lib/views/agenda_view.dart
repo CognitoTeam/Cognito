@@ -13,6 +13,7 @@ import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/class.dart';
 import 'package:cognito/database/database.dart';
 import 'package:cognito/views/main_drawer.dart';
+import 'package:intl/intl.dart';
 
 /// Agenda view screen
 /// Displays daily agenda
@@ -332,9 +333,12 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
         if (c.daysOfEvent.contains(widget.date.weekday)) {
           classesList.add(ListTile(
             title: Text(
-              c.title,
+              c.subjectArea + " " + c.courseNumber + " - " + c.title,
               style: Theme.of(context).accentTextTheme.body2,
             ),
+            subtitle: Text(DateFormat.jm().format(c.startTime) +
+                " - " +
+                DateFormat.jm().format(c.endTime)),
             onTap: () async {
               Class result = await Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => ClassDetailsView(
@@ -409,8 +413,12 @@ class _FilteredAssignmentExpansionState
                   subtitle: Text(
                     c.title,
                   ),
-                  trailing: Text(
-                      (a.dueDate.difference(DateTime.now()).inDays + 1)
+                  trailing: isDueToday
+                      ? Text(
+                          "Today at " + DateFormat.jm().format(a.dueDate),
+                          style: TextStyle(color: Colors.red),
+                        )
+                      : Text((a.dueDate.difference(DateTime.now()).inDays + 1)
                               .toString() +
                           " days"),
                   onTap: () async {

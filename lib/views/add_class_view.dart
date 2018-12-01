@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/class.dart';
 import 'package:cognito/database/database.dart';
+import 'package:intl/intl.dart';
+
 /// Class creation view
 /// View screen to create a new Class object
 /// @author Julian Vu
@@ -249,9 +251,7 @@ class _AddClassViewState extends State<AddClassView> {
             ),
             trailing: Text(
               startTime != null
-                  ? startTime.hour.toString() +
-                      ":" +
-                      startTime.minute.toString()
+                  ? DateFormat.jm().format(startTime)
                   : "",
             ),
             onTap: () => _selectTime(true, context),
@@ -265,7 +265,7 @@ class _AddClassViewState extends State<AddClassView> {
             ),
             trailing: Text(
               endTime != null
-                  ? endTime.hour.toString() + ":" + endTime.minute.toString()
+                  ? DateFormat.jm().format(endTime)
                   : "",
             ),
             onTap: () => _selectTime(false, context),

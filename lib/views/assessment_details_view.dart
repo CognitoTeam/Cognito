@@ -1,6 +1,7 @@
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/category.dart';
 import 'package:cognito/models/class.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 
 /// Assessment details view
@@ -42,8 +43,6 @@ class _AssessmentDetailsViewState extends State<AssessmentDetailsView> {
         widget.assignment.category.weightInPercentage.toString() +
         "%";
   }
-
-  DateTime dueDate;
 
   ListTile textFieldTile(
       {String intiialText,
@@ -221,6 +220,49 @@ class _AssessmentDetailsViewState extends State<AssessmentDetailsView> {
     return listCategories;
   }
 
+  Future<Null> _selectDate(BuildContext context) async {
+    // Make sure keyboard is hidden before showing date picker
+    FocusScope.of(context).requestFocus(FocusNode());
+
+    await Future.delayed(Duration(milliseconds: 200));
+
+    final DateTime picked = await showDatePicker(
+      context: context,
+      initialDate: widget.assignment.dueDate,
+      firstDate: DateTime(1990),
+      lastDate: DateTime(3000),
+    );
+
+    if (picked != null) {
+      print("Date selected: ${picked.toString()}");
+      setState(() {
+        widget.assignment.dueDate = picked;
+      });
+    }
+  }
+
+  Future<Null> _selectTime(BuildContext context) async {
+    // Hide keyboard before showing time picker
+    FocusScope.of(context).requestFocus(FocusNode());
+
+    // Add delay to be sure keyboard is no longer visible
+    await Future.delayed(Duration(milliseconds: 200));
+
+    final TimeOfDay picked =
+        await showTimePicker(context: context, initialTime: TimeOfDay.now());
+
+    if (picked != null) {
+      setState(() {
+        widget.assignment.dueDate = DateTime(
+            widget.assignment.dueDate.year,
+            widget.assignment.dueDate.month,
+            widget.assignment.dueDate.day,
+            picked.hour,
+            picked.minute);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -319,7 +361,32 @@ class _AssessmentDetailsViewState extends State<AssessmentDetailsView> {
                   hintStyle: TextStyle(color: Colors.black45)),
             ),
           ),
-          DateRow(widget.assignment),
+          ListTile(
+            leading: Icon(Icons.calendar_today),
+            title: Text(
+              "Exam/Quiz Date",
+              style: Theme.of(context).accentTextTheme.body1,
+            ),
+            trailing: Text(
+              widget.assignment.dueDate != null
+                  ? DateFormat.yMd().format(widget.assignment.dueDate)
+                  : "",
+            ),
+            onTap: () => _selectDate(context),
+          ),
+          ListTile(
+            leading: Icon(Icons.access_time),
+            title: Text(
+              "Exam/Quiz Time",
+              style: Theme.of(context).accentTextTheme.body1,
+            ),
+            trailing: Text(
+              widget.assignment.dueDate != null
+                  ? DateFormat.jm().format(widget.assignment.dueDate)
+                  : "",
+            ),
+            onTap: () => _selectTime(context),
+          ),
           ExpansionTile(
               leading: Icon(Icons.category),
               title: Text(
@@ -329,60 +396,6 @@ class _AssessmentDetailsViewState extends State<AssessmentDetailsView> {
               children: _listOfCategories()),
         ],
       )),
-    );
-  }
-}
-
-// Helper class to modularize date row creation
-class DateRow extends StatefulWidget {
-  // Flag for whether this date is start date
-  final Assignment assignment;
-
-  DateRow(this.assignment);
-
-  @override
-  _DateRowState createState() => _DateRowState();
-}
-
-class _DateRowState extends State<DateRow> {
-  String getDueDateAsString() {
-    return "${widget.assignment.dueDate.month}/${widget.assignment.dueDate.day}/${widget.assignment.dueDate.year}";
-  }
-
-  Future<Null> _selectDate(BuildContext context) async {
-    // Make sure keyboard is hidden before showing date picker
-    FocusScope.of(context).requestFocus(FocusNode());
-
-    await Future.delayed(Duration(milliseconds: 200));
-
-    final DateTime picked = await showDatePicker(
-      context: context,
-      initialDate: widget.assignment.dueDate,
-      firstDate: DateTime(1990),
-      lastDate: DateTime(3000),
-    );
-
-    if (picked != null) {
-      print("Date selected: ${picked.toString()}");
-      setState(() {
-        widget.assignment.dueDate = picked;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(Icons.calendar_today),
-      title: Text(
-        "Due Date",
-        style: Theme.of(context).accentTextTheme.body2,
-      ),
-      trailing: Text(getDueDateAsString()),
-      onTap: () {
-        print("Tapped on Due date");
-        _selectDate(context);
-      },
     );
   }
 }
