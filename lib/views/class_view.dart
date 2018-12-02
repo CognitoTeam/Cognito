@@ -170,9 +170,8 @@ class _ClassViewState extends State<ClassView> {
                   child: InkWell(
                     onTap: () async {
                       for (int i in classObj.daysOfEvent) {
-                          _cancelNotification(
-                              term.classes.indexOf(classObj) + i);
-                        }
+                        _cancelNotification(term.classes.indexOf(classObj) + i);
+                      }
                       await Navigator.push(
                           context,
                           MaterialPageRoute(

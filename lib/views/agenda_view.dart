@@ -120,18 +120,18 @@ class _AgendaViewState extends State<AgendaView>
             'your other channel name', 'your other channel description',
             sound: 'slow_spring_board', color: Colors.black);
 
-    var iOSPlatformChannelSpecifics = new notifications.IOSNotificationDetails();
+    var iOSPlatformChannelSpecifics =
+        new notifications.IOSNotificationDetails();
 
     var platformChannelSpecifics = new notifications.NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
 
     await flutterLocalNotificationsPlugin.schedule(id, title, body,
         scheduledNotificationDateTime, platformChannelSpecifics);
-        print("Notification created for: " +
+    print("Notification created for: " +
         dateTime.hour.toString() +
         ":" +
         dateTime.minute.toString());
-       
   }
 
   Future _showWeeklyAtDayAndTime(
@@ -273,8 +273,10 @@ class _AgendaViewState extends State<AgendaView>
                   input = input.subtract(Duration(minutes: 15));
                   _scheduleNotification(
                       title: "Assessment today",
-                      body:
-                          result.title + " for " + c.title + " starts in 15 mins",
+                      body: result.title +
+                          " for " +
+                          c.title +
+                          " starts in 15 mins",
                       dateTime: input,
                       id: result.hashCode);
 
@@ -360,34 +362,28 @@ class _AgendaViewState extends State<AgendaView>
             } else {
               DateTime now = DateTime.now();
               DateTime input;
-              if(result.startTime.hour < now.hour || result.endTime.hour < now.hour ||
-              (result.startTime.hour == now.hour && result.startTime.minute < now.minute)||
-              (result.endTime.hour == now.hour && result.endTime.minute < now.minute)){
+              if (result.startTime.hour < now.hour ||
+                  result.endTime.hour < now.hour ||
+                  (result.startTime.hour == now.hour &&
+                      result.startTime.minute < now.minute) ||
+                  (result.endTime.hour == now.hour &&
+                      result.endTime.minute < now.minute)) {
                 print("CONDITIONS MET");
-                  input = DateTime(
-                      now.year,
-                      now.month,
-                      now.day,
-                      result.startTime.hour,
-                      result.startTime.minute);
-                      input.add(Duration(days: 1));
-              }else{
+                input = DateTime(now.year, now.month, now.day,
+                    result.startTime.hour, result.startTime.minute);
+                input.add(Duration(days: 1));
+              } else {
                 print("CONDITIONS NOT MET");
 
-                input = DateTime(
-                      now.year,
-                      now.month,
-                      now.day,
-                      result.startTime.hour,
-                      result.startTime.minute);
+                input = DateTime(now.year, now.month, now.day,
+                    result.startTime.hour, result.startTime.minute);
               }
-                  input.subtract(Duration(minutes: 15));
-                  _scheduleNotification(
-                      title: "Event today",
-                      body:
-                          result.title + " will take place in 15 mins.",
-                      dateTime: input,
-                      id: result.hashCode);
+              input.subtract(Duration(minutes: 15));
+              _scheduleNotification(
+                  title: "Event today",
+                  body: result.title + " will take place in 15 mins.",
+                  dateTime: input,
+                  id: result.hashCode);
             }
 
             print(
