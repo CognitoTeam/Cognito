@@ -1,6 +1,5 @@
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/event.dart';
-import 'package:cognito/models/task.dart';
 import 'package:cognito/views/add_assessment_view.dart';
 import 'package:cognito/views/add_assignment_view.dart';
 import 'package:cognito/views/add_event_view.dart';
@@ -15,7 +14,8 @@ import 'package:cognito/models/class.dart';
 import 'package:cognito/database/database.dart';
 import 'package:cognito/views/main_drawer.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    as notifications;
 
 /// Agenda view screen
 /// Displays daily agenda
@@ -28,8 +28,9 @@ class AgendaView extends StatefulWidget {
 
 class _AgendaViewState extends State<AgendaView>
     with SingleTickerProviderStateMixin {
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      new FlutterLocalNotificationsPlugin();
+  notifications.FlutterLocalNotificationsPlugin
+      flutterLocalNotificationsPlugin =
+      new notifications.FlutterLocalNotificationsPlugin();
 
   DateTime selectedDate;
   AcademicTerm term;
@@ -60,9 +61,10 @@ class _AgendaViewState extends State<AgendaView>
       getCurrentTerm();
     });
     var initializationSettingsAndroid =
-        new AndroidInitializationSettings('app_icon');
-    var initializationSettingsIOS = new IOSInitializationSettings();
-    var initializationSettings = new InitializationSettings(
+        new notifications.AndroidInitializationSettings('app_icon');
+    var initializationSettingsIOS =
+        new notifications.IOSInitializationSettings();
+    var initializationSettings = new notifications.InitializationSettings(
         initializationSettingsAndroid, initializationSettingsIOS);
     flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: onSelectNotification);
@@ -107,24 +109,63 @@ class _AgendaViewState extends State<AgendaView>
   }
 
   Future _scheduleNotification(
-      {String title, String body, DateTime dateTime}) async {
+      {@required String title,
+      @required String body,
+      @required DateTime dateTime,
+      @required int id}) async {
     var scheduledNotificationDateTime = dateTime;
 
-    var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
-        'your other channel id',
-        'your other channel name',
-        'your other channel description',
-        sound: 'slow_spring_board',
-        color: Colors.black);
+    var androidPlatformChannelSpecifics =
+        new notifications.AndroidNotificationDetails('your other channel id',
+            'your other channel name', 'your other channel description',
+            sound: 'slow_spring_board', color: Colors.black);
 
-    var iOSPlatformChannelSpecifics =
-        new IOSNotificationDetails(sound: "slow_spring_board.aiff");
+    var iOSPlatformChannelSpecifics = new notifications.IOSNotificationDetails();
 
-    var platformChannelSpecifics = new NotificationDetails(
+    var platformChannelSpecifics = new notifications.NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
 
-    await flutterLocalNotificationsPlugin.schedule(0, title, body,
+    await flutterLocalNotificationsPlugin.schedule(id, title, body,
         scheduledNotificationDateTime, platformChannelSpecifics);
+        print("Notification created for: " +
+        dateTime.hour.toString() +
+        ":" +
+        dateTime.minute.toString());
+       
+  }
+
+  Future _showWeeklyAtDayAndTime(
+      {@required int dayToRepeat,
+      @required DateTime timeToRepeat,
+      @required String title,
+      @required String body,
+      @required int id}) async {
+    notifications.Time time = notifications.Time(
+        timeToRepeat.hour, timeToRepeat.minute, timeToRepeat.second);
+    notifications.Day day =
+        notifications.Day(dayToRepeat + 1 == 8 ? 0 : dayToRepeat + 1);
+    var androidPlatformChannelSpecifics =
+        new notifications.AndroidNotificationDetails('show weekly channel id',
+            'show weekly channel name', 'show weekly description');
+    var iOSPlatformChannelSpecifics =
+        new notifications.IOSNotificationDetails();
+    var platformChannelSpecifics = new notifications.NotificationDetails(
+        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.showWeeklyAtDayAndTime(
+        id, title, body, day, time, platformChannelSpecifics);
+    print("Notification created for: " +
+        time.hour.toString() +
+        ":" +
+        time.minute.toString() +
+        " Day:" +
+        day.value.toString());
+  }
+
+  Future _cancelNotification(int id) async {
+    print("Notification deleted called");
+
+    await flutterLocalNotificationsPlugin.cancel(id);
+    print("Notification deleted");
   }
 
   @override
@@ -165,10 +206,24 @@ class _AgendaViewState extends State<AgendaView>
                               aClass: c,
                             )));
                 if (result != null) {
+                  DateTime dateTime = DateTime(
+                      result.dueDate.year,
+                      result.dueDate.month,
+                      result.dueDate.day,
+                      c.startTime.hour,
+                      c.startTime.minute);
+                  dateTime = dateTime.subtract(Duration(minutes: 15));
                   _scheduleNotification(
                       title: "Assignment due",
-                      body: result.title + " for " + c.title + " is due today.",
-                      dateTime: result.dueDate);
+                      body: result.title +
+                          " for " +
+                          c.title +
+                          " is due at" +
+                          dateTime.hour.toString() +
+                          ":" +
+                          dateTime.minute.toString(),
+                      dateTime: dateTime,
+                      id: result.hashCode);
                   c.addTodoItem(c.ASSIGNMENTTAG, assignment: result);
                   database.updateDatabase();
                 }
@@ -209,13 +264,19 @@ class _AgendaViewState extends State<AgendaView>
                               aClass: c,
                             )));
                 if (result != null) {
+                  DateTime input = DateTime(
+                      result.dueDate.year,
+                      result.dueDate.month,
+                      result.dueDate.day,
+                      result.dueDate.hour,
+                      result.dueDate.minute);
+                  input = input.subtract(Duration(minutes: 15));
                   _scheduleNotification(
                       title: "Assessment today",
-                      body: result.title +
-                          " for " +
-                          c.title +
-                          " is scheduled for today.",
-                      dateTime: result.dueDate);
+                      body:
+                          result.title + " for " + c.title + " starts in 15 mins",
+                      dateTime: input,
+                      id: result.hashCode);
 
                   c.addTodoItem(c.ASSESSMENTTAG, assignment: result);
                   database.updateDatabase();
@@ -286,14 +347,52 @@ class _AgendaViewState extends State<AgendaView>
           Event result = await Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => AddEventView()));
           if (result != null) {
-            _scheduleNotification(
-                title: "Event today",
-                body: result.title +
-                    " for " +
-                    result.title +
-                    " is scheduled for today.",
-                dateTime: result.startTime);
-            print("Event returned: " + result.title);
+            if (result.daysOfEvent.isNotEmpty) {
+              for (int i in result.daysOfEvent) {
+                _showWeeklyAtDayAndTime(
+                    title: "Event starting",
+                    body: result.title + " is starting in 15 mins",
+                    id: term.events.indexOf(result) + i,
+                    dayToRepeat: i,
+                    timeToRepeat:
+                        result.startTime.subtract(Duration(minutes: 15)));
+              }
+            } else {
+              DateTime now = DateTime.now();
+              DateTime input;
+              if(result.startTime.hour < now.hour || result.endTime.hour < now.hour ||
+              (result.startTime.hour == now.hour && result.startTime.minute < now.minute)||
+              (result.endTime.hour == now.hour && result.endTime.minute < now.minute)){
+                print("CONDITIONS MET");
+                  input = DateTime(
+                      now.year,
+                      now.month,
+                      now.day,
+                      result.startTime.hour,
+                      result.startTime.minute);
+                      input.add(Duration(days: 1));
+              }else{
+                print("CONDITIONS NOT MET");
+
+                input = DateTime(
+                      now.year,
+                      now.month,
+                      now.day,
+                      result.startTime.hour,
+                      result.startTime.minute);
+              }
+                  input.subtract(Duration(minutes: 15));
+                  _scheduleNotification(
+                      title: "Event today",
+                      body:
+                          result.title + " will take place in 15 mins.",
+                      dateTime: input,
+                      id: result.hashCode);
+            }
+
+            print(
+              "Event returned: " + result.title,
+            );
             term.addEvent(result);
             database.updateDatabase();
           }
