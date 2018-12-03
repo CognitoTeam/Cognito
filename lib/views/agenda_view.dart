@@ -1,12 +1,12 @@
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/event.dart';
-import 'package:cognito/models/task.dart';
 import 'package:cognito/views/add_assessment_view.dart';
 import 'package:cognito/views/add_assignment_view.dart';
 import 'package:cognito/views/add_event_view.dart';
 import 'package:cognito/views/assessment_details_view.dart';
 import 'package:cognito/views/class_details_view.dart';
 import 'package:cognito/views/event_details_view.dart';
+import 'package:cognito/views/login_selection_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:cognito/models/academic_term.dart';
@@ -14,6 +14,8 @@ import 'package:cognito/models/class.dart';
 import 'package:cognito/database/database.dart';
 import 'package:cognito/views/main_drawer.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    as notifications;
 
 /// Agenda view screen
 /// Displays daily agenda
@@ -26,6 +28,10 @@ class AgendaView extends StatefulWidget {
 
 class _AgendaViewState extends State<AgendaView>
     with SingleTickerProviderStateMixin {
+  notifications.FlutterLocalNotificationsPlugin
+      flutterLocalNotificationsPlugin =
+      new notifications.FlutterLocalNotificationsPlugin();
+
   DateTime selectedDate;
   AcademicTerm term;
   bool isOpened = false;
@@ -54,6 +60,14 @@ class _AgendaViewState extends State<AgendaView>
       selectedDate = DateTime.now();
       getCurrentTerm();
     });
+    var initializationSettingsAndroid =
+        new notifications.AndroidInitializationSettings('app_icon');
+    var initializationSettingsIOS =
+        new notifications.IOSInitializationSettings();
+    var initializationSettings = new notifications.InitializationSettings(
+        initializationSettingsAndroid, initializationSettingsIOS);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onSelectNotification: onSelectNotification);
     _animationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 200))
           ..addListener(() {
@@ -81,6 +95,77 @@ class _AgendaViewState extends State<AgendaView>
         curve: _curve,
       ),
     ));
+  }
+
+  Future onSelectNotification(String payload) async {
+    if (payload != null) {
+      debugPrint('notification payload: ' + payload);
+    }
+
+    await Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new LoginSelectionView()),
+    );
+  }
+
+  Future _scheduleNotification(
+      {@required String title,
+      @required String body,
+      @required DateTime dateTime,
+      @required int id}) async {
+    var scheduledNotificationDateTime = dateTime;
+
+    var androidPlatformChannelSpecifics =
+        new notifications.AndroidNotificationDetails('your other channel id',
+            'your other channel name', 'your other channel description',
+            sound: 'slow_spring_board', color: Colors.black);
+
+    var iOSPlatformChannelSpecifics =
+        new notifications.IOSNotificationDetails();
+
+    var platformChannelSpecifics = new notifications.NotificationDetails(
+        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+
+    await flutterLocalNotificationsPlugin.schedule(id, title, body,
+        scheduledNotificationDateTime, platformChannelSpecifics);
+    print("Notification created for: " +
+        dateTime.hour.toString() +
+        ":" +
+        dateTime.minute.toString());
+  }
+
+  Future _showWeeklyAtDayAndTime(
+      {@required int dayToRepeat,
+      @required DateTime timeToRepeat,
+      @required String title,
+      @required String body,
+      @required int id}) async {
+    notifications.Time time = notifications.Time(
+        timeToRepeat.hour, timeToRepeat.minute, timeToRepeat.second);
+    notifications.Day day =
+        notifications.Day(dayToRepeat + 1 == 8 ? 0 : dayToRepeat + 1);
+    var androidPlatformChannelSpecifics =
+        new notifications.AndroidNotificationDetails('show weekly channel id',
+            'show weekly channel name', 'show weekly description');
+    var iOSPlatformChannelSpecifics =
+        new notifications.IOSNotificationDetails();
+    var platformChannelSpecifics = new notifications.NotificationDetails(
+        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.showWeeklyAtDayAndTime(
+        id, title, body, day, time, platformChannelSpecifics);
+    print("Notification created for: " +
+        time.hour.toString() +
+        ":" +
+        time.minute.toString() +
+        " Day:" +
+        day.value.toString());
+  }
+
+  Future _cancelNotification(int id) async {
+    print("Notification deleted called");
+
+    await flutterLocalNotificationsPlugin.cancel(id);
+    print("Notification deleted");
   }
 
   @override
@@ -121,6 +206,24 @@ class _AgendaViewState extends State<AgendaView>
                               aClass: c,
                             )));
                 if (result != null) {
+                  DateTime dateTime = DateTime(
+                      result.dueDate.year,
+                      result.dueDate.month,
+                      result.dueDate.day,
+                      c.startTime.hour,
+                      c.startTime.minute);
+                  dateTime = dateTime.subtract(Duration(minutes: 15));
+                  _scheduleNotification(
+                      title: "Assignment due",
+                      body: result.title +
+                          " for " +
+                          c.title +
+                          " is due at" +
+                          dateTime.hour.toString() +
+                          ":" +
+                          dateTime.minute.toString(),
+                      dateTime: dateTime,
+                      id: result.hashCode);
                   c.addTodoItem(c.ASSIGNMENTTAG, assignment: result);
                   database.updateDatabase();
                 }
@@ -161,6 +264,22 @@ class _AgendaViewState extends State<AgendaView>
                               aClass: c,
                             )));
                 if (result != null) {
+                  DateTime input = DateTime(
+                      result.dueDate.year,
+                      result.dueDate.month,
+                      result.dueDate.day,
+                      result.dueDate.hour,
+                      result.dueDate.minute);
+                  input = input.subtract(Duration(minutes: 15));
+                  _scheduleNotification(
+                      title: "Assessment today",
+                      body: result.title +
+                          " for " +
+                          c.title +
+                          " starts in 15 mins",
+                      dateTime: input,
+                      id: result.hashCode);
+
                   c.addTodoItem(c.ASSESSMENTTAG, assignment: result);
                   database.updateDatabase();
                 }
@@ -230,7 +349,46 @@ class _AgendaViewState extends State<AgendaView>
           Event result = await Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => AddEventView()));
           if (result != null) {
-            print("Event returned: " + result.title);
+            if (result.daysOfEvent.isNotEmpty) {
+              for (int i in result.daysOfEvent) {
+                _showWeeklyAtDayAndTime(
+                    title: "Event starting",
+                    body: result.title + " is starting in 15 mins",
+                    id: term.events.indexOf(result) + i,
+                    dayToRepeat: i,
+                    timeToRepeat:
+                        result.startTime.subtract(Duration(minutes: 15)));
+              }
+            } else {
+              DateTime now = DateTime.now();
+              DateTime input;
+              if (result.startTime.hour < now.hour ||
+                  result.endTime.hour < now.hour ||
+                  (result.startTime.hour == now.hour &&
+                      result.startTime.minute < now.minute) ||
+                  (result.endTime.hour == now.hour &&
+                      result.endTime.minute < now.minute)) {
+                print("CONDITIONS MET");
+                input = DateTime(now.year, now.month, now.day,
+                    result.startTime.hour, result.startTime.minute);
+                input.add(Duration(days: 1));
+              } else {
+                print("CONDITIONS NOT MET");
+
+                input = DateTime(now.year, now.month, now.day,
+                    result.startTime.hour, result.startTime.minute);
+              }
+              input.subtract(Duration(minutes: 15));
+              _scheduleNotification(
+                  title: "Event today",
+                  body: result.title + " will take place in 15 mins.",
+                  dateTime: input,
+                  id: result.hashCode);
+            }
+
+            print(
+              "Event returned: " + result.title,
+            );
             term.addEvent(result);
             database.updateDatabase();
           }
