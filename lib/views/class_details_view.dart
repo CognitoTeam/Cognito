@@ -146,9 +146,47 @@ class _ClassDetailsViewState extends State<ClassDetailsView> {
 
   List<Widget> _listOfSubjects() {
     List<Widget> listSubjects =
-    database.allTerms.subjects.map((String subjectItem) {
+        database.allTerms.subjects.map((String subjectItem) {
       return ListTile(
         title: Text(subjectItem),
+        onLongPress: () {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return SimpleDialog(
+                    title: Text("Are you sure you want to delete " +
+                        subjectItem +
+                        " ?"),
+                    children: <Widget>[
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          RaisedButton(
+                            color: Colors.white,
+                            child: Text("Yes"),
+                            onPressed: () {
+                              setState(() {
+                                database.allTerms.subjects.remove(subjectItem);
+                                Navigator.of(context).pop();
+                                Navigator.of(context).pop();
+
+                                database.updateDatabase();
+                              });
+                            },
+                          ),
+                          RaisedButton(
+                            color: Colors.white,
+                            child: Text("Cancel"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          )
+                        ],
+                      )
+                    ]);
+              });
+        },
         onTap: () {
           setState(() {
             _subjectController.text = subjectItem;
@@ -171,7 +209,7 @@ class _ClassDetailsViewState extends State<ClassDetailsView> {
                         hintText: "Subject e.g. CS",
                         hintStyle: TextStyle(color: Colors.black45),
                         contentPadding:
-                        EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                       ),
                       onFieldSubmitted: (val) {
                         print(val);
@@ -179,7 +217,6 @@ class _ClassDetailsViewState extends State<ClassDetailsView> {
                           database.allTerms.addSubject(val);
                           database.updateDatabase();
                           print(database.allTerms.subjects);
-
                         });
                         Navigator.pop(context);
                       },
@@ -223,14 +260,14 @@ class _ClassDetailsViewState extends State<ClassDetailsView> {
           ListTile(
             leading: Icon(Icons.chevron_right),
             title: _subjectController.text.isNotEmpty
-                ? Text("Subject: " +
-                _subjectController.text,
-              style: Theme.of(context).accentTextTheme.body1,
-            )
+                ? Text(
+                    "Subject: " + _subjectController.text,
+                    style: Theme.of(context).accentTextTheme.body1,
+                  )
                 : Text(
-              "Choose a subject",
-              style: Theme.of(context).accentTextTheme.body1,
-            ),
+                    "Choose a subject",
+                    style: Theme.of(context).accentTextTheme.body1,
+                  ),
             onTap: () {
               showDialog(
                   context: context,

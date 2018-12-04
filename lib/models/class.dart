@@ -80,7 +80,7 @@ class Class extends Event {
       return "No Grades yet";
     }
     List<Category> cat = List();
-    for(Category c in categories){
+    for (Category c in categories) {
       cat.add(c);
     }
     cat.add(starting);
@@ -96,6 +96,11 @@ class Class extends Event {
       starting.weightInPercentage -= category.weightInPercentage;
       categories.add(category);
     }
+  }
+
+  deleteCategory(Category categoryToDelete) {
+    starting.weightInPercentage += categoryToDelete.weightInPercentage;
+    categories.remove(categoryToDelete);
   }
 
   ///

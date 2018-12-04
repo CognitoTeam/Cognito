@@ -1,5 +1,6 @@
 import 'package:cognito/database/database.dart';
 import 'package:cognito/database/firebase_login.dart';
+import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/views/GPAView.dart';
 import 'package:cognito/views/clubs_view.dart';
 import 'package:cognito/views/login_selection_view.dart';
@@ -12,12 +13,14 @@ class MainDrawer extends StatefulWidget {
   static MainDrawer _instance;
   factory MainDrawer() => _instance ??= new MainDrawer._();
   MainDrawer._();
-  
+
   @override
   _MainDrawerState createState() => _MainDrawerState();
 }
 
 class _MainDrawerState extends State<MainDrawer> {
+  AcademicTerm term;
+  DataBase database = DataBase();
   final FireBaseLogin _fireBaseLogin = FireBaseLogin();
   String _userID = "";
 
@@ -26,6 +29,7 @@ class _MainDrawerState extends State<MainDrawer> {
     super.initState();
     setState(() {
       _getUserID();
+      getCurrentTerm();
     });
   }
 
@@ -50,6 +54,19 @@ class _MainDrawerState extends State<MainDrawer> {
       dataBase.closeDatabase();
       return true;
     }
+  }
+
+  AcademicTerm getCurrentTerm() {
+    for (AcademicTerm term in database.allTerms.terms) {
+      if (DateTime.now().isAfter(term.startTime) &&
+          DateTime.now().isBefore(term.endTime)) {
+        setState(() {
+          this.term = term;
+        });
+        return term;
+      }
+    }
+    return null;
   }
 
   @override
@@ -77,10 +94,36 @@ class _MainDrawerState extends State<MainDrawer> {
             ),
           ),
           ListTile(
+              title: Text("Agenda"),
+              onTap: () {
+                term == null
+                    ? showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return SimpleDialog(
+                            title: Text(
+                                "You have to create an Academic term first!"),
+                            children: <Widget>[],
+                          );
+                        })
+                    : Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (context) => AgendaView()));
+              }),
+          ListTile(
             title: Text('Classes'),
             onTap: () {
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => ClassView()));
+              term == null
+                  ? showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return SimpleDialog(
+                          title: Text(
+                              "You have to create an Academic term first!"),
+                          children: <Widget>[],
+                        );
+                      })
+                  : Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => ClassView()));
             },
           ),
           ListTile(
@@ -93,20 +136,34 @@ class _MainDrawerState extends State<MainDrawer> {
           ListTile(
               title: Text('Clubs'),
               onTap: () {
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => ClubView()));
-              }),
-          ListTile(
-              title: Text("Agenda"),
-              onTap: () {
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => AgendaView()));
+                term == null
+                    ? showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return SimpleDialog(
+                            title: Text(
+                                "You have to create an Academic term first!"),
+                            children: <Widget>[],
+                          );
+                        })
+                    : Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (context) => ClubView()));
               }),
           ListTile(
               title: Text("GPA"),
               onTap: () {
-                Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => GPAView()));
+                term == null
+                    ? showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return SimpleDialog(
+                            title: Text(
+                                "You have to create an Academic term first!"),
+                            children: <Widget>[],
+                          );
+                        })
+                    : Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (context) => GPAView()));
               }),
           RaisedButton(
             color: Colors.red,

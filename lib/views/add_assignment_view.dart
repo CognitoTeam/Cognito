@@ -78,6 +78,110 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
               c.title + ": " + c.weightInPercentage.toString() + "%",
               style: Theme.of(context).accentTextTheme.body2,
             ),
+            onLongPress: () {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return SimpleDialog(
+                        title:
+                            Text("Are you sure you want to delete " + c.title),
+                        children: <Widget>[
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              RaisedButton(
+                                color: Colors.white,
+                                child: Text("Yes"),
+                                onPressed: () {
+                                  setState(() {
+                                    widget.aClass.deleteCategory(c);
+                                    Navigator.of(context).pop();
+                                  });
+                                },
+                              ),
+                              RaisedButton(
+                                color: Colors.white,
+                                child: Text("Cancel"),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              RaisedButton(
+                                color: Colors.white,
+                                child: Text("Edit"),
+                                onPressed: () {
+                                  setState(() {
+                                    _categoryTitleEdit.text = c.title;
+                                    _categoryWeightEdit.text =
+                                        c.weightInPercentage.toString();
+                                  });
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return SimpleDialog(
+                                          title: Text("Edit category"),
+                                          children: <Widget>[
+                                            TextFormField(
+                                              controller: _categoryTitleEdit,
+                                              style: Theme.of(context)
+                                                  .accentTextTheme
+                                                  .body2,
+                                              decoration: InputDecoration(
+                                                hintText: "Category title",
+                                                hintStyle: TextStyle(
+                                                    color: Colors.black45),
+                                                contentPadding:
+                                                    EdgeInsets.fromLTRB(
+                                                        20.0, 10.0, 20.0, 10.0),
+                                              ),
+
+                                              //Navigator.pop(context);
+                                              textInputAction:
+                                                  TextInputAction.done,
+                                            ),
+                                            TextFormField(
+                                              controller: _categoryWeightEdit,
+                                              style: Theme.of(context)
+                                                  .accentTextTheme
+                                                  .body2,
+                                              decoration: InputDecoration(
+                                                hintText: "Category Weight",
+                                                hintStyle: TextStyle(
+                                                    color: Colors.black45),
+                                                contentPadding:
+                                                    EdgeInsets.fromLTRB(
+                                                        20.0, 10.0, 20.0, 10.0),
+                                              ),
+                                              textInputAction:
+                                                  TextInputAction.done,
+                                            ),
+                                            RaisedButton(
+                                              color: Colors.white,
+                                              child: Text("Done"),
+                                              onPressed: () {
+                                                setState(() {
+                                                  c.title =
+                                                      _categoryTitleEdit.text;
+                                                  c.weightInPercentage =
+                                                      double.parse(
+                                                          _categoryWeightEdit
+                                                              .text);
+                                                });
+                                                Navigator.pop(context);
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      });
+                                },
+                              )
+                            ],
+                          )
+                        ]);
+                  });
+            },
             onTap: () async {
               setState(
                 () {
@@ -86,56 +190,6 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
                   category = c;
                 },
               );
-            },
-            onLongPress: () {
-              setState(() {
-                _categoryTitleEdit.text = c.title;
-                _categoryWeightEdit.text = c.weightInPercentage.toString();
-              });
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return SimpleDialog(
-                      title: Text("Edit category"),
-                      children: <Widget>[
-                        TextFormField(
-                          controller: _categoryTitleEdit,
-                          style: Theme.of(context).accentTextTheme.body2,
-                          decoration: InputDecoration(
-                            hintText: "Category title",
-                            hintStyle: TextStyle(color: Colors.black45),
-                            contentPadding:
-                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                          ),
-
-                          //Navigator.pop(context);
-                          textInputAction: TextInputAction.done,
-                        ),
-                        TextFormField(
-                          controller: _categoryWeightEdit,
-                          style: Theme.of(context).accentTextTheme.body2,
-                          decoration: InputDecoration(
-                            hintText: "Category Weight",
-                            hintStyle: TextStyle(color: Colors.black45),
-                            contentPadding:
-                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                          ),
-                          textInputAction: TextInputAction.done,
-                        ),
-                        RaisedButton(
-                          child: Text("Done"),
-                          onPressed: () {
-                            setState(() {
-                              c.title = _categoryTitleEdit.text;
-                              c.weightInPercentage =
-                                  double.parse(_categoryWeightEdit.text);
-                            });
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ],
-                    );
-                  });
             },
           ),
         );

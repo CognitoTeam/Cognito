@@ -1,5 +1,6 @@
 import 'package:cognito/database/database.dart';
 import 'package:cognito/views/academic_term_view.dart';
+import 'package:cognito/views/agenda_view.dart';
 import 'package:flutter/material.dart';
 
 class BufferView extends StatefulWidget {
@@ -12,10 +13,18 @@ class _BufferViewState extends State<BufferView> {
 
   Future<bool> _initializeDatabase() async {
     String p = await database.initializeFireStore();
-    Navigator.pushAndRemoveUntil(
+    if(p == '[]' || p == '{}' || p == null || p == '{"terms":[],"subjects":[]}'){
+       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => AcademicTermView()),
         ModalRoute.withName("/Home"));
+    } else {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => AgendaView()),
+        ModalRoute.withName("/Home"));
+    }
+   
   }
 
   @override
