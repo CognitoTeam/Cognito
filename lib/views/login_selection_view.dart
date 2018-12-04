@@ -1,14 +1,13 @@
-import 'package:cognito/database/database.dart';
 import 'package:cognito/views/buffer_view.dart';
-/// Login selection view
-/// View screen to select mode of authentication
-/// @author Julian Vu
 import 'package:flutter/material.dart';
 import 'package:cognito/views/login_view.dart';
 import 'dart:async';
 import 'package:cognito/database/firebase_login.dart';
 import 'package:cognito/views/signup_view.dart';
-import 'package:cognito/views/academic_term_view.dart';
+/// Login selection view
+/// View screen to select mode of authentication
+/// @author Julian Vu
+
 
 class LoginSelectionView extends StatefulWidget {
   static String tag = "login-selection-view";

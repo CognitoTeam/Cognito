@@ -118,6 +118,43 @@ class _AddClassViewState extends State<AddClassView> {
         database.allTerms.subjects.map((String subjectItem) {
       return ListTile(
         title: Text(subjectItem),
+        onLongPress: () {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return SimpleDialog(
+                    title:
+                        Text("Are you sure you want to delete " + subjectItem),
+                    children: <Widget>[
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          RaisedButton(
+                            color: Colors.white,
+                            child: Text("Yes"),
+                            onPressed: () {
+                              setState(() {
+                                database.allTerms.subjects.remove(subjectItem);
+                                Navigator.of(context).pop();
+                                Navigator.of(context).pop();
+
+                                database.updateDatabase();
+                              });
+                            },
+                          ),
+                          RaisedButton(
+                            color: Colors.white,
+                            child: Text("Cancel"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          )
+                        ],
+                      )
+                    ]);
+              });
+        },
         onTap: () {
           setState(() {
             _subjectController.text = subjectItem;
@@ -148,7 +185,6 @@ class _AddClassViewState extends State<AddClassView> {
                           database.allTerms.addSubject(val);
                           database.updateDatabase();
                           print(database.allTerms.subjects);
-
                         });
                         Navigator.pop(context);
                       },
@@ -196,8 +232,8 @@ class _AddClassViewState extends State<AddClassView> {
           ListTile(
             leading: Icon(Icons.chevron_right),
             title: _subjectController.text.isNotEmpty
-                ? Text("Subject: " +
-                    _subjectController.text,
+                ? Text(
+                    "Subject: " + _subjectController.text,
                     style: Theme.of(context).accentTextTheme.body1,
                   )
                 : Text(
@@ -250,9 +286,7 @@ class _AddClassViewState extends State<AddClassView> {
               style: Theme.of(context).accentTextTheme.body2,
             ),
             trailing: Text(
-              startTime != null
-                  ? DateFormat.jm().format(startTime)
-                  : "",
+              startTime != null ? DateFormat.jm().format(startTime) : "",
             ),
             onTap: () => _selectTime(true, context),
           ),
@@ -264,9 +298,7 @@ class _AddClassViewState extends State<AddClassView> {
               style: Theme.of(context).accentTextTheme.body2,
             ),
             trailing: Text(
-              endTime != null
-                  ? DateFormat.jm().format(endTime)
-                  : "",
+              endTime != null ? DateFormat.jm().format(endTime) : "",
             ),
             onTap: () => _selectTime(false, context),
           ),

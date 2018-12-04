@@ -579,6 +579,41 @@ class _FilteredAssignmentExpansionState
                       : Text((a.dueDate.difference(DateTime.now()).inDays + 1)
                               .toString() +
                           " days"),
+                  onLongPress: () {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return SimpleDialog(
+                              title: Text(
+                                  "Are you sure you want to delete " + a.title),
+                              children: <Widget>[
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    RaisedButton(
+                                      color: Colors.white,
+                                      child: Text("Yes"),
+                                      onPressed: () {
+                                        setState(() {
+                                          c.assessments.remove(a);
+                                          Navigator.of(context).pop();
+                                          widget.database.updateDatabase();
+                                        });
+                                      },
+                                    ),
+                                    RaisedButton(
+                                      color: Colors.white,
+                                      child: Text("Cancel"),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    )
+                                  ],
+                                )
+                              ]);
+                        });
+                  },
                   onTap: () async {
                     Assignment result =
                         await Navigator.of(context).push(MaterialPageRoute(
@@ -619,6 +654,42 @@ class _FilteredAssignmentExpansionState
                           (a.dueDate.difference(DateTime.now()).inDays + 1)
                               .toString() +
                           " days"),
+                  onLongPress: () {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return SimpleDialog(
+                              title: Text("Are you sure you want to delete " +
+                                  a.title +
+                                  " ?"),
+                              children: <Widget>[
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    RaisedButton(
+                                      color: Colors.white,
+                                      child: Text("Yes"),
+                                      onPressed: () {
+                                        setState(() {
+                                          c.assignments.remove(a);
+                                          Navigator.of(context).pop();
+                                          widget.database.updateDatabase();
+                                        });
+                                      },
+                                    ),
+                                    RaisedButton(
+                                      color: Colors.white,
+                                      child: Text("Cancel"),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    )
+                                  ],
+                                )
+                              ]);
+                        });
+                  },
                   onTap: () async {
                     Assignment result =
                         await Navigator.of(context).push(MaterialPageRoute(
@@ -688,6 +759,42 @@ class _FilteredEventExpansionState extends State<FilteredEventExpansion> {
               e.title,
               style: Theme.of(context).accentTextTheme.body2,
             ),
+            onLongPress: () {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return SimpleDialog(
+                        title: Text("Are you sure you want to delete " +
+                            e.title +
+                            " ?"),
+                        children: <Widget>[
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              RaisedButton(
+                                color: Colors.white,
+                                child: Text("Yes"),
+                                onPressed: () {
+                                  setState(() {
+                                    widget.term.events.remove(e);
+                                    Navigator.of(context).pop();
+                                    widget.database.updateDatabase();
+                                  });
+                                },
+                              ),
+                              RaisedButton(
+                                color: Colors.white,
+                                child: Text("Cancel"),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              )
+                            ],
+                          )
+                        ]);
+                  });
+            },
             onTap: () async {
               Event result = await Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => EventDetailsView(

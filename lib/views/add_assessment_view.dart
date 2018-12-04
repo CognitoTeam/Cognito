@@ -1,3 +1,4 @@
+import 'package:cognito/database/database.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/category.dart';
 import 'package:cognito/models/class.dart';
@@ -18,6 +19,7 @@ class AddAssessmentView extends StatefulWidget {
 }
 
 class _AddAssessmentViewState extends State<AddAssessmentView> {
+  DataBase database = DataBase();
   Category category;
   final _titleController = TextEditingController();
   final _locationController = TextEditingController();
@@ -88,53 +90,108 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
               );
             },
             onLongPress: () {
-              setState(() {
-                _categoryTitleEdit.text = c.title;
-                _categoryWeightEdit.text = c.weightInPercentage.toString();
-              });
               showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return SimpleDialog(
-                      title: Text("Edit category"),
-                      children: <Widget>[
-                        TextFormField(
-                          controller: _categoryTitleEdit,
-                          style: Theme.of(context).accentTextTheme.body2,
-                          decoration: InputDecoration(
-                            hintText: "Category title",
-                            hintStyle: TextStyle(color: Colors.black45),
-                            contentPadding:
-                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                          ),
+                        title:
+                            Text("Are you sure you want to delete " + c.title),
+                        children: <Widget>[
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              RaisedButton(
+                                color: Colors.white,
+                                child: Text("Yes"),
+                                onPressed: () {
+                                  setState(() {
+                                    widget.aClass.deleteCategory(c);
+                                    database.updateDatabase();
+                                    Navigator.of(context).pop();
+                                  });
+                                },
+                              ),
+                              RaisedButton(
+                                color: Colors.white,
+                                child: Text("Cancel"),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              RaisedButton(
+                                child: Text("Edit"),
+                                color: Colors.white,
+                                onPressed: () {
+                                  setState(() {
+                                    _categoryTitleEdit.text = c.title;
+                                    _categoryWeightEdit.text =
+                                        c.weightInPercentage.toString();
+                                  });
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return SimpleDialog(
+                                          title: Text("Edit category"),
+                                          children: <Widget>[
+                                            TextFormField(
+                                              controller: _categoryTitleEdit,
+                                              style: Theme.of(context)
+                                                  .accentTextTheme
+                                                  .body2,
+                                              decoration: InputDecoration(
+                                                hintText: "Category title",
+                                                hintStyle: TextStyle(
+                                                    color: Colors.black45),
+                                                contentPadding:
+                                                    EdgeInsets.fromLTRB(
+                                                        20.0, 10.0, 20.0, 10.0),
+                                              ),
 
-                          //Navigator.pop(context);
-                          textInputAction: TextInputAction.done,
-                        ),
-                        TextFormField(
-                          controller: _categoryWeightEdit,
-                          style: Theme.of(context).accentTextTheme.body2,
-                          decoration: InputDecoration(
-                            hintText: "Category Weight",
-                            hintStyle: TextStyle(color: Colors.black45),
-                            contentPadding:
-                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                          ),
-                          textInputAction: TextInputAction.done,
-                        ),
-                        RaisedButton(
-                          child: Text("Done"),
-                          onPressed: () {
-                            setState(() {
-                              c.title = _categoryTitleEdit.text;
-                              c.weightInPercentage =
-                                  double.parse(_categoryWeightEdit.text);
-                            });
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ],
-                    );
+                                              //Navigator.pop(context);
+                                              textInputAction:
+                                                  TextInputAction.done,
+                                            ),
+                                            TextFormField(
+                                              controller: _categoryWeightEdit,
+                                              style: Theme.of(context)
+                                                  .accentTextTheme
+                                                  .body2,
+                                              decoration: InputDecoration(
+                                                hintText: "Category Weight",
+                                                hintStyle: TextStyle(
+                                                    color: Colors.black45),
+                                                contentPadding:
+                                                    EdgeInsets.fromLTRB(
+                                                        20.0, 10.0, 20.0, 10.0),
+                                              ),
+                                              textInputAction:
+                                                  TextInputAction.done,
+                                            ),
+                                            RaisedButton(
+                                              color: Colors.white,
+                                              child: Text("Done"),
+                                              onPressed: () {
+                                                setState(() {
+                                                  c.title =
+                                                      _categoryTitleEdit.text;
+                                                  c.weightInPercentage =
+                                                      double.parse(
+                                                          _categoryWeightEdit
+                                                              .text);
+                                                });
+                                                Navigator.pop(context);
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      });
+                                },
+                              )
+                            ],
+                          )
+                        ]);
                   });
             },
           ),
@@ -268,14 +325,13 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
     // Add delay to be sure keyboard is no longer visible
     await Future.delayed(Duration(milliseconds: 200));
 
-    final TimeOfDay picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now()
-    );
+    final TimeOfDay picked =
+        await showTimePicker(context: context, initialTime: TimeOfDay.now());
 
     if (picked != null) {
       setState(() {
-        dueDate = DateTime(dueDate.year, dueDate.month, dueDate.day, picked.hour, picked.minute);
+        dueDate = DateTime(dueDate.year, dueDate.month, dueDate.day,
+            picked.hour, picked.minute);
       });
     }
   }
@@ -353,9 +409,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                 style: Theme.of(context).accentTextTheme.body1,
               ),
               trailing: Text(
-                dueDate != null
-                    ? DateFormat.yMd().format(dueDate)
-                    : "",
+                dueDate != null ? DateFormat.yMd().format(dueDate) : "",
               ),
               onTap: () => _selectDate(context),
             ),
@@ -366,9 +420,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                 style: Theme.of(context).accentTextTheme.body1,
               ),
               trailing: Text(
-                dueDate != null
-                    ? DateFormat.jm().format(dueDate)
-                    : "",
+                dueDate != null ? DateFormat.jm().format(dueDate) : "",
               ),
               onTap: () => _selectTime(context),
             ),

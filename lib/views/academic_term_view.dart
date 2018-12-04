@@ -142,7 +142,9 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                   ),
                 );
               })
-          : null,
+          : Center(
+            child: Text("Lets start by adding a term!"),
+          ),
 
       // Floating action button is for transitioning to creating a new term
       floatingActionButton: FloatingActionButton(
