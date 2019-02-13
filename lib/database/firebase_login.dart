@@ -10,12 +10,14 @@ class FireBaseLogin {
   FirebaseUser _user;
 
   Future<FirebaseUser> signInGoogleUser() async {
-    GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
-    GoogleSignInAuthentication googleSignInAuthentication =
+    final GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
+    final GoogleSignInAuthentication googleSignInAuthentication =
         await googleSignInAccount.authentication;
-    _user = await _auth.signInWithGoogle(
-        idToken: googleSignInAuthentication.idToken,
-        accessToken: googleSignInAuthentication.accessToken);
+    final AuthCredential credential = GoogleAuthProvider.getCredential(
+      accessToken: googleSignInAuthentication.accessToken,
+      idToken: googleSignInAuthentication.idToken
+    );
+    _user = await _auth.signInWithCredential(credential);
     print("User Name : ${_user.displayName}");
     return _user;
   }
