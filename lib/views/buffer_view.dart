@@ -42,9 +42,10 @@ class _BufferViewState extends State<BufferView> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         CircularProgressIndicator(),
+        Padding(padding: EdgeInsets.all(5.0)),
         Text(
           "Loading your hard work...",
-          style: TextStyle(color: Theme.of(context).accentColor),
+          style: TextStyle(color: Theme.of(context).primaryColor),
         )
       ],
     )));

@@ -4,10 +4,10 @@ import 'package:cognito/views/login_view.dart';
 import 'dart:async';
 import 'package:cognito/database/firebase_login.dart';
 import 'package:cognito/views/signup_view.dart';
+
 /// Login selection view
 /// View screen to select mode of authentication
 /// @author Julian Vu
-
 
 class LoginSelectionView extends StatefulWidget {
   static String tag = "login-selection-view";
@@ -22,7 +22,6 @@ enum AuthStatus {
 }
 
 class _LoginSelectionViewState extends State<LoginSelectionView> {
-
   FireBaseLogin _fireBaseLogin = FireBaseLogin();
   AuthStatus authStatus = AuthStatus.notDetermined;
 
@@ -37,6 +36,7 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
       });
     });
   }
+
   ///Login user with Google signin
   Future<bool> _loginUser() async {
     final firebaseUser = await _fireBaseLogin.signInGoogleUser();
@@ -65,29 +65,28 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
         padding: EdgeInsets.symmetric(vertical: 16.0),
         child: ButtonTheme(
           minWidth: 200.0,
-          height: 42.0,
+          height: 50.0,
           child: RaisedButton.icon(
             onPressed: () async {
               bool b = await _loginUser();
 
               b
-                  ? Navigator.pushAndRemoveUntil(context, 
-                  MaterialPageRoute(builder: (context) => 
-                  BufferView()), ModalRoute.withName("/Home"))
+                  ? Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => BufferView()),
+                      ModalRoute.withName("/Home"))
                   : Scaffold.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Google login failed!'),
                       ),
                     );
             },
-            color: Colors.white,
-            label: Text(
-              "Sign in with Google",
-              style: TextStyle(
-                fontFamily: 'Roboto',
-                color: Color.fromRGBO(68, 68, 76, .8),
-              ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30.0),
             ),
+            color: Colors.white,
+            label: Text("Sign in with Google",
+                style: Theme.of(context).accentTextTheme.body1),
             icon: Image.asset(
               'assets/google.png',
               width: 35.0,
@@ -101,11 +100,14 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
         padding: EdgeInsets.symmetric(vertical: 16.0),
         child: ButtonTheme(
           minWidth: 200.0,
-          height: 42.0,
+          height: 50.0,
           child: RaisedButton(
             onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginView()));
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => LoginView()));
             },
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0)),
             color: Theme.of(context).accentColor,
             child: Text("Sign in with Email",
                 style: Theme.of(context).accentTextTheme.body1),
@@ -116,11 +118,13 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
       final signUp = Padding(
         padding: EdgeInsets.symmetric(vertical: 16.0),
         child: ButtonTheme(
-          minWidth: 200.0,
-          height: 42.0,
+          minWidth: 150.0,
+          height: 50.0,
           child: RaisedButton(
             onPressed: () => Navigator.push(
                 context, MaterialPageRoute(builder: (context) => SignUpView())),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0)),
             color: Theme.of(context).primaryColorLight,
             child: Text(
               "Sign Up",
@@ -131,7 +135,7 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
       );
 
       return Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: null,
         body: Center(
           child: ListView(
             shrinkWrap: true,

@@ -17,11 +17,11 @@ class MyApp extends StatelessWidget {
         accentColor: Color(0xFFfbc02d),
         primaryTextTheme: TextTheme(
           title: TextStyle(color: Colors.white),
-          body1: TextStyle(color: Colors.white),
+          body1: TextStyle(color: Colors.white, fontSize: 14.0),
           body2: TextStyle(color: Colors.white70)
         ),
         accentTextTheme: TextTheme(
-          body1: TextStyle(color: Colors.black)
+          body1: TextStyle(color: Colors.black, fontSize: 16)
         ),
         inputDecorationTheme: InputDecorationTheme(
           hintStyle: TextStyle(color: Colors.white70,),
