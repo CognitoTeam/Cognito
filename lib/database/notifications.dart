@@ -21,7 +21,7 @@ initialize(BuildContext context){
     flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: onSelectNotification);
 }
-  Future _scheduleNotification(
+  Future scheduleNotification(
       {@required String title,
       @required String body,
       @required DateTime dateTime,
@@ -57,7 +57,7 @@ initialize(BuildContext context){
     );
   }
 
-  Future _showWeeklyAtDayAndTime(
+  Future showWeeklyAtDayAndTime(
       {@required int dayToRepeat,
       @required DateTime timeToRepeat,
       @required String title,
@@ -88,7 +88,7 @@ initialize(BuildContext context){
     await flutterLocalNotificationsPlugin.cancelAll();
     print("Notification deleted");
   }
-  Future _cancelNotification(int id) async {
+  Future cancelNotification(int id) async {
     print("Notification deleted called");
 
     await flutterLocalNotificationsPlugin.cancel(id);
