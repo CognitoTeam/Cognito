@@ -17,6 +17,7 @@ class DataBase {
   DocumentReference _documentReference;
   
   AllTerms allTerms;
+
   void closeDatabase(){
     _instance = null;
   }
@@ -27,11 +28,12 @@ class DataBase {
     assert(_documentReference != null);
     print("Get document reference");
     DocumentSnapshot documentSnapshot = await _documentReference.get();
+    assert(documentSnapshot != null);
     if (!documentSnapshot.exists) {
       add();
       allTerms = AllTerms();
       print("No data in database yet");
-      return '';
+      return '{"terms":[],"subjects":[]}';
     } else {
       print("Write json to disk from firestore");
       await writeJSON(documentSnapshot.data['terms']);
