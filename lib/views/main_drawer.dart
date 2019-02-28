@@ -1,5 +1,6 @@
 import 'package:cognito/database/database.dart';
 import 'package:cognito/database/firebase_login.dart';
+import 'package:cognito/database/notifications.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/views/GPAView.dart';
 import 'package:cognito/views/clubs_view.dart';
@@ -8,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:cognito/views/class_view.dart';
 import 'package:cognito/views/academic_term_view.dart';
 import 'package:cognito/views/agenda_view.dart';
-
 class MainDrawer extends StatefulWidget {
   static MainDrawer _instance;
   factory MainDrawer() => _instance ??= new MainDrawer._();
@@ -19,6 +19,7 @@ class MainDrawer extends StatefulWidget {
 }
 
 class _MainDrawerState extends State<MainDrawer> {
+  Notifications noti = Notifications();
   AcademicTerm term;
   DataBase database = DataBase();
   final FireBaseLogin _fireBaseLogin = FireBaseLogin();
@@ -52,6 +53,7 @@ class _MainDrawerState extends State<MainDrawer> {
     } else {
       DataBase dataBase = DataBase();
       dataBase.closeDatabase();
+      await noti.cancelAllNotifications();
       return true;
     }
   }

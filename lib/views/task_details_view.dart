@@ -1,8 +1,10 @@
 import 'package:cognito/models/task.dart';
 import 'package:flutter/material.dart';
 
-/// Task details view
-/// @author Praneet Singh
+/**
+ * Task details view
+ * @author Praneet Singh
+ */
 
 class TaskDetailsView extends StatefulWidget {
   // Hold academic term object

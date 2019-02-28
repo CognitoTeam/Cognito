@@ -39,14 +39,14 @@ class _AddClassViewState extends State<AddClassView> {
     return ListTile(
       leading: leading,
       trailing: trailing,
-      title: TextFormField(
+      title: TextField(
         controller: controller,
         autofocus: false,
         keyboardType: keyboardType,
         style: Theme.of(context).accentTextTheme.body1,
         decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: Colors.black45),
+          labelText: hint,
+          labelStyle: TextStyle(color: Colors.black45),
         ),
       ),
       subtitle: subtitle,
