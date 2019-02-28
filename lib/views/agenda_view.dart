@@ -56,6 +56,11 @@ class _AgendaViewState extends State<AgendaView>
       selectedDate = DateTime.now();
       getCurrentTerm();
     });
+    _animationController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 200))
+          ..addListener(() {
+            setState(() {});
+          });
     _buttonColor = ColorTween(
       begin: Color(0xFFfbc02d),
       end: Colors.red,
