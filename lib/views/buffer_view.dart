@@ -2,6 +2,7 @@ import 'package:cognito/database/database.dart';
 import 'package:cognito/views/academic_term_view.dart';
 import 'package:cognito/views/agenda_view.dart';
 import 'package:flutter/material.dart';
+import 'package:cognito/database/notifications.dart';
 
 class BufferView extends StatefulWidget {
   @override
@@ -10,7 +11,7 @@ class BufferView extends StatefulWidget {
 
 class _BufferViewState extends State<BufferView> {
   DataBase database = DataBase();
-
+  Notifications noti =Notifications();
   Future<bool> _initializeDatabase() async {
     String p = await database.initializeFireStore();
     if(p == '[]' || p == '{}' || p == null || p == '{"terms":[],"subjects":[]}'){
@@ -26,11 +27,14 @@ class _BufferViewState extends State<BufferView> {
     }
    
   }
-
+Future<bool> _initializeNotifications() async {
+  noti.initialize(context);
+}
   @override
   void initState() {
     super.initState();
     _initializeDatabase();
+    _initializeNotifications();
   }
 
   @override
