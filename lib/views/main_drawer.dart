@@ -104,7 +104,7 @@ class _MainDrawerState extends State<MainDrawer> {
                         builder: (BuildContext context) {
                           return SimpleDialog(
                             title: Text(
-                                "You have to create an Academic term first!"),
+                                "Oops, looks like there is no current term. Create one in Academic terms."),
                             children: <Widget>[],
                           );
                         })
@@ -120,7 +120,7 @@ class _MainDrawerState extends State<MainDrawer> {
                       builder: (BuildContext context) {
                         return SimpleDialog(
                           title: Text(
-                              "You have to create an Academic term first!"),
+                              "Oops, looks like there is no current term. Create one in Academic terms."),
                           children: <Widget>[],
                         );
                       })
@@ -144,7 +144,7 @@ class _MainDrawerState extends State<MainDrawer> {
                         builder: (BuildContext context) {
                           return SimpleDialog(
                             title: Text(
-                                "You have to create an Academic term first!"),
+                                "Oops, looks like there is no current term. Create one in Academic terms."),
                             children: <Widget>[],
                           );
                         })
@@ -160,7 +160,7 @@ class _MainDrawerState extends State<MainDrawer> {
                         builder: (BuildContext context) {
                           return SimpleDialog(
                             title: Text(
-                                "You have to create an Academic term first!"),
+                                "Oops, looks like there is no current term. Create one in Academic terms."),
                             children: <Widget>[],
                           );
                         })

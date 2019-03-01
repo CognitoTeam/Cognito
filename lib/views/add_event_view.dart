@@ -3,6 +3,7 @@ import 'package:cognito/models/academic_term.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/event.dart';
+import 'package:intl/intl.dart';
 
 /// Event creation view
 /// @author Praneet Singh
@@ -164,7 +165,7 @@ AcademicTerm getCurrentTerm() {
               style: Theme.of(context).accentTextTheme.body2,
             ),
             trailing: Text(
-              startTime != null ? startTime.toString() : "",
+              startTime != null ? DateFormat.jm().format(startTime) : "",
             ),
             onTap: () => _selectTime(true, context),
           ),
@@ -176,7 +177,7 @@ AcademicTerm getCurrentTerm() {
               style: Theme.of(context).accentTextTheme.body2,
             ),
             trailing: Text(
-              endTime != null ? endTime.toString() : "",
+              endTime != null ? DateFormat.jm().format(endTime) : "",
             ),
             onTap: () => _selectTime(false, context),
           ),

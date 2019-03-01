@@ -24,6 +24,7 @@ class AcademicTerm {
       clubs = List();
       tasks = List();
       events = List();
+      idCounter = 0;
     }
     factory AcademicTerm.fromJson(Map<String, dynamic> json) => _$AcademicTermFromJson(json);
 
