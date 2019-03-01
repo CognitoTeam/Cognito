@@ -13,7 +13,8 @@ Event _$EventFromJson(Map<String, dynamic> json) {
       location: json['location'] as String,
       isRepeated: json['isRepeated'] as bool,
       daysOfEvent:
-          (json['daysOfEvent'] as List)?.map((e) => e as int)?.toList())
+          (json['daysOfEvent'] as List)?.map((e) => e as int)?.toList(),
+      id: json['id'] as int)
     ..startTime = json['startTime'] == null
         ? null
         : DateTime.parse(json['startTime'] as String)
@@ -29,5 +30,6 @@ Map<String, dynamic> _$EventToJson(Event instance) => <String, dynamic>{
       'startTime': instance.startTime?.toIso8601String(),
       'endTime': instance.endTime?.toIso8601String(),
       'isRepeated': instance.isRepeated,
+      'id': instance.id,
       'daysOfEvent': instance.daysOfEvent
     };

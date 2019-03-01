@@ -1,3 +1,5 @@
+import 'package:cognito/database/database.dart';
+import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/category.dart';
 import 'package:cognito/models/class.dart';
@@ -18,6 +20,7 @@ class AddAssignmentView extends StatefulWidget {
 }
 
 class _AddAssignmentViewState extends State<AddAssignmentView> {
+  DataBase database = DataBase();
   Category category;
   final _titleController = TextEditingController();
   final _locationController = TextEditingController();
@@ -315,6 +318,16 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
     }
   }
 
+  AcademicTerm getCurrentTerm() {
+    for (AcademicTerm term in database.allTerms.terms) {
+      if (DateTime.now().isAfter(term.startTime) &&
+          DateTime.now().isBefore(term.endTime)) {
+        return term;
+      }
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -334,7 +347,8 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
                         isAssessment: true,
                         location: _locationController.text,
                         description: _descriptionController.text,
-                        dueDate: dueDate)
+                        dueDate: dueDate,
+                        id: getCurrentTerm().getID())
                     : null);
               },
             )

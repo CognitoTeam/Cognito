@@ -1,3 +1,4 @@
+import 'package:cognito/models/academic_term.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/class.dart';
@@ -62,6 +63,15 @@ class _AddClassViewState extends State<AddClassView> {
     });
   }
 
+  AcademicTerm getCurrentTerm() {
+    for (AcademicTerm term in database.allTerms.terms) {
+      if (DateTime.now().isAfter(term.startTime) &&
+          DateTime.now().isBefore(term.endTime)) {
+        return term;
+      }
+    }
+    return null;
+  }
   /// Helper function for deselcting a day
   /// Removes a day from list of repeated days for this class
   /// The day to remove is the index of the day + 1 since enums start from 0
@@ -220,7 +230,8 @@ class _AddClassViewState extends State<AddClassView> {
                       description: _descriptionController.text,
                       daysOfEvent: daysOfEvent,
                       start: startTime,
-                      end: endTime)
+                      end: endTime,
+                      id:getCurrentTerm().getID())
                   : null);
             },
           ),

@@ -1,3 +1,5 @@
+import 'package:cognito/database/database.dart';
+import 'package:cognito/models/academic_term.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/task.dart';
@@ -13,6 +15,7 @@ class AddTaskView extends StatefulWidget {
 }
 
 class _AddTaskViewState extends State<AddTaskView> {
+  DataBase database = DataBase();
   final _titleController = TextEditingController();
   final _locationController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -99,6 +102,16 @@ class _AddTaskViewState extends State<AddTaskView> {
     }
   }
 
+  AcademicTerm getCurrentTerm() {
+    for (AcademicTerm term in database.allTerms.terms) {
+      if (DateTime.now().isAfter(term.startTime) &&
+          DateTime.now().isBefore(term.endTime)) {
+        return term;
+      }
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -116,7 +129,8 @@ class _AddTaskViewState extends State<AddTaskView> {
                         description: _descriptionController.text,
                         daysOfEvent: daysOfEvent,
                         isRepeated: _isRepeated,
-                        dueDate: dueDate)
+                        dueDate: dueDate,
+                        id: getCurrentTerm().getID())
                     : null);
               },
             )

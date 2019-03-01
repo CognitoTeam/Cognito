@@ -99,7 +99,7 @@ class _ClassViewState extends State<ClassView> {
               noti.showWeeklyAtDayAndTime(
                   title: result.title,
                   body: result.title + " is starting in 15 mins",
-                  id: term.classes.indexOf(result) + i,
+                  id: result.id,
                   dayToRepeat: i,
                   timeToRepeat:
                       result.startTime.subtract(Duration(minutes: 15)));
@@ -124,7 +124,7 @@ class _ClassViewState extends State<ClassView> {
                   child: InkWell(
                     onTap: () async {
                       for (int i in classObj.daysOfEvent) {
-                        noti.cancelNotification(term.classes.indexOf(classObj) + i);
+                        noti.cancelNotification(classObj.id);
                       }
                       await Navigator.push(
                           context,
@@ -138,7 +138,7 @@ class _ClassViewState extends State<ClassView> {
                         noti.showWeeklyAtDayAndTime(
                             title: classObj.title,
                             body: classObj.title + " is starting in 15 mins",
-                            id: term.classes.indexOf(classObj) + i,
+                            id: classObj.id,
                             dayToRepeat: i,
                             timeToRepeat: classObj.startTime
                                 .subtract(Duration(minutes: 15)));
