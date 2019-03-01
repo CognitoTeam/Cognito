@@ -19,7 +19,8 @@ Assignment _$AssignmentFromJson(Map<String, dynamic> json) {
       isAssessment: json['isAssessment'] as bool,
       category: json['category'] == null
           ? null
-          : Category.fromJson(json['category'] as Map<String, dynamic>))
+          : Category.fromJson(json['category'] as Map<String, dynamic>),
+      id: json['id'] as int)
     ..startTime = json['startTime'] == null
         ? null
         : DateTime.parse(json['startTime'] as String)
@@ -43,6 +44,7 @@ Map<String, dynamic> _$AssignmentToJson(Assignment instance) =>
       'startTime': instance.startTime?.toIso8601String(),
       'endTime': instance.endTime?.toIso8601String(),
       'isRepeated': instance.isRepeated,
+      'id': instance.id,
       'daysOfEvent': instance.daysOfEvent,
       'dueDate': instance.dueDate?.toIso8601String(),
       'subTasks': instance.subTasks,

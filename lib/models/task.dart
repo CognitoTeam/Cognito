@@ -1,4 +1,5 @@
 import 'package:cognito/models/event.dart';
+
 /// Models a task
 /// @author Julian Vu
 import 'package:json_annotation/json_annotation.dart';
@@ -6,7 +7,6 @@ import 'package:json_annotation/json_annotation.dart';
 part 'task.g.dart';
 
 @JsonSerializable()
-
 class Task extends Event {
   DateTime dueDate;
   List<Task> subTasks;
@@ -19,7 +19,8 @@ class Task extends Event {
       DateTime end,
       bool isRepeated,
       List<int> daysOfEvent,
-      DateTime dueDate})
+      DateTime dueDate,
+      int id})
       : super(
             title: title,
             description: description,
@@ -27,14 +28,15 @@ class Task extends Event {
             start: start,
             end: end,
             isRepeated: isRepeated,
-            daysOfEvent: daysOfEvent) {
+            daysOfEvent: daysOfEvent,
+            id: id) {
     this.dueDate = dueDate;
     subTasks = List();
   }
-factory Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);
-
+  factory Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);
 
   Map<String, dynamic> toJson() => _$TaskToJson(this);
+
   /// Add subtask to list of subtasks
   addSubTask(Task subTask) => subTasks.add(subTask);
 }

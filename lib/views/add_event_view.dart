@@ -1,3 +1,5 @@
+import 'package:cognito/database/database.dart';
+import 'package:cognito/models/academic_term.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/event.dart';
@@ -13,6 +15,7 @@ class AddEventView extends StatefulWidget {
 }
 
 class _AddEventViewState extends State<AddEventView> {
+  DataBase database = DataBase();
   final _titleController = TextEditingController();
   final _locationController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -101,7 +104,15 @@ class _AddEventViewState extends State<AddEventView> {
       });
     }
   }
-
+AcademicTerm getCurrentTerm() {
+    for (AcademicTerm term in database.allTerms.terms) {
+      if (DateTime.now().isAfter(term.startTime) &&
+          DateTime.now().isBefore(term.endTime)) {
+        return term;
+      }
+    }
+    return null;
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -121,6 +132,7 @@ class _AddEventViewState extends State<AddEventView> {
                       isRepeated: _isRepeated,
                       start: startTime,
                       end: endTime,
+                      id: getCurrentTerm().getID()
                     )
                   : null);
             },

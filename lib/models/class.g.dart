@@ -17,7 +17,8 @@ Class _$ClassFromJson(Map<String, dynamic> json) {
       subjectArea: json['subjectArea'] as String,
       units: json['units'] as int,
       daysOfEvent:
-          (json['daysOfEvent'] as List)?.map((e) => e as int)?.toList())
+          (json['daysOfEvent'] as List)?.map((e) => e as int)?.toList(),
+      id: json['id'] as int)
     ..startTime = json['startTime'] == null
         ? null
         : DateTime.parse(json['startTime'] as String)
@@ -59,6 +60,7 @@ Map<String, dynamic> _$ClassToJson(Class instance) => <String, dynamic>{
       'startTime': instance.startTime?.toIso8601String(),
       'endTime': instance.endTime?.toIso8601String(),
       'isRepeated': instance.isRepeated,
+      'id': instance.id,
       'daysOfEvent': instance.daysOfEvent,
       'subjectArea': instance.subjectArea,
       'courseNumber': instance.courseNumber,

@@ -14,7 +14,7 @@ class AcademicTerm {
     String termName;
     DateTime startTime; //Academic term start 
     DateTime endTime;   //Academic term end
-
+    int idCounter;
     List<Class> classes;
     List<Club> clubs;
     List<Task> tasks;
@@ -38,6 +38,9 @@ class AcademicTerm {
       return "${endTime.month}/${endTime.day}/${endTime.year}";
     }
 
+    int getID(){
+      return idCounter++;
+    }
     void addEvent(Event event){
       events.add(event);
     }

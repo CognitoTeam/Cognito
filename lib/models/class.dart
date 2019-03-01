@@ -36,7 +36,8 @@ class Class extends Event {
       String officeLocation,
       String subjectArea,
       int units,
-      List<int> daysOfEvent})
+      List<int> daysOfEvent,
+      int id})
       : super(
             title: title,
             description: description,
@@ -44,7 +45,8 @@ class Class extends Event {
             start: start,
             end: end,
             isRepeated: true,
-            daysOfEvent: daysOfEvent) {
+            daysOfEvent: daysOfEvent,
+            id: id) {
     this.courseNumber = courseNumber;
     this.instructor = instructor;
     this.officeLocation = officeLocation;

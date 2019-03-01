@@ -12,6 +12,7 @@ class Event {
   String title, description, location;
   DateTime startTime, endTime;
   bool isRepeated;
+  int id;
 
   // Elements in list represent day(s) on which this event occurs
   // 1 => Monday, 2 => Tuesday ... 7 => Sunday
@@ -25,7 +26,8 @@ class Event {
       DateTime start,
       DateTime end,
       bool isRepeated,
-      List<int> daysOfEvent}) {
+      List<int> daysOfEvent,
+      int id}) {
     this.title = title;
     this.description = description;
     this.location = location;
@@ -33,6 +35,7 @@ class Event {
     this.endTime =  end;
     this.isRepeated = isRepeated;
     this.daysOfEvent = daysOfEvent;
+    this.id =id;
   }
 
 

@@ -10,7 +10,8 @@ Club _$ClubFromJson(Map<String, dynamic> json) {
   return Club(
       title: json['title'] as String,
       description: json['description'] as String,
-      location: json['location'] as String)
+      location: json['location'] as String,
+      id: json['id'] as int)
     ..startTime = json['startTime'] == null
         ? null
         : DateTime.parse(json['startTime'] as String)
@@ -41,6 +42,7 @@ Map<String, dynamic> _$ClubToJson(Club instance) => <String, dynamic>{
       'startTime': instance.startTime?.toIso8601String(),
       'endTime': instance.endTime?.toIso8601String(),
       'isRepeated': instance.isRepeated,
+      'id': instance.id,
       'daysOfEvent': instance.daysOfEvent,
       'officers': instance.officers,
       'events': instance.events,

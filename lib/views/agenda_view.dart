@@ -135,12 +135,12 @@ class _AgendaViewState extends State<AgendaView>
                       body: result.title +
                           " for " +
                           c.title +
-                          " is due at" +
+                          " is due at " +
                           dateTime.hour.toString() +
                           ":" +
                           dateTime.minute.toString(),
                       dateTime: dateTime,
-                      id: result.hashCode);
+                      id: result.id);
                   c.addTodoItem(c.ASSIGNMENTTAG, assignment: result);
                   database.updateDatabase();
                 }
@@ -195,7 +195,7 @@ class _AgendaViewState extends State<AgendaView>
                           c.title +
                           " starts in 15 mins",
                       dateTime: input,
-                      id: result.hashCode);
+                      id: result.id);
 
                   c.addTodoItem(c.ASSESSMENTTAG, assignment: result);
                   database.updateDatabase();
@@ -271,7 +271,7 @@ class _AgendaViewState extends State<AgendaView>
                 noti.showWeeklyAtDayAndTime(
                     title: "Event starting",
                     body: result.title + " is starting in 15 mins",
-                    id: term.events.indexOf(result) + i,
+                    id: result.id,
                     dayToRepeat: i,
                     timeToRepeat:
                         result.startTime.subtract(Duration(minutes: 15)));
@@ -300,7 +300,7 @@ class _AgendaViewState extends State<AgendaView>
                   title: "Event today",
                   body: result.title + " will take place in 15 mins.",
                   dateTime: input,
-                  id: result.hashCode);
+                  id: result.id);
             }
 
             print(
@@ -401,6 +401,7 @@ class FilteredClassExpansion extends StatefulWidget {
 }
 
 class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
+  Notifications noti = Notifications();
   List<Widget> _classes() {
     List<Widget> classesList = List();
     if (widget.term.classes.isNotEmpty) {
@@ -415,6 +416,8 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
                 " - " +
                 DateFormat.jm().format(c.endTime)),
             onTap: () async {
+              noti.cancelNotification(c.id);
+
               Class result = await Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => ClassDetailsView(
                         classObj: c,
@@ -422,6 +425,15 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
               if (result != null) {
                 print("Class updated: " + result.title);
                 widget.database.updateDatabase();
+                for (int i in result.daysOfEvent) {
+                  noti.showWeeklyAtDayAndTime(
+                      title: result.title,
+                      body: result.title + " is starting in 15 mins",
+                      id: result.id,
+                      dayToRepeat: i,
+                      timeToRepeat:
+                          result.startTime.subtract(Duration(minutes: 15)));
+                }
                 setState(() {});
               }
             },
@@ -469,6 +481,7 @@ class FilteredAssignmentExpansion extends StatefulWidget {
 
 class _FilteredAssignmentExpansionState
     extends State<FilteredAssignmentExpansion> {
+  Notifications noti = Notifications();
   DateTime oneWeekFromToday = DateTime.now().add(Duration(days: 7));
   List<Widget> _assignments() {
     List<Widget> assignmentList = List();
@@ -532,6 +545,7 @@ class _FilteredAssignmentExpansionState
                         });
                   },
                   onTap: () async {
+                    noti.cancelNotification(a.id);
                     Assignment result =
                         await Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => AssessmentDetailsView(
@@ -540,6 +554,24 @@ class _FilteredAssignmentExpansionState
                                 )));
                     if (result != null) {
                       print("Assessment updated: " + result.title);
+                      DateTime dateTime = DateTime(
+                          result.dueDate.year,
+                          result.dueDate.month,
+                          result.dueDate.day,
+                          c.startTime.hour,
+                          c.startTime.minute);
+                      dateTime = dateTime.subtract(Duration(minutes: 15));
+                      noti.scheduleNotification(
+                          title: "Assignment due",
+                          body: result.title +
+                              " for " +
+                              c.title +
+                              " is due at " +
+                              dateTime.hour.toString() +
+                              ":" +
+                              dateTime.minute.toString(),
+                          dateTime: dateTime,
+                          id: result.id);
                       widget.database.updateDatabase();
                       setState(() {});
                     }
@@ -608,6 +640,7 @@ class _FilteredAssignmentExpansionState
                         });
                   },
                   onTap: () async {
+                    noti.cancelNotification(a.id);
                     Assignment result =
                         await Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => AssessmentDetailsView(
@@ -615,7 +648,25 @@ class _FilteredAssignmentExpansionState
                                   assignment: a,
                                 )));
                     if (result != null) {
-                      print("Assignment updated: " + result.title);
+                      print("Assessment updated: " + result.title);
+                      DateTime dateTime = DateTime(
+                          result.dueDate.year,
+                          result.dueDate.month,
+                          result.dueDate.day,
+                          c.startTime.hour,
+                          c.startTime.minute);
+                      dateTime = dateTime.subtract(Duration(minutes: 15));
+                      noti.scheduleNotification(
+                          title: "Assignment due",
+                          body: result.title +
+                              " for " +
+                              c.title +
+                              " is due at " +
+                              dateTime.hour.toString() +
+                              ":" +
+                              dateTime.minute.toString(),
+                          dateTime: dateTime,
+                          id: result.id);
                       widget.database.updateDatabase();
                       setState(() {});
                     }
@@ -666,6 +717,7 @@ class FilteredEventExpansion extends StatefulWidget {
 }
 
 class _FilteredEventExpansionState extends State<FilteredEventExpansion> {
+  Notifications noti = Notifications();
   List<Widget> _events() {
     List<Widget> eventsList = List();
     if (widget.term.events.isNotEmpty) {
@@ -713,12 +765,49 @@ class _FilteredEventExpansionState extends State<FilteredEventExpansion> {
                   });
             },
             onTap: () async {
+              noti.cancelNotification(e.id);
               Event result = await Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => EventDetailsView(
                         event: e,
                       )));
               if (result != null) {
                 print("Event updated: " + result.title);
+                if (result.daysOfEvent.isNotEmpty) {
+                  for (int i in result.daysOfEvent) {
+                    noti.showWeeklyAtDayAndTime(
+                        title: "Event starting",
+                        body: result.title + " is starting in 15 mins",
+                        id: result.id,
+                        dayToRepeat: i,
+                        timeToRepeat:
+                            result.startTime.subtract(Duration(minutes: 15)));
+                  }
+                } else {
+                  DateTime now = DateTime.now();
+                  DateTime input;
+                  if (result.startTime.hour < now.hour ||
+                      result.endTime.hour < now.hour ||
+                      (result.startTime.hour == now.hour &&
+                          result.startTime.minute < now.minute) ||
+                      (result.endTime.hour == now.hour &&
+                          result.endTime.minute < now.minute)) {
+                    print("CONDITIONS MET");
+                    input = DateTime(now.year, now.month, now.day,
+                        result.startTime.hour, result.startTime.minute);
+                    input.add(Duration(days: 1));
+                  } else {
+                    print("CONDITIONS NOT MET");
+
+                    input = DateTime(now.year, now.month, now.day,
+                        result.startTime.hour, result.startTime.minute);
+                  }
+                  input.subtract(Duration(minutes: 15));
+                  noti.scheduleNotification(
+                      title: "Event today",
+                      body: result.title + " will take place in 15 mins.",
+                      dateTime: input,
+                      id: result.id);
+                }
                 widget.database.updateDatabase();
               }
             },
