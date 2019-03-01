@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
           body2: TextStyle(color: Colors.white70)
         ),
         accentTextTheme: TextTheme(
-          body1: TextStyle(color: Colors.black, fontSize: 16)
+          body1: TextStyle(color: Colors.black, fontSize: 14.0)
         ),
         inputDecorationTheme: InputDecorationTheme(
           hintStyle: TextStyle(color: Colors.white70,),
