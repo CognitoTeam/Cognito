@@ -183,6 +183,9 @@ class _ClassViewState extends State<ClassView> {
                       },
                       child: Card(
                         color: Theme.of(context).primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular()
+                        ),
                         child: Column(
                           children: <Widget>[
                             ListTile(
