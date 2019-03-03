@@ -1,3 +1,5 @@
+// Copyright 2019 UniPlan. All rights reserved.
+
 import 'dart:convert';
 import 'package:cognito/database/database.dart';
 import 'package:flutter/material.dart';
@@ -8,41 +10,55 @@ import 'package:cognito/views/main_drawer.dart';
 
 /// Academic term view screen
 /// Displays AcademicTerm objects in the form of cards
-/// @author Julian Vu
+/// [author] Julian Vu
 
 class AcademicTermView extends StatefulWidget {
   static String tag = "academic-term-view";
+
   @override
   _AcademicTermViewState createState() => _AcademicTermViewState();
 }
 
 class _AcademicTermViewState extends State<AcademicTermView> {
   AcademicTerm deletedTerm;
+
   // List of academic terms
-  DataBase  database = DataBase();
+  DataBase database = DataBase();
+
   @override
   void initState() {
     super.initState();
-    setState(() {
-     
-    });
+    setState(() {});
   }
 
+  /// Undoes the deletion of an academic term
   void undo(AcademicTerm undo) {
     setState(() {
       database.allTerms.terms.add(undo);
     });
   }
 
-  // Remove terms of list
+  /// Removes terms from database and re-renders page to show deletion
   void removeTerm(AcademicTerm termToRemove) {
     setState(() {
       database.allTerms.terms.remove(termToRemove);
     });
   }
 
+  /// Shows a bottom modal sheet for creating an academic term
+  Future<AcademicTerm> _showModalSheet() async {
+    final term = await showModalBottomSheet(
+        context: context,
+        builder: (builder) {
+          return AddTermView();
+        });
+    return term;
+  }
 
-
+  /// Builds a [Scaffold] page that shows [AcademicTerm] information.
+  ///
+  /// This information includes the name of the term (e.g. Spring 2019), the
+  /// start date and end date for the [AcademicTerm].
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -115,6 +131,8 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                         },
                         child: Card(
                           color: Theme.of(context).primaryColor,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0)),
                           child: Column(
                             children: <Widget>[
                               // Term name
@@ -143,20 +161,21 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                 );
               })
           : Center(
-            child: Text("Lets start by adding a term!"),
-          ),
+              child: Text("Lets start by adding a term!"),
+            ),
 
-      // Floating action button is for transitioning to creating a new term
+      /// Floating action button is for displaying modal sheet for creating
+      /// an [AcademicTerm]
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           // Retrieve Academic Term object from AddTermView
-          final result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddTermView()));
+          final result = await _showModalSheet();
           if (result != null) {
             database.allTerms.terms.add(result);
             String jsonString = json.encode(database.allTerms);
             database.writeJSON(jsonString);
             database.update();
+            setState((){});
           }
         },
         child: Icon(

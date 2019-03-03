@@ -1,3 +1,5 @@
+// Copyright 2019 UniPlan and individual contributors. All rights reserved.
+
 import 'package:cognito/database/database.dart';
 import 'package:cognito/models/all_terms.dart';
 import 'package:flutter/material.dart';
@@ -6,11 +8,9 @@ import 'package:cognito/models/academic_term.dart';
 
 /// Academic term creation view
 /// View screen to create a new AcademicTerm
-/// @author Julian Vu
+/// [author] Julian Vu
 ///
-
 class AddTermView extends StatefulWidget {
-  static String tag = "add-term-view";
   @override
   _AddTermViewState createState() => _AddTermViewState();
 }
