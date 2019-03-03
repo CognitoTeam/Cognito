@@ -1,4 +1,5 @@
-import 'package:cognito/models/academic_term.dart';
+// Copyright 2019 UniPlan. All rights reserved
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/class.dart';
@@ -6,8 +7,7 @@ import 'package:cognito/database/database.dart';
 import 'package:intl/intl.dart';
 
 /// Class creation view
-/// View screen to create a new Class object
-/// @author Julian Vu
+/// [author] Julian Vu
 enum Day { M, Tu, W, Th, F, Sat, Sun }
 
 class AddClassView extends StatefulWidget {
@@ -29,6 +29,149 @@ class _AddClassViewState extends State<AddClassView> {
   final _instructorController = TextEditingController();
   final _officeLocationController = TextEditingController();
   final _descriptionController = TextEditingController();
+
+  //  Stepper
+  //  init step to 0th position
+  int currentStep = 0;
+
+  List<Step> getSteps() {
+    return [
+      Step(
+        title: Text(
+          "Subject",
+          style: Theme.of(context).accentTextTheme.body1,
+        ),
+        content: selectSubjectTile(),
+        state: StepState.indexed,
+        isActive: true
+      ),
+      Step(
+        title: Text("Course number", style: Theme.of(context).accentTextTheme.body1,),
+        content: textFieldTile(
+            hint: "Course number e.g. 146",
+            controller: _courseNumberController),
+        state: StepState.indexed,
+        isActive: true
+      ),
+      Step(
+        title: Text("Course title", style: Theme.of(context).accentTextTheme.body1,),
+        content: textFieldTile(
+            hint: "Course title e.g. Data Structures and Algorithms",
+            controller: _courseTitleController),
+        state: StepState.indexed,
+        isActive: true
+      ),
+      Step(
+        title: Text("Number of units", style: Theme.of(context).accentTextTheme.body1,),
+        content: textFieldTile(
+            hint: "Number of units e.g. 4", controller: _unitCountController),
+        state: StepState.indexed,
+        isActive: true
+      ),
+      Step(
+        title: Text("Location", style: Theme.of(context).accentTextTheme.body1,),
+        content: textFieldTile(
+            hint: "Location e.g. MQH 222", controller: _locationController),
+        state: StepState.indexed,
+        isActive: true
+      ),
+      Step(
+        title: Text("Instructor", style: Theme.of(context).accentTextTheme.body1,),
+        content: textFieldTile(
+            hint: "Instructor e.g. Dr. Potika",
+            controller: _instructorController),
+        state: StepState.indexed,
+        isActive: true
+      ),
+      Step(
+        title: Text("Office Location", style: Theme.of(context).accentTextTheme.body1,),
+        content: textFieldTile(
+            hint: "Office location e.g. MQH 232",
+            controller: _officeLocationController),
+        state: StepState.indexed,
+        isActive: true
+      ),
+      Step(
+        title: Text("Desciption", style: Theme.of(context).accentTextTheme.body1,),
+        content: TextFormField(
+          controller: _descriptionController,
+          autofocus: false,
+          style: Theme.of(context).accentTextTheme.body1,
+          keyboardType: TextInputType.multiline,
+          textInputAction: TextInputAction.done,
+          maxLines: 5,
+          decoration: InputDecoration(
+              hintText: "Description",
+              hintStyle: TextStyle(color: Colors.black45)),
+        ),
+        state: StepState.indexed,
+        isActive: true
+      ),
+      Step(
+        title: Text("Start and End times", style: Theme.of(context).accentTextTheme.body1,),
+        content: Column(
+          children: <Widget>[
+            ListTile(
+              leading: Icon(Icons.access_time),
+              title: Text(
+                "Select Start Time",
+                style: Theme.of(context).accentTextTheme.body2,
+              ),
+              trailing: Text(
+                startTime != null ? DateFormat.jm().format(startTime) : "",
+              ),
+              onTap: () => _selectTime(true, context),
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.access_time),
+              title: Text(
+                "Select End Time",
+                style: Theme.of(context).accentTextTheme.body2,
+              ),
+              trailing: Text(
+                endTime != null ? DateFormat.jm().format(endTime) : "",
+              ),
+              onTap: () => _selectTime(false, context),
+            ),
+          ],
+        ),
+        isActive: true,
+        state: StepState.indexed
+      ),
+      Step(
+        title: Text("Days repeated", style: Theme.of(context).accentTextTheme.body1,),
+        content: ListTile(
+            title: Column(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    daySelectionColumn(Day.M),
+                    daySelectionColumn(Day.Tu),
+                    daySelectionColumn(Day.W),
+                    daySelectionColumn(Day.Th),
+                    daySelectionColumn(Day.F),
+
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    daySelectionColumn(Day.Sat),
+                    daySelectionColumn(Day.Sun),
+                  ],
+                )
+              ],
+            ),
+          ),
+        state: StepState.indexed,
+        isActive: true,
+      )
+    ];
+  }
+
+  //  End Stepper
 
   ListTile textFieldTile(
       {Widget leading,
@@ -208,6 +351,33 @@ class _AddClassViewState extends State<AddClassView> {
     return listSubjects;
   }
 
+  void _showSubjectSelectionDialog() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+              title: Text("Choose a subject"), children: _listOfSubjects());
+        });
+  }
+
+  ListTile selectSubjectTile() {
+    return ListTile(
+      leading: Icon(Icons.chevron_right),
+      title: _subjectController.text.isNotEmpty
+          ? Text(
+              "Subject: " + _subjectController.text,
+              style: Theme.of(context).accentTextTheme.body1,
+            )
+          : Text(
+              "Choose a subject",
+              style: Theme.of(context).accentTextTheme.body1,
+            ),
+      onTap: () {
+        _showSubjectSelectionDialog();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -237,99 +407,60 @@ class _AddClassViewState extends State<AddClassView> {
           ),
         ],
       ),
-      body: ListView(
-        children: <Widget>[
-          Padding(padding: EdgeInsets.all(0.0)),
-          ListTile(
-            leading: Icon(Icons.chevron_right),
-            title: _subjectController.text.isNotEmpty
-                ? Text(
-                    "Subject: " + _subjectController.text,
-                    style: Theme.of(context).accentTextTheme.body1,
-                  )
-                : Text(
-                    "Choose a subject",
-                    style: Theme.of(context).accentTextTheme.body1,
-                  ),
-            onTap: () {
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return SimpleDialog(
-                        title: Text("Choose a subject"),
-                        children: _listOfSubjects());
-                  });
-            },
-          ),
-          textFieldTile(
-              hint: "Course number e.g. 146",
-              controller: _courseNumberController),
-          textFieldTile(
-              hint: "Course title e.g. Data Structures and Algorithms",
-              controller: _courseTitleController),
-          textFieldTile(
-              hint: "Number of units e.g. 4", controller: _unitCountController),
-          textFieldTile(
-              hint: "Location e.g. MQH 222", controller: _locationController),
-          textFieldTile(
-              hint: "Instructor e.g. Dr. Potika",
-              controller: _instructorController),
-          textFieldTile(
-              hint: "Office location e.g. MQH 232",
-              controller: _officeLocationController),
-          ListTile(
-            title: TextFormField(
-              controller: _descriptionController,
-              autofocus: false,
-              style: Theme.of(context).accentTextTheme.body1,
-              keyboardType: TextInputType.multiline,
-              textInputAction: TextInputAction.done,
-              maxLines: 5,
-              decoration: InputDecoration(
-                  hintText: "Description",
-                  hintStyle: TextStyle(color: Colors.black45)),
-            ),
-          ),
-          ListTile(
-            leading: Icon(Icons.access_time),
-            title: Text(
-              "Select Start Time",
-              style: Theme.of(context).accentTextTheme.body2,
-            ),
-            trailing: Text(
-              startTime != null ? DateFormat.jm().format(startTime) : "",
-            ),
-            onTap: () => _selectTime(true, context),
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.access_time),
-            title: Text(
-              "Select End Time",
-              style: Theme.of(context).accentTextTheme.body2,
-            ),
-            trailing: Text(
-              endTime != null ? DateFormat.jm().format(endTime) : "",
-            ),
-            onTap: () => _selectTime(false, context),
-          ),
-          Divider(),
-          ListTile(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                daySelectionColumn(Day.Sun),
-                daySelectionColumn(Day.M),
-                daySelectionColumn(Day.Tu),
-                daySelectionColumn(Day.W),
-                daySelectionColumn(Day.Th),
-                daySelectionColumn(Day.F),
-                daySelectionColumn(Day.Sat),
-              ],
-            ),
-          ),
-        ],
+      body: Stepper(
+        currentStep: this.currentStep,
+        steps: getSteps(),
+        type: StepperType.vertical,
+        onStepTapped: (step) {
+          setState(() {
+            currentStep = step;
+          });
+        },
+        onStepCancel: () {
+          setState(() {
+            if (currentStep > 0) {
+              currentStep--;
+            }
+            else {
+              currentStep = 0;
+            }
+          });
+        },
+        onStepContinue: () {
+          setState(() {
+            if (currentStep < getSteps().length - 1) {
+              currentStep++;
+            }
+            else {
+              Navigator.of(context).pop(_subjectController != null
+                  ? Class(
+                  subjectArea: _subjectController.text,
+                  courseNumber: _courseNumberController.text,
+                  title: _courseTitleController.text,
+                  units: int.parse(_unitCountController.text),
+                  location: _locationController.text,
+                  instructor: _instructorController.text,
+                  officeLocation: _officeLocationController.text,
+                  description: _descriptionController.text,
+                  daysOfEvent: daysOfEvent,
+                  start: startTime,
+                  end: endTime)
+                  : null);
+            }
+          });
+        },
       ),
+//      ListView(
+//        children: <Widget>[
+//
+//          Padding(padding: EdgeInsets.all(0.0)),
+//
+//
+//
+//          Divider(),
+//
+//        ],
+//      ),
     );
   }
 }
