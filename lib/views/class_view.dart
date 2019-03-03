@@ -1,3 +1,5 @@
+// Copyright 2019 UniPlan. All rights reserved.
+
 import 'package:cognito/database/database.dart';
 import 'package:cognito/database/notifications.dart';
 import 'package:cognito/views/gradebook_view.dart';
@@ -10,8 +12,7 @@ import 'package:cognito/views/class_details_view.dart';
 
 /// Class view
 /// Displays list of Class cards
-/// @author Julian Vu
-
+/// [author] Julian Vu
 class ClassView extends StatefulWidget {
   @override
   _ClassViewState createState() => _ClassViewState();
@@ -22,6 +23,7 @@ class _ClassViewState extends State<ClassView> {
   AcademicTerm term;
   Class undoClass;
   DataBase database = DataBase();
+
   void removeClass(Class classToRemove) {
     setState(() {
       term.removeClass(classToRemove);
@@ -37,6 +39,16 @@ class _ClassViewState extends State<ClassView> {
       }
     }
     return null;
+  }
+
+  /// Shows bottom modal sheet for creating a [Class]
+  Future<Class> _showModalSheet() async {
+    final classToReturn = await showModalBottomSheet(
+        context: context,
+        builder: (builder) {
+          return AddClassView();
+        });
+    return classToReturn;
   }
 
   @override
@@ -89,12 +101,12 @@ class _ClassViewState extends State<ClassView> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          Class result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddClassView()));
+          Class result = await _showModalSheet();
           if (result != null) {
             term.addClass(result);
             database.allTerms.updateTerm(term);
             database.updateDatabase();
+            setState(() {});
             for (int i in result.daysOfEvent) {
               noti.showWeeklyAtDayAndTime(
                   title: result.title,
