@@ -1,3 +1,5 @@
+import 'package:cognito/database/database.dart';
+import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/models/officer.dart';
 import 'package:cognito/models/task.dart';
@@ -20,10 +22,13 @@ class AddClubView extends StatefulWidget {
 }
 
 class _AddClubViewState extends State<AddClubView> {
+  DataBase database = DataBase();
+  int id;
   Club club = Club();
   final _titleController = TextEditingController();
   final _locationController = TextEditingController();
   final _descriptionController = TextEditingController();
+
 
   ListTile textFieldTile(
       {Widget leading,
@@ -48,6 +53,16 @@ class _AddClubViewState extends State<AddClubView> {
       subtitle: subtitle,
     );
   }
+AcademicTerm getCurrentTerm() {
+    for (AcademicTerm term in database.allTerms.terms) {
+      if (DateTime.now().isAfter(term.startTime) &&
+          DateTime.now().isBefore(term.endTime)) {
+            
+        return term;
+      }
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +77,7 @@ class _AddClubViewState extends State<AddClubView> {
               club.title = _titleController.text;
               club.location = _locationController.text;
               club.description = _descriptionController.text;
+              club.id = getCurrentTerm().getID();
               Navigator.of(context)
                   .pop(_titleController.text != null ? club : null);
             },

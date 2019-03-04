@@ -1,4 +1,5 @@
 import 'package:cognito/database/database.dart';
+import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/category.dart';
 import 'package:cognito/models/class.dart';
@@ -56,7 +57,16 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
       subtitle: subtitle,
     );
   }
-
+// get current academic term
+AcademicTerm getCurrentTerm() {
+    for (AcademicTerm term in database.allTerms.terms) {
+      if (DateTime.now().isAfter(term.startTime) &&
+          DateTime.now().isBefore(term.endTime)) {
+        return term;
+      }
+    }
+    return null;
+  }
   void selectDay(Day day) {
     setState(() {
       daysOfEvent.add(day.index + 1);
@@ -70,6 +80,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
   }
 
   String _categoryListTitle = "Select a category";
+  // Returns a LitsTile widget categories as a list of widgets
   List<Widget> _listOfCategories() {
     List<Widget> listCategories = List();
     if (widget.aClass.categories.isNotEmpty) {
@@ -273,7 +284,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
     );
     return listCategories;
   }
-
+// Returns a column widget containg 7 checkboxes for day selection
   Column daySelectionColumn(Day day) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -355,7 +366,8 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                         isAssessment: true,
                         location: _locationController.text,
                         description: _descriptionController.text,
-                        dueDate: dueDate)
+                        dueDate: dueDate,
+                        id: getCurrentTerm().getID())
                     : null);
               },
             )
