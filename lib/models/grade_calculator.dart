@@ -1,10 +1,10 @@
+// Copyright 2019 UniPlan. All rights reserved.
+
+import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/category.dart';
 
 /// Calculates grade
 /// @author Julian Vu
-
-import 'package:cognito/models/assignment.dart';
-
 class GradeCalculator {
   /// Grade book that maps assignment to a category
   Map<Assignment, Category> gradeBook;
@@ -83,8 +83,9 @@ class GradeCalculator {
     // Reset and recalculate percentage
     percentage = 0.0;
     categories.forEach((category) {
-      percentage += double.parse(
-          ((category.pointsEarned / category.pointsPossible) *
+      percentage += category.pointsPossible == 0.0
+          ? 0.0
+          : double.parse(((category.pointsEarned / category.pointsPossible) *
                   category.weightInPercentage)
               .toStringAsFixed(2));
     });

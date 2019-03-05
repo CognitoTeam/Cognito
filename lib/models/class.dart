@@ -1,5 +1,7 @@
-import 'package:cognito/models/category.dart';
+// Copyright 2019 UniPlan. All rights reserved.
+
 import 'package:cognito/models/assignment.dart';
+import 'package:cognito/models/category.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/models/grade_calculator.dart';
 import 'package:cognito/models/task.dart';
@@ -89,6 +91,27 @@ class Class extends Event {
     GradeCalculator gradeCalculator = GradeCalculator(cat, gradebook);
     gradeCalculator.calculateGrade();
     return gradeCalculator.letterGrade;
+  }
+
+  String getPercentage() {
+    Map<Assignment, Category> gradebook = Map();
+    for (Assignment a in assessments) {
+      gradebook[a] = a.category;
+    }
+    for (Assignment a in assignments) {
+      gradebook[a] = a.category;
+    }
+    if (gradebook.isEmpty) {
+      return "No Grades yet";
+    }
+    List<Category> cat = List();
+    for (Category c in categories) {
+      cat.add(c);
+    }
+    cat.add(starting);
+    GradeCalculator gradeCalculator = GradeCalculator(cat, gradebook);
+    gradeCalculator.calculateGrade();
+    return gradeCalculator.percentage.toString() + "%";
   }
 
   addCategory(Category category) {
