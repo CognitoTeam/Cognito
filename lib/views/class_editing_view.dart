@@ -3,34 +3,64 @@
 import 'dart:async';
 
 import 'package:cognito/database/database.dart';
-import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/class.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-/// Class creation view
-/// [author] Julian Vu
 enum Day { M, Tu, W, Th, F, Sat, Sun }
 
-class AddClassView extends StatefulWidget {
+/// Class editing view
+/// [author] Julian Vu
+class ClassEditingView extends StatefulWidget {
+  // Underlying class object
+  final Class classObj;
+
+  ClassEditingView({Key key, @required this.classObj}) : super(key: key);
+
   @override
-  _AddClassViewState createState() => _AddClassViewState();
+  _ClassEditingViewState createState() => _ClassEditingViewState();
 }
 
-class _AddClassViewState extends State<AddClassView> {
+class _ClassEditingViewState extends State<ClassEditingView> {
   DataBase database = DataBase();
 
   DateTime startTime, endTime;
   List<int> daysOfEvent = List();
 
-  final _subjectController = TextEditingController();
-  final _courseNumberController = TextEditingController();
-  final _courseTitleController = TextEditingController();
-  final _unitCountController = TextEditingController();
-  final _locationController = TextEditingController();
-  final _instructorController = TextEditingController();
-  final _officeLocationController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  TextEditingController _subjectController,
+      _courseNumberController,
+      _courseTitleController,
+      _unitCountController,
+      _locationController,
+      _instructorController,
+      _officeLocationController,
+      _descriptionController;
+
+  /// Initial state sets the value of the text controllers to the values already
+  /// inside the underlying [Class] object.
+  @override
+  void initState() {
+    super.initState();
+    _subjectController =
+        TextEditingController(text: widget.classObj.subjectArea);
+    _courseNumberController =
+        TextEditingController(text: widget.classObj.courseNumber);
+    _courseTitleController = TextEditingController(text: widget.classObj.title);
+    _unitCountController =
+        TextEditingController(text: widget.classObj.units.toString());
+    _locationController = TextEditingController(text: widget.classObj.location);
+    _instructorController =
+        TextEditingController(text: widget.classObj.instructor);
+    _officeLocationController =
+        TextEditingController(text: widget.classObj.officeLocation);
+    _descriptionController =
+        TextEditingController(text: widget.classObj.description);
+    setState(() {
+      startTime = widget.classObj.startTime;
+      endTime = widget.classObj.endTime;
+      daysOfEvent = widget.classObj.daysOfEvent;
+    });
+  }
 
   //  Stepper
   //  init step to 0th position
@@ -212,14 +242,14 @@ class _AddClassViewState extends State<AddClassView> {
     return ListTile(
       leading: leading,
       trailing: trailing,
-      title: TextField(
+      title: TextFormField(
         controller: controller,
         autofocus: false,
         keyboardType: keyboardType,
         style: Theme.of(context).accentTextTheme.body1,
         decoration: InputDecoration(
-          labelText: hint,
-          labelStyle: TextStyle(color: Colors.black45),
+          hintText: hint,
+          hintStyle: TextStyle(color: Colors.black45),
         ),
       ),
       subtitle: subtitle,
@@ -235,17 +265,7 @@ class _AddClassViewState extends State<AddClassView> {
     });
   }
 
-  AcademicTerm getCurrentTerm() {
-    for (AcademicTerm term in database.allTerms.terms) {
-      if (DateTime.now().isAfter(term.startTime) &&
-          DateTime.now().isBefore(term.endTime)) {
-        return term;
-      }
-    }
-    return null;
-  }
-
-  /// Helper function for deselcting a day
+  /// Helper function for deselecting a day
   /// Removes a day from list of repeated days for this class
   /// The day to remove is the index of the day + 1 since enums start from 0
   void deselectDay(Day day) {
@@ -254,7 +274,7 @@ class _AddClassViewState extends State<AddClassView> {
     });
   }
 
-  /// Creates a Column object that contains a label for the day to be selected
+  /// Creates a [Column] object that contains a label for the day to be selected
   /// and a check box for that day
   Column daySelectionColumn(Day day) {
     return Column(
@@ -416,27 +436,24 @@ class _AddClassViewState extends State<AddClassView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add New Class"),
+        title: Text("Edit Class"),
         backgroundColor: Theme.of(context).primaryColorDark,
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.check),
             onPressed: () {
-              Navigator.of(context).pop(_subjectController != null
-                  ? Class(
-                      subjectArea: _subjectController.text,
-                      courseNumber: _courseNumberController.text,
-                      title: _courseTitleController.text,
-                      units: int.parse(_unitCountController.text),
-                      location: _locationController.text,
-                      instructor: _instructorController.text,
-                      officeLocation: _officeLocationController.text,
-                      description: _descriptionController.text,
-                      daysOfEvent: daysOfEvent,
-                      start: startTime,
-                      end: endTime,
-                      id: getCurrentTerm().getID())
-                  : null);
+              widget.classObj.subjectArea = _subjectController.text;
+              widget.classObj.courseNumber = _courseNumberController.text;
+              widget.classObj.title = _courseTitleController.text;
+              widget.classObj.units = int.parse(_unitCountController.text);
+              widget.classObj.location = _locationController.text;
+              widget.classObj.instructor = _instructorController.text;
+              widget.classObj.officeLocation = _officeLocationController.text;
+              widget.classObj.description = _descriptionController.text;
+              widget.classObj.startTime = startTime;
+              widget.classObj.endTime = endTime;
+              widget.classObj.daysOfEvent = daysOfEvent;
+              Navigator.of(context).pop(widget.classObj);
             },
           ),
         ],
@@ -464,24 +481,23 @@ class _AddClassViewState extends State<AddClassView> {
             if (currentStep < getSteps().length - 1) {
               currentStep++;
             } else {
-              Navigator.of(context).pop(_subjectController != null
-                  ? Class(
-                      subjectArea: _subjectController.text,
-                      courseNumber: _courseNumberController.text,
-                      title: _courseTitleController.text,
-                      units: int.parse(_unitCountController.text),
-                      location: _locationController.text,
-                      instructor: _instructorController.text,
-                      officeLocation: _officeLocationController.text,
-                      description: _descriptionController.text,
-                      daysOfEvent: daysOfEvent,
-                      start: startTime,
-                      end: endTime)
-                  : null);
+              widget.classObj.subjectArea = _subjectController.text;
+              widget.classObj.courseNumber = _courseNumberController.text;
+              widget.classObj.title = _courseTitleController.text;
+              widget.classObj.units = int.parse(_unitCountController.text);
+              widget.classObj.location = _locationController.text;
+              widget.classObj.instructor = _instructorController.text;
+              widget.classObj.officeLocation = _officeLocationController.text;
+              widget.classObj.description = _descriptionController.text;
+              widget.classObj.startTime = startTime;
+              widget.classObj.endTime = endTime;
+              widget.classObj.daysOfEvent = daysOfEvent;
+              Navigator.of(context).pop(widget.classObj);
             }
           });
         },
       ),
     );
+    ;
   }
 }

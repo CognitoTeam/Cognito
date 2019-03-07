@@ -1,113 +1,141 @@
-import 'package:cognito/database/database.dart';
+// Copyright 2019 UniPlan. All rights reserved.
+
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/assignment.dart';
+import 'package:cognito/models/category.dart';
 import 'package:cognito/models/class.dart';
 import 'package:flutter/material.dart';
 
 class GradeBookView extends StatefulWidget {
+  final Class selectedClass;
+
+  GradeBookView({Key key, @required this.selectedClass}) : super(key: key);
+
   @override
-  _GradeBookViewtate createState() => _GradeBookViewtate();
+  _GradeBookViewState createState() => _GradeBookViewState();
 }
 
-class _GradeBookViewtate extends State<GradeBookView> {
+class _GradeBookViewState extends State<GradeBookView> {
   AcademicTerm term;
-  AcademicTerm getCurrentTerm() {
-    for (AcademicTerm term in database.allTerms.terms) {
-      if (DateTime.now().isAfter(term.startTime) &&
-          DateTime.now().isBefore(term.endTime)) {
-        this.term = term;
-        return term;
-      }
-    }
-    return null;
-  }
 
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      getCurrentTerm();
-    });
-  }
+  List<Widget> rowsOfWidgets() {
+    List<Widget> rowsOfWidgets = [];
+    Class selectedClass = widget.selectedClass;
 
-  Class selected;
-  DataBase database = DataBase();
-  List<Widget> _listOfClass() {
-    List<Widget> listTasks = List();
-    if (term.classes.isNotEmpty) {
-      for (Class c in term.classes) {
-        listTasks.add(
-          ListTile(
-              title: Text(
-                c.title,
-                style: Theme.of(context).accentTextTheme.body2,
+    rowsOfWidgets.add(ListTile(
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Column(
+            children: <Widget>[
+              Text(
+                "Name",
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              onTap: () {
-                setState(() {
-                  selected = c;
-                });
-              }),
-        );
-      }
-    } else {
-      listTasks.add(ListTile(
-          title: Text(
-        "No Classes so far",
-        style: Theme.of(context).accentTextTheme.body2,
-      )));
-    }
-    return listTasks;
-  }
+            ],
+          ),
+          Column(
+            children: <Widget>[
+              Text(
+                "Status",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          Column(
+            children: <Widget>[
+              Text(
+                "Grade",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          )
+        ],
+      ),
+    ));
 
-  List<Widget> rowsOfWidgets(Class c) {
-    List<Widget> rowsOfWidgets = List();
-    rowsOfWidgets.add(ExpansionTile(
-        title: Text(selected == null ? "Select a class" : selected.title),
-        children: _listOfClass()));
-    if (c == null) {
-      return rowsOfWidgets;
-    } else {
-      if (c.assignments.isNotEmpty) {
-        for (Assignment a in c.assignments) {
-          rowsOfWidgets.add(ListTile(
-            title: Text(a.title + "\t"),
-            trailing: Text(
-                ((a.pointsEarned / a.pointsPossible) * 100).toString() + "%"),
-            subtitle: Text(
-                a.pointsEarned.toString() + "/" + a.pointsPossible.toString()),
-          ));
-        }
-      }
-      if (c.assessments.isNotEmpty) {
-        for (Assignment a in c.assessments) {
-          rowsOfWidgets.add(ListTile(
-            title: Text(a.title + "\t"),
-            trailing: Text(
-                ((a.pointsEarned / a.pointsPossible) * 100).toString() + "%"),
-            subtitle: Text(
-                a.pointsEarned.toString() + "/" + a.pointsPossible.toString()),
-          ));
-        }
+    // Assignments
+    if (selectedClass.assignments.isNotEmpty) {
+      for (Assignment a in selectedClass.assignments) {
+        rowsOfWidgets.add(ListTile(
+          leading: Column(
+            children: <Widget>[
+              Text(a.title),
+            ],
+          ),
+          title: Column(
+            children: <Widget>[
+              Text("STATUS"),
+            ],
+          ),
+          trailing: Column(
+            children: <Widget>[
+              Text(a.pointsEarned.toString() +
+                  "/" +
+                  a.pointsPossible.toString()),
+            ],
+          ),
+        ));
+        rowsOfWidgets.add(Divider());
       }
     }
-    if (rowsOfWidgets.length == 1) {
+
+    // Assessments
+    if (selectedClass.assessments.isNotEmpty) {
+      for (Assignment a in selectedClass.assessments) {
+        rowsOfWidgets.add(ListTile(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text(a.title),
+              Text("STATUS"),
+              Text(a.pointsEarned.toString() +
+                  "/" +
+                  a.pointsPossible.toString()),
+            ],
+          ),
+        ));
+        rowsOfWidgets.add(Divider());
+      }
+    }
+
+    // Categorical breakdown
+    rowsOfWidgets.add(Divider());
+    for (Category c in selectedClass.categories) {
       rowsOfWidgets.add(ListTile(
-        title: Text("No assignments have been added yet"),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Text(c.title),
+            Text(c.getPercentage().toString() + "%")
+          ],
+        ),
       ));
     }
+    rowsOfWidgets.add(Divider());
+
+    // Total Grade
+    rowsOfWidgets.add(Divider());
+    rowsOfWidgets.add(ListTile(
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(
+            "Total",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Text(
+            selectedClass.getPercentage() + " - " + selectedClass.getGrade(),
+            style: TextStyle(fontWeight: FontWeight.bold),
+          )
+        ],
+      ),
+    ));
     return rowsOfWidgets;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            "Grade Book",
-            style: Theme.of(context).primaryTextTheme.title,
-          ),
-          backgroundColor: Theme.of(context).primaryColorDark,
-        ),
-        body: ListView(children: rowsOfWidgets(selected)));
+    return Column(children: rowsOfWidgets());
   }
 }
