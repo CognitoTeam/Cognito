@@ -95,8 +95,7 @@ class _AddTermViewState extends State<AddTermView> {
           }),
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: ListView(
         children: <Widget>[
           Padding(padding: EdgeInsets.all(0.0)),
           ListTile(

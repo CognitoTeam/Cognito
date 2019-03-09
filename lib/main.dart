@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: "Cognito",
+      title: "UniPlan",
       theme: ThemeData(
         primaryColor: Color(0xFF3849aa),
         primaryColorLight: Color(0xFF6e74dc),
