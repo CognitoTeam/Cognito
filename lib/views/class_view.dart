@@ -9,7 +9,6 @@ import 'package:cognito/models/class.dart';
 import 'package:cognito/views/add_class_view.dart';
 import 'package:cognito/views/class_details_view.dart';
 import 'package:cognito/views/class_editing_view.dart';
-import 'package:cognito/views/gradebook_view.dart';
 import 'package:cognito/views/main_drawer.dart';
 import 'package:flutter/material.dart';
 
@@ -64,12 +63,6 @@ class _ClassViewState extends State<ClassView> {
     });
   }
 
-  Future onSelectNotification(String payload) async {
-    if (payload != null) {
-      debugPrint('notification payload: ' + payload);
-    }
-  }
-
   /// Re-adds [Class] into [AcademicTerm] after being deleted
   void undo(Class undo) {
     setState(() {
@@ -120,7 +113,7 @@ class _ClassViewState extends State<ClassView> {
               direction: DismissDirection.endToStart,
               onDismissed: (direction) {
                 for (int i in classObj.daysOfEvent) {
-                  noti.cancelNotification(term.classes.indexOf(classObj) + i);
+                  noti.cancelNotification(classObj.id);
                 }
 
                 undoClass = classObj;
@@ -169,7 +162,7 @@ class _ClassViewState extends State<ClassView> {
                     onPressed: () async {
                       for (int i in classObj.daysOfEvent) {
                         noti.cancelNotification(
-                            term.classes.indexOf(classObj) + i);
+                            classObj.id);
                       }
                       await Navigator.push(
                           context,
@@ -183,7 +176,7 @@ class _ClassViewState extends State<ClassView> {
                         noti.showWeeklyAtDayAndTime(
                             title: classObj.title,
                             body: classObj.title + " is starting in 15 mins",
-                            id: term.classes.indexOf(classObj) + i,
+                            id: classObj.id,
                             dayToRepeat: i,
                             timeToRepeat: classObj.startTime
                                 .subtract(Duration(minutes: 15)));
@@ -209,19 +202,6 @@ class _ClassViewState extends State<ClassView> {
           style: Theme.of(context).primaryTextTheme.title,
         ),
         backgroundColor: Theme.of(context).primaryColorDark,
-        actions: <Widget>[
-          IconButton(
-            tooltip: "Grades",
-            icon: Icon(
-              Icons.poll,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => GradeBookView()));
-            },
-          )
-        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
