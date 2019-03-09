@@ -9,7 +9,6 @@ import 'package:cognito/views/assignment_details_view.dart';
 import 'package:cognito/views/class_details_view.dart';
 import 'package:cognito/views/event_details_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/class.dart';
 import 'package:cognito/database/database.dart';
@@ -372,21 +371,109 @@ class _AgendaViewState extends State<AgendaView>
           ),
           backgroundColor: Theme.of(context).primaryColorDark,
         ),
-        body: ListView(
+        body: Column(
           children: <Widget>[
-            Calendar(
+            CalendarView(
               onDateSelected: (DateTime date) {
                 setState(() {
                   selectedDate = date;
                 });
               },
             ),
-            FilteredClassExpansion(term, selectedDate, database),
-            FilteredAssignmentExpansion(term, selectedDate, false, database),
-            FilteredAssignmentExpansion(term, selectedDate, true, database),
-            FilteredEventExpansion(term, selectedDate, database),
+            Expanded(
+              child: ListView(
+                children: <Widget>[
+                  FilteredClassExpansion(term, selectedDate, database),
+                  FilteredAssignmentExpansion(
+                      term, selectedDate, false, database),
+                  FilteredAssignmentExpansion(
+                      term, selectedDate, true, database),
+                  FilteredEventExpansion(term, selectedDate, database),
+                ],
+              ),
+            )
           ],
         ));
+  }
+}
+
+class CalendarView extends StatefulWidget {
+  final ValueChanged<DateTime> onDateSelected;
+  CalendarView({this.onDateSelected});
+
+  _CalendarViewState createState() => _CalendarViewState();
+}
+
+class _CalendarViewState extends State<CalendarView> {
+  List dayNames = ['Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun'];
+  DateTime _selectedDate = DateTime.now();
+
+  List<Widget> weeklyRow() {
+    List<Widget> calendar = List();
+
+    for (int i = _selectedDate.day; i < _selectedDate.day + 7; i++) {
+      Container c = Container(
+        width: 50,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            FlatButton(
+              onPressed: () {},
+              child: Text(
+                i.toString(),
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ),
+            Text(
+              dayNames[
+                  DateTime(_selectedDate.year, _selectedDate.month, i).weekday -
+                      1],
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            )
+          ],
+        ),
+      );
+
+      calendar.add(c);
+    }
+    return calendar;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+      color: Theme.of(context).primaryColorDark,
+      child: new Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              IconButton(
+                icon: Icon(Icons.arrow_back_ios),
+                onPressed: () {},
+                color: Colors.white,
+              ),
+              Expanded(
+                child: Container(
+                  height: 80.0,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: weeklyRow(),
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.arrow_forward_ios),
+                onPressed: () {},
+                color: Colors.white,
+              ),
+            ],
+          )
+        ],
+      ),
+    );
   }
 }
 
@@ -839,3 +926,4 @@ class _FilteredEventExpansionState extends State<FilteredEventExpansion> {
     );
   }
 }
+
