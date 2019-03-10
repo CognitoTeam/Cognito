@@ -357,7 +357,10 @@ class _DateRowState extends State<DateRow> {
 
     final DateTime picked = await showDatePicker(
       context: context,
-      initialDate: widget.assignment.dueDate,
+      initialDate: widget.assignment.dueDate != null
+          ? DateTime(widget.assignment.dueDate.year,
+              widget.assignment.dueDate.month, widget.assignment.dueDate.day)
+          : DateTime.now(),
       firstDate: DateTime(1990),
       lastDate: DateTime(3000),
     );

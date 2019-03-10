@@ -228,7 +228,9 @@ class _AssessmentDetailsViewState extends State<AssessmentDetailsView> {
 
     final DateTime picked = await showDatePicker(
       context: context,
-      initialDate: widget.assignment.dueDate,
+      initialDate: widget.assignment.dueDate != null
+            ? DateTime(widget.assignment.dueDate.year, widget.assignment.dueDate.month, widget.assignment.dueDate.day)
+            : DateTime.now(),
       firstDate: DateTime(1990),
       lastDate: DateTime(3000),
     );
@@ -249,7 +251,9 @@ class _AssessmentDetailsViewState extends State<AssessmentDetailsView> {
     await Future.delayed(Duration(milliseconds: 200));
 
     final TimeOfDay picked =
-        await showTimePicker(context: context, initialTime: TimeOfDay.now());
+        await showTimePicker(context: context, initialTime: widget.assignment.dueDate != null
+            ? TimeOfDay(hour: widget.assignment.dueDate.hour, minute: widget.assignment.dueDate.minute)
+            : TimeOfDay.now());
 
     if (picked != null) {
       setState(() {

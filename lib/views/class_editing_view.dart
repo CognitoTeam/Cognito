@@ -303,7 +303,13 @@ class _ClassEditingViewState extends State<ClassEditingView> {
 
     final TimeOfDay picked = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.now(),
+      initialTime: isStart
+          ? startTime != null
+              ? TimeOfDay(hour: startTime.hour, minute: startTime.minute)
+              : TimeOfDay.now()
+          : endTime != null
+              ? TimeOfDay(hour: endTime.hour, minute: endTime.minute)
+              : TimeOfDay.now(),
     );
 
     if (picked != null) {

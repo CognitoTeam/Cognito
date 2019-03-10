@@ -92,7 +92,13 @@ class _AddEventViewState extends State<AddEventView> {
 
     final TimeOfDay picked = await showTimePicker(
       context: context,
-      initialTime: isStart ? startTime != null ? TimeOfDay(hour: startTime.hour, minute: startTime.minute) :TimeOfDay.now() : endTime != null ? TimeOfDay(hour: endTime.hour, minute: endTime.minute) :TimeOfDay.now(),
+      initialTime: isStart
+          ? startTime != null
+              ? TimeOfDay(hour: startTime.hour, minute: startTime.minute)
+              : TimeOfDay.now()
+          : endTime != null
+              ? TimeOfDay(hour: endTime.hour, minute: endTime.minute)
+              : TimeOfDay.now(),
     );
 
     if (picked != null) {
@@ -105,7 +111,8 @@ class _AddEventViewState extends State<AddEventView> {
       });
     }
   }
-AcademicTerm getCurrentTerm() {
+
+  AcademicTerm getCurrentTerm() {
     for (AcademicTerm term in database.allTerms.terms) {
       if (DateTime.now().isAfter(term.startTime) &&
           DateTime.now().isBefore(term.endTime)) {
@@ -114,6 +121,7 @@ AcademicTerm getCurrentTerm() {
     }
     return null;
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -133,8 +141,7 @@ AcademicTerm getCurrentTerm() {
                       isRepeated: _isRepeated,
                       start: startTime,
                       end: endTime,
-                      id: getCurrentTerm().getID()
-                    )
+                      id: getCurrentTerm().getID())
                   : null);
             },
           )
