@@ -40,7 +40,14 @@ class _AddTermViewState extends State<AddTermView> {
 
     final DateTime picked = await showDatePicker(
         context: context,
-        initialDate: DateTime.now(),
+        initialDate: isStart
+            ? newStartDate != null
+                ? DateTime(
+                    newStartDate.year, newStartDate.month, newStartDate.day)
+                : DateTime.now()
+            : newEndDate != null
+                ? DateTime(newEndDate.year, newEndDate.month, newEndDate.day)
+                : DateTime.now(),
         firstDate: DateTime(1990),
         lastDate: DateTime(3000));
 

@@ -90,7 +90,9 @@ class _AddTaskViewState extends State<AddTaskView> {
 
     final DateTime picked = await showDatePicker(
         context: context,
-        initialDate: DateTime.now(),
+        initialDate: dueDate != null
+            ? DateTime(dueDate.year, dueDate.month, dueDate.day)
+            : DateTime.now(),
         firstDate: DateTime(1990),
         lastDate: DateTime(3000));
 

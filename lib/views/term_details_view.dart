@@ -138,7 +138,15 @@ class _DateRowState extends State<DateRow> {
 
     final DateTime picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: widget._isStart
+          ? widget.term.startTime != null
+              ? DateTime(widget.term.startTime.year,
+                  widget.term.startTime.month, widget.term.startTime.day)
+              : DateTime.now()
+          : widget.term.endTime != null
+              ? DateTime(widget.term.endTime.year, widget.term.endTime.month,
+                  widget.term.endTime.day)
+              : DateTime.now(),
       firstDate: DateTime(1990),
       lastDate: DateTime(3000),
     );

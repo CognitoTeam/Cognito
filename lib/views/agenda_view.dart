@@ -5,6 +5,7 @@ import 'package:cognito/views/add_assessment_view.dart';
 import 'package:cognito/views/add_assignment_view.dart';
 import 'package:cognito/views/add_event_view.dart';
 import 'package:cognito/views/assessment_details_view.dart';
+import 'package:cognito/views/assignment_details_view.dart';
 import 'package:cognito/views/class_details_view.dart';
 import 'package:cognito/views/event_details_view.dart';
 import 'package:flutter/material.dart';
@@ -643,12 +644,12 @@ class _FilteredAssignmentExpansionState
                     noti.cancelNotification(a.id);
                     Assignment result =
                         await Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => AssessmentDetailsView(
+                            builder: (context) => AssignmentDetailsView(
                                   aClass: c,
                                   assignment: a,
                                 )));
                     if (result != null) {
-                      print("Assessment updated: " + result.title);
+                      print("Assignment updated: " + result.title);
                       DateTime dateTime = DateTime(
                           result.dueDate.year,
                           result.dueDate.month,

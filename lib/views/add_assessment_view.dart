@@ -57,8 +57,17 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
       subtitle: subtitle,
     );
   }
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      dueDate = DateTime.now();
+    });
+  }
+
 // get current academic term
-AcademicTerm getCurrentTerm() {
+  AcademicTerm getCurrentTerm() {
     for (AcademicTerm term in database.allTerms.terms) {
       if (DateTime.now().isAfter(term.startTime) &&
           DateTime.now().isBefore(term.endTime)) {
@@ -67,6 +76,7 @@ AcademicTerm getCurrentTerm() {
     }
     return null;
   }
+
   void selectDay(Day day) {
     setState(() {
       daysOfEvent.add(day.index + 1);
@@ -284,6 +294,7 @@ AcademicTerm getCurrentTerm() {
     );
     return listCategories;
   }
+
 // Returns a column widget containg 7 checkboxes for day selection
   Column daySelectionColumn(Day day) {
     return Column(
@@ -317,14 +328,17 @@ AcademicTerm getCurrentTerm() {
 
     final DateTime picked = await showDatePicker(
         context: context,
-        initialDate: DateTime.now(),
+        initialDate: dueDate != null
+            ? DateTime(dueDate.year, dueDate.month, dueDate.day)
+            : DateTime.now(),
         firstDate: DateTime(1990),
         lastDate: DateTime(3000));
 
     if (picked != null) {
       print("Date selected: ${picked.toString()}");
       setState(() {
-        dueDate = picked;
+        dueDate = DateTime(picked.year, picked.month, picked.day, dueDate.hour,
+            dueDate.minute);
       });
     }
   }
@@ -336,8 +350,11 @@ AcademicTerm getCurrentTerm() {
     // Add delay to be sure keyboard is no longer visible
     await Future.delayed(Duration(milliseconds: 200));
 
-    final TimeOfDay picked =
-        await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    final TimeOfDay picked = await showTimePicker(
+        context: context,
+        initialTime: dueDate != null
+            ? TimeOfDay(hour: dueDate.hour, minute: dueDate.minute)
+            : TimeOfDay.now());
 
     if (picked != null) {
       setState(() {
