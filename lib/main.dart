@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
     return new MaterialApp(
       title: "UniPlan",
       theme: ThemeData(
-        primaryColor: Color(0xFF3849aa),
+        primaryColor: Color(0xFF00227a),
         primaryColorLight: Color(0xFF6e74dc),
         primaryColorDark: Color(0xFF00227a),
         accentColor: Color(0xFFfbc02d),
