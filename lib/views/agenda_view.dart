@@ -1,3 +1,4 @@
+// Copyright 2019 UniPlan. All rights reserved.
 import 'package:cognito/database/notifications.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/event.dart';
@@ -6,6 +7,7 @@ import 'package:cognito/views/add_assignment_view.dart';
 import 'package:cognito/views/add_event_view.dart';
 import 'package:cognito/views/assessment_details_view.dart';
 import 'package:cognito/views/assignment_details_view.dart';
+import 'package:cognito/views/calendar_view.dart';
 import 'package:cognito/views/class_details_view.dart';
 import 'package:cognito/views/event_details_view.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +16,6 @@ import 'package:cognito/models/class.dart';
 import 'package:cognito/database/database.dart';
 import 'package:cognito/views/main_drawer.dart';
 import 'package:intl/intl.dart';
-import 'package:date_utils/date_utils.dart';
 
 /// Agenda view screen
 /// Displays daily agenda
@@ -396,187 +397,6 @@ class _AgendaViewState extends State<AgendaView>
             )
           ],
         ));
-  }
-}
-
-class CalendarView extends StatefulWidget {
-  final ValueChanged<DateTime> onDateSelected;
-  CalendarView({this.onDateSelected});
-
-  _CalendarViewState createState() => _CalendarViewState();
-}
-
-class _CalendarViewState extends State<CalendarView> {
-  List dayNames = ['Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun'];
-  DateTime selectedDate = DateTime.now();
-  FlatButton currentButton;
-  Iterable<DateTime> selectedWeeksDays;
-  ScrollController _scrollController;
-  void initState() {
-    super.initState();
-    _scrollController = new ScrollController(initialScrollOffset: 90);
-    updateWeekList();
-    print(selectedWeeksDays);
-  }
-
-  void updateWeekList() {
-    setState(() {
-      selectedWeeksDays =
-          Utils.daysInRange(selectedDate, selectedDate.add(Duration(days: 7)))
-              .toList()
-              .sublist(0, 7);
-    });
-  }
-
-  void initializeTimeList() {
-    for (int i = selectedDate.day; i < selectedDate.day + 7; i++) {}
-  }
-
-  List<Widget> weeklyRow() {
-    List<Widget> calendar = List();
-    calendar.add(FlatButton(
-      onPressed: () {
-        setState(() {
-          selectedDate = selectedDate.subtract(Duration(days: 7));
-          widget.onDateSelected(selectedDate);
-          updateWeekList();
-          _scrollController.animateTo(90,
-              duration: Duration(seconds: 1), curve: Curves.ease);
-          print(selectedDate);
-        });
-      },
-      child: Text("Previous\nWeek",
-          style: TextStyle(color: Colors.white, fontSize: 15)),
-    ));
-    for (DateTime d in selectedWeeksDays) {
-      bool selected = d.day == selectedDate.day &&
-          d.month == selectedDate.month &&
-          d.year == selectedDate.year;
-      SizedBox c = SizedBox(
-        width: 75.0,
-        child: FlatButton(
-          onPressed: () {
-            setState(() {
-              selectedDate = d;
-              widget.onDateSelected(selectedDate);
-            });
-
-            print(selectedDate);
-          },
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                d.day.toString(),
-                style: TextStyle(
-                    color: selected ? Colors.white : Colors.grey,
-                    fontSize: selected ? 23 : 20),
-              ),
-              Text(
-                dayNames[DateTime(selectedDate.year, selectedDate.month, d.day)
-                        .weekday -
-                    1],
-                style: TextStyle(
-                    color: selected ? Colors.white : Colors.grey,
-                    fontSize: selected ? 19 : 16),
-              )
-            ],
-          ),
-        ),
-      );
-      calendar.add(c);
-    }
-    calendar.add(FlatButton(
-      onPressed: () {
-        setState(() {
-          selectedDate = selectedDate.add(Duration(days: 7));
-          widget.onDateSelected(selectedDate);
-          updateWeekList();
-          _scrollController.animateTo(90,
-              duration: Duration(seconds: 1), curve: Curves.ease);
-          print(selectedDate);
-        });
-      },
-      child: Text("Next\nWeek",
-          style: TextStyle(color: Colors.white, fontSize: 15)),
-    ));
-    return calendar;
-  }
-
-  Future<Null> _selectDate(BuildContext context) async {
-    final DateTime picked = await showDatePicker(
-        context: context,
-        initialDate: selectedDate != null
-            ? DateTime(selectedDate.year, selectedDate.month, selectedDate.day)
-            : DateTime.now(),
-        firstDate: DateTime(1990),
-        lastDate: DateTime(3000));
-
-    if (picked != null) {
-      print("Date selected: ${picked.toString()}");
-      setState(() {
-        selectedDate = picked;
-        updateWeekList();
-        widget.onDateSelected(selectedDate);
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return new Container(
-      color: Theme.of(context).primaryColorDark,
-      child: new Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Expanded(
-                child: Container(
-                  height: 60.0,
-                  child: ListView(
-                    controller: _scrollController,
-                    scrollDirection: Axis.horizontal,
-                    children: weeklyRow(),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                IconButton(
-                  iconSize: 20,
-                  icon: Icon(Icons.calendar_today),
-                  color: Colors.white,
-                  onPressed: () {
-                    _selectDate(context);
-                  },
-                ),
-                FlatButton(
-                  child: Text(
-                    "Today",
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      selectedDate = DateTime.now();
-                      _scrollController.animateTo(90,
-                          duration: Duration(seconds: 1), curve: Curves.ease);
-                      widget.onDateSelected(selectedDate);
-                      updateWeekList();
-                    });
-
-                    print(selectedDate);
-                  },
-                )
-              ]),
-        ],
-      ),
-    );
   }
 }
 
