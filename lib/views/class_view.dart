@@ -133,6 +133,7 @@ class _ClassViewState extends State<ClassView> {
                 ));
               },
               child: Card(
+                elevation: 10.0,
                 color: Theme.of(context).primaryColor,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30.0)),
@@ -161,8 +162,7 @@ class _ClassViewState extends State<ClassView> {
                     ),
                     onPressed: () async {
                       for (int i in classObj.daysOfEvent) {
-                        noti.cancelNotification(
-                            classObj.id);
+                        noti.cancelNotification(classObj.id);
                       }
                       await Navigator.push(
                           context,

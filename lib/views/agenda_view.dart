@@ -1,3 +1,4 @@
+// Copyright 2019 UniPlan. All rights reserved.
 import 'package:cognito/database/notifications.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/event.dart';
@@ -6,10 +7,10 @@ import 'package:cognito/views/add_assignment_view.dart';
 import 'package:cognito/views/add_event_view.dart';
 import 'package:cognito/views/assessment_details_view.dart';
 import 'package:cognito/views/assignment_details_view.dart';
+import 'package:cognito/views/calendar_view.dart';
 import 'package:cognito/views/class_details_view.dart';
 import 'package:cognito/views/event_details_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/class.dart';
 import 'package:cognito/database/database.dart';
@@ -366,25 +367,34 @@ class _AgendaViewState extends State<AgendaView>
         ),
         drawer: MainDrawer(),
         appBar: AppBar(
+          elevation: 0,
           title: Text(
-            "Agenda",
+            DateFormat.MMMMEEEEd().format(selectedDate),
             style: Theme.of(context).primaryTextTheme.title,
           ),
           backgroundColor: Theme.of(context).primaryColorDark,
         ),
-        body: ListView(
+        body: Column(
           children: <Widget>[
-            Calendar(
+            CalendarView(
               onDateSelected: (DateTime date) {
                 setState(() {
                   selectedDate = date;
                 });
               },
             ),
-            FilteredClassExpansion(term, selectedDate, database),
-            FilteredAssignmentExpansion(term, selectedDate, false, database),
-            FilteredAssignmentExpansion(term, selectedDate, true, database),
-            FilteredEventExpansion(term, selectedDate, database),
+            Expanded(
+              child: ListView(
+                children: <Widget>[
+                  FilteredClassExpansion(term, selectedDate, database),
+                  FilteredAssignmentExpansion(
+                      term, selectedDate, false, database),
+                  FilteredAssignmentExpansion(
+                      term, selectedDate, true, database),
+                  FilteredEventExpansion(term, selectedDate, database),
+                ],
+              ),
+            )
           ],
         ));
   }
