@@ -464,6 +464,7 @@ class _CalendarViewState extends State<CalendarView> {
             print(selectedDate);
           },
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
                 d.day.toString(),
