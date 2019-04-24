@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+
 import 'package:cognito/models/event.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 /// Event Details view
@@ -16,11 +17,135 @@ class EventDetailsView extends StatefulWidget {
 }
 
 class _EventDetailsViewState extends State<EventDetailsView> {
+  TextEditingController _titleController = TextEditingController();
   TextEditingController _locationController = TextEditingController();
   TextEditingController _descriptionController = TextEditingController();
   bool _isRepeated = false;
   DateTime startTime, endTime;
   List<int> daysOfEvent = List();
+
+  //  Stepper
+  //  init step to 0th position
+  int currentStep = 0;
+
+  /// Return list of [Step] objects representing the different kinds of inputs
+  /// Needed to edit an [Event]
+  List<Step> getSteps() {
+    return [
+      Step(
+          title: Text(
+            "Event title",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content:
+              textFieldTile(hint: "Event title", controller: _titleController),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text(
+            "Location",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content:
+              textFieldTile(hint: "Location", controller: _locationController),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text(
+            "Description",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content: ListTile(
+            title: TextFormField(
+              controller: _descriptionController,
+              autofocus: false,
+              style: Theme.of(context).accentTextTheme.body1,
+              keyboardType: TextInputType.multiline,
+              textInputAction: TextInputAction.done,
+              maxLines: 5,
+              decoration: InputDecoration(
+                  hintText: "Description",
+                  hintStyle: TextStyle(color: Colors.black45)),
+            ),
+          ),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text(
+            "Start and End times",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content: _timeSelectionColumn(),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text(
+            "Days repeated",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content: _repeatingDaySelectionTile(),
+          state: StepState.indexed,
+          isActive: true),
+    ];
+  }
+
+  /// Returns [ListTile] widget containing checkboxes that represent the
+  /// days in the week that this [Class] repeats
+  ListTile _repeatingDaySelectionTile() {
+    return ListTile(
+      title: Column(
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              daySelectionColumn(Day.M),
+              daySelectionColumn(Day.Tu),
+              daySelectionColumn(Day.W),
+              daySelectionColumn(Day.Th),
+              daySelectionColumn(Day.F),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              daySelectionColumn(Day.Sat),
+              daySelectionColumn(Day.Sun),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  /// Returns a [Column] containing the start and end time selection tiles
+  Column _timeSelectionColumn() {
+    return Column(
+      children: <Widget>[
+        _timeSelectionTile(true),
+        Divider(),
+        _timeSelectionTile(false),
+      ],
+    );
+  }
+
+  /// Returns a [ListTile] for selecting the start or end time depending on
+  /// the boolean input.
+  ListTile _timeSelectionTile(bool isStart) {
+    return ListTile(
+      leading: Icon(Icons.access_time),
+      title: Text(
+        isStart ? "Select Start Time" : "Select End Time",
+        style: Theme.of(context).accentTextTheme.body2,
+      ),
+      trailing: isStart
+          ? Text(
+              startTime != null ? DateFormat.jm().format(startTime) : "",
+            )
+          : Text(endTime != null ? DateFormat.jm().format(endTime) : ""),
+      onTap: () => _selectTime(isStart, context),
+    );
+  }
+
   ListTile textFieldTile(
       {Widget leading,
       Widget trailing,
@@ -48,6 +173,7 @@ class _EventDetailsViewState extends State<EventDetailsView> {
   @override
   void initState() {
     super.initState();
+    _titleController = TextEditingController(text: widget.event.title);
     _descriptionController =
         TextEditingController(text: widget.event.description);
     _locationController = TextEditingController(text: widget.event.location);
@@ -135,111 +261,43 @@ class _EventDetailsViewState extends State<EventDetailsView> {
             Navigator.of(context).pop(widget.event);
           },
         ),
-        title: Text(widget.event.title),
+        title: Text("Edit Event"),
         backgroundColor: Theme.of(context).primaryColorDark,
-        actions: <Widget>[
-          // Edit term title
-          IconButton(
-            icon: Icon(
-              Icons.edit,
-              color: Colors.white,
-            ),
-            onPressed: () async {
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return SimpleDialog(
-                      title: Text("Change Event Title"),
-                      children: <Widget>[
-                        TextFormField(
-                          initialValue: widget.event.title,
-                          style: Theme.of(context).accentTextTheme.body2,
-                          decoration: InputDecoration(
-                            hintText: "Event Title",
-                            hintStyle: TextStyle(color: Colors.black45),
-                            contentPadding:
-                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                          ),
-                          onFieldSubmitted: (val) {
-                            print(val);
-                            setState(() {
-                              widget.event.title = val;
-                            });
-                            Navigator.pop(context);
-                          },
-                          textInputAction: TextInputAction.done,
-                        )
-                      ],
-                    );
-                  });
-            },
-          ),
-        ],
       ),
-      body: ListView(
-        children: <Widget>[
-          Padding(padding: EdgeInsets.all(0.0)),
-          textFieldTile(hint: "Location", controller: _locationController),
-          ListTile(
-            title: TextFormField(
-              controller: _descriptionController,
-              autofocus: false,
-              style: Theme.of(context).accentTextTheme.body1,
-              keyboardType: TextInputType.multiline,
-              textInputAction: TextInputAction.done,
-              maxLines: 5,
-              decoration: InputDecoration(
-                  hintText: "Description",
-                  hintStyle: TextStyle(color: Colors.black45)),
-            ),
-          ),
-          ListTile(
-            leading: Icon(Icons.access_time),
-            title: Text(
-              "Select Start Time",
-              style: Theme.of(context).accentTextTheme.body2,
-            ),
-            trailing: Text(
-              startTime != null ? DateFormat.jm().format(startTime) : "",
-            ),
-            onTap: () => _selectTime(true, context),
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.access_time),
-            title: Text(
-              "Select End Time",
-              style: Theme.of(context).accentTextTheme.body2,
-            ),
-            trailing: Text(
-              endTime != null ? DateFormat.jm().format(endTime) : "",
-            ),
-            onTap: () => _selectTime(false, context),
-          ),
-          Divider(),
-          Text(
-            "Repeat",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 20.0,
-            ),
-          ),
-          Divider(),
-          ListTile(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                daySelectionColumn(Day.Sun),
-                daySelectionColumn(Day.M),
-                daySelectionColumn(Day.Tu),
-                daySelectionColumn(Day.W),
-                daySelectionColumn(Day.Th),
-                daySelectionColumn(Day.F),
-                daySelectionColumn(Day.Sat),
-              ],
-            ),
-          ),
-        ],
+      body: Stepper(
+        currentStep: this.currentStep,
+        steps: getSteps(),
+        type: StepperType.vertical,
+        onStepTapped: (step) {
+          setState(() {
+            currentStep = step;
+          });
+        },
+        onStepCancel: () {
+          setState(() {
+            if (currentStep > 0) {
+              currentStep--;
+            } else {
+              currentStep = 0;
+            }
+          });
+        },
+        onStepContinue: () {
+          setState(() {
+            if (currentStep < getSteps().length - 1) {
+              currentStep++;
+            } else {
+              widget.event.title = _titleController.text;
+              widget.event.location = _locationController.text;
+              widget.event.description = _descriptionController.text;
+              widget.event.daysOfEvent = daysOfEvent;
+              widget.event.isRepeated = _isRepeated;
+              widget.event.startTime = startTime;
+              widget.event.endTime = endTime;
+              Navigator.of(context).pop(widget.event);
+            }
+          });
+        },
       ),
     );
   }

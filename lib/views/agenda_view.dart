@@ -1,6 +1,9 @@
 // Copyright 2019 UniPlan. All rights reserved.
+import 'package:cognito/database/database.dart';
 import 'package:cognito/database/notifications.dart';
+import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/assignment.dart';
+import 'package:cognito/models/class.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/views/add_assessment_view.dart';
 import 'package:cognito/views/add_assignment_view.dart';
@@ -10,11 +13,8 @@ import 'package:cognito/views/assignment_details_view.dart';
 import 'package:cognito/views/calendar_view.dart';
 import 'package:cognito/views/class_details_view.dart';
 import 'package:cognito/views/event_details_view.dart';
-import 'package:flutter/material.dart';
-import 'package:cognito/models/academic_term.dart';
-import 'package:cognito/models/class.dart';
-import 'package:cognito/database/database.dart';
 import 'package:cognito/views/main_drawer.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 /// Agenda view screen
@@ -782,6 +782,7 @@ class _FilteredEventExpansionState extends State<FilteredEventExpansion> {
                         event: e,
                       )));
               if (result != null) {
+                e = result;
                 print("Event updated: " + result.title);
                 if (result.daysOfEvent.isNotEmpty) {
                   for (int i in result.daysOfEvent) {
