@@ -23,14 +23,20 @@ class _AssessmentDetailsViewState extends State<AssessmentDetailsView> {
   TextEditingController _descriptionController;
   TextEditingController _earnedController;
   TextEditingController _possibleController;
-
+  TextEditingController _titleController;
   TextEditingController _categoryTitle = TextEditingController();
   TextEditingController _categoryWeight = TextEditingController();
   TextEditingController _categoryTitleEdit = TextEditingController();
   TextEditingController _categoryWeightEdit = TextEditingController();
+
+  //  Stepper
+  //  init step to 0th position
+  int currentStep = 0;
+
   @override
   void initState() {
     super.initState();
+    _titleController = TextEditingController(text: widget.assignment.title);
     _descriptionController =
         TextEditingController(text: widget.assignment.description);
     _earnedController =
@@ -221,24 +227,30 @@ class _AssessmentDetailsViewState extends State<AssessmentDetailsView> {
   }
 
   Future<Null> _selectDate(BuildContext context) async {
-    // Make sure keyboard is hidden before showing date picker
+    // Hide keyboard before showing date picker
     FocusScope.of(context).requestFocus(FocusNode());
 
+    // Add delay to be sure keyboard is no longer visible
     await Future.delayed(Duration(milliseconds: 200));
 
     final DateTime picked = await showDatePicker(
-      context: context,
-      initialDate: widget.assignment.dueDate != null
-            ? DateTime(widget.assignment.dueDate.year, widget.assignment.dueDate.month, widget.assignment.dueDate.day)
+        context: context,
+        initialDate: widget.assignment.dueDate != null
+            ? DateTime(widget.assignment.dueDate.year,
+                widget.assignment.dueDate.month, widget.assignment.dueDate.day)
             : DateTime.now(),
-      firstDate: DateTime(1990),
-      lastDate: DateTime(3000),
-    );
+        firstDate: DateTime(1990),
+        lastDate: DateTime(3000));
 
     if (picked != null) {
       print("Date selected: ${picked.toString()}");
       setState(() {
-        widget.assignment.dueDate = picked;
+        widget.assignment.dueDate = DateTime(
+            picked.year,
+            picked.month,
+            picked.day,
+            widget.assignment.dueDate.hour,
+            widget.assignment.dueDate.minute);
       });
     }
   }
@@ -250,9 +262,12 @@ class _AssessmentDetailsViewState extends State<AssessmentDetailsView> {
     // Add delay to be sure keyboard is no longer visible
     await Future.delayed(Duration(milliseconds: 200));
 
-    final TimeOfDay picked =
-        await showTimePicker(context: context, initialTime: widget.assignment.dueDate != null
-            ? TimeOfDay(hour: widget.assignment.dueDate.hour, minute: widget.assignment.dueDate.minute)
+    final TimeOfDay picked = await showTimePicker(
+        context: context,
+        initialTime: widget.assignment.dueDate != null
+            ? TimeOfDay(
+                hour: widget.assignment.dueDate.hour,
+                minute: widget.assignment.dueDate.minute)
             : TimeOfDay.now());
 
     if (picked != null) {
@@ -267,71 +282,23 @@ class _AssessmentDetailsViewState extends State<AssessmentDetailsView> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: BackButtonIcon(),
-          onPressed: () {
-            print("Returning a assessment");
-            widget.assignment.description = _descriptionController.text;
-            widget.assignment.pointsEarned =
-                double.parse(_earnedController.text);
-            widget.assignment.pointsPossible =
-                double.parse(_possibleController.text);
-
-            Navigator.of(context).pop(widget.assignment);
-          },
-        ),
-        title: Text(
-          widget.assignment.title,
-          style: Theme.of(context).primaryTextTheme.title,
-        ),
-        backgroundColor: Theme.of(context).primaryColorDark,
-        actions: <Widget>[
-          // Edit term title
-          IconButton(
-            icon: Icon(
-              Icons.edit,
-              color: Colors.white,
-            ),
-            onPressed: () async {
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return SimpleDialog(
-                      title: Text("Change Assessment Title"),
-                      children: <Widget>[
-                        TextFormField(
-                          initialValue: widget.assignment.title,
-                          style: Theme.of(context).accentTextTheme.body2,
-                          decoration: InputDecoration(
-                            hintText: "Assessment Title",
-                            hintStyle: TextStyle(color: Colors.black45),
-                            contentPadding:
-                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                          ),
-                          onFieldSubmitted: (val) {
-                            print(val);
-                            setState(() {
-                              widget.assignment.title = val;
-                            });
-                            Navigator.pop(context);
-                          },
-                          textInputAction: TextInputAction.done,
-                        )
-                      ],
-                    );
-                  });
-            },
+  List<Step> getSteps() {
+    return [
+      Step(
+          title: Text(
+            "Assessment title",
+            style: Theme.of(context).accentTextTheme.body1,
           ),
-        ],
-      ),
-      body: Container(
-          child: Column(
-        children: <Widget>[
-          ListTile(
+          content: textFieldTile(
+              hint: "Assessment title", controller: _titleController),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text(
+            "Description",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content: ListTile(
             title: TextFormField(
               controller: _descriptionController,
               autofocus: false,
@@ -339,36 +306,36 @@ class _AssessmentDetailsViewState extends State<AssessmentDetailsView> {
               keyboardType: TextInputType.multiline,
               textInputAction: TextInputAction.done,
               maxLines: 5,
-            ),
-          ),
-          ListTile(
-            title: TextFormField(
-              controller: _earnedController,
-              autofocus: false,
-              style: Theme.of(context).accentTextTheme.body1,
-              keyboardType: TextInputType.number,
-              textInputAction: TextInputAction.done,
               decoration: InputDecoration(
-                  hintText: "Points earned",
+                  hintText: "Description",
                   hintStyle: TextStyle(color: Colors.black45)),
             ),
           ),
-          ListTile(
-            title: TextFormField(
-              controller: _possibleController,
-              autofocus: false,
-              style: Theme.of(context).accentTextTheme.body1,
-              keyboardType: TextInputType.number,
-              textInputAction: TextInputAction.done,
-              decoration: InputDecoration(
-                  hintText: "Possible points",
-                  hintStyle: TextStyle(color: Colors.black45)),
-            ),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text(
+            "Points earned",
+            style: Theme.of(context).accentTextTheme.body1,
           ),
-          ListTile(
-            leading: Icon(Icons.calendar_today),
+          content: textFieldTile(
+              hint: "Points earned", controller: _earnedController),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text(
+            "Points possible",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content: textFieldTile(
+              hint: "Points possible", controller: _possibleController),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text("Exam/Quiz Date"),
+          content: ListTile(
             title: Text(
-              "Exam/Quiz Date",
+              "Date",
               style: Theme.of(context).accentTextTheme.body1,
             ),
             trailing: Text(
@@ -378,10 +345,14 @@ class _AssessmentDetailsViewState extends State<AssessmentDetailsView> {
             ),
             onTap: () => _selectDate(context),
           ),
-          ListTile(
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text("Exam/Quiz Time"),
+          content: ListTile(
             leading: Icon(Icons.access_time),
             title: Text(
-              "Exam/Quiz Time",
+              "Time",
               style: Theme.of(context).accentTextTheme.body1,
             ),
             trailing: Text(
@@ -391,15 +362,80 @@ class _AssessmentDetailsViewState extends State<AssessmentDetailsView> {
             ),
             onTap: () => _selectTime(context),
           ),
-          ExpansionTile(
-              leading: Icon(Icons.category),
-              title: Text(
-                _categoryListTitle,
-                style: Theme.of(context).accentTextTheme.body2,
-              ),
-              children: _listOfCategories()),
-        ],
-      )),
-    );
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+        title: Text("Select a category"),
+        state: StepState.indexed,
+        isActive: true,
+        content: ExpansionTile(
+            title: Text(
+              _categoryListTitle,
+              style: Theme.of(context).accentTextTheme.body2,
+            ),
+            children: _listOfCategories()),
+      )
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: BackButtonIcon(),
+            onPressed: () {
+              print("Returning a assessment");
+              widget.assignment.title = _titleController.text;
+              widget.assignment.description = _descriptionController.text;
+              widget.assignment.pointsEarned =
+                  double.parse(_earnedController.text);
+              widget.assignment.pointsPossible =
+                  double.parse(_possibleController.text);
+
+              Navigator.of(context).pop(widget.assignment);
+            },
+          ),
+          title: Text(
+            widget.assignment.title,
+            style: Theme.of(context).primaryTextTheme.title,
+          ),
+          backgroundColor: Theme.of(context).primaryColorDark,
+        ),
+        body: Stepper(
+          currentStep: this.currentStep,
+          type: StepperType.vertical,
+          steps: getSteps(),
+          onStepTapped: (step) {
+            setState(() {
+              currentStep = step;
+            });
+          },
+          onStepCancel: () {
+            setState(() {
+              if (currentStep > 0) {
+                currentStep--;
+              } else {
+                currentStep = 0;
+              }
+            });
+          },
+          onStepContinue: () {
+            setState(() {
+              if (currentStep < getSteps().length - 1) {
+                currentStep++;
+              } else {
+                print("Returning a assessment");
+                widget.assignment.title = _titleController.text;
+                widget.assignment.description = _descriptionController.text;
+                widget.assignment.pointsEarned =
+                    double.parse(_earnedController.text);
+                widget.assignment.pointsPossible =
+                    double.parse(_possibleController.text);
+                Navigator.of(context).pop(widget.assignment);
+              }
+            });
+          },
+        ));
   }
 }

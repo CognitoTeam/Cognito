@@ -32,6 +32,10 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
   final TextEditingController _categoryTitleEdit = TextEditingController();
   final TextEditingController _categoryWeightEdit = TextEditingController();
   bool _isRepeated = false;
+
+  //  Stepper
+  //  init step to 0th position
+  int currentStep = 0;
   DateTime dueDate;
   List<int> daysOfEvent = List();
   ListTile textFieldTile(
@@ -56,6 +60,97 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
       ),
       subtitle: subtitle,
     );
+  }
+
+  List<Step> getSteps() {
+    return [
+      Step(
+          title: Text(
+            "Assessment title",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content: textFieldTile(
+              hint: "Assessment title", controller: _titleController),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text(
+            "Description",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content: ListTile(
+            title: TextFormField(
+              controller: _descriptionController,
+              autofocus: false,
+              style: Theme.of(context).accentTextTheme.body1,
+              keyboardType: TextInputType.multiline,
+              textInputAction: TextInputAction.done,
+              maxLines: 5,
+              decoration: InputDecoration(
+                  hintText: "Description",
+                  hintStyle: TextStyle(color: Colors.black45)),
+            ),
+          ),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text(
+            "Points earned",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content: textFieldTile(
+              hint: "Points earned", controller: _earnedController),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text(
+            "Points possible",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content: textFieldTile(
+              hint: "Points possible", controller: _possibleController),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text("Exam/Quiz Date"),
+          content: ListTile(
+            title: Text(
+              "Date",
+              style: Theme.of(context).accentTextTheme.body1,
+            ),
+            trailing: Text(
+              dueDate != null ? DateFormat.yMd().format(dueDate) : "",
+            ),
+            onTap: () => _selectDate(context),
+          ),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text("Exam/Quiz Time"),
+          content: ListTile(
+            title: Text(
+              "Time",
+              style: Theme.of(context).accentTextTheme.body1,
+            ),
+            trailing: Text(
+              dueDate != null ? DateFormat.jm().format(dueDate) : "",
+            ),
+            onTap: () => _selectTime(context),
+          ),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+        title: Text("Select a category"),
+        state: StepState.indexed,
+        isActive: true,
+        content: ExpansionTile(
+            title: Text(
+              _categoryListTitle,
+              style: Theme.of(context).accentTextTheme.body2,
+            ),
+            children: _listOfCategories()),
+      )
+    ];
   }
 
   @override
@@ -390,77 +485,44 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
             )
           ],
         ),
-        body: ListView(
-          children: <Widget>[
-            Padding(padding: EdgeInsets.all(0.0)),
-            textFieldTile(hint: "Title", controller: _titleController),
-            ListTile(
-              title: TextFormField(
-                controller: _descriptionController,
-                autofocus: false,
-                style: Theme.of(context).accentTextTheme.body1,
-                keyboardType: TextInputType.multiline,
-                textInputAction: TextInputAction.done,
-                maxLines: 5,
-                decoration: InputDecoration(
-                    hintText: "Description",
-                    hintStyle: TextStyle(color: Colors.black45)),
-              ),
-            ),
-            ListTile(
-              title: TextFormField(
-                controller: _earnedController,
-                autofocus: false,
-                style: Theme.of(context).accentTextTheme.body1,
-                keyboardType: TextInputType.number,
-                textInputAction: TextInputAction.done,
-                decoration: InputDecoration(
-                    hintText: "Points earned",
-                    hintStyle: TextStyle(color: Colors.black45)),
-              ),
-            ),
-            ListTile(
-              title: TextFormField(
-                controller: _possibleController,
-                autofocus: false,
-                style: Theme.of(context).accentTextTheme.body1,
-                keyboardType: TextInputType.number,
-                textInputAction: TextInputAction.done,
-                decoration: InputDecoration(
-                    hintText: "Possible points",
-                    hintStyle: TextStyle(color: Colors.black45)),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.calendar_today),
-              title: Text(
-                "Exam/Quiz Date",
-                style: Theme.of(context).accentTextTheme.body1,
-              ),
-              trailing: Text(
-                dueDate != null ? DateFormat.yMd().format(dueDate) : "",
-              ),
-              onTap: () => _selectDate(context),
-            ),
-            ListTile(
-              leading: Icon(Icons.access_time),
-              title: Text(
-                "Exam/Quiz Time",
-                style: Theme.of(context).accentTextTheme.body1,
-              ),
-              trailing: Text(
-                dueDate != null ? DateFormat.jm().format(dueDate) : "",
-              ),
-              onTap: () => _selectTime(context),
-            ),
-            ExpansionTile(
-                leading: Icon(Icons.category),
-                title: Text(
-                  _categoryListTitle,
-                  style: Theme.of(context).accentTextTheme.body2,
-                ),
-                children: _listOfCategories()),
-          ],
+        body: Stepper(
+          currentStep: this.currentStep,
+          type: StepperType.vertical,
+          steps: getSteps(),
+          onStepTapped: (step) {
+            setState(() {
+              currentStep = step;
+            });
+          },
+          onStepCancel: () {
+            setState(() {
+              if (currentStep > 0) {
+                currentStep--;
+              } else {
+                currentStep = 0;
+              }
+            });
+          },
+          onStepContinue: () {
+            setState(() {
+              if (currentStep < getSteps().length - 1) {
+                currentStep++;
+              } else {
+                Navigator.of(context).pop(_titleController != null
+                    ? Assignment(
+                        category: category,
+                        pointsEarned: double.parse(_earnedController.text),
+                        pointsPossible: double.parse(_possibleController.text),
+                        title: _titleController.text,
+                        isAssessment: true,
+                        location: _locationController.text,
+                        description: _descriptionController.text,
+                        dueDate: dueDate,
+                        id: getCurrentTerm().getID())
+                    : null);
+              }
+            });
+          },
         ));
   }
 }
