@@ -3,12 +3,14 @@ import 'package:cognito/database/firebase_login.dart';
 import 'package:cognito/database/notifications.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/views/GPAView.dart';
-import 'package:cognito/views/clubs_view.dart';
-import 'package:cognito/views/login_selection_view.dart';
-import 'package:flutter/material.dart';
-import 'package:cognito/views/class_view.dart';
 import 'package:cognito/views/academic_term_view.dart';
 import 'package:cognito/views/agenda_view.dart';
+import 'package:cognito/views/class_view.dart';
+import 'package:cognito/views/clubs_view.dart';
+import 'package:cognito/views/energy_view.dart';
+import 'package:cognito/views/login_selection_view.dart';
+import 'package:flutter/material.dart';
+
 class MainDrawer extends StatefulWidget {
   static MainDrawer _instance;
   factory MainDrawer() => _instance ??= new MainDrawer._();
@@ -110,6 +112,12 @@ class _MainDrawerState extends State<MainDrawer> {
                         })
                     : Navigator.of(context).pushReplacement(
                         MaterialPageRoute(builder: (context) => AgendaView()));
+              }),
+          ListTile(
+              title: Text("Personal Energy Levels"),
+              onTap: () {
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => EnergyView()));
               }),
           ListTile(
             title: Text('Classes'),
