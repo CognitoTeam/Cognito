@@ -10,6 +10,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 /// Personal energy levels view
+///
+/// This personal energy page shows a graph of the user's energy levels
+/// on a given day. The user inputs [EnergyLevel] data points to this view,
+/// which is then added to the Firestore. The charts read from the Firestore
+/// to render the graphs.
+///
 /// [author] Julian Vu
 
 class EnergyView extends StatefulWidget {
@@ -20,9 +26,28 @@ class EnergyView extends StatefulWidget {
 class _EnergyViewState extends State<EnergyView> {
   final db = Firestore.instance;
 
+  /// The list of [EnergyLevel] objects.
+  ///
+  /// Content should be set with the readDataPoints() method.
   static List<EnergyLevel> energyLevels = [];
 
+  //  This is required because we apparently call setState() too much and
+  //  this will stop setState() from being called unless the State object is
+  //  mounted. This should stop memory leaks.
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  /// Gets the list of [Series] for building the charts.
+  ///
+  /// First, [EnergyLevel] data points are read from Firestore, which should
+  /// set the content of the [energyLevels] list. This data is used in creating
+  /// the [Series].
   List<Series<EnergyLevel, DateTime>> _getSeries() {
+    readDataPoints();
     List<Series<EnergyLevel, DateTime>> series = [
       Series<EnergyLevel, DateTime>(
         id: "Energy Levels",
@@ -34,35 +59,38 @@ class _EnergyViewState extends State<EnergyView> {
     return series;
   }
 
+  /// Gets the current user's ID from Firebase.
   Future<String> getCurrentUserID() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     return user.uid;
   }
 
+  /// Reads [EnergyLevel] data points from Firestore
+  ///
+  /// Retrieves the data from Firestore and creates [EnergyLevel] objects from
+  /// data. Every data entry from Firestore maps to an [EnergyLevel] object and
+  /// returns a list of [EnergyLevel] objects. Sets content of [energyLevels]
+  /// to the list of [EnergyLevels]
   void readDataPoints() async {
-//    List<DocumentSnapshot> snapshots = await db
-//        .collection("energies")
-//        .where("userID", isEqualTo: await getCurrentUserID())
-//        .getDocuments()
-//        .then((snapshot) {
-//      return snapshot.documents;
-//    });
-//
-//    energyLevels = snapshots.map((snapshot) => EnergyLevel(
-//        DateTime.parse(snapshot.data["dateTIme"]),
-//        snapshot.data["energyLevel"]));
-    db
+    QuerySnapshot querySnapshot = await db
         .collection("energies")
         .where("userID", isEqualTo: await getCurrentUserID())
-        .snapshots()
-        .listen((data) {
-      energyLevels = data.documents
-          .map((datum) => EnergyLevel(DateTime.parse(datum.data["dateTime"]),
-              datum.data["energyLevel"]))
+        .getDocuments();
+    setState(() {
+      energyLevels = querySnapshot.documents
+          .map((document) => EnergyLevel(
+              DateTime.parse(document.data["dateTime"]),
+              document.data["energyLevel"]))
           .toList();
     });
   }
 
+  /// Adds [EnergyLevel] data point to Firestore
+  ///
+  /// Creates a new document with a auto-generated document ID and sets its
+  /// content to the data of the given [EnergyLevel] object. readDataPoints()
+  /// is called because the content of the [energyLevels] list needs to be
+  /// updated.
   void addDataPoint(EnergyLevel data) async {
     db.collection("energies").document().setData({
       "userID": await getCurrentUserID(),
@@ -73,33 +101,62 @@ class _EnergyViewState extends State<EnergyView> {
     readDataPoints();
   }
 
+  /// Shows dialog for adding [EnergyLevel] object to Firestore.
   Future<EnergyLevel> _showDialog() async {
     final energyToReturn = await showDialog(
         context: context, builder: (context) => AddEnergyDialog());
     return energyToReturn;
   }
 
-  @override
-  void initState() {
-    super.initState();
-    readDataPoints();
+  /// Checks if a data point already exists for the current hour.
+  bool pointExistsForCurrentHour() {
+    energyLevels.forEach((element) {
+      if (element.day.hour == DateTime.now().hour) {
+        return true;
+      }
+    });
+    return false;
   }
 
   @override
-  Widget build(BuildContext context) {
-    final staticTicks = [
-      TickSpec(1),
-      TickSpec(2),
-      TickSpec(3),
-      TickSpec(4),
-      TickSpec(5),
-      TickSpec(6),
-      TickSpec(7),
-      TickSpec(8),
-      TickSpec(9),
-      TickSpec(10)
-    ];
+  void initState() {
+    super.initState();
+    energyLevels = [];
+    readDataPoints();
+  }
 
+  /// Static ticks needed to keep chart's viewport (window) at a scale in which
+  /// we only see ticks 1 - 10.
+  static final staticMeasureTicks = [
+    TickSpec(1),
+    TickSpec(2),
+    TickSpec(3),
+    TickSpec(4),
+    TickSpec(5),
+    TickSpec(6),
+    TickSpec(7),
+    TickSpec(8),
+    TickSpec(9),
+    TickSpec(10)
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    TimeSeriesChart energyLevelChart = TimeSeriesChart(_getSeries(),
+        dateTimeFactory: LocalDateTimeFactory(),
+        domainAxis: DateTimeAxisSpec(
+            renderSpec: GridlineRendererSpec(labelOffsetFromAxisPx: 10),
+            tickFormatterSpec: AutoDateTimeTickFormatterSpec(
+                hour: TimeFormatterSpec(format: 'j', transitionFormat: 'j'))),
+        primaryMeasureAxis: NumericAxisSpec(
+            renderSpec: GridlineRendererSpec(labelOffsetFromAxisPx: 10),
+            showAxisLine: true,
+            tickProviderSpec:
+                StaticNumericTickProviderSpec(staticMeasureTicks)),
+        defaultRenderer: LineRendererConfig(
+          includePoints: true,
+        ),
+        animate: false);
     return Scaffold(
       appBar: AppBar(
         title: Text("Personal Energy Levels"),
@@ -112,37 +169,19 @@ class _EnergyViewState extends State<EnergyView> {
             height: 256,
             child: Card(
               child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: TimeSeriesChart(_getSeries(),
-                    dateTimeFactory: LocalDateTimeFactory(),
-                    domainAxis: DateTimeAxisSpec(
-                        renderSpec:
-                            GridlineRendererSpec(labelOffsetFromAxisPx: 10),
-                        tickFormatterSpec: AutoDateTimeTickFormatterSpec(
-                            hour: TimeFormatterSpec(
-                                format: 'j', transitionFormat: 'j'))),
-                    primaryMeasureAxis: NumericAxisSpec(
-                        renderSpec:
-                            GridlineRendererSpec(labelOffsetFromAxisPx: 10),
-                        showAxisLine: true,
-                        tickProviderSpec:
-                            StaticNumericTickProviderSpec(staticTicks)),
-                    defaultRenderer: LineRendererConfig(
-                      includePoints: true,
-                    ),
-                    animate: false),
-              ),
+                  padding: const EdgeInsets.all(10.0), child: energyLevelChart),
             ),
           )
         ],
       ),
       floatingActionButton: FloatingActionButton(onPressed: () async {
-        EnergyLevel result = await _showDialog();
-        if (result != null) {
-          addDataPoint(result);
-        }
-        Future.delayed(Duration(seconds: 2));
-        setState(() {});
+        if (!pointExistsForCurrentHour()) {
+          EnergyLevel result = await _showDialog();
+          if (result != null) {
+            addDataPoint(result);
+          }
+          setState(() {});
+        } else {}
       }),
     );
   }
