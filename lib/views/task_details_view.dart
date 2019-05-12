@@ -33,7 +33,7 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
         TextEditingController(text: widget.task.description);
     _locationController = TextEditingController(text: widget.task.location);
     dueDate = widget.task.dueDate;
-    _selectedPriority = widget.task.priority;
+    _selectedPriority = widget.task.priority == null ? 1 :  widget.task.priority;
   }
 
   DateTime dueDate;
