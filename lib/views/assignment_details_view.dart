@@ -1,6 +1,7 @@
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/category.dart';
 import 'package:cognito/models/class.dart';
+import 'package:cognito/views/add_priority_view.dart';
 import 'package:flutter/material.dart';
 
 /// Assignment details view
@@ -22,14 +23,19 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
   TextEditingController _descriptionController;
   TextEditingController _earnedController;
   TextEditingController _possibleController;
-
+  TextEditingController _titleController;
   TextEditingController _categoryTitle = TextEditingController();
   TextEditingController _categoryWeight = TextEditingController();
   TextEditingController _categoryTitleEdit = TextEditingController();
   TextEditingController _categoryWeightEdit = TextEditingController();
+  //  Stepper
+  //  init step to 0th position
+  int currentStep = 0;
+  int _selectedPriority;
   @override
   void initState() {
     super.initState();
+    _titleController = TextEditingController(text: widget.assignment.title);
     _descriptionController =
         TextEditingController(text: widget.assignment.description);
     _earnedController =
@@ -41,6 +47,100 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
         ": " +
         widget.assignment.category.weightInPercentage.toString() +
         "%";
+    _selectedPriority =
+        widget.assignment.priority == null ? 1 : widget.assignment.priority;
+  }
+
+  List<Step> getSteps() {
+    return [
+      Step(
+          title: Text(
+            "Assignment title",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content: textFieldTile(
+              hint: "Assignment title", controller: _titleController),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text(
+            "Description",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content: ListTile(
+            title: TextFormField(
+              controller: _descriptionController,
+              autofocus: false,
+              style: Theme.of(context).accentTextTheme.body1,
+              keyboardType: TextInputType.multiline,
+              textInputAction: TextInputAction.done,
+              maxLines: 5,
+              decoration: InputDecoration(
+                  hintText: "Description",
+                  hintStyle: TextStyle(color: Colors.black45)),
+            ),
+          ),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text(
+            "Points earned",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content: textFieldTile(
+              hint: "Points earned", controller: _earnedController),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text(
+            "Points possible",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content: textFieldTile(
+              hint: "Points possible", controller: _possibleController),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text("Select due date"),
+          content: DateRow(widget.assignment),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+        title: Text("Select a category"),
+        state: StepState.indexed,
+        isActive: true,
+        content: ExpansionTile(
+            title: Text(
+              _categoryListTitle,
+              style: Theme.of(context).accentTextTheme.body2,
+            ),
+            children: _listOfCategories()),
+      ),
+      Step(
+          title: Text(
+            "Select priority",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          state: StepState.indexed,
+          isActive: true,
+          content: ListTile(
+            title: Text(
+              "Priority selected:",
+              style: Theme.of(context).accentTextTheme.body1,
+            ),
+            trailing: Text(_selectedPriority.toString()),
+            onTap: () async {
+              int result = await showDialog(
+                  context: context,
+                  builder: (context) => AddPriorityDialog(_selectedPriority));
+              if (result != null) {
+                setState(() {
+                  _selectedPriority = result;
+                });
+              }
+            },
+          ))
+    ];
   }
 
   DateTime dueDate;
@@ -224,112 +324,63 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: BackButtonIcon(),
-          onPressed: () {
-            print("Returning a assignment");
-            widget.assignment.description = _descriptionController.text;
-            widget.assignment.pointsEarned =
-                double.parse(_earnedController.text);
-            widget.assignment.pointsPossible =
-                double.parse(_possibleController.text);
-
-            Navigator.of(context).pop(widget.assignment);
-          },
-        ),
-        title: Text(
-          widget.assignment.title,
-          style: Theme.of(context).primaryTextTheme.title,
-        ),
-        backgroundColor: Theme.of(context).primaryColorDark,
-        actions: <Widget>[
-          // Edit term title
-          IconButton(
-            icon: Icon(
-              Icons.edit,
-              color: Colors.white,
-            ),
-            onPressed: () async {
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return SimpleDialog(
-                      title: Text("Change Assignment Title"),
-                      children: <Widget>[
-                        TextFormField(
-                          initialValue: widget.assignment.title,
-                          style: Theme.of(context).accentTextTheme.body2,
-                          decoration: InputDecoration(
-                            hintText: "Assignment Title",
-                            hintStyle: TextStyle(color: Colors.black45),
-                            contentPadding:
-                                EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                          ),
-                          onFieldSubmitted: (val) {
-                            print(val);
-                            setState(() {
-                              widget.assignment.title = val;
-                            });
-                            Navigator.pop(context);
-                          },
-                          textInputAction: TextInputAction.done,
-                        )
-                      ],
-                    );
-                  });
+        appBar: AppBar(
+          leading: IconButton(
+            icon: BackButtonIcon(),
+            onPressed: () {
+              print("Returning a assignment");
+              widget.assignment.title = _titleController.text;
+              widget.assignment.description = _descriptionController.text;
+              widget.assignment.pointsEarned =
+                  double.parse(_earnedController.text);
+              widget.assignment.pointsPossible =
+                  double.parse(_possibleController.text);
+              widget.assignment.priority = _selectedPriority;
+              Navigator.of(context).pop(widget.assignment);
             },
           ),
-        ],
-      ),
-      body: Container(
-          child: Column(
-        children: <Widget>[
-          ListTile(
-            title: TextFormField(
-              controller: _descriptionController,
-              autofocus: false,
-              style: Theme.of(context).accentTextTheme.body1,
-              keyboardType: TextInputType.multiline,
-              textInputAction: TextInputAction.done,
-              maxLines: 5,
-            ),
+          title: Text(
+            widget.assignment.title,
+            style: Theme.of(context).primaryTextTheme.title,
           ),
-          ListTile(
-            title: TextFormField(
-              controller: _earnedController,
-              autofocus: false,
-              style: Theme.of(context).accentTextTheme.body1,
-              keyboardType: TextInputType.number,
-              textInputAction: TextInputAction.done,
-              decoration: InputDecoration(
-                  hintText: "Points earned",
-                  hintStyle: TextStyle(color: Colors.black45)),
-            ),
-          ),
-          ListTile(
-            title: TextFormField(
-              controller: _possibleController,
-              autofocus: false,
-              style: Theme.of(context).accentTextTheme.body1,
-              keyboardType: TextInputType.number,
-              textInputAction: TextInputAction.done,
-              decoration: InputDecoration(
-                  hintText: "Possible points",
-                  hintStyle: TextStyle(color: Colors.black45)),
-            ),
-          ),
-          DateRow(widget.assignment),
-          ExpansionTile(
-              leading: Icon(Icons.category),
-              title: Text(
-                _categoryListTitle,
-                style: Theme.of(context).accentTextTheme.body2,
-              ),
-              children: _listOfCategories()),
-        ],
-      )),
-    );
+          backgroundColor: Theme.of(context).primaryColorDark,
+        ),
+        body: Stepper(
+          currentStep: this.currentStep,
+          type: StepperType.vertical,
+          steps: getSteps(),
+          onStepTapped: (step) {
+            setState(() {
+              currentStep = step;
+            });
+          },
+          onStepCancel: () {
+            setState(() {
+              if (currentStep > 0) {
+                currentStep--;
+              } else {
+                currentStep = 0;
+              }
+            });
+          },
+          onStepContinue: () {
+            setState(() {
+              if (currentStep < getSteps().length - 1) {
+                currentStep++;
+              } else {
+                print("Returning a assignment");
+                widget.assignment.title = _titleController.text;
+                widget.assignment.description = _descriptionController.text;
+                widget.assignment.pointsEarned =
+                    double.parse(_earnedController.text);
+                widget.assignment.pointsPossible =
+                    double.parse(_possibleController.text);
+                widget.assignment.priority = _selectedPriority;
+                Navigator.of(context).pop(widget.assignment);
+              }
+            });
+          },
+        ));
   }
 }
 
@@ -376,7 +427,6 @@ class _DateRowState extends State<DateRow> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(Icons.calendar_today),
       title: Text(
         "Due Date",
         style: Theme.of(context).accentTextTheme.body2,

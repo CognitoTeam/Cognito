@@ -20,7 +20,8 @@ class Task extends Event {
       bool isRepeated,
       List<int> daysOfEvent,
       DateTime dueDate,
-      int id})
+      int id, 
+      int priority = 1})
       : super(
             title: title,
             description: description,
@@ -29,7 +30,8 @@ class Task extends Event {
             end: end,
             isRepeated: isRepeated,
             daysOfEvent: daysOfEvent,
-            id: id) {
+            id: id, 
+            priority: priority) {
     this.dueDate = dueDate;
     subTasks = List();
   }

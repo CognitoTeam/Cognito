@@ -20,14 +20,16 @@ class Club extends Event {
       String location = "",
       DateTime start,
       DateTime end,
-      int id})
+      int id,
+      int priority = 1})
       : super(
             title: title,
             description: description,
             location: location,
             start: start,
             end: end,
-            id: id) {
+            id: id, 
+            priority: priority) {
     officers = List();
     events = List();
     tasks = List();
