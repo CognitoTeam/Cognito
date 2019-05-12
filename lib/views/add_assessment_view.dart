@@ -3,6 +3,7 @@ import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/category.dart';
 import 'package:cognito/models/class.dart';
+import 'package:cognito/views/add_priority_view.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
@@ -32,6 +33,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
   final TextEditingController _categoryTitleEdit = TextEditingController();
   final TextEditingController _categoryWeightEdit = TextEditingController();
   bool _isRepeated = false;
+  int _selectedPriority = 1;
 
   //  Stepper
   //  init step to 0th position
@@ -112,7 +114,10 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
           state: StepState.indexed,
           isActive: true),
       Step(
-          title: Text("Exam/Quiz Date"),
+          title: Text(
+            "Exam/Quiz Date",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
           content: ListTile(
             title: Text(
               "Date",
@@ -126,7 +131,10 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
           state: StepState.indexed,
           isActive: true),
       Step(
-          title: Text("Exam/Quiz Time"),
+          title: Text(
+            "Exam/Quiz Time",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
           content: ListTile(
             title: Text(
               "Time",
@@ -140,7 +148,10 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
           state: StepState.indexed,
           isActive: true),
       Step(
-        title: Text("Select a category"),
+        title: Text(
+          "Select a category",
+          style: Theme.of(context).accentTextTheme.body1,
+        ),
         state: StepState.indexed,
         isActive: true,
         content: ExpansionTile(
@@ -149,7 +160,31 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
               style: Theme.of(context).accentTextTheme.body2,
             ),
             children: _listOfCategories()),
-      )
+      ),
+      Step(
+          title: Text(
+            "Select priority",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          state: StepState.indexed,
+          isActive: true,
+          content: ListTile(
+            title: Text(
+              "Priority selected:",
+              style: Theme.of(context).accentTextTheme.body1,
+            ),
+            trailing: Text(_selectedPriority.toString()),
+            onTap: () async {
+              int result = await showDialog(
+                  context: context,
+                  builder: (context) => AddPriorityDialog(_selectedPriority));
+              if (result != null) {
+                setState(() {
+                  _selectedPriority = result;
+                });
+              }
+            },
+          ))
     ];
   }
 
@@ -479,7 +514,8 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                         location: _locationController.text,
                         description: _descriptionController.text,
                         dueDate: dueDate,
-                        id: getCurrentTerm().getID())
+                        id: getCurrentTerm().getID(),
+                        priority: _selectedPriority)
                     : null);
               },
             )
@@ -518,7 +554,8 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                         location: _locationController.text,
                         description: _descriptionController.text,
                         dueDate: dueDate,
-                        id: getCurrentTerm().getID())
+                        id: getCurrentTerm().getID(),
+                        priority: _selectedPriority)
                     : null);
               }
             });

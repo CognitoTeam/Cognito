@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cognito/models/event.dart';
+import 'package:cognito/views/add_priority_view.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -21,9 +22,10 @@ class _EventDetailsViewState extends State<EventDetailsView> {
   TextEditingController _locationController = TextEditingController();
   TextEditingController _descriptionController = TextEditingController();
   bool _isRepeated = false;
+
   DateTime startTime, endTime;
   List<int> daysOfEvent = List();
-
+  int _selectedPriority;
   //  Stepper
   //  init step to 0th position
   int currentStep = 0;
@@ -86,6 +88,30 @@ class _EventDetailsViewState extends State<EventDetailsView> {
           content: _repeatingDaySelectionTile(),
           state: StepState.indexed,
           isActive: true),
+      Step(
+          title: Text(
+            "Select priority",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          state: StepState.indexed,
+          isActive: true,
+          content: ListTile(
+            title: Text(
+              "Priority selected:",
+              style: Theme.of(context).accentTextTheme.body1,
+            ),
+            trailing: Text(_selectedPriority.toString()),
+            onTap: () async {
+              int result = await showDialog(
+                  context: context,
+                  builder: (context) => AddPriorityDialog(_selectedPriority));
+              if (result != null) {
+                setState(() {
+                  _selectedPriority = result;
+                });
+              }
+            },
+          ))
     ];
   }
 
@@ -181,6 +207,8 @@ class _EventDetailsViewState extends State<EventDetailsView> {
       daysOfEvent = widget.event.daysOfEvent;
       startTime = widget.event.startTime;
       endTime = widget.event.endTime;
+      _selectedPriority =
+          widget.event.priority == null ? 1 : widget.event.priority;
     });
   }
 
@@ -255,9 +283,15 @@ class _EventDetailsViewState extends State<EventDetailsView> {
         leading: IconButton(
           icon: BackButtonIcon(),
           onPressed: () {
-            print("Returning a task");
+            print("Returning a event");
+            widget.event.title = _titleController.text;
             widget.event.location = _locationController.text;
             widget.event.description = _descriptionController.text;
+            widget.event.daysOfEvent = daysOfEvent;
+            widget.event.isRepeated = _isRepeated;
+            widget.event.startTime = startTime;
+            widget.event.priority = _selectedPriority;
+            widget.event.endTime = endTime;
             Navigator.of(context).pop(widget.event);
           },
         ),
@@ -293,6 +327,7 @@ class _EventDetailsViewState extends State<EventDetailsView> {
               widget.event.daysOfEvent = daysOfEvent;
               widget.event.isRepeated = _isRepeated;
               widget.event.startTime = startTime;
+              widget.event.priority = _selectedPriority;
               widget.event.endTime = endTime;
               Navigator.of(context).pop(widget.event);
             }

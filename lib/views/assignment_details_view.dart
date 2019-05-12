@@ -1,6 +1,7 @@
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/category.dart';
 import 'package:cognito/models/class.dart';
+import 'package:cognito/views/add_priority_view.dart';
 import 'package:flutter/material.dart';
 
 /// Assignment details view
@@ -30,6 +31,7 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
   //  Stepper
   //  init step to 0th position
   int currentStep = 0;
+  int _selectedPriority;
   @override
   void initState() {
     super.initState();
@@ -45,6 +47,8 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
         ": " +
         widget.assignment.category.weightInPercentage.toString() +
         "%";
+    _selectedPriority =
+        widget.assignment.priority == null ? 1 : widget.assignment.priority;
   }
 
   List<Step> getSteps() {
@@ -111,7 +115,31 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
               style: Theme.of(context).accentTextTheme.body2,
             ),
             children: _listOfCategories()),
-      )
+      ),
+      Step(
+          title: Text(
+            "Select priority",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          state: StepState.indexed,
+          isActive: true,
+          content: ListTile(
+            title: Text(
+              "Priority selected:",
+              style: Theme.of(context).accentTextTheme.body1,
+            ),
+            trailing: Text(_selectedPriority.toString()),
+            onTap: () async {
+              int result = await showDialog(
+                  context: context,
+                  builder: (context) => AddPriorityDialog(_selectedPriority));
+              if (result != null) {
+                setState(() {
+                  _selectedPriority = result;
+                });
+              }
+            },
+          ))
     ];
   }
 
@@ -307,7 +335,7 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
                   double.parse(_earnedController.text);
               widget.assignment.pointsPossible =
                   double.parse(_possibleController.text);
-
+              widget.assignment.priority = _selectedPriority;
               Navigator.of(context).pop(widget.assignment);
             },
           ),
@@ -347,7 +375,7 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
                     double.parse(_earnedController.text);
                 widget.assignment.pointsPossible =
                     double.parse(_possibleController.text);
-
+                widget.assignment.priority = _selectedPriority;
                 Navigator.of(context).pop(widget.assignment);
               }
             });

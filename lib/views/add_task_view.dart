@@ -1,5 +1,6 @@
 import 'package:cognito/database/database.dart';
 import 'package:cognito/models/academic_term.dart';
+import 'package:cognito/views/add_priority_view.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/task.dart';
@@ -20,6 +21,10 @@ class _AddTaskViewState extends State<AddTaskView> {
   final _locationController = TextEditingController();
   final _descriptionController = TextEditingController();
   bool _isRepeated = false;
+  int _selectedPriority = 1;
+   //  Stepper
+  //  init step to 0th position
+  int currentStep = 0;
   DateTime dueDate;
   List<int> daysOfEvent = List();
   ListTile textFieldTile(
@@ -113,7 +118,90 @@ class _AddTaskViewState extends State<AddTaskView> {
     }
     return null;
   }
-
+List<Step> getSteps() {
+    return [
+      Step(
+          title: Text(
+            "Task title",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content:
+              textFieldTile(hint: "Task title", controller: _titleController),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text(
+            "Location",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content:
+              textFieldTile(hint: "Location", controller: _locationController),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text(
+            "Description",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content: ListTile(
+            title: TextFormField(
+              controller: _descriptionController,
+              autofocus: false,
+              style: Theme.of(context).accentTextTheme.body1,
+              keyboardType: TextInputType.multiline,
+              textInputAction: TextInputAction.done,
+              maxLines: 5,
+              decoration: InputDecoration(
+                  hintText: "Description",
+                  hintStyle: TextStyle(color: Colors.black45)),
+            ),
+          ),
+          state: StepState.indexed,
+          isActive: true),
+          Step(
+            title: Text("Due date"),
+            state: StepState.indexed,
+            isActive: true,
+            content: ListTile(
+              leading: Icon(Icons.calendar_today),
+              title: Text(
+                "Select Due Date",
+                style: Theme.of(context).accentTextTheme.body2,
+              ),
+              trailing: Text(
+                dueDate != null
+                    ? "${dueDate.month.toString()}/${dueDate.day.toString()}/${dueDate.year.toString()}"
+                    : "",
+              ),
+              onTap: () => _selectDate(context),
+            )
+          ),
+      Step(
+          title: Text(
+            "Select priority",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          state: StepState.indexed,
+          isActive: true,
+          content: ListTile(
+            title: Text(
+              "Priority selected:",
+              style: Theme.of(context).accentTextTheme.body1,
+            ),
+            trailing: Text(_selectedPriority.toString()),
+            onTap: () async {
+              int result = await showDialog(
+                  context: context,
+                  builder: (context) => AddPriorityDialog(_selectedPriority));
+              if (result != null) {
+                setState(() {
+                  _selectedPriority = result;
+                });
+              }
+            },
+          ))
+    ];
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,44 +220,51 @@ class _AddTaskViewState extends State<AddTaskView> {
                         daysOfEvent: daysOfEvent,
                         isRepeated: _isRepeated,
                         dueDate: dueDate,
-                        id: getCurrentTerm().getID())
+                        id: getCurrentTerm().getID(),
+                        priority: _selectedPriority)
                     : null);
               },
             )
           ],
         ),
-        body: ListView(
-          children: <Widget>[
-            Padding(padding: EdgeInsets.all(0.0)),
-            textFieldTile(hint: "Title", controller: _titleController),
-            textFieldTile(hint: "Location", controller: _locationController),
-            ListTile(
-              title: TextFormField(
-                controller: _descriptionController,
-                autofocus: false,
-                style: Theme.of(context).accentTextTheme.body1,
-                keyboardType: TextInputType.multiline,
-                textInputAction: TextInputAction.done,
-                maxLines: 5,
-                decoration: InputDecoration(
-                    hintText: "Description",
-                    hintStyle: TextStyle(color: Colors.black45)),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.calendar_today),
-              title: Text(
-                "Select Due Date",
-                style: Theme.of(context).accentTextTheme.body2,
-              ),
-              trailing: Text(
-                dueDate != null
-                    ? "${dueDate.month.toString()}/${dueDate.day.toString()}/${dueDate.year.toString()}"
-                    : "",
-              ),
-              onTap: () => _selectDate(context),
-            ),
-          ],
-        ));
+        body: Stepper(
+        currentStep: this.currentStep,
+        steps: getSteps(),
+        type: StepperType.vertical,
+        onStepTapped: (step) {
+          setState(() {
+            currentStep = step;
+          });
+        },
+        onStepCancel: () {
+          setState(() {
+            if (currentStep > 0) {
+              currentStep--;
+            } else {
+              currentStep = 0;
+            }
+          });
+        },
+        onStepContinue: () {
+          setState(() {
+            if (currentStep < getSteps().length - 1) {
+              currentStep++;
+            } else {
+              Navigator.of(context).pop(_titleController != null
+                  ? Task(
+                        title: _titleController.text,
+                        location: _locationController.text,
+                        description: _descriptionController.text,
+                        daysOfEvent: daysOfEvent,
+                        isRepeated: _isRepeated,
+                        dueDate: dueDate,
+                        id: getCurrentTerm().getID(),
+                        priority: _selectedPriority)
+                    : null);
+            }
+          });
+        },
+      ),
+      );
   }
 }

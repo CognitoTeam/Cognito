@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cognito/database/database.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/event.dart';
+import 'package:cognito/views/add_priority_view.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -24,6 +25,7 @@ class _AddEventViewState extends State<AddEventView> {
   bool _isRepeated = false;
   DateTime startTime, endTime;
   List<int> daysOfEvent = List();
+  int _selectedPriority = 1;
 
   //  Stepper
   //  init step to 0th position
@@ -87,6 +89,30 @@ class _AddEventViewState extends State<AddEventView> {
           content: _repeatingDaySelectionTile(),
           state: StepState.indexed,
           isActive: true),
+      Step(
+          title: Text(
+            "Select priority",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          state: StepState.indexed,
+          isActive: true,
+          content: ListTile(
+            title: Text(
+              "Priority selected:",
+              style: Theme.of(context).accentTextTheme.body1,
+            ),
+            trailing: Text(_selectedPriority.toString()),
+            onTap: () async {
+              int result = await showDialog(
+                  context: context,
+                  builder: (context) => AddPriorityDialog(_selectedPriority));
+              if (result != null) {
+                setState(() {
+                  _selectedPriority = result;
+                });
+              }
+            },
+          ))
     ];
   }
 
@@ -265,7 +291,8 @@ class _AddEventViewState extends State<AddEventView> {
                       isRepeated: _isRepeated,
                       start: startTime,
                       end: endTime,
-                      id: getCurrentTerm().getID())
+                      id: getCurrentTerm().getID(),
+                      priority: _selectedPriority)
                   : null);
             },
           )
@@ -303,7 +330,8 @@ class _AddEventViewState extends State<AddEventView> {
                       isRepeated: _isRepeated,
                       start: startTime,
                       end: endTime,
-                      id: getCurrentTerm().getID())
+                      id: getCurrentTerm().getID(),
+                      priority: _selectedPriority)
                   : null);
             }
           });

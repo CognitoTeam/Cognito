@@ -205,7 +205,8 @@ class _ClassViewState extends State<ClassView> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          Class result = await _showModalSheet();
+          Class result = await Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => AddClassView()));
           if (result != null) {
             term.addClass(result);
             database.allTerms.updateTerm(term);

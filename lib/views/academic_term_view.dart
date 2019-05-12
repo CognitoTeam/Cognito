@@ -169,7 +169,8 @@ class _AcademicTermViewState extends State<AcademicTermView> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           // Retrieve Academic Term object from AddTermView
-          final result = await _showModalSheet();
+          final result = await Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => AddTermView()));
           if (result != null) {
             database.allTerms.terms.add(result);
             String jsonString = json.encode(database.allTerms);
