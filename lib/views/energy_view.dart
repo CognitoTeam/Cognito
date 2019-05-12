@@ -110,11 +110,16 @@ class _EnergyViewState extends State<EnergyView> {
 
   /// Checks if a data point already exists for the current hour.
   bool pointExistsForCurrentHour() {
-    energyLevels.forEach((element) {
-      if (element.day.hour == DateTime.now().hour) {
-        return true;
+    DateTime now = DateTime.now();
+    for (int i = 0; i < energyLevels.length; i++) {
+      if (energyLevels[i].day.day == now.day &&
+          energyLevels[i].day.month == now.month &&
+          energyLevels[i].day.year == now.year) {
+        if (energyLevels[i].day.hour == now.hour) {
+          return true;
+        }
       }
-    });
+    }
     return false;
   }
 
