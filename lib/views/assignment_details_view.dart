@@ -28,6 +28,8 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
   TextEditingController _categoryWeight = TextEditingController();
   TextEditingController _categoryTitleEdit = TextEditingController();
   TextEditingController _categoryWeightEdit = TextEditingController();
+  TextEditingController _durationController = TextEditingController();
+
   //  Stepper
   //  init step to 0th position
   int currentStep = 0;
@@ -42,7 +44,8 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
         TextEditingController(text: widget.assignment.pointsEarned.toString());
     _possibleController = TextEditingController(
         text: widget.assignment.pointsPossible.toString());
-
+    _durationController = TextEditingController(
+        text: widget.assignment.duration.inMinutes.toString());
     _categoryListTitle = widget.assignment.category.title +
         ": " +
         widget.assignment.category.weightInPercentage.toString() +
@@ -103,6 +106,15 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
       Step(
           title: Text("Select due date"),
           content: DateRow(widget.assignment),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text(
+            "Estimated duration",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content: textFieldTile(
+              hint: "In minutes", controller: _durationController),
           state: StepState.indexed,
           isActive: true),
       Step(
@@ -336,6 +348,8 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
               widget.assignment.pointsPossible =
                   double.parse(_possibleController.text);
               widget.assignment.priority = _selectedPriority;
+              widget.assignment.duration =
+                  Duration(minutes: int.parse(_durationController.text));
               Navigator.of(context).pop(widget.assignment);
             },
           ),
@@ -375,6 +389,8 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
                     double.parse(_earnedController.text);
                 widget.assignment.pointsPossible =
                     double.parse(_possibleController.text);
+                widget.assignment.duration =
+                    Duration(minutes: int.parse(_durationController.text));
                 widget.assignment.priority = _selectedPriority;
                 Navigator.of(context).pop(widget.assignment);
               }

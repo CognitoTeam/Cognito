@@ -21,6 +21,7 @@ class _EventDetailsViewState extends State<EventDetailsView> {
   TextEditingController _titleController = TextEditingController();
   TextEditingController _locationController = TextEditingController();
   TextEditingController _descriptionController = TextEditingController();
+  TextEditingController _durationController = TextEditingController();
   bool _isRepeated = false;
 
   DateTime startTime, endTime;
@@ -78,6 +79,15 @@ class _EventDetailsViewState extends State<EventDetailsView> {
             style: Theme.of(context).accentTextTheme.body1,
           ),
           content: _timeSelectionColumn(),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text(
+            "Estimated duration",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content: textFieldTile(
+              hint: "In minutes", controller: _durationController),
           state: StepState.indexed,
           isActive: true),
       Step(
@@ -203,6 +213,8 @@ class _EventDetailsViewState extends State<EventDetailsView> {
     _descriptionController =
         TextEditingController(text: widget.event.description);
     _locationController = TextEditingController(text: widget.event.location);
+    _durationController =
+        TextEditingController(text: widget.event.duration.inMinutes.toString());
     setState(() {
       daysOfEvent = widget.event.daysOfEvent;
       startTime = widget.event.startTime;
@@ -292,6 +304,8 @@ class _EventDetailsViewState extends State<EventDetailsView> {
             widget.event.startTime = startTime;
             widget.event.priority = _selectedPriority;
             widget.event.endTime = endTime;
+            widget.event.duration =
+                Duration(minutes: int.parse(_durationController.text));
             Navigator.of(context).pop(widget.event);
           },
         ),
@@ -329,6 +343,8 @@ class _EventDetailsViewState extends State<EventDetailsView> {
               widget.event.startTime = startTime;
               widget.event.priority = _selectedPriority;
               widget.event.endTime = endTime;
+              widget.event.duration =
+                  Duration(minutes: int.parse(_durationController.text));
               Navigator.of(context).pop(widget.event);
             }
           });

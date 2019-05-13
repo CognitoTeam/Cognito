@@ -27,7 +27,8 @@ class Assignment extends Task {
         bool isAssessment = false,
         Category category,
         int id, 
-        int priority = 1}) : super(
+        int priority = 1,
+        Duration duration}) : super(
       title: title,
       description: description,
       location: location,
@@ -35,7 +36,8 @@ class Assignment extends Task {
       end: end,
       dueDate: dueDate,
       id: id, 
-      priority: priority
+      priority: priority,
+      duration: duration
   ) {
     this.pointsPossible = pointsPossible;
     this.pointsEarned = pointsEarned;

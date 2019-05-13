@@ -27,6 +27,9 @@ Class _$ClassFromJson(Map<String, dynamic> json) {
         : DateTime.parse(json['endTime'] as String)
     ..isRepeated = json['isRepeated'] as bool
     ..priority = json['priority'] as int
+    ..duration = json['duration'] == null
+        ? null
+        : Duration(microseconds: json['duration'] as int)
     ..officeHours = (json['officeHours'] as Map<String, dynamic>)?.map((k, e) =>
         MapEntry(
             k,
@@ -63,6 +66,7 @@ Map<String, dynamic> _$ClassToJson(Class instance) => <String, dynamic>{
       'isRepeated': instance.isRepeated,
       'id': instance.id,
       'priority': instance.priority,
+      'duration': instance.duration?.inMicroseconds,
       'daysOfEvent': instance.daysOfEvent,
       'subjectArea': instance.subjectArea,
       'courseNumber': instance.courseNumber,

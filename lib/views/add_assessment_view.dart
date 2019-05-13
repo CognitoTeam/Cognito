@@ -28,6 +28,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
   final _descriptionController = TextEditingController();
   final _earnedController = TextEditingController();
   final _possibleController = TextEditingController();
+  final _durationController = TextEditingController();
   final TextEditingController _categoryTitle = TextEditingController();
   final TextEditingController _categoryWeight = TextEditingController();
   final TextEditingController _categoryTitleEdit = TextEditingController();
@@ -111,6 +112,15 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
           ),
           content: textFieldTile(
               hint: "Points possible", controller: _possibleController),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text(
+            "Estimated duration",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content: textFieldTile(
+              hint: "In minutes", controller: _durationController),
           state: StepState.indexed,
           isActive: true),
       Step(
@@ -515,7 +525,9 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                         description: _descriptionController.text,
                         dueDate: dueDate,
                         id: getCurrentTerm().getID(),
-                        priority: _selectedPriority)
+                        priority: _selectedPriority,
+                        duration: Duration(
+                            minutes: int.parse(_durationController.text)))
                     : null);
               },
             )
@@ -555,7 +567,9 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                         description: _descriptionController.text,
                         dueDate: dueDate,
                         id: getCurrentTerm().getID(),
-                        priority: _selectedPriority)
+                        priority: _selectedPriority,
+                        duration: Duration(
+                            minutes: int.parse(_durationController.text)))
                     : null);
               }
             });
