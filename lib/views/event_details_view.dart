@@ -214,7 +214,9 @@ class _EventDetailsViewState extends State<EventDetailsView> {
         TextEditingController(text: widget.event.description);
     _locationController = TextEditingController(text: widget.event.location);
     _durationController =
-        TextEditingController(text: widget.event.duration.inMinutes.toString());
+        TextEditingController(text: widget.event.duration.inMinutes == null
+            ? "30"
+            : widget.event.duration.inMinutes.toString());
     setState(() {
       daysOfEvent = widget.event.daysOfEvent;
       startTime = widget.event.startTime;

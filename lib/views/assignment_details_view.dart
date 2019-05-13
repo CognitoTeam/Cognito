@@ -45,7 +45,9 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
     _possibleController = TextEditingController(
         text: widget.assignment.pointsPossible.toString());
     _durationController = TextEditingController(
-        text: widget.assignment.duration.inMinutes.toString());
+        text: widget.assignment.duration.inMinutes == null
+            ? "30"
+            : widget.assignment.duration.inMinutes.toString());
     _categoryListTitle = widget.assignment.category.title +
         ": " +
         widget.assignment.category.weightInPercentage.toString() +
