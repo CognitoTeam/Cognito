@@ -22,6 +22,8 @@ class _AddEventViewState extends State<AddEventView> {
   final _titleController = TextEditingController();
   final _locationController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _durationController = TextEditingController();
+
   bool _isRepeated = false;
   DateTime startTime, endTime;
   List<int> daysOfEvent = List();
@@ -79,6 +81,15 @@ class _AddEventViewState extends State<AddEventView> {
             style: Theme.of(context).accentTextTheme.body1,
           ),
           content: _timeSelectionColumn(),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
+          title: Text(
+            "Estimated duration",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content: textFieldTile(
+              hint: "In minutes", controller: _durationController),
           state: StepState.indexed,
           isActive: true),
       Step(
@@ -292,7 +303,9 @@ class _AddEventViewState extends State<AddEventView> {
                       start: startTime,
                       end: endTime,
                       id: getCurrentTerm().getID(),
-                      priority: _selectedPriority)
+                      priority: _selectedPriority,
+                      duration: Duration(
+                          minutes: int.parse(_durationController.text)))
                   : null);
             },
           )
@@ -331,7 +344,9 @@ class _AddEventViewState extends State<AddEventView> {
                       start: startTime,
                       end: endTime,
                       id: getCurrentTerm().getID(),
-                      priority: _selectedPriority)
+                      priority: _selectedPriority,
+                      duration: Duration(
+                          minutes: int.parse(_durationController.text)))
                   : null);
             }
           });
