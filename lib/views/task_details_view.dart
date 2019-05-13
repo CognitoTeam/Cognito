@@ -31,8 +31,10 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.task.title);
-    _durationController =
-        TextEditingController(text: widget.task.duration.inMinutes.toString());
+    _durationController = TextEditingController(
+        text: widget.task.duration.inMinutes == null
+            ? "30"
+            : widget.task.duration.inMinutes.toString());
     _descriptionController =
         TextEditingController(text: widget.task.description);
     _locationController = TextEditingController(text: widget.task.location);
@@ -199,7 +201,7 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
             widget.task.daysOfEvent = daysOfEvent;
             widget.task.priority = _selectedPriority;
             widget.task.duration =
-                  Duration(minutes: int.parse(_durationController.text));
+                Duration(minutes: int.parse(_durationController.text));
             Navigator.of(context).pop(widget.task);
           },
         ),
