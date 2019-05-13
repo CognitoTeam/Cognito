@@ -1,6 +1,5 @@
 // Copyright 2019 UniPlan. All rights reserved.
 
-import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/category.dart';
 import 'package:cognito/models/class.dart';
@@ -16,8 +15,6 @@ class GradeBookView extends StatefulWidget {
 }
 
 class _GradeBookViewState extends State<GradeBookView> {
-  AcademicTerm term;
-
   List<Widget> rowsOfWidgets() {
     List<Widget> rowsOfWidgets = [];
     Class selectedClass = widget.selectedClass;
@@ -26,29 +23,13 @@ class _GradeBookViewState extends State<GradeBookView> {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Column(
-            children: <Widget>[
-              Text(
-                "Name",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ],
+          Text(
+            "Title",
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          Column(
-            children: <Widget>[
-              Text(
-                "Status",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          Column(
-            children: <Widget>[
-              Text(
-                "Grade",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ],
+          Text(
+            "Grade",
+            style: TextStyle(fontWeight: FontWeight.bold),
           )
         ],
       ),
@@ -58,23 +39,12 @@ class _GradeBookViewState extends State<GradeBookView> {
     if (selectedClass.assignments.isNotEmpty) {
       for (Assignment a in selectedClass.assignments) {
         rowsOfWidgets.add(ListTile(
-          leading: Column(
-            children: <Widget>[
-              Text(a.title),
-            ],
+          title: Text(
+            a.title,
+            overflow: TextOverflow.ellipsis,
           ),
-          title: Column(
-            children: <Widget>[
-              Text("STATUS"),
-            ],
-          ),
-          trailing: Column(
-            children: <Widget>[
-              Text(a.pointsEarned.toString() +
-                  "/" +
-                  a.pointsPossible.toString()),
-            ],
-          ),
+          trailing: Text(
+              a.pointsEarned.toString() + "/" + a.pointsPossible.toString()),
         ));
         rowsOfWidgets.add(Divider());
       }
@@ -83,18 +53,13 @@ class _GradeBookViewState extends State<GradeBookView> {
     // Assessments
     if (selectedClass.assessments.isNotEmpty) {
       for (Assignment a in selectedClass.assessments) {
-        rowsOfWidgets.add(ListTile(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text(a.title),
-              Text("STATUS"),
-              Text(a.pointsEarned.toString() +
-                  "/" +
-                  a.pointsPossible.toString()),
-            ],
+        rowsOfWidgets.add(
+          ListTile(
+            title: Text(a.title),
+            trailing: Text(
+                a.pointsEarned.toString() + "/" + a.pointsPossible.toString()),
           ),
-        ));
+        );
         rowsOfWidgets.add(Divider());
       }
     }
@@ -102,40 +67,44 @@ class _GradeBookViewState extends State<GradeBookView> {
     // Categorical breakdown
     rowsOfWidgets.add(Divider());
     for (Category c in selectedClass.categories) {
-      rowsOfWidgets.add(ListTile(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Text(c.title),
-            Text(c.getPercentage().toString() + "%")
-          ],
-        ),
-      ));
+      rowsOfWidgets.add(
+        ListTile(
+            title: Text(c.title),
+            trailing: Text(c.getPercentage().toString() + "%")),
+      );
     }
     rowsOfWidgets.add(Divider());
 
     // Total Grade
     rowsOfWidgets.add(Divider());
     rowsOfWidgets.add(ListTile(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text(
-            "Total",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Text(
-            selectedClass.getPercentage() + " - " + selectedClass.getGrade(),
-            style: TextStyle(fontWeight: FontWeight.bold),
-          )
-        ],
-      ),
-    ));
+        title: Text(
+          "Total",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        trailing: Text(
+          selectedClass.getPercentage() + " - " + selectedClass.getGrade(),
+          style: TextStyle(fontWeight: FontWeight.bold),
+        )));
     return rowsOfWidgets;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: rowsOfWidgets());
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).primaryColorDark,
+        title: Text("Grades for " +
+            widget.selectedClass.subjectArea +
+            widget.selectedClass.courseNumber),
+        leading: IconButton(
+          icon: BackButtonIcon(),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+      body: ListView(children: rowsOfWidgets()),
+    );
   }
 }

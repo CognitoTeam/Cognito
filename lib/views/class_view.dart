@@ -7,8 +7,8 @@ import 'package:cognito/database/notifications.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/class.dart';
 import 'package:cognito/views/add_class_view.dart';
-import 'package:cognito/views/class_details_view.dart';
 import 'package:cognito/views/class_editing_view.dart';
+import 'package:cognito/views/gradebook_view.dart';
 import 'package:cognito/views/main_drawer.dart';
 import 'package:flutter/material.dart';
 
@@ -93,8 +93,9 @@ class _ClassViewState extends State<ClassView> {
               await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          ClassDetailsView(classObj: classObj)));
+                      builder: (context) => GradeBookView(
+                            selectedClass: classObj,
+                          )));
               database.allTerms.updateTerm(term);
               database.updateDatabase();
 
