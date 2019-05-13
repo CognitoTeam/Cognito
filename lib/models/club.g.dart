@@ -20,6 +20,9 @@ Club _$ClubFromJson(Map<String, dynamic> json) {
         ? null
         : DateTime.parse(json['endTime'] as String)
     ..isRepeated = json['isRepeated'] as bool
+    ..duration = json['duration'] == null
+        ? null
+        : Duration(microseconds: json['duration'] as int)
     ..daysOfEvent =
         (json['daysOfEvent'] as List)?.map((e) => e as int)?.toList()
     ..officers = (json['officers'] as List)
@@ -45,6 +48,7 @@ Map<String, dynamic> _$ClubToJson(Club instance) => <String, dynamic>{
       'isRepeated': instance.isRepeated,
       'id': instance.id,
       'priority': instance.priority,
+      'duration': instance.duration?.inMicroseconds,
       'daysOfEvent': instance.daysOfEvent,
       'officers': instance.officers,
       'events': instance.events,

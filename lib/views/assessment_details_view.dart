@@ -29,6 +29,8 @@ class _AssessmentDetailsViewState extends State<AssessmentDetailsView> {
   TextEditingController _categoryWeight = TextEditingController();
   TextEditingController _categoryTitleEdit = TextEditingController();
   TextEditingController _categoryWeightEdit = TextEditingController();
+  TextEditingController _durationController = TextEditingController();
+
   int _selectedPriority;
 
   //  Stepper
@@ -45,7 +47,8 @@ class _AssessmentDetailsViewState extends State<AssessmentDetailsView> {
         TextEditingController(text: widget.assignment.pointsEarned.toString());
     _possibleController = TextEditingController(
         text: widget.assignment.pointsPossible.toString());
-
+    _durationController = TextEditingController(
+        text: widget.assignment.duration.inMinutes.toString());
     _categoryListTitle = widget.assignment.category.title +
         ": " +
         widget.assignment.category.weightInPercentage.toString() +
@@ -336,6 +339,15 @@ class _AssessmentDetailsViewState extends State<AssessmentDetailsView> {
           state: StepState.indexed,
           isActive: true),
       Step(
+          title: Text(
+            "Estimated duration",
+            style: Theme.of(context).accentTextTheme.body1,
+          ),
+          content: textFieldTile(
+              hint: "In minutes", controller: _durationController),
+          state: StepState.indexed,
+          isActive: true),
+      Step(
           title: Text("Exam/Quiz Date"),
           content: ListTile(
             title: Text(
@@ -421,6 +433,8 @@ class _AssessmentDetailsViewState extends State<AssessmentDetailsView> {
               widget.assignment.pointsPossible =
                   double.parse(_possibleController.text);
               widget.assignment.priority = _selectedPriority;
+              widget.assignment.duration =
+                  Duration(minutes: int.parse(_durationController.text));
               Navigator.of(context).pop(widget.assignment);
             },
           ),
@@ -461,6 +475,8 @@ class _AssessmentDetailsViewState extends State<AssessmentDetailsView> {
                 widget.assignment.pointsPossible =
                     double.parse(_possibleController.text);
                 widget.assignment.priority = _selectedPriority;
+                widget.assignment.duration =
+                    Duration(minutes: int.parse(_durationController.text));
                 Navigator.of(context).pop(widget.assignment);
               }
             });

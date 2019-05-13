@@ -20,9 +20,11 @@ class _AddTaskViewState extends State<AddTaskView> {
   final _titleController = TextEditingController();
   final _locationController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _durationController = TextEditingController();
+
   bool _isRepeated = false;
   int _selectedPriority = 1;
-   //  Stepper
+  //  Stepper
   //  init step to 0th position
   int currentStep = 0;
   DateTime dueDate;
@@ -118,7 +120,8 @@ class _AddTaskViewState extends State<AddTaskView> {
     }
     return null;
   }
-List<Step> getSteps() {
+
+  List<Step> getSteps() {
     return [
       Step(
           title: Text(
@@ -158,24 +161,32 @@ List<Step> getSteps() {
           ),
           state: StepState.indexed,
           isActive: true),
-          Step(
-            title: Text("Due date"),
-            state: StepState.indexed,
-            isActive: true,
-            content: ListTile(
-              leading: Icon(Icons.calendar_today),
-              title: Text(
-                "Select Due Date",
-                style: Theme.of(context).accentTextTheme.body2,
-              ),
-              trailing: Text(
-                dueDate != null
-                    ? "${dueDate.month.toString()}/${dueDate.day.toString()}/${dueDate.year.toString()}"
-                    : "",
-              ),
-              onTap: () => _selectDate(context),
-            )
+      Step(
+          title: Text("Due date"),
+          state: StepState.indexed,
+          isActive: true,
+          content: ListTile(
+            leading: Icon(Icons.calendar_today),
+            title: Text(
+              "Select Due Date",
+              style: Theme.of(context).accentTextTheme.body2,
+            ),
+            trailing: Text(
+              dueDate != null
+                  ? "${dueDate.month.toString()}/${dueDate.day.toString()}/${dueDate.year.toString()}"
+                  : "",
+            ),
+            onTap: () => _selectDate(context),
+          )),
+      Step(
+          title: Text(
+            "Estimated duration",
+            style: Theme.of(context).accentTextTheme.body1,
           ),
+          content: textFieldTile(
+              hint: "In minutes", controller: _durationController),
+          state: StepState.indexed,
+          isActive: true),
       Step(
           title: Text(
             "Select priority",
@@ -202,32 +213,35 @@ List<Step> getSteps() {
           ))
     ];
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Add New Task"),
-          backgroundColor: Theme.of(context).primaryColorDark,
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.check),
-              onPressed: () {
-                Navigator.of(context).pop(_titleController != null
-                    ? Task(
-                        title: _titleController.text,
-                        location: _locationController.text,
-                        description: _descriptionController.text,
-                        daysOfEvent: daysOfEvent,
-                        isRepeated: _isRepeated,
-                        dueDate: dueDate,
-                        id: getCurrentTerm().getID(),
-                        priority: _selectedPriority)
-                    : null);
-              },
-            )
-          ],
-        ),
-        body: Stepper(
+      appBar: AppBar(
+        title: Text("Add New Task"),
+        backgroundColor: Theme.of(context).primaryColorDark,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.check),
+            onPressed: () {
+              Navigator.of(context).pop(_titleController != null
+                  ? Task(
+                      title: _titleController.text,
+                      location: _locationController.text,
+                      description: _descriptionController.text,
+                      daysOfEvent: daysOfEvent,
+                      isRepeated: _isRepeated,
+                      dueDate: dueDate,
+                      id: getCurrentTerm().getID(),
+                      priority: _selectedPriority,
+                      duration: Duration(
+                          minutes: int.parse(_durationController.text)))
+                  : null);
+            },
+          )
+        ],
+      ),
+      body: Stepper(
         currentStep: this.currentStep,
         steps: getSteps(),
         type: StepperType.vertical,
@@ -252,19 +266,21 @@ List<Step> getSteps() {
             } else {
               Navigator.of(context).pop(_titleController != null
                   ? Task(
-                        title: _titleController.text,
-                        location: _locationController.text,
-                        description: _descriptionController.text,
-                        daysOfEvent: daysOfEvent,
-                        isRepeated: _isRepeated,
-                        dueDate: dueDate,
-                        id: getCurrentTerm().getID(),
-                        priority: _selectedPriority)
-                    : null);
+                      title: _titleController.text,
+                      location: _locationController.text,
+                      description: _descriptionController.text,
+                      daysOfEvent: daysOfEvent,
+                      isRepeated: _isRepeated,
+                      dueDate: dueDate,
+                      id: getCurrentTerm().getID(),
+                      priority: _selectedPriority,
+                      duration: Duration(
+                          minutes: int.parse(_durationController.text)))
+                  : null);
             }
           });
         },
       ),
-      );
+    );
   }
 }
