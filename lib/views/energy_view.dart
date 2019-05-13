@@ -8,6 +8,8 @@ import 'package:cognito/models/energy.dart';
 import 'package:cognito/views/main_drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:intl/intl.dart';
 
 /// Personal energy levels view
 ///
@@ -31,6 +33,8 @@ class _EnergyViewState extends State<EnergyView> {
   /// Content should be set with the readDataPoints() method.
   static List<EnergyLevel> energyLevels = [];
 
+  static List<AverageEnergy> averages = [];
+
   //  This is required because we apparently call setState() too much and
   //  this will stop setState() from being called unless the State object is
   //  mounted. This should stop memory leaks.
@@ -46,15 +50,31 @@ class _EnergyViewState extends State<EnergyView> {
   /// First, [EnergyLevel] data points are read from Firestore, which should
   /// set the content of the [energyLevels] list. This data is used in creating
   /// the [Series].
-  List<Series<EnergyLevel, DateTime>> _getSeries() {
-    readDataPoints();
+  List<Series<EnergyLevel, DateTime>> _getSeries(bool forToday) {
     List<Series<EnergyLevel, DateTime>> series = [
       Series<EnergyLevel, DateTime>(
-        id: "Energy Levels",
+        id: "Energy Levels for Today",
         domainFn: (EnergyLevel energyData, _) => energyData.day,
         measureFn: (EnergyLevel energyData, _) => energyData.level,
-        data: energyLevels,
+        data: forToday
+            ? energyLevels.where((energy) {
+                return DateTime.now().day == energy.day.day;
+              }).toList()
+            : energyLevels,
       ),
+    ];
+    return series;
+  }
+
+  List<Series<AverageEnergy, int>> _getAverageSeries() {
+    print("Averages: " + averages.toString());
+    List<Series<AverageEnergy, int>> series = [
+      Series<AverageEnergy, int>(
+        id: "Average Energy Levels",
+        domainFn: (AverageEnergy avg, _) => avg.hour,
+        measureFn: (AverageEnergy avg, _) => avg.averageEnergyLevel,
+        data: averages,
+      )
     ];
     return series;
   }
@@ -83,6 +103,15 @@ class _EnergyViewState extends State<EnergyView> {
               document.data["energyLevel"]))
           .toList();
     });
+  }
+
+  void getAverages() async {
+    await readDataPoints();
+    List<AverageEnergy> averagesToReturn = [];
+    for (int i = 0; i < 24; i++) {
+      averagesToReturn.add(AverageEnergy(energyLevels, i));
+    }
+    averages = averagesToReturn;
   }
 
   /// Adds [EnergyLevel] data point to Firestore
@@ -125,9 +154,11 @@ class _EnergyViewState extends State<EnergyView> {
 
   @override
   void initState() {
-    super.initState();
     energyLevels = [];
+    averages = [];
     readDataPoints();
+    getAverages();
+    super.initState();
   }
 
   /// Static ticks needed to keep chart's viewport (window) at a scale in which
@@ -147,7 +178,7 @@ class _EnergyViewState extends State<EnergyView> {
 
   @override
   Widget build(BuildContext context) {
-    TimeSeriesChart energyLevelChart = TimeSeriesChart(_getSeries(),
+    TimeSeriesChart energyLevelChartForToday = TimeSeriesChart(_getSeries(true),
         dateTimeFactory: LocalDateTimeFactory(),
         domainAxis: DateTimeAxisSpec(
             renderSpec: GridlineRendererSpec(labelOffsetFromAxisPx: 10),
@@ -162,33 +193,112 @@ class _EnergyViewState extends State<EnergyView> {
           includePoints: true,
         ),
         animate: false);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Personal Energy Levels"),
-      ),
-      drawer: MainDrawer(),
-      body: ListView(
-        children: <Widget>[
-          Container(
-            margin: EdgeInsets.only(top: 10, left: 10, right: 10),
-            height: 256,
-            child: Card(
-              child: Padding(
-                  padding: const EdgeInsets.all(10.0), child: energyLevelChart),
-            ),
-          )
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(onPressed: () async {
-        if (!pointExistsForCurrentHour()) {
-          EnergyLevel result = await _showDialog();
-          if (result != null) {
-            addDataPoint(result);
-          }
-          setState(() {});
-        } else {}
-      }),
+
+    LineChart energyLevelChartAverage = LineChart(
+      _getAverageSeries(),
+      primaryMeasureAxis: NumericAxisSpec(
+          renderSpec: GridlineRendererSpec(labelOffsetFromAxisPx: 10),
+          showAxisLine: true,
+          tickProviderSpec: StaticNumericTickProviderSpec(staticMeasureTicks)),
+      defaultRenderer: LineRendererConfig(includePoints: true),
     );
+
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("Personal Energy Levels"),
+        ),
+        drawer: MainDrawer(),
+        body: ListView(
+          children: <Widget>[
+            Card(
+              child: Column(
+                children: <Widget>[
+                  Container(
+                      height: 256,
+                      child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: energyLevelChartForToday)),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      "Energy Levels for Today",
+                      style: Theme.of(context).accentTextTheme.title,
+                    ),
+                  )
+                ],
+              ),
+            ),
+            Card(
+              child: Column(
+                children: <Widget>[
+                  Container(
+                      height: 256,
+                      child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: energyLevelChartAverage)),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      "Average Energy Levels",
+                      style: Theme.of(context).accentTextTheme.title,
+                    ),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
+        floatingActionButton: SpeedDial(
+          animatedIcon: AnimatedIcons.menu_close,
+          animatedIconTheme: IconThemeData(size: 22),
+          closeManually: false,
+          curve: Curves.bounceIn,
+          overlayColor: Colors.white,
+          overlayOpacity: 0.5,
+          shape: CircleBorder(),
+          children: <SpeedDialChild>[
+            SpeedDialChild(
+                child: Icon(Icons.add),
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.white,
+                label: "Add Energy Level for Current Hour",
+                labelStyle: Theme.of(context).accentTextTheme.body1,
+                onTap: () async {
+                  if (!pointExistsForCurrentHour()) {
+                    EnergyLevel result = await _showDialog();
+                    if (result != null) {
+                      addDataPoint(result);
+                    }
+                    setState(() {});
+                  } else {}
+                })
+          ],
+        ));
+  }
+}
+
+class AverageEnergy {
+  int hour;
+  double averageEnergyLevel;
+  AverageEnergy(List<EnergyLevel> energyLevels, this.hour) {
+    double sum = 0.0;
+    List<EnergyLevel> energyLevelsThisHour =
+        energyLevels.where((e) => e.day.hour == this.hour).toList();
+    if (energyLevelsThisHour.length == 0) {
+      averageEnergyLevel = 0.0;
+      return;
+    }
+    for (EnergyLevel e in energyLevelsThisHour) {
+      sum += e.level.toDouble();
+    }
+    print("Sum: " + sum.toString());
+    print("Length of list: " + energyLevelsThisHour.length.toString());
+    averageEnergyLevel = sum / energyLevelsThisHour.length;
+  }
+
+  @override
+  String toString() {
+    return hour.toString() + ": " + averageEnergyLevel.toString();
   }
 }
 
@@ -249,6 +359,44 @@ class _AddEnergyDialogState extends State<AddEnergyDialog> {
                 },
                 child: Text("Confirm"))
           ],
+        )
+      ],
+    );
+  }
+}
+
+class AddPastEnergyDialogContent extends StatefulWidget {
+  @override
+  _AddPastEnergyDialogContentState createState() =>
+      _AddPastEnergyDialogContentState();
+}
+
+class _AddPastEnergyDialogContentState
+    extends State<AddPastEnergyDialogContent> {
+  DateTime energyLevelDateTime;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        ListTile(
+          leading: Icon(Icons.access_time),
+          title: energyLevelDateTime == null
+              ? null
+              : Text(DateFormat.MMMd().add_j().format(energyLevelDateTime)),
+          onTap: () async {
+            DateTime pickerResult = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime.now().subtract(Duration(days: 365)),
+                lastDate: DateTime.now().add(Duration(days: 365)));
+            TimeOfDay timePickerResult = await showTimePicker(
+                context: context, initialTime: TimeOfDay.now());
+            setState(() {
+              energyLevelDateTime = DateTime(pickerResult.year,
+                  pickerResult.month, pickerResult.day, timePickerResult.hour);
+            });
+          },
         )
       ],
     );
