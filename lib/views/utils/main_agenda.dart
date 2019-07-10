@@ -1,4 +1,4 @@
-// Copyright 2019 UniPlan. All rights reserved.
+import 'package:flutter/material.dart';
 import 'package:cognito/database/database.dart';
 import 'package:cognito/database/notifications.dart';
 import 'package:cognito/models/academic_term.dart';
@@ -16,22 +16,16 @@ import 'package:cognito/views/event_details_view.dart';
 import 'package:cognito/views/main_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../views/utils/PriorityAgenda/priority_agenda.dart';
-import '../views/utils/main_agenda.dart';
 
-/// Agenda view screen
-/// Displays daily agenda
-/// @author Julian Vu
 
-class AgendaView extends StatefulWidget {
+class MainAgenda extends StatefulWidget {
   @override
-  _AgendaViewState createState() => _AgendaViewState();
+  State<StatefulWidget> createState() {
+    return new MainAgendaState();
+  }
 }
 
-class _AgendaViewState extends State<AgendaView>
-    with SingleTickerProviderStateMixin {
-
-  int _currentIndex = 0;
+class MainAgendaState extends State<MainAgenda> {
 
   Notifications noti = Notifications();
 
@@ -57,290 +51,8 @@ class _AgendaViewState extends State<AgendaView>
   }
 
   @override
-  void initState() {
-    super.initState();
-    setState(() {
-      selectedDate = DateTime.now();
-      getCurrentTerm();
-    });
-    _animationController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 200))
-          ..addListener(() {
-            setState(() {});
-          });
-    _buttonColor = ColorTween(
-      begin: Color(0xFFfbc02d),
-      end: Colors.red,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Interval(
-        0.00,
-        1.00,
-        curve: Curves.linear,
-      ),
-    ));
-    _translateButton = Tween<double>(
-      begin: _fabHeight,
-      end: -14.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Interval(
-        0.0,
-        0.75,
-        curve: _curve,
-      ),
-    ));
-  }
-
-  @override
-  dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  animate() {
-    if (!isOpened) {
-      _animationController.forward();
-    } else {
-      _animationController.reverse();
-    }
-    isOpened = !isOpened;
-  }
-
-  List<Widget> _listOfClassAssign() {
-    List<Widget> listTasks = List();
-    if (term.classes.isNotEmpty) {
-      for (Class c in term.classes) {
-        listTasks.add(
-          ListTile(
-              title: Text(
-                c.title,
-                style: Theme.of(context).accentTextTheme.body2,
-              ),
-              onTap: () async {
-                setState(() {
-                  isOpened = !isOpened;
-                  animate();
-                });
-
-                Navigator.of(context).pop();
-                Assignment result =
-                    await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => AddAssignmentView(
-                              aClass: c,
-                            )));
-                if (result != null) {
-                  DateTime dateTime = DateTime(
-                      result.dueDate.year,
-                      result.dueDate.month,
-                      result.dueDate.day,
-                      c.startTime.hour,
-                      c.startTime.minute);
-                  dateTime = dateTime.subtract(Duration(minutes: 15));
-                  noti.scheduleNotification(
-                      title: "Assignment due",
-                      body: result.title +
-                          " for " +
-                          c.title +
-                          " is due at " +
-                          dateTime.hour.toString() +
-                          ":" +
-                          dateTime.minute.toString(),
-                      dateTime: dateTime,
-                      id: result.id);
-                  c.addTodoItem(c.ASSIGNMENTTAG, assignment: result);
-                  database.updateDatabase();
-                }
-              }),
-        );
-      }
-    } else {
-      listTasks.add(ListTile(
-        title: Text(
-          "No classes have been added yet!",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-      ));
-    }
-    return listTasks;
-  }
-
-  List<Widget> _listOfClassAssess() {
-    List<Widget> listTasks = List();
-    if (term.classes.isNotEmpty) {
-      for (Class c in term.classes) {
-        listTasks.add(
-          ListTile(
-              title: Text(
-                c.title,
-                style: Theme.of(context).accentTextTheme.body2,
-              ),
-              onTap: () async {
-                setState(() {
-                  isOpened = !isOpened;
-                  animate();
-                });
-
-                Navigator.of(context).pop();
-                Assignment result =
-                    await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => AddAssessmentView(
-                              aClass: c,
-                            )));
-                if (result != null) {
-                  DateTime input = DateTime(
-                      result.dueDate.year,
-                      result.dueDate.month,
-                      result.dueDate.day,
-                      result.dueDate.hour,
-                      result.dueDate.minute);
-                  input = input.subtract(Duration(minutes: 15));
-                  noti.scheduleNotification(
-                      title: "Assessment today",
-                      body: result.title +
-                          " for " +
-                          c.title +
-                          " starts in 15 mins",
-                      dateTime: input,
-                      id: result.id);
-
-                  c.addTodoItem(c.ASSESSMENTTAG, assignment: result);
-                  database.updateDatabase();
-                }
-              }),
-        );
-      }
-    } else {
-      listTasks.add(ListTile(
-        title: Text(
-          "No classes have been added yet!",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-      ));
-    }
-    return listTasks;
-  }
-
-  Widget assessment() {
-    return Container(
-      child: FloatingActionButton(
-        heroTag: "assessmentButton",
-        onPressed: () {
-          setState(() {
-            animate();
-          });
-          showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return SimpleDialog(
-                    title: Text("Choose a class"),
-                    children: _listOfClassAssess());
-              });
-        },
-        tooltip: 'Assessment',
-        child: Icon(Icons.assessment),
-      ),
-    );
-  }
-
-  Widget assignment() {
-    return Container(
-      child: FloatingActionButton(
-        heroTag: "assignmentButton",
-        onPressed: () {
-          setState(() {
-            animate();
-          });
-          showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return SimpleDialog(
-                    title: Text("Choose a class"),
-                    children: _listOfClassAssign());
-              });
-        },
-        tooltip: 'Assignment',
-        child: Icon(Icons.assignment),
-      ),
-    );
-  }
-
-  Widget event() {
-    return Container(
-      child: FloatingActionButton(
-        heroTag: "eventButton",
-        onPressed: () async {
-          Event result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddEventView()));
-          if (result != null) {
-            if (result.daysOfEvent.isNotEmpty) {
-              for (int i in result.daysOfEvent) {
-                noti.showWeeklyAtDayAndTime(
-                    title: "Event starting",
-                    body: result.title + " is starting in 15 mins",
-                    id: result.id,
-                    dayToRepeat: i,
-                    timeToRepeat:
-                        result.startTime.subtract(Duration(minutes: 15)));
-              }
-            } else {
-              DateTime now = DateTime.now();
-              DateTime input;
-              if (result.startTime.hour < now.hour ||
-                  result.endTime.hour < now.hour ||
-                  (result.startTime.hour == now.hour &&
-                      result.startTime.minute < now.minute) ||
-                  (result.endTime.hour == now.hour &&
-                      result.endTime.minute < now.minute)) {
-                print("CONDITIONS MET");
-                input = DateTime(now.year, now.month, now.day,
-                    result.startTime.hour, result.startTime.minute);
-                input.add(Duration(days: 1));
-              } else {
-                print("CONDITIONS NOT MET");
-
-                input = DateTime(now.year, now.month, now.day,
-                    result.startTime.hour, result.startTime.minute);
-              }
-              input.subtract(Duration(minutes: 15));
-              noti.scheduleNotification(
-                  title: "Event today",
-                  body: result.title + " will take place in 15 mins.",
-                  dateTime: input,
-                  id: result.id);
-            }
-
-            print(
-              "Event returned: " + result.title,
-            );
-            term.addEvent(result);
-            database.updateDatabase();
-          }
-          setState(() {
-            animate();
-          });
-        },
-        tooltip: 'Event',
-        child: Icon(Icons.event),
-      ),
-    );
-  }
-
-  Widget toggle() {
-    return Container(
-      child: FloatingActionButton(
-          heroTag: "mainButton",
-          backgroundColor: _buttonColor.value,
-          onPressed: animate,
-          tooltip: 'Toggle',
-          child: Icon(Icons.add)),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
-
-    Expanded mainAgenda = Expanded(
+    return Expanded(
       child: ListView(
         children: <Widget>[
           FilteredClassExpansion(term, selectedDate, database),
@@ -351,89 +63,6 @@ class _AgendaViewState extends State<AgendaView>
           FilteredEventExpansion(term, selectedDate, database),
         ],
       ),
-    );
-
-    Expanded priorityAgenda = Expanded(
-      child: new PriorityAgenda("PriorityAgenda"),
-    );
-    
-    void onTabTapped(int index)
-    {
-      //print(index);
-      setState(
-          () {
-            _currentIndex = index;
-          }
-      );
-    }
-
-    return Scaffold(
-        floatingActionButton: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            Transform(
-              transform: Matrix4.translationValues(
-                0.0,
-                _translateButton.value * 3.0,
-                0.0,
-              ),
-              child: assignment(),
-            ),
-            Transform(
-              transform: Matrix4.translationValues(
-                0.0,
-                _translateButton.value * 2.0,
-                0.0,
-              ),
-              child: assessment(),
-            ),
-            Transform(
-              transform: Matrix4.translationValues(
-                0.0,
-                _translateButton.value,
-                0.0,
-              ),
-              child: event(),
-            ),
-            toggle(),
-          ],
-        ),
-        drawer: MainDrawer(),
-        appBar: AppBar(
-          elevation: 0,
-          title: Text(
-            DateFormat.MMMMEEEEd().format(selectedDate),
-            style: Theme.of(context).primaryTextTheme.title,
-          ),
-          backgroundColor: Theme.of(context).primaryColorDark,
-        ),
-
-        body: Column(
-          children: <Widget>[
-            CalendarView(
-              onDateSelected: (DateTime date) {
-                setState(() {
-                  selectedDate = date;
-                });
-              },
-            ),
-            (_currentIndex == 0) ? mainAgenda : priorityAgenda
-          ],
-        ),
-        bottomNavigationBar : BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: onTabTapped,
-          items: [
-            BottomNavigationBarItem(
-              icon: new Icon(Icons.home),
-              title: new Text('Agenda'),
-            ),
-            BottomNavigationBarItem(
-              icon: new Icon(Icons.list),
-              title: new Text('Priorities'),
-            ),
-          ],
-        ),
     );
   }
 }
@@ -469,8 +98,8 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
 
               Class result = await Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => ClassDetailsView(
-                        classObj: c,
-                      )));
+                    classObj: c,
+                  )));
               if (result != null) {
                 print("Class updated: " + result.title);
                 widget.database.updateDatabase();
@@ -481,7 +110,7 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
                       id: result.id,
                       dayToRepeat: i,
                       timeToRepeat:
-                          result.startTime.subtract(Duration(minutes: 15)));
+                      result.startTime.subtract(Duration(minutes: 15)));
                 }
                 setState(() {});
               }
@@ -493,9 +122,9 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
     if (classesList.isEmpty) {
       classesList.add(ListTile(
           title: Text(
-        "No classes today",
-        style: Theme.of(context).accentTextTheme.body2,
-      )));
+            "No classes today",
+            style: Theme.of(context).accentTextTheme.body2,
+          )));
     }
     return classesList;
   }
@@ -552,12 +181,12 @@ class _FilteredAssignmentExpansionState
                   ),
                   trailing: isDueToday
                       ? Text(
-                          "Today at " + DateFormat.jm().format(a.dueDate),
-                          style: TextStyle(color: Colors.red),
-                        )
+                    "Today at " + DateFormat.jm().format(a.dueDate),
+                    style: TextStyle(color: Colors.red),
+                  )
                       : Text((a.dueDate.difference(DateTime.now()).inDays + 1)
-                              .toString() +
-                          " days"),
+                      .toString() +
+                      " days"),
                   onLongPress: () {
                     showDialog(
                         context: context,
@@ -596,11 +225,11 @@ class _FilteredAssignmentExpansionState
                   onTap: () async {
                     noti.cancelNotification(a.id);
                     Assignment result =
-                        await Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => AssessmentDetailsView(
-                                  aClass: c,
-                                  assignment: a,
-                                )));
+                    await Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => AssessmentDetailsView(
+                          aClass: c,
+                          assignment: a,
+                        )));
                     if (result != null) {
                       print("Assessment updated: " + result.title);
                       DateTime dateTime = DateTime(
@@ -645,13 +274,13 @@ class _FilteredAssignmentExpansionState
                   ),
                   trailing: isDueToday
                       ? Text(
-                          "Due today",
-                          style: TextStyle(color: Colors.red),
-                        )
+                    "Due today",
+                    style: TextStyle(color: Colors.red),
+                  )
                       : Text("Due in " +
-                          (a.dueDate.difference(DateTime.now()).inDays + 1)
-                              .toString() +
-                          " days"),
+                      (a.dueDate.difference(DateTime.now()).inDays + 1)
+                          .toString() +
+                      " days"),
                   onLongPress: () {
                     showDialog(
                         context: context,
@@ -691,11 +320,11 @@ class _FilteredAssignmentExpansionState
                   onTap: () async {
                     noti.cancelNotification(a.id);
                     Assignment result =
-                        await Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => AssignmentDetailsView(
-                                  aClass: c,
-                                  assignment: a,
-                                )));
+                    await Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => AssignmentDetailsView(
+                          aClass: c,
+                          assignment: a,
+                        )));
                     if (result != null) {
                       print("Assignment updated: " + result.title);
                       DateTime dateTime = DateTime(
@@ -730,11 +359,11 @@ class _FilteredAssignmentExpansionState
     if (assignmentList.isEmpty) {
       assignmentList.add(ListTile(
           title: Text(
-        widget.isAssessment
-            ? "No assessments due today"
-            : "No assignments due today",
-        style: Theme.of(context).accentTextTheme.body2,
-      )));
+            widget.isAssessment
+                ? "No assessments due today"
+                : "No assignments due today",
+            style: Theme.of(context).accentTextTheme.body2,
+          )));
     }
     return assignmentList;
   }
@@ -743,7 +372,7 @@ class _FilteredAssignmentExpansionState
   Widget build(BuildContext context) {
     return ExpansionTile(
       leading:
-          widget.isAssessment ? Icon(Icons.assessment) : Icon(Icons.assignment),
+      widget.isAssessment ? Icon(Icons.assessment) : Icon(Icons.assignment),
       title: Text(
         widget.isAssessment ? "Assessments" : "Assignments",
         style: Theme.of(context).accentTextTheme.body2,
@@ -817,8 +446,8 @@ class _FilteredEventExpansionState extends State<FilteredEventExpansion> {
               noti.cancelNotification(e.id);
               Event result = await Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => EventDetailsView(
-                        event: e,
-                      )));
+                    event: e,
+                  )));
               if (result != null) {
                 e = result;
                 print("Event updated: " + result.title);
@@ -830,7 +459,7 @@ class _FilteredEventExpansionState extends State<FilteredEventExpansion> {
                         id: result.id,
                         dayToRepeat: i,
                         timeToRepeat:
-                            result.startTime.subtract(Duration(minutes: 15)));
+                        result.startTime.subtract(Duration(minutes: 15)));
                   }
                 } else {
                   DateTime now = DateTime.now();
@@ -868,9 +497,9 @@ class _FilteredEventExpansionState extends State<FilteredEventExpansion> {
     if (eventsList.isEmpty) {
       eventsList.add(ListTile(
           title: Text(
-        "No events today",
-        style: Theme.of(context).accentTextTheme.body2,
-      )));
+            "No events today",
+            style: Theme.of(context).accentTextTheme.body2,
+          )));
     }
     return eventsList;
   }
