@@ -1,4 +1,5 @@
 import 'event.dart';
+import 'assignment.dart';
 import '../views/utils/PriorityAgenda/priority.dart';
 
 class EventList {
@@ -15,8 +16,14 @@ class EventList {
     Event a = Event();
     a.title = "Homework A";
     a.priority = intValue(Priority.URGENT);
+
+    Assignment b = new Assignment();
+    b.title = "Assignment A";
+    b.priority = 0;
+
     return [
-      a
+      a,
+      b
     ];
   }
 }
