@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../PriorityAgenda/priority_utils/item_edit_form.dart';
-import '../../../models/Items/item.dart';
+import '../../../models/event.dart';
 
 class EditItemPage extends StatelessWidget {
 
-  final Item item;
+  final Event item;
 
   EditItemPage(this.item);
 

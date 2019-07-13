@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../models/Items/items_list.dart';
 import '../PriorityAgenda/priority_utils/card.dart';
 import 'item_add_page.dart';
+import '../../../models/event_list.dart';
 
 class PriorityAgenda extends StatefulWidget {
   final String title;
@@ -14,13 +15,13 @@ class PriorityAgenda extends StatefulWidget {
 
 class _PriorityAgendaState extends State<PriorityAgenda> {
 
-  ItemsList itemsList;
+  EventList itemsList;
   List items;
 
   @override
   void initState() {
     super.initState();
-    itemsList = new ItemsList();
+    itemsList = new EventList();
     items = itemsList.getItems();
   }
 
@@ -50,7 +51,7 @@ class _PriorityAgendaState extends State<PriorityAgenda> {
                 margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
                 child: Container(
                     decoration: BoxDecoration(color: Colors.blueAccent),
-                    child: new CardBox(items[index], itemsList)
+                    child: new CardBox(items[index])
                 )
             );
           }

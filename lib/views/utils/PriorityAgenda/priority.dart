@@ -27,3 +27,17 @@ int intValue(Priority priority)
   }
   return -1;
 }
+
+Priority strValue(int value)
+{
+  switch(value)
+  {
+    case 0:
+      return Priority.DISCRETIONARY;
+    case 1:
+      return Priority.ROUTINE;
+    case 2:
+      return Priority.URGENT;
+  }
+  return null;
+}

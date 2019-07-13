@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../../../models/Items/item.dart';
+import '../priority.dart';
 import '../item_edit_page.dart';
-import '../../../../models/Items/items_list.dart';
+import '../../../../models/event.dart';
 
 class CardBox extends StatefulWidget {
 
-  final Item _item;
-  final ItemsList _list;
+  final Event _item;
 
-  CardBox(this._item, this._list);
+  CardBox(this._item);
 
   @override
   State<StatefulWidget> createState() {
@@ -39,7 +39,7 @@ class CardBoxState extends State<CardBox> {
         title: Row(
           children: <Widget>[
             Text(
-              widget._item.name + '  -',
+              widget._item.title + '  -',
               style: Theme.of(context).accentTextTheme.body2,
             ),
             Expanded(
@@ -47,9 +47,9 @@ class CardBoxState extends State<CardBox> {
               child: Padding(
                 padding: EdgeInsets.only(left: 10.0),
                 child: Text(
-                  super.widget._item.getPriorityString(),
+                  widget._item.priority.toString(),
                   style: TextStyle(
-                      color: widget._item.getPriorityColor(),
+                      color: getPriorityColor(widget._item.priority),
                       fontSize: 12.0
                   ),
                 ),
@@ -64,11 +64,11 @@ class CardBoxState extends State<CardBox> {
 //              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
 //            ),
             Slider(
-              value: widget._item.completion,
-              label: 'Status: ${widget._item.completion*100}%',
+              value: 0,//widget._item.comp,
+              label: 'Status: ${0/*widget._item.completion*100*/}%',
               onChanged: (value){
                 setState(() {
-                  widget._item.completion = value;
+                  //widget._item.completion = value;
                 });
               },
               activeColor: Color.fromRGBO(0, 0, 255, 1),
@@ -84,5 +84,28 @@ class CardBoxState extends State<CardBox> {
           print("Pushed the detailed page");
         }
     );
+  }
+  Color getPriorityColor(int priority) {
+    switch (priority) {
+      case 3:
+        {
+          return Colors.red[100];
+        }
+        break;
+      case 2:
+        {
+          return Colors.yellow[100];
+        }
+        break;
+      case 1:
+        {
+          return Colors.green[100];
+        }
+        break;
+      default:
+        {
+          return Colors.white;
+        }
+    }
   }
 }

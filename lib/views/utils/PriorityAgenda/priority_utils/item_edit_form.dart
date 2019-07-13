@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../../models/Items/item.dart';
+import '../../../../models/event.dart';
 import '../priority.dart';
 
 class EditItemForm extends StatefulWidget {
 
-  final Item _item;
+  final Event _item;
 
   EditItemForm(this._item);
 
@@ -26,8 +26,8 @@ class EditItemFormState extends State<EditItemForm> {
     super.initState();
     nameController = new TextEditingController();
     descriptionController = new TextEditingController();
-    _radioValue = intValue(widget._item.priority);
-    nameController.text = widget._item.name.toString();
+    _radioValue = widget._item.priority;
+    nameController.text = widget._item.title;
     descriptionController.text = widget._item.description.toString();
   }
 
@@ -136,9 +136,9 @@ class EditItemFormState extends State<EditItemForm> {
                           padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
                           child: RaisedButton(
                               onPressed: () {
-                                widget._item.name = nameController.text;
+                                widget._item.title = nameController.text;
                                 widget._item.description = descriptionController.text;
-                                widget._item.priority = valueOf(_radioValue);
+                                widget._item.priority = _radioValue;
                                 Navigator.of(context).pop();
                               },
                               child: Row(
