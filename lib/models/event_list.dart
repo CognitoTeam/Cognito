@@ -13,17 +13,18 @@ class EventList {
   }
 
   List getItems() {
-    Event a = Event();
-    a.title = "Homework A";
-    a.priority = intValue(Priority.URGENT);
-
-    Assignment b = new Assignment();
-    b.title = "Assignment A";
-    b.priority = 0;
-
-    return [
-      a,
-      b
-    ];
+//    Event a = Event();
+//    a.title = "Homework A";
+//    a.priority = intValue(Priority.URGENT);
+//
+//    Assignment b = new Assignment();
+//    b.title = "Assignment A";
+//    b.priority = 0;
+//
+//    return [
+//      a,
+//      b
+//    ];
+  return _list;
   }
 }

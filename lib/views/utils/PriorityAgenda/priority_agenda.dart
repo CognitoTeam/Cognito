@@ -1,28 +1,70 @@
 import 'package:flutter/material.dart';
+import 'package:cognito/models/class.dart';
+import 'package:cognito/models/event.dart';
+import 'package:cognito/models/assignment.dart';
 import '../../../models/Items/items_list.dart';
+import 'package:cognito/database/database.dart';
 import '../PriorityAgenda/priority_utils/card.dart';
 import 'item_add_page.dart';
 import '../../../models/event_list.dart';
+import 'package:cognito/models/academic_term.dart';
 
 class PriorityAgenda extends StatefulWidget {
+
   final String title;
+  DataBase database = DataBase();
+  AcademicTerm term;
 
   PriorityAgenda(this.title);
 
+  AcademicTerm getCurrentTerm() {
+    for (AcademicTerm term in database.allTerms.terms) {
+      if (DateTime.now().isAfter(term.startTime) &&
+          DateTime.now().isBefore(term.endTime)) {
+        this.term = term;
+        print("Hello world" + term.classes[0].title);
+        return term;
+      }
+    }
+    return null;
+  }
+
   @override
-  _PriorityAgendaState createState() => new _PriorityAgendaState();
+  _PriorityAgendaState createState() => new _PriorityAgendaState(getCurrentTerm());
 }
 
 class _PriorityAgendaState extends State<PriorityAgenda> {
 
+  final AcademicTerm term;
   EventList itemsList;
   List items;
+
+  _PriorityAgendaState(this.term);
 
   @override
   void initState() {
     super.initState();
+
     itemsList = new EventList();
+    print("Hello world" + term.classes[0].title);
+
+    for(Class c in term.classes)
+    {
+      for(Assignment i in c.assignments)
+        {
+          itemsList.addEvent(i);
+        }
+      for(Assignment i in c.assessments)
+      {
+        itemsList.addEvent(i);
+      }
+    }
+    for(Event i in term.events)
+      {
+        itemsList.addEvent(i);
+      }
     items = itemsList.getItems();
+    ;
   }
 
   @override
