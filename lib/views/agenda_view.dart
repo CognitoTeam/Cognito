@@ -273,7 +273,9 @@ class _AgendaViewState extends State<AgendaView>
           Event result = await Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => AddEventView()));
           if (result != null) {
+            //result occurs in a day
             if (result.daysOfEvent.isNotEmpty) {
+              //on that day show notification 15 minutes before
               for (int i in result.daysOfEvent) {
                 noti.showWeeklyAtDayAndTime(
                     title: "Event starting",

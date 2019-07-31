@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cognito/models/task.dart';
 import 'package:cognito/models/class.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/models/assignment.dart';
@@ -44,9 +45,7 @@ class _PriorityAgendaState extends State<PriorityAgenda> {
   @override
   void initState() {
     super.initState();
-
     itemsList = new EventList();
-    print("Hello world" + term.classes[0].title);
 
     for(Class c in term.classes)
     {
@@ -63,8 +62,11 @@ class _PriorityAgendaState extends State<PriorityAgenda> {
       {
         itemsList.addEvent(i);
       }
+    for(Task i in term.tasks)
+      {
+        itemsList.addEvent(i);
+      }
     items = itemsList.getItems();
-    ;
   }
 
   @override
