@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 /// Models an event on a schedule
 /// 
 //import 'package:json_serializable/json_serializable.dart';
@@ -58,4 +59,5 @@ factory Event.fromJson(Map<String, dynamic> json) => _$EventFromJson(json);
       daysOfEvent.add(dayOfWeek);
     }
   }
+
 }
