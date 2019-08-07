@@ -5,6 +5,9 @@ import 'package:cognito/models/all_terms.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/academic_term.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 /// Academic term creation view
 /// View screen to create a new AcademicTerm
@@ -16,13 +19,18 @@ class AddTermView extends StatefulWidget {
 }
 
 class _AddTermViewState extends State<AddTermView> {
-  DataBase dataBase = DataBase();
-  AllTerms allTerms;
+  DataBase database = DataBase();
+  //Fire store instance
+  final firestore = Firestore.instance;
+
+  //To check time conflict
+  AllTerms allTerms = new AllTerms();
+
   @override
   void initState() {
     super.initState();
     setState(() {
-      this.allTerms = dataBase.allTerms;
+
     });
   }
 
@@ -55,7 +63,7 @@ class _AddTermViewState extends State<AddTermView> {
       print("Date selected: ${picked.toString()}");
       setState(() {
         isStart ? newStartDate = picked : newEndDate = picked;
-        print(isStart ? newStartDate.toString() : newEndDate.toString());
+        //print(isStart ? newStartDate.toString() : newEndDate.toString());
       });
     }
   }
@@ -63,7 +71,7 @@ class _AddTermViewState extends State<AddTermView> {
   String conflictTerm = "";
   bool timeConflict(DateTime startTime, DateTime endTime) {
     bool cond = false;
-    for (AcademicTerm t in allTerms.terms) {
+    for (AcademicTerm t in allTerms.getTerms()) {
       if ((startTime.isAfter(t.startTime) && startTime.isBefore(t.endTime)) ||
           (endTime.isAfter(t.startTime) && endTime.isBefore(t.endTime)) ||
           (startTime.compareTo(t.startTime) == 0) &&
@@ -77,6 +85,8 @@ class _AddTermViewState extends State<AddTermView> {
 
   @override
   Widget build(BuildContext context) {
+    updateAllTerms();
+    print("**************" + allTerms.getTerms().length.toString() + "************");
     return Scaffold(
       appBar: AppBar(
         title: Text("Add New Academic Term"),
@@ -88,8 +98,8 @@ class _AddTermViewState extends State<AddTermView> {
                 onPressed: () {
                   if (!timeConflict(newStartDate, newEndDate)) {
                     Navigator.of(context).pop(_termNameController != null
-                        ? AcademicTerm(
-                            _termNameController.text, newStartDate, newEndDate)
+                    //Add the term to fire store
+                        ? addAcademicTerm()
                         : null);
                   } else {
                     Scaffold.of(context).showSnackBar(SnackBar(
@@ -154,5 +164,55 @@ class _AddTermViewState extends State<AddTermView> {
         ],
       ),
     );
+  }
+
+  Future updateAllTerms()
+  async {
+    String getUserID = await getCurrentUserID();
+    print("********Updating terms");
+    print("********User ID = " + getUserID);
+    firestore.collection("terms")
+        .where("user_id", isEqualTo: getUserID)
+        .snapshots().listen((data) =>
+        data.documents.forEach((doc) => allTerms.addTerm(
+            new AcademicTerm(doc['user_id'], doc['start_date'].toDate(), doc['end_date'].toDate()))
+        )
+    );
+    print("********Terms length: " + allTerms.terms.length.toString());
+  }
+
+  /// Gets the current user's ID from Firebase.
+  Future<String> getCurrentUserID() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    return user.uid;
+  }
+
+  void getFireStoreTerms() async {
+    allTerms.terms.clear();
+    firestore.collection("terms")
+        .where("user_id", isEqualTo: getCurrentUserID())
+        .snapshots().listen((data)=>
+        data.documents.forEach((doc) => allTerms.addTerm(
+            new AcademicTerm(doc['user_id'], doc['start_date'], doc['end_date'])))
+    );
+  }
+
+  Future<AcademicTerm> addAcademicTerm() async
+  {
+    AcademicTerm term = new AcademicTerm(_termNameController.text, newStartDate, newEndDate);
+    DocumentReference newTermReference = firestore.collection("terms").document();
+
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    newTermReference.setData({
+    "user_id" : user.uid,
+    "term_name" : term.termName,
+    "start_date" : term.startTime,
+    "end_date" : term.endTime,
+    });
+
+    newTermReference.collection("classes_collection").document();
+    newTermReference.collection("assignments_collection").document();
+    newTermReference.collection("events_collection").document();
+    return term;
   }
 }

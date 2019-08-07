@@ -1,9 +1,14 @@
-import 'dart:io';
+//import 'dart:io';
+//import 'dart:convert';
 import 'dart:convert';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/firebase_login.dart';
 import 'package:cognito/models/all_terms.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:cognito/models/academic_term.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 /// FireStore storage for terms
 /// @author Praneet Singh
@@ -18,9 +23,13 @@ class DataBase {
   
   AllTerms allTerms;
 
+  //Fire store instance
+  final db = Firestore.instance;
+
   void closeDatabase(){
     _instance = null;
   }
+
   Future<String> initializeFireStore() async {
     String uID = await _fireBaseLogin.currentUser();
     assert(uID != null);
@@ -37,11 +46,32 @@ class DataBase {
     } else {
       print("Write json to disk from firestore");
       await writeJSON(documentSnapshot.data['terms']);
-      allTerms = await getAllTermsFromString(documentSnapshot.data['terms']);
+      allTerms = await getTerms();
+//      allTerms = await getAllTermsFromString(documentSnapshot.data['terms']);
       String jsonString = await readJSON();
       return jsonString;
     }
   }
+
+  /// Gets the current user's ID from Firebase.
+  Future<String> getCurrentUserID() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    return user.uid;
+  }
+
+  Future<AllTerms> getTerms() async {
+    List<AcademicTerm> termsList;
+    QuerySnapshot querySnapshot = await db.collection("terms")
+        .where("user_id", isEqualTo: getCurrentUserID()).getDocuments();
+    termsList = querySnapshot.documents.map((document) => AcademicTerm(document.data["term_name"],
+        DateTime.parse(document.data["start_date"]),
+        DateTime.parse(document.data["end_date"])));
+
+    AllTerms terms = new AllTerms();
+    terms.addTerms(termsList);
+    return terms;
+  }
+
 
   void update() {
     readJSON().then((String jsonString) {
@@ -50,7 +80,6 @@ class DataBase {
         print("Document Updated");
       }).catchError((e) => print(e));
     });
-    // });
   }
 
   void delete() {
@@ -76,6 +105,7 @@ class DataBase {
     AllTerms all = AllTerms.fromJson(allMap);
     return all;
   }
+
   Future<File> get _localFile async {
     final path = await _localPath;
     return File('$path/terms.txt');

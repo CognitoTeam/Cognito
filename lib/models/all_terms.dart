@@ -8,12 +8,17 @@ class AllTerms {
   List<String> subjects;
 
   AllTerms() {
-    terms = List();
+    terms = List<AcademicTerm>();
     subjects = List();
   }
 
-  void addTerms(AcademicTerm term) {
+  void addTerm(AcademicTerm term) {
     terms.add(term);
+  }
+
+  void addTerms(List<AcademicTerm> terms)
+  {
+    terms.addAll(terms);
   }
 
   void removeTerm(AcademicTerm term) {
@@ -47,4 +52,9 @@ class AllTerms {
       _$AllTermsFromJson(json);
 
   Map<String, dynamic> toJson() => _$AllTermsToJson(this);
+
+  List<AcademicTerm> getTerms()
+  {
+    return terms;
+  }
 }

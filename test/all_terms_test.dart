@@ -64,8 +64,8 @@ void main() {
     actualTerms.add(term1);
 
     AllTerms terms = AllTerms();
-    terms.addTerms(term);
-    terms.addTerms(term1);
+    terms.addTerm(term);
+    terms.addTerm(term1);
 
     String jsonString = json.encode(terms);
     final jsonList = json.decode(jsonString);
