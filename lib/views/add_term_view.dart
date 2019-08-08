@@ -169,8 +169,6 @@ class _AddTermViewState extends State<AddTermView> {
   Future updateAllTerms()
   async {
     String getUserID = await getCurrentUserID();
-    print("********Updating terms");
-    print("********User ID = " + getUserID);
     firestore.collection("terms")
         .where("user_id", isEqualTo: getUserID)
         .snapshots().listen((data) =>
@@ -178,7 +176,6 @@ class _AddTermViewState extends State<AddTermView> {
             new AcademicTerm(doc['user_id'], doc['start_date'].toDate(), doc['end_date'].toDate()))
         )
     );
-    print("********Terms length: " + allTerms.terms.length.toString());
   }
 
   /// Gets the current user's ID from Firebase.

@@ -31,12 +31,13 @@ class _AcademicTermViewState extends State<AcademicTermView> {
   // List of academic terms
   DataBase database = DataBase();
 
-  static List<AcademicTerm> terms = [];
+  static AllTerms terms = new AllTerms();
 
   @override
   void initState() {
     super.initState();
     setState(() {
+      readToTerms();
     });
   }
 
@@ -57,7 +58,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
     newTermReference.collection("assignments_collection").document();
     newTermReference.collection("events_collection").document();
     setState(() {
-      terms.add(undo);
+      terms.terms.add(undo);
     });
   }
 
@@ -65,7 +66,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
   void removeTerm(AcademicTerm termToRemove) {
     deleteTermFromFireStore(termToRemove);
     setState(() {
-      terms.remove(termToRemove);
+      terms.terms.remove(termToRemove);
     });
   }
 
@@ -85,8 +86,6 @@ class _AcademicTermViewState extends State<AcademicTermView> {
   /// start date and end date for the [AcademicTerm].
   @override
   Widget build(BuildContext context) {
-    readToTerms();
-    print("Terms length " + terms.length.toString());
     return Scaffold(
       drawer: MainDrawer(),
       appBar: AppBar(
@@ -98,13 +97,13 @@ class _AcademicTermViewState extends State<AcademicTermView> {
       ),
 
       //Get the correct terms
-      body: terms.isNotEmpty
+      body: terms.terms.isNotEmpty
           ? ListView.builder(
-              itemCount: terms.length,
+              itemCount: terms.terms.length,
               itemBuilder: (BuildContext context, int index) {
                 // Grab academic term from list
-                AcademicTerm term = terms[index];
-
+                AcademicTerm term = terms.terms[index];
+                print("***** terms name " + term.termName);
                 // Academic Term Card
                 return Container(
                   margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
@@ -134,7 +133,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                       child: Dismissible(
                         // Key needs to be unique for card dismissal to work
                         // Use start date's string representation as key
-                        key: Key(terms[index].toString()),
+                        key: Key(terms.terms[index].toString()),
                         direction: DismissDirection.endToStart,
                         onResize: () {
                           print("Swipped");
@@ -205,7 +204,6 @@ class _AcademicTermViewState extends State<AcademicTermView> {
 
           if (result != null) {
             setState((){
-//              readToTerms();
             });
           }
         },
@@ -225,15 +223,9 @@ class _AcademicTermViewState extends State<AcademicTermView> {
         .collection("terms")
         .where("user_id", isEqualTo: userID)
         .snapshots().listen((data) =>
-        data.documents.forEach((doc) => terms.add(
-          new AcademicTerm(doc['user_id'], doc['start_date'].toDate(), doc['end_date'].toDate())))
+        data.documents.forEach((doc) => terms.terms.add(
+          new AcademicTerm(doc['term_name'], doc['start_date'].toDate(), doc['end_date'].toDate())))
     );
-
-//    terms = querySnapshot.documents
-//        .map((document) => AcademicTerm(
-//        document.data["term_name"],
-//        DateTime.parse(document.data["start_date"].toDate()),
-//        DateTime.parse(document.data["end_date"].toDate())));
   }
 
   /// Gets the current user's ID from Firebase.
