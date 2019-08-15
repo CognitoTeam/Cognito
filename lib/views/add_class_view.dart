@@ -23,6 +23,7 @@ class AddClassView extends StatefulWidget {
 class _AddClassViewState extends State<AddClassView> {
   DataBase database = DataBase();
   AcademicTerm currentTerm;
+  AllTerms allTerms;
 
   DateTime startTime, endTime;
   List<int> daysOfEvent = List();
@@ -42,6 +43,12 @@ class _AddClassViewState extends State<AddClassView> {
   //  init step to 0th position
   int currentStep = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    updateCurrentTerm();
+    updateAllTerms();
+  }
   /// Return list of [Step] objects representing the different kinds of inputs
   /// Needed to create a [Class]
   List<Step> getSteps() {
@@ -241,14 +248,17 @@ class _AddClassViewState extends State<AddClassView> {
     });
   }
 
-  void getCurrentTerm() async {
-    AllTerms terms = await database.getTerms();
-    for (AcademicTerm term in terms.terms) {
+  void updateCurrentTerm() async {
+    for (AcademicTerm term in allTerms.terms) {
       if (DateTime.now().isAfter(term.startTime) &&
           DateTime.now().isBefore(term.endTime)) {
         this.currentTerm = term;
       }
     }
+  }
+
+  void updateAllTerms() async {
+    allTerms = await database.getTerms();
   }
 
   /// Helper function for deselcting a day
@@ -312,7 +322,7 @@ class _AddClassViewState extends State<AddClassView> {
   /// Returns the list of subjects from the academic term
   List<Widget> _listOfSubjects() {
     List<Widget> listSubjects =
-        database.allTerms.subjects.map((String subjectItem) {
+        allTerms.subjects.map((String subjectItem) {
       return ListTile(
         title: Text(subjectItem),
         onLongPress: () {
@@ -332,10 +342,10 @@ class _AddClassViewState extends State<AddClassView> {
                             child: Text("Yes"),
                             onPressed: () {
                               setState(() {
-                                database.allTerms.subjects.remove(subjectItem);
+                                allTerms.subjects.remove(subjectItem);
                                 Navigator.of(context).pop();
                                 Navigator.of(context).pop();
-
+                      //TODO: removed subject now update that in firestore
                                 database.updateDatabase();
                               });
                             },
@@ -434,7 +444,7 @@ class _AddClassViewState extends State<AddClassView> {
           IconButton(
             icon: Icon(Icons.check),
             onPressed: () {
-              getCurrentTerm();
+              updateCurrentTerm();
               Navigator.of(context).pop(_subjectController != null
                   ? Class(
                       subjectArea: _subjectController.text,

@@ -23,18 +23,33 @@ class ClassView extends StatefulWidget {
 class _ClassViewState extends State<ClassView> {
   Notifications noti = Notifications();
   AcademicTerm term;
+  List<Class> classes;
   Class undoClass;
   DataBase database = DataBase();
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      updateTerm();
+      updateClasses();
+    });
+  }
 
   /// Removes class from [AcademicTerm]
   void removeClass(Class classToRemove) {
     setState(() {
       term.removeClass(classToRemove);
+
     });
   }
 
+  Future updateClasses() async {
+    classes = await database.getClasses();
+  }
+
   /// Gets the current [AcademicTerm]
-  AcademicTerm getCurrentTerm() {
+  AcademicTerm updateTerm() {
     for (AcademicTerm term in database.allTerms.terms) {
       if (DateTime.now().isAfter(term.startTime) &&
           DateTime.now().isBefore(term.endTime)) {
@@ -53,14 +68,6 @@ class _ClassViewState extends State<ClassView> {
           return AddClassView();
         });
     return classToReturn;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      getCurrentTerm();
-    });
   }
 
   /// Re-adds [Class] into [AcademicTerm] after being deleted

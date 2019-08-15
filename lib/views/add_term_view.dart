@@ -86,7 +86,6 @@ class _AddTermViewState extends State<AddTermView> {
   @override
   Widget build(BuildContext context) {
     updateAllTerms();
-    print("**************" + allTerms.getTerms().length.toString() + "************");
     return Scaffold(
       appBar: AppBar(
         title: Text("Add New Academic Term"),

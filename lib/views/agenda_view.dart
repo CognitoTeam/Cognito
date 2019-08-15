@@ -47,7 +47,6 @@ class _AgendaViewState extends State<AgendaView>
   double _fabHeight = 56.0;
   DataBase database = DataBase();
 
-
   Future<AcademicTerm> getCurrentTerm() async {
     AllTerms terms = await database.getTerms();
     for (AcademicTerm term in terms.terms) {

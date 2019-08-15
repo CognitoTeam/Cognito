@@ -19,7 +19,7 @@ class AcademicTermView extends StatefulWidget {
   static String tag = "academic-term-view";
 
   @override
-  _AcademicTermViewState createState() => _AcademicTermViewState();
+  _AcademicTermViewState createState() =>_AcademicTermViewState();
 }
 
 class _AcademicTermViewState extends State<AcademicTermView> {
@@ -28,21 +28,26 @@ class _AcademicTermViewState extends State<AcademicTermView> {
   //Fire store instance
   final firestore = Firestore.instance;
 
-  AllTerms allTerms = AllTerms();
   // List of academic terms
   DataBase database = DataBase();
 
+  AllTerms allTerms;
+
+  String userID;
   //static AllTerms terms = new AllTerms();
 
-  Future updateAllTerms() async {
+  Future<void> updateAllTerms() async {
     allTerms = await database.getTerms();
   }
 
   @override
   void initState() {
     super.initState();
+    allTerms = database.allTerms;
     setState(() {
+      print("Setting State");
       updateAllTerms();
+      print("All terms length " + allTerms.terms.length.toString());
     });
   }
 
@@ -64,6 +69,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
     newTermReference.collection("events_collection").document();
     setState(() {
       allTerms.terms.add(undo);
+      database.allTerms.addTerm(undo);
     });
   }
 
@@ -72,6 +78,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
     deleteTermFromFireStore(termToRemove);
     setState(() {
       allTerms.terms.remove(termToRemove);
+      database.allTerms.removeTerm(termToRemove);
     });
   }
 
@@ -108,7 +115,6 @@ class _AcademicTermViewState extends State<AcademicTermView> {
               itemBuilder: (BuildContext context, int index) {
                 // Grab academic term from list
                 AcademicTerm term = allTerms.terms[index];
-                print("***** terms name " + term.termName);
                 // Academic Term Card
                 return Container(
                   margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
