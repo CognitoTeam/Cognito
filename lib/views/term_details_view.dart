@@ -226,7 +226,9 @@ class _ExpandableClassListState extends State<ExpandableClassList> {
               .push(MaterialPageRoute(builder: (context) => AddClassView()));
           if (result != null) {
             print(result.title);
+            //TODO: add the class into the terms collection
             widget.term.addClass(result);
+            //TODO: add the class into a class collection
           } else {}
         },
       ),

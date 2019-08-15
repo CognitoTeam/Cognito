@@ -17,15 +17,6 @@ class _BufferViewState extends State<BufferView> {
   DataBase database = DataBase();
   Notifications noti = Notifications();
 
-  AcademicTerm getCurrentTerm() {
-    for (AcademicTerm term in database.allTerms.terms) {
-      if (DateTime.now().isAfter(term.startTime) &&
-          DateTime.now().isBefore(term.endTime)) {
-        return term;
-      }
-    }
-    return null;
-  }
 /**
  * Initialize the database and if no data is stored 
  * then go to Academic term view else go to Agenda view
@@ -36,7 +27,7 @@ class _BufferViewState extends State<BufferView> {
         p == '{}' ||
         p == null ||
         p == '{"terms":[],"subjects":[]}' ||
-        getCurrentTerm() == null) {
+        database.getCurrentTerm() == null) {
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => AcademicTermView()),
@@ -57,7 +48,7 @@ class _BufferViewState extends State<BufferView> {
   Future<bool> _initializeNotifications() async {
     noti.initialize(context);
     noti.cancelAllNotifications();
-    AcademicTerm term = getCurrentTerm();
+    AcademicTerm term = await database.getCurrentTerm();
     if (term != null) {
       for (Class c in term.classes) {
         for (int day in c.getDaysOfEvent) {

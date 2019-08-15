@@ -1,7 +1,9 @@
 // Copyright 2019 UniPlan. All rights reserved.
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/database.dart';
 import 'package:cognito/database/notifications.dart';
 import 'package:cognito/models/academic_term.dart';
+import 'package:cognito/models/all_terms.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/class.dart';
 import 'package:cognito/models/event.dart';
@@ -45,8 +47,10 @@ class _AgendaViewState extends State<AgendaView>
   double _fabHeight = 56.0;
   DataBase database = DataBase();
 
-  AcademicTerm getCurrentTerm() {
-    for (AcademicTerm term in database.allTerms.terms) {
+
+  Future<AcademicTerm> getCurrentTerm() async {
+    AllTerms terms = await database.getTerms();
+    for (AcademicTerm term in terms.terms) {
       if (DateTime.now().isAfter(term.startTime) &&
           DateTime.now().isBefore(term.endTime)) {
         this.term = term;

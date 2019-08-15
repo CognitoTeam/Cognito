@@ -28,16 +28,21 @@ class _AcademicTermViewState extends State<AcademicTermView> {
   //Fire store instance
   final firestore = Firestore.instance;
 
+  AllTerms allTerms = AllTerms();
   // List of academic terms
   DataBase database = DataBase();
 
-  static AllTerms terms = new AllTerms();
+  //static AllTerms terms = new AllTerms();
+
+  Future updateAllTerms() async {
+    allTerms = await database.getTerms();
+  }
 
   @override
   void initState() {
     super.initState();
     setState(() {
-      readToTerms();
+      updateAllTerms();
     });
   }
 
@@ -58,7 +63,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
     newTermReference.collection("assignments_collection").document();
     newTermReference.collection("events_collection").document();
     setState(() {
-      terms.terms.add(undo);
+      allTerms.terms.add(undo);
     });
   }
 
@@ -66,7 +71,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
   void removeTerm(AcademicTerm termToRemove) {
     deleteTermFromFireStore(termToRemove);
     setState(() {
-      terms.terms.remove(termToRemove);
+      allTerms.terms.remove(termToRemove);
     });
   }
 
@@ -97,12 +102,12 @@ class _AcademicTermViewState extends State<AcademicTermView> {
       ),
 
       //Get the correct terms
-      body: terms.terms.isNotEmpty
+      body: allTerms.terms.isNotEmpty
           ? ListView.builder(
-              itemCount: terms.terms.length,
+              itemCount: allTerms.terms.length,
               itemBuilder: (BuildContext context, int index) {
                 // Grab academic term from list
-                AcademicTerm term = terms.terms[index];
+                AcademicTerm term = allTerms.terms[index];
                 print("***** terms name " + term.termName);
                 // Academic Term Card
                 return Container(
@@ -121,7 +126,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                                     TermDetailsView(term: term))).then((term) {
                           if (term != null) {
                             print("Term returned");
-                            readToTerms();
+                            updateAllTerms();
                             //database.updateDatabase();
                           } else {
                             print("Term was null");
@@ -133,7 +138,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                       child: Dismissible(
                         // Key needs to be unique for card dismissal to work
                         // Use start date's string representation as key
-                        key: Key(terms.terms[index].toString()),
+                        key: Key(allTerms.terms[index].toString()),
                         direction: DismissDirection.endToStart,
                         onResize: () {
                           print("Swipped");
@@ -145,14 +150,14 @@ class _AcademicTermViewState extends State<AcademicTermView> {
 //                          String jsonString = json.encode(database.allTerms);
 //                          database.writeJSON(jsonString);
 //                          database.update();
-                          readToTerms();
+                          updateAllTerms();
                           Scaffold.of(context).showSnackBar(SnackBar(
                             content: Text("${term.termName} deleted"),
                             action: SnackBarAction(
                               label: "Undo",
                               onPressed: () {
                                 undo(deletedTerm);
-                                readToTerms();
+                                updateAllTerms();
                               },
                             ),
                             duration: Duration(seconds: 7),
@@ -217,16 +222,16 @@ class _AcademicTermViewState extends State<AcademicTermView> {
     );
   }
 
-  void readToTerms() async {
-    String userID = await getCurrentUserID();
-    firestore
-        .collection("terms")
-        .where("user_id", isEqualTo: userID)
-        .snapshots().listen((data) =>
-        data.documents.forEach((doc) => terms.terms.add(
-          new AcademicTerm(doc['term_name'], doc['start_date'].toDate(), doc['end_date'].toDate())))
-    );
-  }
+//  void readToTerms() async {
+//    String userID = await getCurrentUserID();
+//    firestore
+//        .collection("terms")
+//        .where("user_id", isEqualTo: userID)
+//        .snapshots().listen((data) =>
+//        data.documents.forEach((doc) => database.allTerms.terms.add(
+//          new AcademicTerm(doc['term_name'], doc['start_date'].toDate(), doc['end_date'].toDate())))
+//    );
+//  }
 
   /// Gets the current user's ID from Firebase.
   Future<String> getCurrentUserID() async {

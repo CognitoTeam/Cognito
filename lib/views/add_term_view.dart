@@ -99,7 +99,7 @@ class _AddTermViewState extends State<AddTermView> {
                   if (!timeConflict(newStartDate, newEndDate)) {
                     Navigator.of(context).pop(_termNameController != null
                     //Add the term to fire store
-                        ? addAcademicTerm()
+                        ? database.addAcademicTerm(_termNameController.text, newStartDate, newEndDate)
                         : null);
                   } else {
                     Scaffold.of(context).showSnackBar(SnackBar(

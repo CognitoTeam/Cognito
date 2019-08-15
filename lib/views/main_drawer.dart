@@ -2,6 +2,7 @@ import 'package:cognito/database/database.dart';
 import 'package:cognito/database/firebase_login.dart';
 import 'package:cognito/database/notifications.dart';
 import 'package:cognito/models/academic_term.dart';
+import 'package:cognito/models/all_terms.dart';
 import 'package:cognito/views/GPAView.dart';
 import 'package:cognito/views/academic_term_view.dart';
 import 'package:cognito/views/agenda_view.dart';
@@ -60,8 +61,9 @@ class _MainDrawerState extends State<MainDrawer> {
     }
   }
 
-  AcademicTerm getCurrentTerm() {
-    for (AcademicTerm term in database.allTerms.terms) {
+  Future<AcademicTerm> getCurrentTerm() async {
+    AllTerms allTerms = await database.getTerms();
+    for (AcademicTerm term in allTerms.terms) {
       if (DateTime.now().isAfter(term.startTime) &&
           DateTime.now().isBefore(term.endTime)) {
         setState(() {

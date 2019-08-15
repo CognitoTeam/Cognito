@@ -2,9 +2,12 @@
 
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/database.dart';
 import 'package:cognito/models/academic_term.dart';
+import 'package:cognito/models/all_terms.dart';
 import 'package:cognito/models/class.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -19,9 +22,12 @@ class AddClassView extends StatefulWidget {
 
 class _AddClassViewState extends State<AddClassView> {
   DataBase database = DataBase();
+  AcademicTerm currentTerm;
 
   DateTime startTime, endTime;
   List<int> daysOfEvent = List();
+  final firestore = Firestore.instance;
+
 
   final _subjectController = TextEditingController();
   final _courseNumberController = TextEditingController();
@@ -235,14 +241,14 @@ class _AddClassViewState extends State<AddClassView> {
     });
   }
 
-  AcademicTerm getCurrentTerm() {
-    for (AcademicTerm term in database.allTerms.terms) {
+  void getCurrentTerm() async {
+    AllTerms terms = await database.getTerms();
+    for (AcademicTerm term in terms.terms) {
       if (DateTime.now().isAfter(term.startTime) &&
           DateTime.now().isBefore(term.endTime)) {
-        return term;
+        this.currentTerm = term;
       }
     }
-    return null;
   }
 
   /// Helper function for deselcting a day
@@ -428,6 +434,7 @@ class _AddClassViewState extends State<AddClassView> {
           IconButton(
             icon: Icon(Icons.check),
             onPressed: () {
+              getCurrentTerm();
               Navigator.of(context).pop(_subjectController != null
                   ? Class(
                       subjectArea: _subjectController.text,
@@ -441,7 +448,7 @@ class _AddClassViewState extends State<AddClassView> {
                       daysOfEvent: daysOfEvent,
                       start: startTime,
                       end: endTime,
-                      id: getCurrentTerm().getID())
+                      id: currentTerm.getID())
                   : null);
             },
           ),
@@ -471,18 +478,12 @@ class _AddClassViewState extends State<AddClassView> {
               currentStep++;
             } else {
               Navigator.of(context).pop(_subjectController != null
-                  ? Class(
-                      subjectArea: _subjectController.text,
-                      courseNumber: _courseNumberController.text,
-                      title: _courseTitleController.text,
-                      units: int.parse(_unitCountController.text),
-                      location: _locationController.text,
-                      instructor: _instructorController.text,
-                      officeLocation: _officeLocationController.text,
-                      description: _descriptionController.text,
-                      daysOfEvent: daysOfEvent,
-                      start: startTime,
-                      end: endTime)
+                  ?
+              database.addClass(_subjectController.text,
+                  _courseNumberController.text, _courseTitleController.text,
+                  int.parse(_unitCountController.text),  _locationController.text,
+                  _instructorController.text, _officeLocationController.text,
+                  _descriptionController.text, daysOfEvent, startTime, endTime)
                   : null);
             }
           });
@@ -490,4 +491,6 @@ class _AddClassViewState extends State<AddClassView> {
       ),
     );
   }
+
+
 }
