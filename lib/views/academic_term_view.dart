@@ -43,11 +43,8 @@ class _AcademicTermViewState extends State<AcademicTermView> {
   @override
   void initState() {
     super.initState();
-    allTerms = database.allTerms;
     setState(() {
-      print("Setting State");
       updateAllTerms();
-      print("All terms length " + allTerms.terms.length.toString());
     });
   }
 
@@ -108,15 +105,16 @@ class _AcademicTermViewState extends State<AcademicTermView> {
         backgroundColor: Theme.of(context).primaryColorDark,
       ),
 
-      //Get the correct terms
-      body: allTerms.terms.isNotEmpty
-          ? ListView.builder(
-              itemCount: allTerms.terms.length,
-              itemBuilder: (BuildContext context, int index) {
-                // Grab academic term from list
-                AcademicTerm term = allTerms.terms[index];
-                // Academic Term Card
-                return Container(
+        body: StreamBuilder<QuerySnapshot> (
+          stream: Firestore.instance.collection("terms").snapshots(),
+          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if(!snapshot.hasData) return new Text("Loading...");
+            return new ListView.builder(
+              itemCount: snapshot.data.documents.length,
+              itemBuilder: (BuildContext context, int index){
+                DocumentSnapshot document = snapshot.data.documents[index];
+                AcademicTerm term = new AcademicTerm(document['term_name'], document['start_date'].toDate(), document['end_date'].toDate());
+                return new Container(
                   margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
                   child: SizedBox(
                     // Inkwell makes card "tappable"
@@ -199,10 +197,106 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                     ),
                   ),
                 );
-              })
-          : Center(
-              child: Text("Lets start by adding a term!"),
-            ),
+              }
+            );
+          },
+        ),
+
+//      //Get the correct terms
+//      body: allTerms.terms.isNotEmpty
+//          ? ListView.builder(
+//              itemCount: allTerms.terms.length,
+//              itemBuilder: (BuildContext context, int index) {
+//                // Grab academic term from list
+//                AcademicTerm term = allTerms.terms[index];
+//                // Academic Term Card
+//                return Container(
+//                  margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
+//                  child: SizedBox(
+//                    // Inkwell makes card "tappable"
+//                    child: InkWell(
+//                      onTap: () async {
+//                        // Reference changed to object modified in details
+//                        // The term should be updated upoen returning from
+//                        // this navigation
+//                        await Navigator.push(
+//                            context,
+//                            MaterialPageRoute(
+//                                builder: (context) =>
+//                                    TermDetailsView(term: term))).then((term) {
+//                          if (term != null) {
+//                            print("Term returned");
+//                            updateAllTerms();
+//                            //database.updateDatabase();
+//                          } else {
+//                            print("Term was null");
+//                          }
+//                        });
+//                      },
+//
+//                      // Dismissible allows for swiping to delete
+//                      child: Dismissible(
+//                        // Key needs to be unique for card dismissal to work
+//                        // Use start date's string representation as key
+//                        key: Key(allTerms.terms[index].toString()),
+//                        direction: DismissDirection.endToStart,
+//                        onResize: () {
+//                          print("Swipped");
+//                        },
+//                        onDismissed: (direction) {
+//                          removeTerm(term);
+//                          deletedTerm = term;
+//
+////                          String jsonString = json.encode(database.allTerms);
+////                          database.writeJSON(jsonString);
+////                          database.update();
+//                          updateAllTerms();
+//                          Scaffold.of(context).showSnackBar(SnackBar(
+//                            content: Text("${term.termName} deleted"),
+//                            action: SnackBarAction(
+//                              label: "Undo",
+//                              onPressed: () {
+//                                undo(deletedTerm);
+//                                updateAllTerms();
+//                              },
+//                            ),
+//                            duration: Duration(seconds: 7),
+//                          ));
+//                        },
+//                        child: Card(
+//                          color: Theme.of(context).primaryColor,
+//                          shape: RoundedRectangleBorder(
+//                              borderRadius: BorderRadius.circular(30.0)),
+//                          child: Column(
+//                            children: <Widget>[
+//                              // Term name
+//                              ListTile(
+//                                leading: Icon(
+//                                  Icons.label,
+//                                  color: Colors.white,
+//                                ),
+//                                title: Text(
+//                                  term.termName,
+//                                  style: TextStyle(color: Colors.white),
+//                                ),
+//                                subtitle: Text(
+//                                  term.getStartDateAsString() +
+//                                      " - " +
+//                                      term.getEndDateAsString(),
+//                                  style: TextStyle(color: Colors.grey),
+//                                ),
+//                              )
+//                            ],
+//                          ),
+//                        ),
+//                      ),
+//                    ),
+//                  ),
+//                );
+//              })
+//          : Center(
+//              child: Text("Lets start by adding a term!"),
+//            ),
 
       /// Floating action button is for displaying modal sheet for creating
       /// an [AcademicTerm]

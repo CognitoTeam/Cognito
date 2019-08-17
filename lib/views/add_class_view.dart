@@ -47,7 +47,6 @@ class _AddClassViewState extends State<AddClassView> {
   void initState() {
     super.initState();
     updateCurrentTerm();
-    updateAllTerms();
   }
   /// Return list of [Step] objects representing the different kinds of inputs
   /// Needed to create a [Class]
@@ -249,6 +248,7 @@ class _AddClassViewState extends State<AddClassView> {
   }
 
   void updateCurrentTerm() async {
+    updateAllTerms();
     for (AcademicTerm term in allTerms.terms) {
       if (DateTime.now().isAfter(term.startTime) &&
           DateTime.now().isBefore(term.endTime)) {

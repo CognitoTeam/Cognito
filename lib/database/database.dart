@@ -149,9 +149,7 @@ class DataBase {
 
     Future<AllTerms> getTerms() async {
       AllTerms allTerms = AllTerms();
-      print("GET TERMS");
       userID = await getCurrentUserID();
-      print("User ID " + userID);
       firestore
           .collection("terms")
           .where("user_id", isEqualTo: userID)
@@ -159,7 +157,6 @@ class DataBase {
           data.documents.forEach((doc) => allTerms.terms.add(
               new AcademicTerm(doc['term_name'], doc['start_date'].toDate(), doc['end_date'].toDate())))
       );
-      this.allTerms = allTerms;
       return allTerms;
     }
 

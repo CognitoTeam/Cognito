@@ -43,11 +43,12 @@ class FireBaseLogin {
 
   ///User can sign in with email and password
   Future<FirebaseUser> signEmailIn(String email, String password) async {
+    print("*******:");
     FirebaseUser user = await _auth.signInWithEmailAndPassword(
         email: email, password: password);
+    print("User: " + user.toString());
     assert(user != null);
     assert(await user.getIdToken() != null);
-
     final FirebaseUser currentUser = await _auth.currentUser();
     assert(user.uid == currentUser.uid);
     _user = currentUser;
