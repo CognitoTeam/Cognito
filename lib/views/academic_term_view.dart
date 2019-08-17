@@ -43,6 +43,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
   @override
   void initState() {
     super.initState();
+    getCurrentUserID();
     setState(() {
       updateAllTerms();
     });
@@ -95,6 +96,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
   /// start date and end date for the [AcademicTerm].
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       drawer: MainDrawer(),
       appBar: AppBar(
@@ -106,9 +108,11 @@ class _AcademicTermViewState extends State<AcademicTermView> {
       ),
 
         body: StreamBuilder<QuerySnapshot> (
-          stream: Firestore.instance.collection("terms").snapshots(),
+          stream: Firestore.instance.collection("terms").where('user_id', isEqualTo: userID).snapshots(),
           builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if(!snapshot.hasData) return new Text("Loading...");
+            if(!snapshot.hasData) return new Center(
+              child: Text("Lets start by adding a term!"),
+            );
             return new ListView.builder(
               itemCount: snapshot.data.documents.length,
               itemBuilder: (BuildContext context, int index){
@@ -202,101 +206,6 @@ class _AcademicTermViewState extends State<AcademicTermView> {
           },
         ),
 
-//      //Get the correct terms
-//      body: allTerms.terms.isNotEmpty
-//          ? ListView.builder(
-//              itemCount: allTerms.terms.length,
-//              itemBuilder: (BuildContext context, int index) {
-//                // Grab academic term from list
-//                AcademicTerm term = allTerms.terms[index];
-//                // Academic Term Card
-//                return Container(
-//                  margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
-//                  child: SizedBox(
-//                    // Inkwell makes card "tappable"
-//                    child: InkWell(
-//                      onTap: () async {
-//                        // Reference changed to object modified in details
-//                        // The term should be updated upoen returning from
-//                        // this navigation
-//                        await Navigator.push(
-//                            context,
-//                            MaterialPageRoute(
-//                                builder: (context) =>
-//                                    TermDetailsView(term: term))).then((term) {
-//                          if (term != null) {
-//                            print("Term returned");
-//                            updateAllTerms();
-//                            //database.updateDatabase();
-//                          } else {
-//                            print("Term was null");
-//                          }
-//                        });
-//                      },
-//
-//                      // Dismissible allows for swiping to delete
-//                      child: Dismissible(
-//                        // Key needs to be unique for card dismissal to work
-//                        // Use start date's string representation as key
-//                        key: Key(allTerms.terms[index].toString()),
-//                        direction: DismissDirection.endToStart,
-//                        onResize: () {
-//                          print("Swipped");
-//                        },
-//                        onDismissed: (direction) {
-//                          removeTerm(term);
-//                          deletedTerm = term;
-//
-////                          String jsonString = json.encode(database.allTerms);
-////                          database.writeJSON(jsonString);
-////                          database.update();
-//                          updateAllTerms();
-//                          Scaffold.of(context).showSnackBar(SnackBar(
-//                            content: Text("${term.termName} deleted"),
-//                            action: SnackBarAction(
-//                              label: "Undo",
-//                              onPressed: () {
-//                                undo(deletedTerm);
-//                                updateAllTerms();
-//                              },
-//                            ),
-//                            duration: Duration(seconds: 7),
-//                          ));
-//                        },
-//                        child: Card(
-//                          color: Theme.of(context).primaryColor,
-//                          shape: RoundedRectangleBorder(
-//                              borderRadius: BorderRadius.circular(30.0)),
-//                          child: Column(
-//                            children: <Widget>[
-//                              // Term name
-//                              ListTile(
-//                                leading: Icon(
-//                                  Icons.label,
-//                                  color: Colors.white,
-//                                ),
-//                                title: Text(
-//                                  term.termName,
-//                                  style: TextStyle(color: Colors.white),
-//                                ),
-//                                subtitle: Text(
-//                                  term.getStartDateAsString() +
-//                                      " - " +
-//                                      term.getEndDateAsString(),
-//                                  style: TextStyle(color: Colors.grey),
-//                                ),
-//                              )
-//                            ],
-//                          ),
-//                        ),
-//                      ),
-//                    ),
-//                  ),
-//                );
-//              })
-//          : Center(
-//              child: Text("Lets start by adding a term!"),
-//            ),
 
       /// Floating action button is for displaying modal sheet for creating
       /// an [AcademicTerm]
