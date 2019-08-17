@@ -32,6 +32,7 @@ class _MainDrawerState extends State<MainDrawer> {
   void initState() {
     super.initState();
     setState(() {
+      //TODO: what is this here for
       _getUserID();
       getCurrentTerm();
     });
@@ -44,7 +45,7 @@ class _MainDrawerState extends State<MainDrawer> {
         _userID = userID;
       });
     } else {
-      print("User ID null");
+      //print("User ID null");
     }
     return userID;
   }

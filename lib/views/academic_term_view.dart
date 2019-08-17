@@ -142,7 +142,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                       child: Dismissible(
                         // Key needs to be unique for card dismissal to work
                         // Use start date's string representation as key
-                        key: Key(allTerms.terms[index].toString()),
+                        key: Key(term.toString()),
                         direction: DismissDirection.endToStart,
                         onResize: () {
                           print("Swipped");
