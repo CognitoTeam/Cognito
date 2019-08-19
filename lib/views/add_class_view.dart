@@ -27,6 +27,7 @@ class _AddClassViewState extends State<AddClassView> {
 
   DateTime startTime, endTime;
   List<int> daysOfEvent = List();
+  List<String> subjectsString = List();
   final firestore = Firestore.instance;
 
 
@@ -50,6 +51,21 @@ class _AddClassViewState extends State<AddClassView> {
     super.initState();
     getCurrentUserID();
     updateCurrentTerm();
+    readSubjects();
+  }
+
+  Future readSubjects()
+  async {
+    QuerySnapshot querySnapshot = await firestore
+        .collection("subjects")
+        .where("userID", isEqualTo: userID)
+        .getDocuments();
+    setState(() {
+    subjectsString = querySnapshot.documents
+      .map((document) => document['subject_name'].toString())
+      .toList();
+    });
+    print(subjectsString.toString());
   }
 
   Future<String> getCurrentUserID() async {
@@ -330,7 +346,7 @@ class _AddClassViewState extends State<AddClassView> {
   }
 
   /// Returns the list of subjects from the academic term
-  ListTile _listOfSubjects(String subjectName) {
+  ListTile _itemInListOfSubjects(String subjectName) {
       return ListTile(
         title: Text(subjectName),
         onLongPress: () {
@@ -381,62 +397,102 @@ class _AddClassViewState extends State<AddClassView> {
 
   /// Shows dialog window to select a subject
   void _showSubjectSelectionDialog() {
+    List<Widget> subjects = List();
+    ListTile addSubject = ListTile(
+        onTap: () {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return SimpleDialog(
+                  title: Text("Enter New Subject Name"),
+                  children: <Widget>[
+                    TextFormField(
+                      style: Theme
+                          .of(context)
+                          .accentTextTheme
+                          .body1,
+                      decoration: InputDecoration(
+                        hintText: "Subject e.g. CS",
+                        hintStyle: TextStyle(color: Colors.black45),
+                        contentPadding:
+                        EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                      ),
+                      onFieldSubmitted: (val) {
+                        print(val);
+                        setState(() {
+                          database.addSubject(val);
+                        });
+                        Navigator.pop(context);
+                      },
+                      textInputAction: TextInputAction.done,
+                    ),
+                  ],
+                );
+              });
+        },
+        title: Text("Add subject"));
+
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          List<Widget> subjects = List();
-          ListTile addSubject = ListTile(
-              onTap: () {
-                showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return SimpleDialog(
-                        title: Text("Enter New Subject Name"),
-                        children: <Widget>[
-                          TextFormField(
-                            style: Theme.of(context).accentTextTheme.body1,
-                            decoration: InputDecoration(
-                              hintText: "Subject e.g. CS",
-                              hintStyle: TextStyle(color: Colors.black45),
-                              contentPadding:
-                              EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                            ),
-                            onFieldSubmitted: (val) {
-                              print(val);
-                              setState(() {
-                                database.addSubject(val);
-                              });
-                              Navigator.pop(context);
-                            },
-                            textInputAction: TextInputAction.done,
-                          ),
-                        ],
-                      );
-                    });
-              },
-              title: Text("Add subject"));
-          return new StreamBuilder(
-              stream: firestore.collection('subjects').where('user_id', isEqualTo: userID).snapshots(),
-              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                print(userID);
-                if(snapshot.hasData)
-                  {
-                    subjects.clear();
-                    //Add subjects
-                    snapshot.data.documents.map((document) {
-                      subjects.add(_listOfSubjects(document['subject_name']));
-                    });
-                    //Add "add subject"
-                    subjects.add(addSubject);
-                    print("SUBJECT LENGTH " + subjects.length.toString());
-                  }
-                else
-                  {
-                    print("NO data retrieved");
-                  }
-                return SimpleDialog(
-                      title: Text("Choose a subject"), children: subjects);
-              });
+          subjects = new List.generate(subjectsString.length, (index) => _itemInListOfSubjects(subjectsString[index]));
+          subjects.add(addSubject);
+          print("****** " + subjects.length.toString());
+          return SimpleDialog(
+              title: Text("Choose a subject"), children: subjects);
+//          List<Widget> subjects = new List<Widget>();
+//          ListTile addSubject = ListTile(
+//              onTap: () {
+//                showDialog(
+//                    context: context,
+//                    builder: (BuildContext context) {
+//                      return SimpleDialog(
+//                        title: Text("Enter New Subject Name"),
+//                        children: <Widget>[
+//                          TextFormField(
+//                            style: Theme.of(context).accentTextTheme.body1,
+//                            decoration: InputDecoration(
+//                              hintText: "Subject e.g. CS",
+//                              hintStyle: TextStyle(color: Colors.black45),
+//                              contentPadding:
+//                              EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+//                            ),
+//                            onFieldSubmitted: (val) {
+//                              print(val);
+//                              setState(() {
+//                                database.addSubject(val);
+//                              });
+//                              Navigator.pop(context);
+//                            },
+//                            textInputAction: TextInputAction.done,
+//                          ),
+//                        ],
+//                      );
+//                    });
+//              },
+//              title: Text("Add subject"));
+//          return new StreamBuilder<QuerySnapshot>(
+//              stream: firestore.collection('subjects').snapshots(),
+//              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+//                subjects.clear();
+//                if(snapshot.hasError) print(snapshot.error);
+//                if(snapshot.hasData) {
+//                  //Add subjects
+//                  snapshot.data.documents.map((document) {
+//                    subjects.add(_listOfSubjects(document['subject_name']));
+//                  });
+//                }
+//                else
+//                  {
+//                    print("no data");
+//                  }
+//                    //Add "add subject"
+//                    subjects.add(addSubject);
+//
+//                return SimpleDialog(
+//                      title: Text("Choose a subject"), children: subjects);
+//              }
+//              );
         });
   }
 
@@ -453,8 +509,8 @@ class _AddClassViewState extends State<AddClassView> {
               "Choose a subject",
               style: Theme.of(context).accentTextTheme.body1,
             ),
-      onTap: () {
-        _showSubjectSelectionDialog();
+      onTap: () async {
+        await _showSubjectSelectionDialog();
       },
     );
   }
