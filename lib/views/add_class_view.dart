@@ -43,11 +43,21 @@ class _AddClassViewState extends State<AddClassView> {
   //  init step to 0th position
   int currentStep = 0;
 
+  String userID;
+
   @override
   void initState() {
     super.initState();
+    getCurrentUserID();
     updateCurrentTerm();
   }
+
+  Future<String> getCurrentUserID() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    userID = user.uid;
+    return user.uid;
+  }
+
   /// Return list of [Step] objects representing the different kinds of inputs
   /// Needed to create a [Class]
   List<Step> getSteps() {
@@ -248,7 +258,7 @@ class _AddClassViewState extends State<AddClassView> {
   }
 
   void updateCurrentTerm() async {
-    updateAllTerms();
+    await updateAllTerms();
     for (AcademicTerm term in allTerms.terms) {
       if (DateTime.now().isAfter(term.startTime) &&
           DateTime.now().isBefore(term.endTime)) {
@@ -257,7 +267,7 @@ class _AddClassViewState extends State<AddClassView> {
     }
   }
 
-  void updateAllTerms() async {
+  Future<void> updateAllTerms() async {
     allTerms = await database.getTerms();
   }
 
@@ -320,18 +330,16 @@ class _AddClassViewState extends State<AddClassView> {
   }
 
   /// Returns the list of subjects from the academic term
-  List<Widget> _listOfSubjects() {
-    List<Widget> listSubjects =
-        allTerms.subjects.map((String subjectItem) {
+  ListTile _listOfSubjects(String subjectName) {
       return ListTile(
-        title: Text(subjectItem),
+        title: Text(subjectName),
         onLongPress: () {
           showDialog(
               context: context,
               builder: (BuildContext context) {
                 return SimpleDialog(
                     title:
-                        Text("Are you sure you want to delete " + subjectItem),
+                    Text("Are you sure you want to delete " + subjectName),
                     children: <Widget>[
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -342,10 +350,10 @@ class _AddClassViewState extends State<AddClassView> {
                             child: Text("Yes"),
                             onPressed: () {
                               setState(() {
-                                allTerms.subjects.remove(subjectItem);
+                                allTerms.subjects.remove(subjectName);
                                 Navigator.of(context).pop();
                                 Navigator.of(context).pop();
-                      //TODO: removed subject now update that in firestore
+                                //TODO: removed subject now update that in firestore
                                 database.updateDatabase();
                               });
                             },
@@ -364,45 +372,11 @@ class _AddClassViewState extends State<AddClassView> {
         },
         onTap: () {
           setState(() {
-            _subjectController.text = subjectItem;
+            _subjectController.text = subjectName;
           });
           Navigator.pop(context);
         },
       );
-    }).toList(growable: true);
-    listSubjects.add(ListTile(
-        onTap: () {
-          showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return SimpleDialog(
-                  title: Text("Enter New Subject Name"),
-                  children: <Widget>[
-                    TextFormField(
-                      style: Theme.of(context).accentTextTheme.body1,
-                      decoration: InputDecoration(
-                        hintText: "Subject e.g. CS",
-                        hintStyle: TextStyle(color: Colors.black45),
-                        contentPadding:
-                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                      ),
-                      onFieldSubmitted: (val) {
-                        print(val);
-                        setState(() {
-                          database.allTerms.addSubject(val);
-                          database.updateDatabase();
-                          print(database.allTerms.subjects);
-                        });
-                        Navigator.pop(context);
-                      },
-                      textInputAction: TextInputAction.done,
-                    ),
-                  ],
-                );
-              });
-        },
-        title: Text("Add subject")));
-    return listSubjects;
   }
 
   /// Shows dialog window to select a subject
@@ -410,8 +384,59 @@ class _AddClassViewState extends State<AddClassView> {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return SimpleDialog(
-              title: Text("Choose a subject"), children: _listOfSubjects());
+          List<Widget> subjects = List();
+          ListTile addSubject = ListTile(
+              onTap: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return SimpleDialog(
+                        title: Text("Enter New Subject Name"),
+                        children: <Widget>[
+                          TextFormField(
+                            style: Theme.of(context).accentTextTheme.body1,
+                            decoration: InputDecoration(
+                              hintText: "Subject e.g. CS",
+                              hintStyle: TextStyle(color: Colors.black45),
+                              contentPadding:
+                              EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                            ),
+                            onFieldSubmitted: (val) {
+                              print(val);
+                              setState(() {
+                                database.addSubject(val);
+                              });
+                              Navigator.pop(context);
+                            },
+                            textInputAction: TextInputAction.done,
+                          ),
+                        ],
+                      );
+                    });
+              },
+              title: Text("Add subject"));
+          return new StreamBuilder(
+              stream: firestore.collection('subjects').where('user_id', isEqualTo: userID).snapshots(),
+              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                print(userID);
+                if(snapshot.hasData)
+                  {
+                    subjects.clear();
+                    //Add subjects
+                    snapshot.data.documents.map((document) {
+                      subjects.add(_listOfSubjects(document['subject_name']));
+                    });
+                    //Add "add subject"
+                    subjects.add(addSubject);
+                    print("SUBJECT LENGTH " + subjects.length.toString());
+                  }
+                else
+                  {
+                    print("NO data retrieved");
+                  }
+                return SimpleDialog(
+                      title: Text("Choose a subject"), children: subjects);
+              });
         });
   }
 
@@ -445,6 +470,7 @@ class _AddClassViewState extends State<AddClassView> {
             icon: Icon(Icons.check),
             onPressed: () {
               updateCurrentTerm();
+              //TODO: database should be updated here
               Navigator.of(context).pop(_subjectController != null
                   ? Class(
                       subjectArea: _subjectController.text,
@@ -484,6 +510,7 @@ class _AddClassViewState extends State<AddClassView> {
         },
         onStepContinue: () {
           setState(() {
+            //Should be on the last step
             if (currentStep < getSteps().length - 1) {
               currentStep++;
             } else {

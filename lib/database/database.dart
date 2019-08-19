@@ -231,4 +231,13 @@ class DataBase {
       newTermReference.collection("assignments_collection").document();
       newTermReference.collection("events_collection").document();
     }
+
+    void addSubject(String subjectName) async {
+      DocumentReference newTermReference = firestore.collection("subjects").document();
+      FirebaseUser user = await FirebaseAuth.instance.currentUser();
+      newTermReference.setData({
+        'user_id' : user.uid,
+        'subject_name' : subjectName
+      });
+    }
 }

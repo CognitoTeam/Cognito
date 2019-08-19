@@ -90,6 +90,10 @@ class _AcademicTermViewState extends State<AcademicTermView> {
     return term;
   }
 
+  ListView _termsListView() {
+
+  }
+
   /// Builds a [Scaffold] page that shows [AcademicTerm] information.
   ///
   /// This information includes the name of the term (e.g. Spring 2019), the
@@ -110,99 +114,106 @@ class _AcademicTermViewState extends State<AcademicTermView> {
         body: StreamBuilder<QuerySnapshot> (
           stream: Firestore.instance.collection("terms").where('user_id', isEqualTo: userID).snapshots(),
           builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if(!snapshot.hasData) return new Center(
-              child: Text("Lets start by adding a term!"),
-            );
-            return new ListView.builder(
-              itemCount: snapshot.data.documents.length,
-              itemBuilder: (BuildContext context, int index){
-                DocumentSnapshot document = snapshot.data.documents[index];
-                AcademicTerm term = new AcademicTerm(document['term_name'], document['start_date'].toDate(), document['end_date'].toDate());
-                return new Container(
-                  margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
-                  child: SizedBox(
-                    // Inkwell makes card "tappable"
-                    child: InkWell(
-                      onTap: () async {
-                        // Reference changed to object modified in details
-                        // The term should be updated upoen returning from
-                        // this navigation
-                        await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    TermDetailsView(term: term))).then((term) {
-                          if (term != null) {
-                            print("Term returned");
-                            updateAllTerms();
-                            //database.updateDatabase();
-                          } else {
-                            print("Term was null");
-                          }
-                        });
-                      },
-
-                      // Dismissible allows for swiping to delete
-                      child: Dismissible(
-                        // Key needs to be unique for card dismissal to work
-                        // Use start date's string representation as key
-                        key: Key(term.toString()),
-                        direction: DismissDirection.endToStart,
-                        onResize: () {
-                          print("Swipped");
+            if(!snapshot.hasData) {
+              return new Center(
+                child: Text("Lets start by adding a term!"),
+              );
+            }
+            else {
+              return new ListView(
+                children: snapshot.data.documents.map((document) {
+                  Timestamp startTime = document['start_date'];
+                  Timestamp endTime = document['end_date'];
+                  AcademicTerm term = new AcademicTerm(document['term_name'], startTime.toDate(), endTime.toDate());
+                  return new Container(
+                    margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
+                    child: SizedBox(
+                      // Inkwell makes card "tappable"
+                      child: InkWell(
+                        onTap: () async {
+                          // Reference changed to object modified in details
+                          // The term should be updated upoen returning from
+                          // this navigation
+                          await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      TermDetailsView(term: term))).then((
+                              term) {
+                            if (term != null) {
+                              print("Term returned");
+                              updateAllTerms();
+                              //database.updateDatabase();
+                            } else {
+                              print("Term was null");
+                            }
+                          });
                         },
-                        onDismissed: (direction) {
-                          removeTerm(term);
-                          deletedTerm = term;
+
+                        // Dismissible allows for swiping to delete
+                        child: Dismissible(
+                          // Key needs to be unique for card dismissal to work
+                          // Use start date's string representation as key
+                          key: Key(term.toString()),
+                          direction: DismissDirection.endToStart,
+                          onResize: () {
+                            print("Swipped");
+                          },
+                          onDismissed: (direction) {
+                            removeTerm(term);
+                            deletedTerm = term;
 
 //                          String jsonString = json.encode(database.allTerms);
 //                          database.writeJSON(jsonString);
 //                          database.update();
-                          updateAllTerms();
-                          Scaffold.of(context).showSnackBar(SnackBar(
-                            content: Text("${term.termName} deleted"),
-                            action: SnackBarAction(
-                              label: "Undo",
-                              onPressed: () {
-                                undo(deletedTerm);
-                                updateAllTerms();
-                              },
+                            updateAllTerms();
+                            Scaffold.of(context).showSnackBar(SnackBar(
+                              content: Text("${term.termName} deleted"),
+                              action: SnackBarAction(
+                                label: "Undo",
+                                onPressed: () {
+                                  undo(deletedTerm);
+                                  updateAllTerms();
+                                },
+                              ),
+                              duration: Duration(seconds: 7),
+                            ));
+                          },
+                          child: Card(
+                            color: Theme
+                                .of(context)
+                                .primaryColor,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0)),
+                            child: Column(
+                              children: <Widget>[
+                                // Term name
+                                ListTile(
+                                  leading: Icon(
+                                    Icons.label,
+                                    color: Colors.white,
+                                  ),
+                                  title: Text(
+                                    term.termName,
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  subtitle: Text(
+                                    term.getStartDateAsString() +
+                                        " - " +
+                                        term.getEndDateAsString(),
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                )
+                              ],
                             ),
-                            duration: Duration(seconds: 7),
-                          ));
-                        },
-                        child: Card(
-                          color: Theme.of(context).primaryColor,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30.0)),
-                          child: Column(
-                            children: <Widget>[
-                              // Term name
-                              ListTile(
-                                leading: Icon(
-                                  Icons.label,
-                                  color: Colors.white,
-                                ),
-                                title: Text(
-                                  term.termName,
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                subtitle: Text(
-                                  term.getStartDateAsString() +
-                                      " - " +
-                                      term.getEndDateAsString(),
-                                  style: TextStyle(color: Colors.grey),
-                                ),
-                              )
-                            ],
                           ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              }
-            );
+                  );
+                }).toList(),
+              );
+            }
           },
         ),
 
