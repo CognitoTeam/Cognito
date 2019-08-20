@@ -193,11 +193,12 @@ class DataBase {
     }
 
     void addClass(String subjectArea, String courseNumber, String title, int units, String location, String instructor,
-        String officeLocation, String description, List<int> daysOfEvent, DateTime startTime, DateTime endTime) async {
-      DocumentReference classCollectionReference = firestore.collection("classes").document();
+        String officeLocation, String description, List<int> daysOfEvent, DateTime startTime, DateTime endTime, String termName) async {
+
+      DocumentReference classCollectionReference = Firestore.instance.collection("classes").document();
       FirebaseUser user = await FirebaseAuth.instance.currentUser();
       classCollectionReference.setData({
-        "user_id" : user,
+        "user_id" : user.uid,
         "title" : title,
         "subject_area" : subjectArea,
         "course_number" : courseNumber,
@@ -208,8 +209,10 @@ class DataBase {
         "description" : description,
         "days_of_event" : daysOfEvent,
         "start_time" : startTime,
-        "end_time" : endTime
+        "end_time" : endTime,
+        "term" : termName
       });
+
       classCollectionReference.collection("assignments").document();
     }
 
@@ -239,5 +242,37 @@ class DataBase {
         'user_id' : user.uid,
         'subject_name' : subjectName
       });
+    }
+
+    Future<List<Class>> readClasses(AcademicTerm currentTerm)
+    async {
+      List<Class> classes = List();
+      FirebaseUser user = await FirebaseAuth.instance.currentUser();
+      QuerySnapshot querySnapshot = await firestore.collection("classes").where("user_id", isEqualTo: userID)
+          .where("term_name", isEqualTo: currentTerm.termName).getDocuments();
+      querySnapshot.documents.map((document) {
+        classes.add(new Class(title: document['title'], description: document['decription'],
+            location: document['location'], officeLocation: document['office_location'],
+            start: document['start_time'].toDate(), end: document['end_time'].toDate(),
+            subjectArea: document['subject_area'], courseNumber: document['course_number'],
+            instructor: document['instructor'], units: document['units'],
+            daysOfEvent: document['days_of_event']));
+      });
+      return classes;
+    }
+
+    Class documentToClass(DocumentSnapshot document)
+    {
+      List<int> listOfInt = List();
+      for(int i = 0; i < document['days_of_event'].length; i++)
+        {
+          listOfInt.add(document['days_of_event'][i]);
+        }
+      return new Class(title: document['title'], description: document['decription'],
+      location: document['location'], officeLocation: document['office_location'],
+      start: document['start_time'].toDate(), end: document['end_time'].toDate(),
+      subjectArea: document['subject_area'], courseNumber: document['course_number'],
+      instructor: document['instructor'], units: document['units'],
+      daysOfEvent: listOfInt);
     }
 }

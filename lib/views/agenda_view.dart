@@ -456,6 +456,7 @@ class FilteredClassExpansion extends StatefulWidget {
 
 class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
   Notifications noti = Notifications();
+
   List<Widget> _classes() {
     List<Widget> classesList = List();
     if (widget.term.classes.isNotEmpty) {

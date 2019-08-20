@@ -16,6 +16,11 @@ import 'package:intl/intl.dart';
 enum Day { M, Tu, W, Th, F, Sat, Sun }
 
 class AddClassView extends StatefulWidget {
+
+  final AcademicTerm term;
+
+  AddClassView(this.term);
+
   @override
   _AddClassViewState createState() => _AddClassViewState();
 }
@@ -65,7 +70,6 @@ class _AddClassViewState extends State<AddClassView> {
       .map((document) => document['subject_name'].toString())
       .toList();
     });
-    print(subjectsString.toString());
   }
 
   Future<String> getCurrentUserID() async {
@@ -437,62 +441,8 @@ class _AddClassViewState extends State<AddClassView> {
         builder: (BuildContext context) {
           subjects = new List.generate(subjectsString.length, (index) => _itemInListOfSubjects(subjectsString[index]));
           subjects.add(addSubject);
-          print("****** " + subjects.length.toString());
           return SimpleDialog(
               title: Text("Choose a subject"), children: subjects);
-//          List<Widget> subjects = new List<Widget>();
-//          ListTile addSubject = ListTile(
-//              onTap: () {
-//                showDialog(
-//                    context: context,
-//                    builder: (BuildContext context) {
-//                      return SimpleDialog(
-//                        title: Text("Enter New Subject Name"),
-//                        children: <Widget>[
-//                          TextFormField(
-//                            style: Theme.of(context).accentTextTheme.body1,
-//                            decoration: InputDecoration(
-//                              hintText: "Subject e.g. CS",
-//                              hintStyle: TextStyle(color: Colors.black45),
-//                              contentPadding:
-//                              EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-//                            ),
-//                            onFieldSubmitted: (val) {
-//                              print(val);
-//                              setState(() {
-//                                database.addSubject(val);
-//                              });
-//                              Navigator.pop(context);
-//                            },
-//                            textInputAction: TextInputAction.done,
-//                          ),
-//                        ],
-//                      );
-//                    });
-//              },
-//              title: Text("Add subject"));
-//          return new StreamBuilder<QuerySnapshot>(
-//              stream: firestore.collection('subjects').snapshots(),
-//              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-//                subjects.clear();
-//                if(snapshot.hasError) print(snapshot.error);
-//                if(snapshot.hasData) {
-//                  //Add subjects
-//                  snapshot.data.documents.map((document) {
-//                    subjects.add(_listOfSubjects(document['subject_name']));
-//                  });
-//                }
-//                else
-//                  {
-//                    print("no data");
-//                  }
-//                    //Add "add subject"
-//                    subjects.add(addSubject);
-//
-//                return SimpleDialog(
-//                      title: Text("Choose a subject"), children: subjects);
-//              }
-//              );
         });
   }
 
@@ -510,7 +460,7 @@ class _AddClassViewState extends State<AddClassView> {
               style: Theme.of(context).accentTextTheme.body1,
             ),
       onTap: () async {
-        await _showSubjectSelectionDialog();
+        _showSubjectSelectionDialog();
       },
     );
   }
@@ -526,22 +476,23 @@ class _AddClassViewState extends State<AddClassView> {
             icon: Icon(Icons.check),
             onPressed: () {
               updateCurrentTerm();
-              //TODO: database should be updated here
-              Navigator.of(context).pop(_subjectController != null
-                  ? Class(
-                      subjectArea: _subjectController.text,
-                      courseNumber: _courseNumberController.text,
-                      title: _courseTitleController.text,
-                      units: int.parse(_unitCountController.text),
-                      location: _locationController.text,
-                      instructor: _instructorController.text,
-                      officeLocation: _officeLocationController.text,
-                      description: _descriptionController.text,
-                      daysOfEvent: daysOfEvent,
-                      start: startTime,
-                      end: endTime,
-                      id: currentTerm.getID())
-                  : null);
+              if(_subjectController.text != null || _courseNumberController.text != null || _courseTitleController.text != null
+              || _unitCountController.text != null || _locationController.text != null || _instructorController.text != null ||
+              _officeLocationController.text != null || _descriptionController.text != null || daysOfEvent.isNotEmpty ||
+              startTime != null || endTime != null)
+                {
+                  database.addClass(_subjectController.text,
+                      _courseNumberController.text, _courseTitleController.text,
+                      int.parse(_unitCountController.text),  _locationController.text,
+                      _instructorController.text, _officeLocationController.text,
+                      _descriptionController.text, daysOfEvent, startTime, endTime, widget.term.termName);
+                  Navigator.of(context).pop();
+                }
+              else
+                {
+                  //TODO: handle alert for unfilled form
+                }
+
             },
           ),
         ],
@@ -570,20 +521,16 @@ class _AddClassViewState extends State<AddClassView> {
             if (currentStep < getSteps().length - 1) {
               currentStep++;
             } else {
-              Navigator.of(context).pop(_subjectController != null
-                  ?
               database.addClass(_subjectController.text,
                   _courseNumberController.text, _courseTitleController.text,
                   int.parse(_unitCountController.text),  _locationController.text,
                   _instructorController.text, _officeLocationController.text,
-                  _descriptionController.text, daysOfEvent, startTime, endTime)
-                  : null);
+                  _descriptionController.text, daysOfEvent, startTime, endTime, widget.term.termName);
+              Navigator.of(context).pop();
             }
           });
         },
       ),
     );
   }
-
-
 }

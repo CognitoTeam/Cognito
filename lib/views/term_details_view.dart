@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/models/club.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/models/task.dart';
@@ -13,6 +14,7 @@ import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/class.dart';
 import 'package:cognito/views/add_class_view.dart';
 import 'package:cognito/views/class_details_view.dart';
+import 'package:cognito/database/database.dart';
 
 /// Academic term details view
 /// View screen to edit an AcademicTerm object
@@ -183,6 +185,7 @@ class _DateRowState extends State<DateRow> {
 class ExpandableClassList extends StatefulWidget {
   final AcademicTerm term;
 
+
   ExpandableClassList(this.term);
 
   @override
@@ -190,61 +193,159 @@ class ExpandableClassList extends StatefulWidget {
 }
 
 class _ExpandableClassListState extends State<ExpandableClassList> {
-  List<Widget> _listOfClass() {
-    List<Widget> listTasks = List();
-    if (widget.term.classes.isNotEmpty) {
-      for (Class c in widget.term.classes) {
-        listTasks.add(
-          ListTile(
-              title: Text(
-                c.title,
-                style: Theme.of(context).accentTextTheme.body2,
-              ),
-              onTap: () async {
-                c = await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => ClassDetailsView(classObj: c)));
-              }),
-        );
-      }
-    } else {
-      listTasks.add(ListTile(
-          title: Text(
-        "No Classes so far",
-        style: Theme.of(context).accentTextTheme.body2,
-      )));
-    }
-    listTasks.add(
-      ListTile(
-        title: Text(
-          "Add a new Class",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-        leading: Icon(Icons.add),
-        onTap: () async {
-          //TODO
-          Class result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddClassView()));
-          if (result != null) {
-            print(result.title);
-            //TODO: add the class into the terms collection
-            widget.term.addClass(result);
-            //TODO: add the class into a class collection
-          } else {}
-        },
-      ),
-    );
-    return listTasks;
-  }
+
+  DataBase dataBase = new DataBase();
+  List<Widget> classItems = List();
+  //Fire store instance
+  final firestore = Firestore.instance;
+
+
+//  List<Widget> _listOfClass() {
+//    updateClasses();
+//    print("*****" + classes.length.toString());
+//    List<Widget> listTasks = List();
+//    if (classes.isNotEmpty) {
+//      for (Class c in classes) {
+//        listTasks.add(
+//          ListTile(
+//              title: Text(
+//                c.title,
+//                style: Theme.of(context).accentTextTheme.body2,
+//              ),
+//              onTap: () async {
+//                c = await Navigator.of(context).push(MaterialPageRoute(
+//                    builder: (context) => ClassDetailsView(classObj: c)));
+//              }),
+//        );
+//      }
+//    } else {
+//      listTasks.add(ListTile(
+//          title: Text(
+//        "No Classes so far",
+//        style: Theme.of(context).accentTextTheme.body2,
+//      )));
+//    }
+//    listTasks.add(
+//      ListTile(
+//        title: Text(
+//          "Add a new Class",
+//          style: Theme.of(context).accentTextTheme.body2,
+//        ),
+//        leading: Icon(Icons.add),F
+//        onTap: () async {
+//          //TODO
+//          Class result = await Navigator.of(context)F
+//              .push(MaterialPageRoute(builder: (context) => AddClassView(widget.term)));
+//          if (result != null) {
+//            print(result.title);
+//            //TODO: add the class into the terms collection
+//            widget.term.addClass(result);
+//            //TODO: add the class into a class collection
+//          } else {}
+//        },
+//      ),
+//    );
+//    return listTasks;
+//  }
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-        leading: Icon(Icons.class_),
-        title: Text(
-          "Classes",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-        children: _listOfClass());
+    return StreamBuilder(
+      stream: firestore.collection("classes").where("user_id", isEqualTo: dataBase.userID).where("term", isEqualTo: widget.term.termName)
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        classItems.clear();
+        if(snapshot.hasData)
+          {
+            for(int i = 0; i <= snapshot.data.documents.length - 1; i++)
+              {
+                Class c = dataBase.documentToClass(snapshot.data.documents[i]);
+                classItems.add(ListTile(
+                    title: Text(
+                      c.title,
+                      style: Theme.of(context).accentTextTheme.body2,
+                    ),
+                    onTap: () async {
+                      c = await Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => ClassDetailsView(classObj: c)));
+                    })
+                );
+              }
+            print(classItems.length);
+//            snapshot.data.documents.map((DocumentSnapshot document) {
+//              Class c = dataBase.documentToClass(document);
+//              print("IN MAPPING");
+//              classItems.add(ListTile(
+//                  title: Text(
+//                    c.title,
+//                    style: Theme.of(context).accentTextTheme.body2,
+//                  ),
+//                  onTap: () async {
+//                    c = await Navigator.of(context).push(MaterialPageRoute(
+//                        builder: (context) => ClassDetailsView(classObj: c)));
+//                  })
+//              );
+//            }
+//            );
+            classItems.add(ListTile(
+              title: Text(
+                "Add a new Class",
+                style: Theme.of(context).accentTextTheme.body2,
+              ),
+              leading: Icon(Icons.add),
+              onTap: () async {
+                //TODO
+                Class result = await Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) => AddClassView(widget.term)));
+                if (result != null) {
+                  print(result.title);
+                  //TODO: add the class into the terms collection
+                  widget.term.addClass(result);
+                  //TODO: add the class into a class collection
+                } else {}
+              },
+            )
+            );
+          }
+        else
+          {
+            print("Does not read any classes");
+            classItems.add(ListTile(
+                title: Text(
+                  "No Classes so far",
+                  style: Theme.of(context).accentTextTheme.body2,
+                )
+            )
+            );
+            classItems.add(ListTile(
+              title: Text(
+                "Add a new Class",
+                style: Theme.of(context).accentTextTheme.body2,
+              ),
+              leading: Icon(Icons.add),
+              onTap: () async {
+                //TODO
+                Class result = await Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) => AddClassView(widget.term)));
+                if (result != null) {
+                  print(result.title);
+                  //TODO: add the class into the terms collection
+                  widget.term.addClass(result);
+                  //TODO: add the class into a class collection
+                } else {}
+              },
+            )
+            );
+          }
+        return ExpansionTile(
+            leading: Icon(Icons.class_),
+            title: Text(
+              "Classes",
+              style: Theme.of(context).accentTextTheme.body2,
+            ),
+            children: classItems);
+      },
+    );
   }
 }
 
