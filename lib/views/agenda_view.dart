@@ -274,7 +274,8 @@ class _AgendaViewState extends State<AgendaView>
         heroTag: "eventButton",
         onPressed: () async {
           Event result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddEventView()));
+          //TODO: Add Event
+              .push(MaterialPageRoute(builder: (context) => AddEventView(null)));
           if (result != null) {
             //result occurs in a day
             if (result.daysOfEvent.isNotEmpty) {

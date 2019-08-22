@@ -200,54 +200,6 @@ class _ExpandableClassListState extends State<ExpandableClassList> {
   final firestore = Firestore.instance;
 
 
-//  List<Widget> _listOfClass() {
-//    updateClasses();
-//    print("*****" + classes.length.toString());
-//    List<Widget> listTasks = List();
-//    if (classes.isNotEmpty) {
-//      for (Class c in classes) {
-//        listTasks.add(
-//          ListTile(
-//              title: Text(
-//                c.title,
-//                style: Theme.of(context).accentTextTheme.body2,
-//              ),
-//              onTap: () async {
-//                c = await Navigator.of(context).push(MaterialPageRoute(
-//                    builder: (context) => ClassDetailsView(classObj: c)));
-//              }),
-//        );
-//      }
-//    } else {
-//      listTasks.add(ListTile(
-//          title: Text(
-//        "No Classes so far",
-//        style: Theme.of(context).accentTextTheme.body2,
-//      )));
-//    }
-//    listTasks.add(
-//      ListTile(
-//        title: Text(
-//          "Add a new Class",
-//          style: Theme.of(context).accentTextTheme.body2,
-//        ),
-//        leading: Icon(Icons.add),F
-//        onTap: () async {
-//          //TODO
-//          Class result = await Navigator.of(context)F
-//              .push(MaterialPageRoute(builder: (context) => AddClassView(widget.term)));
-//          if (result != null) {
-//            print(result.title);
-//            //TODO: add the class into the terms collection
-//            widget.term.addClass(result);
-//            //TODO: add the class into a class collection
-//          } else {}
-//        },
-//      ),
-//    );
-//    return listTasks;
-//  }
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -271,41 +223,6 @@ class _ExpandableClassListState extends State<ExpandableClassList> {
                     })
                 );
               }
-            print(classItems.length);
-//            snapshot.data.documents.map((DocumentSnapshot document) {
-//              Class c = dataBase.documentToClass(document);
-//              print("IN MAPPING");
-//              classItems.add(ListTile(
-//                  title: Text(
-//                    c.title,
-//                    style: Theme.of(context).accentTextTheme.body2,
-//                  ),
-//                  onTap: () async {
-//                    c = await Navigator.of(context).push(MaterialPageRoute(
-//                        builder: (context) => ClassDetailsView(classObj: c)));
-//                  })
-//              );
-//            }
-//            );
-            classItems.add(ListTile(
-              title: Text(
-                "Add a new Class",
-                style: Theme.of(context).accentTextTheme.body2,
-              ),
-              leading: Icon(Icons.add),
-              onTap: () async {
-                //TODO
-                Class result = await Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => AddClassView(widget.term)));
-                if (result != null) {
-                  print(result.title);
-                  //TODO: add the class into the terms collection
-                  widget.term.addClass(result);
-                  //TODO: add the class into a class collection
-                } else {}
-              },
-            )
-            );
           }
         else
           {
@@ -317,26 +234,20 @@ class _ExpandableClassListState extends State<ExpandableClassList> {
                 )
             )
             );
-            classItems.add(ListTile(
-              title: Text(
-                "Add a new Class",
-                style: Theme.of(context).accentTextTheme.body2,
-              ),
-              leading: Icon(Icons.add),
-              onTap: () async {
-                //TODO
-                Class result = await Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => AddClassView(widget.term)));
-                if (result != null) {
-                  print(result.title);
-                  //TODO: add the class into the terms collection
-                  widget.term.addClass(result);
-                  //TODO: add the class into a class collection
-                } else {}
-              },
-            )
-            );
           }
+        classItems.add(ListTile(
+          title: Text(
+            "Add a new Class",
+            style: Theme.of(context).accentTextTheme.body2,
+          ),
+          leading: Icon(Icons.add),
+          onTap: () async {
+            //TODO
+            Class result = await Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => AddClassView(widget.term)));
+          },
+        )
+        );
         return ExpansionTile(
             leading: Icon(Icons.class_),
             title: Text(
@@ -359,66 +270,80 @@ class ExpandableTaskList extends StatefulWidget {
 }
 
 class _ExpandableTaskListState extends State<ExpandableTaskList> {
-  List<Widget> _listOfTasks() {
-    List<Widget> listTasks = List();
-    if (widget.term.tasks.isNotEmpty) {
-      for (Task t in widget.term.tasks) {
-        listTasks.add(
-          ListTile(
-              title: Text(
-                t.title,
-                style: Theme.of(context).accentTextTheme.body2,
-              ),
-              onTap: () async {
-                Task result = await Navigator.of(context).push(
-                    MaterialPageRoute(
-                        builder: (context) => TaskDetailsView(task: t)));
-                if (result != null) {
-                  print("Task updated: " + result.title);
-                }
-              }),
-        );
-      }
-    } else {
-      listTasks.add(ListTile(
-        title: Text(
-          "No Tasks so far",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-      ));
-    }
-    listTasks.add(
-      ListTile(
-        title: Text(
-          "Add a new Task",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-        leading: Icon(Icons.add),
-        onTap: () async {
-          //TODO
-          Task result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddTaskView()));
-          if (result != null) {
-            print(result.title);
-            widget.term.addTask(result);
-          } else {
-            print("Task returned null");
-          }
-        },
-      ),
-    );
-    return listTasks;
-  }
+  DataBase dataBase = new DataBase();
+  List<Widget> taskItems = List();
+  //Fire store instance
+  final firestore = Firestore.instance;
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-        leading: Icon(Icons.check_box),
-        title: Text(
-          "Tasks",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-        children: _listOfTasks());
+    return StreamBuilder(
+      stream: firestore.collection("tasks").where(
+          "user_id", isEqualTo: dataBase.userID).where(
+          "term_name", isEqualTo: widget.term.termName)
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        taskItems.clear();
+        if (snapshot.hasData) {
+          for (int i = 0; i <= snapshot.data.documents.length - 1; i++) {
+            Task t = dataBase.documentToTask(snapshot.data.documents[i]);
+            taskItems.add(ListTile(
+                title: Text(
+                  t.title,
+                  style: Theme
+                      .of(context)
+                      .accentTextTheme
+                      .body2,
+                ),
+                onTap: () async {
+                  t = await Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => TaskDetailsView(task: t,)));
+                })
+            );
+          }
+        }
+        else {
+          print("Does not read any tasks");
+          taskItems.add(ListTile(
+              title: Text(
+                "No Tasks so far",
+                style: Theme
+                    .of(context)
+                    .accentTextTheme
+                    .body2,
+              )
+          )
+          );
+        }
+        taskItems.add(ListTile(
+          title: Text(
+            "Add a new Task",
+            style: Theme
+                .of(context)
+                .accentTextTheme
+                .body2,
+          ),
+          leading: Icon(Icons.add),
+          onTap: () async {
+            //TODO
+            Task result = await Navigator.of(context)
+                .push(MaterialPageRoute(
+                builder: (context) => AddTaskView(widget.term)));
+          },
+        )
+        );
+        return ExpansionTile(
+            leading: Icon(Icons.check_box),
+            title: Text(
+              "Tasks",
+              style: Theme
+                  .of(context)
+                  .accentTextTheme
+                  .body2,
+            ),
+            children: taskItems);
+      },
+    );
   }
 }
 
@@ -432,65 +357,80 @@ class ExpandableEventList extends StatefulWidget {
 }
 
 class _ExpandableEventListState extends State<ExpandableEventList> {
-  List<Widget> _listOfEvents() {
-    List<Widget> listEvents = List();
-    if (widget.term.events.isNotEmpty) {
-      for (Event e in widget.term.events) {
-        listEvents.add(
-          ListTile(
-              title: Text(
-                e.title,
-                style: Theme.of(context).accentTextTheme.body2,
-              ),
-              onTap: () async {
-                Event result = await Navigator.of(context).push(
-                    MaterialPageRoute(
-                        builder: (context) => EventDetailsView(event: e)));
-                if (result != null) {
-                  print("Event updated " + result.title);
-                }
-              }),
-        );
-      }
-    } else {
-      listEvents.add(ListTile(
-          title: Text(
-        "No Events so far",
-        style: Theme.of(context).accentTextTheme.body2,
-      )));
-    }
-    listEvents.add(
-      ListTile(
-        title: Text(
-          "Add a new Event",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-        leading: Icon(Icons.add),
-        onTap: () async {
-          //TODO
-          Event result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddEventView()));
-          if (result != null) {
-            print(result.title);
-            widget.term.addEvent(result);
-          } else {
-            print("Event returned null");
-          }
-        },
-      ),
-    );
-    return listEvents;
-  }
+  DataBase dataBase = new DataBase();
+  List<Widget> eventItems = List();
+  //Fire store instance
+  final firestore = Firestore.instance;
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-        leading: Icon(Icons.event),
-        title: Text(
-          "Events",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-        children: _listOfEvents());
+    return StreamBuilder(
+      stream: firestore.collection("events").where(
+          "user_id", isEqualTo: dataBase.userID).where(
+          "term_name", isEqualTo: widget.term.termName)
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        eventItems.clear();
+        if (snapshot.hasData) {
+          for (int i = 0; i <= snapshot.data.documents.length - 1; i++) {
+            Event e = dataBase.documentToEvent(snapshot.data.documents[i]);
+            eventItems.add(ListTile(
+                title: Text(
+                  e.title,
+                  style: Theme
+                      .of(context)
+                      .accentTextTheme
+                      .body2,
+                ),
+                onTap: () async {
+                  e = await Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => EventDetailsView(event: e,)));
+                })
+            );
+          }
+        }
+        else {
+          print("Does not read any events");
+          eventItems.add(ListTile(
+              title: Text(
+                "No Events so far",
+                style: Theme
+                    .of(context)
+                    .accentTextTheme
+                    .body2,
+              )
+          )
+          );
+        }
+        eventItems.add(ListTile(
+          title: Text(
+            "Add a new Event",
+            style: Theme
+                .of(context)
+                .accentTextTheme
+                .body2,
+          ),
+          leading: Icon(Icons.add),
+          onTap: () async {
+            //TODO
+            Event result = await Navigator.of(context)
+                .push(MaterialPageRoute(
+                builder: (context) => AddEventView(widget.term)));
+          },
+        )
+        );
+        return ExpansionTile(
+            leading: Icon(Icons.event),
+            title: Text(
+              "Events",
+              style: Theme
+                  .of(context)
+                  .accentTextTheme
+                  .body2,
+            ),
+            children: eventItems);
+      },
+    );
   }
 }
 

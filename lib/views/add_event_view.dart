@@ -13,6 +13,11 @@ import 'package:intl/intl.dart';
 enum Day { M, Tu, W, Th, F, Sat, Sun }
 
 class AddEventView extends StatefulWidget {
+
+  AcademicTerm enteredTerm;
+
+  AddEventView(this.enteredTerm);
+
   @override
   _AddEventViewState createState() => _AddEventViewState();
 }
@@ -272,7 +277,7 @@ class _AddEventViewState extends State<AddEventView> {
       });
     }
   }
-
+  //TODO: Should add to term that is currently logged into
   AcademicTerm getCurrentTerm() {
     for (AcademicTerm term in database.allTerms.terms) {
       if (DateTime.now().isAfter(term.startTime) &&
@@ -293,20 +298,24 @@ class _AddEventViewState extends State<AddEventView> {
           IconButton(
             icon: Icon(Icons.check),
             onPressed: () {
-              Navigator.of(context).pop(_titleController != null
-                  ? Event(
-                      title: _titleController.text,
-                      location: _locationController.text,
-                      description: _descriptionController.text,
-                      daysOfEvent: daysOfEvent,
-                      isRepeated: _isRepeated,
-                      start: startTime,
-                      end: endTime,
-                      id: getCurrentTerm().getID(),
-                      priority: _selectedPriority,
-                      duration: Duration(
-                          minutes: int.parse(_durationController.text)))
-                  : null);
+              //TODO: add in database
+              if(_titleController != null) {
+                database.addEvent(
+                    _titleController.text,
+                    _locationController.text,
+                    _descriptionController.text,
+                    daysOfEvent,
+                    _isRepeated,
+                    startTime,
+                    endTime,
+                    widget.enteredTerm.getID(),
+                    _selectedPriority,
+                    Duration(
+                        minutes: int.parse(_durationController.text)
+                    ),
+                widget.enteredTerm.termName);
+              }
+              Navigator.of(context).pop();
             },
           )
         ],
@@ -334,20 +343,23 @@ class _AddEventViewState extends State<AddEventView> {
             if (currentStep < getSteps().length - 1) {
               currentStep++;
             } else {
-              Navigator.of(context).pop(_titleController != null
-                  ? Event(
-                      title: _titleController.text,
-                      location: _locationController.text,
-                      description: _descriptionController.text,
-                      daysOfEvent: daysOfEvent,
-                      isRepeated: _isRepeated,
-                      start: startTime,
-                      end: endTime,
-                      id: getCurrentTerm().getID(),
-                      priority: _selectedPriority,
-                      duration: Duration(
-                          minutes: int.parse(_durationController.text)))
-                  : null);
+              if(_titleController != null) {
+                database.addEvent(
+                    _titleController.text,
+                    _locationController.text,
+                    _descriptionController.text,
+                    daysOfEvent,
+                    _isRepeated,
+                    startTime,
+                    endTime,
+                    widget.enteredTerm.getID(),
+                    _selectedPriority,
+                    Duration(
+                        minutes: int.parse(_durationController.text)
+                    ),
+                widget.enteredTerm.termName);
+              }
+              Navigator.of(context).pop();
             }
           });
         },

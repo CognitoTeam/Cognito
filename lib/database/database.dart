@@ -7,6 +7,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/firebase_login.dart';
 import 'package:cognito/models/all_terms.dart';
 import 'package:cognito/models/class.dart';
+import 'package:cognito/models/event.dart';
+import 'package:cognito/models/task.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -244,6 +246,44 @@ class DataBase {
       });
     }
 
+    void addEvent(String title, String location, String description, List<int> daysOfEvent, bool isRepeated,
+        DateTime startTime, DateTime endTime, int id, int priority, Duration duration, String termName) async {
+      DocumentReference newEventReference = firestore.collection("events").document();
+      newEventReference.setData({
+        "user_id" : userID,
+        "title" : title,
+        "location" : location,
+        "description" : description,
+        "days_of_event" : daysOfEvent,
+        "repeated" : isRepeated,
+        "start_time" : startTime,
+        "end_time" : endTime,
+        "id" : id,
+        "priority" : priority,
+        "duration_in_minutes" : duration.inMinutes,
+        "term_name" : termName
+      });
+    }
+
+    void addTask(String title, String location, String description, List<int> daysOfEvent, bool isRepeated,
+        DateTime dueDate, int id, int priority, Duration duration, String termName)
+    {
+      DocumentReference newTaskReference = firestore.collection("tasks").document();
+      newTaskReference.setData({
+        "user_id" : userID,
+        "title" : title,
+        "location" : location,
+        "description" : description,
+        "days_of_event" : daysOfEvent,
+        "repeated" : isRepeated,
+        "due_date" : dueDate,
+        "id" : id,
+        "priority" : priority,
+        "duration_in_minutes" : duration.inMinutes,
+        "term_name" : termName
+      });
+    }
+
     Future<List<Class>> readClasses(AcademicTerm currentTerm)
     async {
       List<Class> classes = List();
@@ -274,5 +314,33 @@ class DataBase {
       subjectArea: document['subject_area'], courseNumber: document['course_number'],
       instructor: document['instructor'], units: document['units'],
       daysOfEvent: listOfInt);
+    }
+
+    Event documentToEvent(DocumentSnapshot document)
+    {
+      List<int> listOfInt = List();
+      for(int i = 0; i < document['days_of_event'].length; i++)
+      {
+        listOfInt.add(document['days_of_event'][i]);
+      }
+
+      return new Event(title: document['title'], location: document['location'], description: document['description'],
+      daysOfEvent: listOfInt, isRepeated: document['repeated'], start: document['start_time'].toDate(),
+      end: document['end_time'].toDate(), id: document['id'], priority: document['priority'],
+      duration: Duration(minutes: document['duration_in_minutes']),
+      );
+    }
+
+    Task documentToTask(DocumentSnapshot document)
+    {
+    List<int> listOfInt = List();
+    for(int i = 0; i < document['days_of_event'].length; i++)
+    {
+    listOfInt.add(document['days_of_event'][i]);
+    }
+      return new Task(title: document['title'], location: document['location'],
+      description: document['decription'], daysOfEvent: listOfInt, isRepeated: document['repeated'],
+      dueDate: document['due_date'].toDate(), id: document['id'], priority: document['priority'],
+      duration: Duration(minutes: document['duration_in_minutes']));
     }
 }

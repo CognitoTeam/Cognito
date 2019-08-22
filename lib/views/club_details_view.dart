@@ -342,7 +342,7 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
         onTap: () async {
           //TODO
           Task result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddTaskView()));
+              .push(MaterialPageRoute(builder: (context) => AddTaskView(null)));
           if (result != null) {
             print(result.title);
             widget.club.addTask(result);
@@ -412,9 +412,9 @@ class _ExpandableEventListState extends State<ExpandableEventList> {
         ),
         leading: Icon(Icons.add),
         onTap: () async {
-          //TODO
+          //TODO: Add Event
           Event result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddEventView()));
+              .push(MaterialPageRoute(builder: (context) => AddEventView(null)));
           if (result != null) {
             print(result.title);
             widget.club.addEvent(result);
