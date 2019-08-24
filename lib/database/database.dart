@@ -196,6 +196,28 @@ class DataBase {
 //    firestore.collection("classes").where("user_id", isEqualTo: )
     }
 
+
+    void updateTermName(String termName, String newTermName)
+    async {
+      QuerySnapshot querySnapshot = await firestore.collection("terms").where("user_id", isEqualTo: userID).where("term_name", isEqualTo: termName).getDocuments();
+      if(querySnapshot.documents.length == 1)
+        {
+          querySnapshot.documents[0].reference.updateData(
+            {
+              "term_name" : newTermName
+            }
+          );
+        }
+      else if(querySnapshot.documents.length == 0)
+        {
+          print("DATABASE getTermsReference(): Did not retrieve any data");
+        }
+      else
+        {
+          print("DATABASE getTermsReference(): Retrieved duplicate data");
+        }
+    }
+
     void addClass(String subjectArea, String courseNumber, String title, int units, String location, String instructor,
         String officeLocation, String description, List<int> daysOfEvent, DateTime startTime, DateTime endTime, String termName) async {
 
@@ -336,21 +358,8 @@ class DataBase {
       return newClubReference.documentID;
     }
 
-    Future<List<Class>> readClasses(AcademicTerm currentTerm)
-    async {
-      List<Class> classes = List();
-      FirebaseUser user = await FirebaseAuth.instance.currentUser();
-      QuerySnapshot querySnapshot = await firestore.collection("classes").where("user_id", isEqualTo: userID)
-          .where("term_name", isEqualTo: currentTerm.termName).getDocuments();
-      querySnapshot.documents.map((document) {
-        classes.add(new Class(title: document['title'], description: document['decription'],
-            location: document['location'], officeLocation: document['office_location'],
-            start: document['start_time'].toDate(), end: document['end_time'].toDate(),
-            subjectArea: document['subject_area'], courseNumber: document['course_number'],
-            instructor: document['instructor'], units: document['units'],
-            daysOfEvent: document['days_of_event']));
-      });
-      return classes;
+    void updateTerm(){
+
     }
 
     Class documentToClass(DocumentSnapshot document)

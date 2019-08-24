@@ -24,7 +24,6 @@ import 'package:cognito/database/database.dart';
 class TermDetailsView extends StatefulWidget {
   // Hold academic term object
   final AcademicTerm term;
-
   // Constructor that takes in an academic term object
   TermDetailsView({Key key, @required this.term}) : super(key: key);
 
@@ -33,6 +32,10 @@ class TermDetailsView extends StatefulWidget {
 }
 
 class _TermDetailsViewState extends State<TermDetailsView> {
+
+  DataBase database = DataBase();
+  final Firestore firestore = Firestore.instance;
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,7 +77,9 @@ class _TermDetailsViewState extends State<TermDetailsView> {
                           onFieldSubmitted: (val) {
                             print(val);
                             setState(() {
+                              database.updateTermName(widget.term.termName, val);
                               widget.term.termName = val;
+
                             });
                             Navigator.pop(context);
                           },
