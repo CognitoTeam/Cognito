@@ -313,9 +313,22 @@ class _AddEventViewState extends State<AddEventView> {
                     Duration(
                         minutes: int.parse(_durationController.text)
                     ),
-                widget.enteredTerm.termName);
+                widget.enteredTerm.termName, null);
               }
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(_titleController != null
+                  ? Event(
+                  title: _titleController.text,
+                  location: _locationController.text,
+                  description: _descriptionController.text,
+                  daysOfEvent: daysOfEvent,
+                  isRepeated: _isRepeated,
+                  start: startTime,
+                  end: endTime,
+                  id: widget.enteredTerm.getID(),
+                  priority: _selectedPriority,
+                  duration: Duration(
+                      minutes: int.parse(_durationController.text)))
+                  : null);
             },
           )
         ],
@@ -357,9 +370,22 @@ class _AddEventViewState extends State<AddEventView> {
                     Duration(
                         minutes: int.parse(_durationController.text)
                     ),
-                widget.enteredTerm.termName);
+                widget.enteredTerm.termName, null);
               }
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(_titleController != null
+                  ? Event(
+                  title: _titleController.text,
+                  location: _locationController.text,
+                  description: _descriptionController.text,
+                  daysOfEvent: daysOfEvent,
+                  isRepeated: _isRepeated,
+                  start: startTime,
+                  end: endTime,
+                  id: widget.enteredTerm.getID(),
+                  priority: _selectedPriority,
+                  duration: Duration(
+                      minutes: int.parse(_durationController.text)))
+                  : null);
             }
           });
         },

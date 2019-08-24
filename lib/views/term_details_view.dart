@@ -444,66 +444,79 @@ class ExpandableClubList extends StatefulWidget {
 }
 
 class _ExpandableClubListState extends State<ExpandableClubList> {
-  List<Widget> _listOfClus() {
-    List<Widget> listClubs = List();
-    if (widget.term.clubs.isNotEmpty) {
-      for (Club c in widget.term.clubs) {
-        listClubs.add(
-          ListTile(
-              title: Text(
-                c.title,
-                style: Theme.of(context).accentTextTheme.body2,
-              ),
-              onTap: () async {
-                Club result =
-                    await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => ClubDetailsView(
-                              club: c,
-                            )));
-                if (result != null) {
-                  print("CLub updated: " + result.title);
-                }
-              }),
-        );
-      }
-    } else {
-      listClubs.add(ListTile(
-        title: Text(
-          "No Clubs so far",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-      ));
-    }
-    listClubs.add(
-      ListTile(
-        title: Text(
-          "Add a new Club",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-        leading: Icon(Icons.add),
-        onTap: () async {
-          Club result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddClubView()));
-          if (result != null) {
-            print(result.title);
-            widget.term.addClub(result);
-          } else {
-            print("Club returned null");
-          }
-        },
-      ),
-    );
-    return listClubs;
-  }
+  DataBase dataBase = new DataBase();
+  List<Widget> clubItems = List();
+  //Fire store instance
+  final firestore = Firestore.instance;
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-        leading: Icon(Icons.people),
-        title: Text(
-          "Clubs",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-        children: _listOfClus());
+    return StreamBuilder(
+      stream: firestore.collection("clubs").where(
+          "user_id", isEqualTo: dataBase.userID).where(
+          "term_name", isEqualTo: widget.term.termName)
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        clubItems.clear();
+        if (snapshot.hasData) {
+          for (int i = 0; i <= snapshot.data.documents.length - 1; i++) {
+            Club c = dataBase.documentToClub(snapshot.data.documents[i]);
+            clubItems.add(ListTile(
+                title: Text(
+                  c.title,
+                  style: Theme
+                      .of(context)
+                      .accentTextTheme
+                      .body2,
+                ),
+                onTap: () async {
+                  c = await Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => ClubDetailsView(club: c,)));
+                })
+            );
+          }
+        }
+        else {
+          print("Does not read any events");
+          clubItems.add(ListTile(
+              title: Text(
+                "No Clubs so far",
+                style: Theme
+                    .of(context)
+                    .accentTextTheme
+                    .body2,
+              )
+          )
+          );
+        }
+        clubItems.add(ListTile(
+          title: Text(
+            "Add a new Club",
+            style: Theme
+                .of(context)
+                .accentTextTheme
+                .body2,
+          ),
+          leading: Icon(Icons.add),
+          onTap: () async {
+            //TODO
+            Event result = await Navigator.of(context)
+                .push(MaterialPageRoute(
+                builder: (context) => AddClubView(widget.term)));
+          },
+        )
+        );
+        return ExpansionTile(
+            leading: Icon(Icons.people),
+            title: Text(
+              "Clubs",
+              style: Theme
+                  .of(context)
+                  .accentTextTheme
+                  .body2,
+            ),
+            children: clubItems);
+      },
+    );
   }
 }

@@ -9,6 +9,8 @@ import 'package:cognito/views/event_details_view.dart';
 import 'package:cognito/views/task_details_view.dart';
 import 'package:flutter/material.dart';
 import 'package:cognito/models/club.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 /// club creation view
 /// View screen to create a new club object
@@ -17,6 +19,11 @@ import 'package:cognito/models/club.dart';
 enum Day { M, Tu, W, Th, F, Sat, Sun }
 
 class AddClubView extends StatefulWidget {
+
+  AcademicTerm enteredTerm;
+
+  AddClubView(this.enteredTerm);
+
   @override
   _AddClubViewState createState() => _AddClubViewState();
 }
@@ -25,6 +32,7 @@ class _AddClubViewState extends State<AddClubView> {
   DataBase database = DataBase();
   int id;
   Club club = Club();
+  String clubId = "";
   final _titleController = TextEditingController();
   final _locationController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -53,16 +61,6 @@ class _AddClubViewState extends State<AddClubView> {
       subtitle: subtitle,
     );
   }
-AcademicTerm getCurrentTerm() {
-    for (AcademicTerm term in database.allTerms.terms) {
-      if (DateTime.now().isAfter(term.startTime) &&
-          DateTime.now().isBefore(term.endTime)) {
-            
-        return term;
-      }
-    }
-    return null;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,9 +75,10 @@ AcademicTerm getCurrentTerm() {
               club.title = _titleController.text;
               club.location = _locationController.text;
               club.description = _descriptionController.text;
-              club.id = getCurrentTerm().getID();
+              club.id = widget.enteredTerm.getID();
+              clubId = database.addClub(club, widget.enteredTerm.termName);
               Navigator.of(context)
-                  .pop(_titleController.text != null ? club : null);
+                  .pop();
             },
           ),
         ],
@@ -103,9 +102,9 @@ AcademicTerm getCurrentTerm() {
                   hintStyle: TextStyle(color: Colors.black45)),
             ),
           ),
-          ExpandableOfficerList(club),
-          ExpandableEventList(club),
-          ExpandableTaskList(club)
+          ExpandableOfficerList(club, widget.enteredTerm),
+          ExpandableEventList(club, widget.enteredTerm),
+          ExpandableTaskList(club, widget.enteredTerm)
         ],
       ),
     );
@@ -114,8 +113,9 @@ AcademicTerm getCurrentTerm() {
 
 class ExpandableOfficerList extends StatefulWidget {
   final Club club;
+  final AcademicTerm term;
 
-  ExpandableOfficerList(this.club);
+  ExpandableOfficerList(this.club, this.term);
 
   @override
   _ExpandableOfficerListState createState() => _ExpandableOfficerListState();
@@ -259,8 +259,9 @@ class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
 
 class ExpandableTaskList extends StatefulWidget {
   final Club club;
+  final AcademicTerm term;
 
-  ExpandableTaskList(this.club);
+  ExpandableTaskList(this.club, this.term);
 
   @override
   _ExpandableTaskListState createState() => _ExpandableTaskListState();
@@ -304,7 +305,7 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
         leading: Icon(Icons.add),
         onTap: () async {
           Task result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddTaskView(null)));
+              .push(MaterialPageRoute(builder: (context) => AddTaskView(widget.term)));
           if (result != null) {
             print(result.title);
             widget.club.addTask(result);
@@ -331,8 +332,9 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
 
 class ExpandableEventList extends StatefulWidget {
   final Club club;
+  final AcademicTerm term;
 
-  ExpandableEventList(this.club);
+  ExpandableEventList(this.club, this.term);
 
   @override
   _ExpandableEventListState createState() => _ExpandableEventListState();
@@ -375,7 +377,7 @@ class _ExpandableEventListState extends State<ExpandableEventList> {
         leading: Icon(Icons.add),
         onTap: () async {
           Event result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddEventView(null)));
+              .push(MaterialPageRoute(builder: (context) => AddEventView(widget.term)));
           if (result != null) {
             print(result.title);
             widget.club.addEvent(result);

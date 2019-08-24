@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/database.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/views/add_priority_view.dart';
@@ -232,8 +233,20 @@ class _AddTaskViewState extends State<AddTaskView> {
               database.addTask(_titleController.text, _locationController.text,
                   _descriptionController.text, daysOfEvent, _isRepeated, dueDate, widget.enteredTerm.getID(),
                   _selectedPriority, Duration(
-                      minutes: int.parse(_durationController.text)), widget.enteredTerm.termName);
-              Navigator.of(context).pop();
+                      minutes: int.parse(_durationController.text)), widget.enteredTerm.termName, null);
+              Navigator.of(context).pop(_titleController != null
+                  ? Task(
+                  title: _titleController.text,
+                  location: _locationController.text,
+                  description: _descriptionController.text,
+                  daysOfEvent: daysOfEvent,
+                  isRepeated: _isRepeated,
+                  dueDate: dueDate,
+                  id: widget.enteredTerm.getID(),
+                  priority: _selectedPriority,
+                  duration: Duration(
+                      minutes: int.parse(_durationController.text)))
+                  : null);
             },
           )
         ],
@@ -264,8 +277,20 @@ class _AddTaskViewState extends State<AddTaskView> {
               database.addTask(_titleController.text, _locationController.text,
                   _descriptionController.text, daysOfEvent, _isRepeated, dueDate, widget.enteredTerm.getID(),
                   _selectedPriority, Duration(
-                      minutes: int.parse(_durationController.text)), widget.enteredTerm.termName);
-              Navigator.of(context).pop();
+                      minutes: int.parse(_durationController.text)), widget.enteredTerm.termName, null);
+              Navigator.of(context).pop(_titleController != null
+                  ? Task(
+                  title: _titleController.text,
+                  location: _locationController.text,
+                  description: _descriptionController.text,
+                  daysOfEvent: daysOfEvent,
+                  isRepeated: _isRepeated,
+                  dueDate: dueDate,
+                  id: widget.enteredTerm.getID(),
+                  priority: _selectedPriority,
+                  duration: Duration(
+                      minutes: int.parse(_durationController.text)))
+                  : null);
             }
           });
         },

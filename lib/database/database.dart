@@ -7,8 +7,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/firebase_login.dart';
 import 'package:cognito/models/all_terms.dart';
 import 'package:cognito/models/class.dart';
+import 'package:cognito/models/club.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/models/task.dart';
+import 'package:cognito/models/officer.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -247,9 +249,12 @@ class DataBase {
     }
 
     void addEvent(String title, String location, String description, List<int> daysOfEvent, bool isRepeated,
-        DateTime startTime, DateTime endTime, int id, int priority, Duration duration, String termName) async {
-      DocumentReference newEventReference = firestore.collection("events").document();
-      newEventReference.setData({
+        DateTime startTime, DateTime endTime, int id, int priority, Duration duration, String termName, DocumentReference newEventReferenceLocation) async {
+      if(newEventReferenceLocation == null) {
+        newEventReferenceLocation = firestore.collection("events").document();
+      }
+
+      newEventReferenceLocation.setData({
         "user_id" : userID,
         "title" : title,
         "location" : location,
@@ -266,10 +271,13 @@ class DataBase {
     }
 
     void addTask(String title, String location, String description, List<int> daysOfEvent, bool isRepeated,
-        DateTime dueDate, int id, int priority, Duration duration, String termName)
+        DateTime dueDate, int id, int priority, Duration duration, String termName, DocumentReference newTaskReferenceLocation)
     {
-      DocumentReference newTaskReference = firestore.collection("tasks").document();
-      newTaskReference.setData({
+      if(newTaskReferenceLocation == null)
+        {
+          newTaskReferenceLocation = firestore.collection("tasks").document();
+        }
+      newTaskReferenceLocation.setData({
         "user_id" : userID,
         "title" : title,
         "location" : location,
@@ -282,6 +290,50 @@ class DataBase {
         "duration_in_minutes" : duration.inMinutes,
         "term_name" : termName
       });
+    }
+
+    String addClub(Club club, String termName)
+    {
+      DocumentReference newClubReference = firestore.collection("club").document();
+      newClubReference.setData({
+        "user_id" : userID,
+        "title" : club.title,
+        "location" : club.location,
+        "description" : club.description,
+        "id" : club.id,
+        "term_name" : termName
+      });
+
+      if(club.officers.isNotEmpty)
+        {
+          for(Officer o in club.officers) {
+            newClubReference.collection("officers").document().setData({
+              "officer_name" : o.officerName,
+              "officer_position" : o.officerPosition
+            });
+          }
+        }
+
+      if(club.tasks.isNotEmpty)
+        {
+          for(Task t in club.tasks)
+            {
+              addTask(t.title, t.location, t.description, t.daysOfEvent,
+                  t.isRepeated, t.dueDate, t.id, t.priority, t.duration, termName,
+                  newClubReference);
+            }
+        }
+
+      if(club.events.isNotEmpty)
+        {
+          for(Event e in club.events)
+            {
+              addEvent(e.title, e.location, e.description, e.daysOfEvent, e.isRepeated,
+                  e.startTime, e.endTime, e.id, e.priority, e.duration, termName,
+                  newClubReference);
+            }
+        }
+      return newClubReference.documentID;
     }
 
     Future<List<Class>> readClasses(AcademicTerm currentTerm)
@@ -342,5 +394,10 @@ class DataBase {
       description: document['decription'], daysOfEvent: listOfInt, isRepeated: document['repeated'],
       dueDate: document['due_date'].toDate(), id: document['id'], priority: document['priority'],
       duration: Duration(minutes: document['duration_in_minutes']));
+    }
+
+    Club documentToClub(DocumentSnapshot document) {
+      return new Club(title: document['title'], location: document['location'], description: document['description'],
+      id: document['id']);
     }
 }

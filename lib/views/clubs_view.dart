@@ -58,7 +58,7 @@ class _ClubViewState extends State<ClubView> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddClubView()));
+              .push(MaterialPageRoute(builder: (context) => AddClubView(term)));
           if (result != null) {
             term.addClub(result);
             database.allTerms.updateTerm(term);
