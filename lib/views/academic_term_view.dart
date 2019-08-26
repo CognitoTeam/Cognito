@@ -65,18 +65,13 @@ class _AcademicTermViewState extends State<AcademicTermView> {
     newTermReference.collection("classes_collection").document();
     newTermReference.collection("assignments_collection").document();
     newTermReference.collection("events_collection").document();
-    setState(() {
-      allTerms.terms.add(undo);
-      database.allTerms.addTerm(undo);
-    });
   }
 
   /// Removes terms from database and re-renders page to show deletion
   void removeTerm(AcademicTerm termToRemove) {
-    deleteTermFromFireStore(termToRemove);
+    //deleteTermFromFireStore(termToRemove);
     setState(() {
-      allTerms.terms.remove(termToRemove);
-      database.allTerms.removeTerm(termToRemove);
+      database.removeAcademicTerm(termToRemove);
     });
   }
 
@@ -88,10 +83,6 @@ class _AcademicTermViewState extends State<AcademicTermView> {
           return AddTermView();
         });
     return term;
-  }
-
-  ListView _termsListView() {
-
   }
 
   /// Builds a [Scaffold] page that shows [AcademicTerm] information.
@@ -160,7 +151,8 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                             print("Swipped");
                           },
                           onDismissed: (direction) {
-                            removeTerm(term);
+                            snapshot.data.documents.remove(document);
+                            database.removeAcademicTerm(term);
                             deletedTerm = term;
 
 //                          String jsonString = json.encode(database.allTerms);
@@ -241,17 +233,6 @@ class _AcademicTermViewState extends State<AcademicTermView> {
       ),
     );
   }
-
-//  void readToTerms() async {
-//    String userID = await getCurrentUserID();
-//    firestore
-//        .collection("terms")
-//        .where("user_id", isEqualTo: userID)
-//        .snapshots().listen((data) =>
-//        data.documents.forEach((doc) => database.allTerms.terms.add(
-//          new AcademicTerm(doc['term_name'], doc['start_date'].toDate(), doc['end_date'].toDate())))
-//    );
-//  }
 
   /// Gets the current user's ID from Firebase.
   Future<String> getCurrentUserID() async {

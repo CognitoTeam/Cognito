@@ -200,8 +200,10 @@ class DataBase {
     void updateTermName(String termName, String newTermName)
     async {
       QuerySnapshot querySnapshot = await firestore.collection("terms").where("user_id", isEqualTo: userID).where("term_name", isEqualTo: termName).getDocuments();
+      print("Updating " + termName);
       if(querySnapshot.documents.length == 1)
         {
+          print("DATABASE getTermsReference(): Retrieved data");
           querySnapshot.documents[0].reference.updateData(
             {
               "term_name" : newTermName
@@ -408,5 +410,15 @@ class DataBase {
     Club documentToClub(DocumentSnapshot document) {
       return new Club(title: document['title'], location: document['location'], description: document['description'],
       id: document['id']);
+    }
+
+    void removeAcademicTerm(AcademicTerm termToRemove)
+    async {
+        QuerySnapshot snapshot = await firestore.collection('terms').where('user_id', isEqualTo: userID)
+            .where('term_name', isEqualTo: termToRemove.termName)
+            .getDocuments();
+        String documentID = snapshot.documents[0].documentID;
+        //TODO: implement checks
+      firestore.collection('terms').document(documentID).delete();
     }
 }
