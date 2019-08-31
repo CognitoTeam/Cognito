@@ -14,8 +14,9 @@ enum Day { M, Tu, W, Th, F, Sat, Sun }
 class AddTaskView extends StatefulWidget {
 
   AcademicTerm enteredTerm;
+  bool clubTask;
 
-  AddTaskView(this.enteredTerm);
+  AddTaskView(this.enteredTerm, this.clubTask);
 
   @override
   _AddTaskViewState createState() => _AddTaskViewState();
@@ -230,10 +231,23 @@ class _AddTaskViewState extends State<AddTaskView> {
           IconButton(
             icon: Icon(Icons.check),
             onPressed: () {
-              database.addTask(_titleController.text, _locationController.text,
-                  _descriptionController.text, daysOfEvent, _isRepeated, dueDate, widget.enteredTerm.getID(),
-                  _selectedPriority, Duration(
-                      minutes: int.parse(_durationController.text)), widget.enteredTerm.termName, null);
+              //Enter from club task
+              //Did not enter from club task
+              if(!widget.clubTask) {
+                database.addTask(
+                    _titleController.text,
+                    _locationController.text,
+                    _descriptionController.text,
+                    daysOfEvent,
+                    _isRepeated,
+                    dueDate,
+                    widget.enteredTerm.getID(),
+                    _selectedPriority,
+                    Duration(
+                        minutes: int.parse(_durationController.text)),
+                    widget.enteredTerm.termName,
+                    null);
+              }
               Navigator.of(context).pop(_titleController != null
                   ? Task(
                   title: _titleController.text,
@@ -274,23 +288,38 @@ class _AddTaskViewState extends State<AddTaskView> {
             if (currentStep < getSteps().length - 1) {
               currentStep++;
             } else {
-              database.addTask(_titleController.text, _locationController.text,
-                  _descriptionController.text, daysOfEvent, _isRepeated, dueDate, widget.enteredTerm.getID(),
-                  _selectedPriority, Duration(
-                      minutes: int.parse(_durationController.text)), widget.enteredTerm.termName, null);
-              Navigator.of(context).pop(_titleController != null
-                  ? Task(
-                  title: _titleController.text,
-                  location: _locationController.text,
-                  description: _descriptionController.text,
-                  daysOfEvent: daysOfEvent,
-                  isRepeated: _isRepeated,
-                  dueDate: dueDate,
-                  id: widget.enteredTerm.getID(),
-                  priority: _selectedPriority,
-                  duration: Duration(
-                      minutes: int.parse(_durationController.text)))
-                  : null);
+              //Enter from club task
+              //Did not enter from club task
+              if(!widget.clubTask)
+                {
+                  database.addTask(
+                      _titleController.text,
+                      _locationController.text,
+                      _descriptionController.text,
+                      daysOfEvent,
+                      _isRepeated,
+                      dueDate,
+                      widget.enteredTerm.getID(),
+                      _selectedPriority,
+                      Duration(
+                          minutes: int.parse(_durationController.text)),
+                      widget.enteredTerm.termName,
+                      null);
+                }
+              //Enter as general task
+                Navigator.of(context).pop(_titleController != null
+                    ? Task(
+                    title: _titleController.text,
+                    location: _locationController.text,
+                    description: _descriptionController.text,
+                    daysOfEvent: daysOfEvent,
+                    isRepeated: _isRepeated,
+                    dueDate: dueDate,
+                    id: widget.enteredTerm.getID(),
+                    priority: _selectedPriority,
+                    duration: Duration(
+                        minutes: int.parse(_durationController.text)))
+                    : null);
             }
           });
         },

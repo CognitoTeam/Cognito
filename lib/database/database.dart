@@ -318,7 +318,8 @@ class DataBase {
 
     String addClub(Club club, String termName)
     {
-      DocumentReference newClubReference = firestore.collection("club").document();
+      print("adding club");
+      DocumentReference newClubReference = firestore.collection("clubs").document();
       newClubReference.setData({
         "user_id" : userID,
         "title" : club.title,
@@ -358,10 +359,6 @@ class DataBase {
             }
         }
       return newClubReference.documentID;
-    }
-
-    void updateTerm(){
-
     }
 
     Class documentToClass(DocumentSnapshot document)
@@ -418,7 +415,26 @@ class DataBase {
             .where('term_name', isEqualTo: termToRemove.termName)
             .getDocuments();
         String documentID = snapshot.documents[0].documentID;
-        //TODO: implement checks
-      firestore.collection('terms').document(documentID).delete();
+
+        firestore.collection('terms').document(documentID).delete();
+
+        snapshot = await firestore.collection('classes').where('user_id', isEqualTo: userID)
+          .where('term_name', isEqualTo: termToRemove.termName).getDocuments();
+        snapshot.documents.map((document) => firestore.collection('classes').document(documentID).delete());
+
+        snapshot = await firestore.collection('tasks').where('user_id', isEqualTo: userID)
+            .where('term_name'
+            '', isEqualTo: termToRemove.termName).getDocuments();
+        snapshot.documents.map((document) => firestore.collection('tasks').document(documentID).delete());
+
+        snapshot = await firestore.collection('clubs').where('user_id', isEqualTo: userID)
+            .where('term_name'
+            '', isEqualTo: termToRemove.termName).getDocuments();
+        snapshot.documents.map((document) => firestore.collection('clubs').document(documentID).delete());
+
+        snapshot = await firestore.collection('events').where('user_id', isEqualTo: userID)
+            .where('term_name'
+            '', isEqualTo: termToRemove.termName).getDocuments();
+        snapshot.documents.map((document) => firestore.collection('events').document(documentID).delete());
     }
 }

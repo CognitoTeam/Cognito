@@ -1,3 +1,4 @@
+import 'package:cognito/models/academic_term.dart';
 /// Club details view
 /// View screen to edit an Club object
 /// @author Praneet Singh
@@ -15,9 +16,10 @@ import 'package:cognito/views/task_details_view.dart';
 class ClubDetailsView extends StatefulWidget {
   // Hold Club object
   final Club club;
+  final AcademicTerm term;
 
   // Constructor that takes in an academic Club object
-  ClubDetailsView({Key key, @required this.club}) : super(key: key);
+  ClubDetailsView({Key key, @required this.club, this.term}) : super(key: key);
 
   @override
   _ClubDetailsViewState createState() => _ClubDetailsViewState();
@@ -131,7 +133,7 @@ class _ClubDetailsViewState extends State<ClubDetailsView> {
           ),
           ExpandableOfficerList(widget.club),
           ExpandableEventList(widget.club),
-          ExpandableTaskList(widget.club)
+          ExpandableTaskList(widget.club, widget.term)
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -296,8 +298,8 @@ class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
 
 class ExpandableTaskList extends StatefulWidget {
   final Club club;
-
-  ExpandableTaskList(this.club);
+  final AcademicTerm enteredTerm;
+  ExpandableTaskList(this.club, this.enteredTerm);
 
   @override
   _ExpandableTaskListState createState() => _ExpandableTaskListState();
@@ -342,7 +344,7 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
         onTap: () async {
           //TODO
           Task result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddTaskView(null)));
+              .push(MaterialPageRoute(builder: (context) => AddTaskView(widget.enteredTerm, true)));
           if (result != null) {
             print(result.title);
             widget.club.addTask(result);

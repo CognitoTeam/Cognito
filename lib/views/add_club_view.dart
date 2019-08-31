@@ -32,7 +32,6 @@ class _AddClubViewState extends State<AddClubView> {
   DataBase database = DataBase();
   int id;
   Club club = Club();
-  String clubId = "";
   final _titleController = TextEditingController();
   final _locationController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -76,9 +75,13 @@ class _AddClubViewState extends State<AddClubView> {
               club.location = _locationController.text;
               club.description = _descriptionController.text;
               club.id = widget.enteredTerm.getID();
-              clubId = database.addClub(club, widget.enteredTerm.termName);
+              database.addClub(club, widget.enteredTerm.termName);
               Navigator.of(context)
-                  .pop();
+                  .pop(
+                Club(title: club.title, description: club.description, location: club.location,
+                id: club.id)
+              );
+              //TODO: Make check for last continue
             },
           ),
         ],
@@ -304,8 +307,9 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
         ),
         leading: Icon(Icons.add),
         onTap: () async {
+          //TODO: Go to AddTaskView, but also don't save when confirmed
           Task result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddTaskView(widget.term)));
+              .push(MaterialPageRoute(builder: (context) => AddTaskView(widget.term, true)));
           if (result != null) {
             print(result.title);
             widget.club.addTask(result);

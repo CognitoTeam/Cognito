@@ -212,7 +212,7 @@ class _ExpandableClassListState extends State<ExpandableClassList> {
           .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         classItems.clear();
-        if(snapshot.hasData)
+        if(snapshot.data != null && snapshot.data.documents.length > 0)
           {
             for(int i = 0; i <= snapshot.data.documents.length - 1; i++)
               {
@@ -289,7 +289,7 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
           .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         taskItems.clear();
-        if (snapshot.hasData) {
+        if (snapshot.data != null && snapshot.data.documents.length > 0) {
           for (int i = 0; i <= snapshot.data.documents.length - 1; i++) {
             Task t = dataBase.documentToTask(snapshot.data.documents[i]);
             taskItems.add(ListTile(
@@ -333,7 +333,7 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
             //TODO
             Task result = await Navigator.of(context)
                 .push(MaterialPageRoute(
-                builder: (context) => AddTaskView(widget.term)));
+                builder: (context) => AddTaskView(widget.term, false)));
           },
         )
         );
@@ -376,7 +376,7 @@ class _ExpandableEventListState extends State<ExpandableEventList> {
           .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         eventItems.clear();
-        if (snapshot.hasData) {
+        if (snapshot.data != null && snapshot.data.documents.length > 0) {
           for (int i = 0; i <= snapshot.data.documents.length - 1; i++) {
             Event e = dataBase.documentToEvent(snapshot.data.documents[i]);
             eventItems.add(ListTile(
@@ -463,7 +463,7 @@ class _ExpandableClubListState extends State<ExpandableClubList> {
           .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         clubItems.clear();
-        if (snapshot.hasData) {
+        if (snapshot.data != null && snapshot.data.documents.length > 0) {
           for (int i = 0; i <= snapshot.data.documents.length - 1; i++) {
             Club c = dataBase.documentToClub(snapshot.data.documents[i]);
             clubItems.add(ListTile(
@@ -482,7 +482,7 @@ class _ExpandableClubListState extends State<ExpandableClubList> {
           }
         }
         else {
-          print("Does not read any events");
+          print("Does not read any clubs");
           clubItems.add(ListTile(
               title: Text(
                 "No Clubs so far",
