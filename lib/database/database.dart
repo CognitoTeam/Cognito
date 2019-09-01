@@ -75,6 +75,7 @@ class DataBase {
     /// Gets the current user's ID from Firebase.
     Future<String> getCurrentUserID() async {
       FirebaseUser user = await FirebaseAuth.instance.currentUser();
+      userID = user.uid;
       return user.uid;
     }
 
@@ -154,18 +155,25 @@ class DataBase {
     Future<AllTerms> getTerms() async {
       AllTerms allTerms = AllTerms();
       userID = await getCurrentUserID();
-      firestore
-          .collection("terms")
-          .where("user_id", isEqualTo: userID)
-          .snapshots().listen((data) =>
-          data.documents.forEach((doc) => allTerms.terms.add(
-              new AcademicTerm(doc['term_name'], doc['start_date'].toDate(), doc['end_date'].toDate())))
-      );
+      print("User ID in Terms: " + userID);
+      QuerySnapshot querySnapshot = await firestore
+          .collection('terms')
+          .where('user_id', isEqualTo: userID)
+          .getDocuments();
+//TODO: NO DATA ON SNAPSHOT
+      querySnapshot.documents.map((doc) =>
+          allTerms.terms.add(
+              AcademicTerm(doc['term_name'], doc['start_date'].toDate(), doc['end_date'].toDate())));
       return allTerms;
     }
 
+    Future updateTerms() async {
+      allTerms = await getTerms();
+    }
+
     Future<AcademicTerm> getCurrentTerm() async {
-      AllTerms terms = await getTerms();
+      AllTerms terms = allTerms;
+      print(terms.terms.length);
       for (AcademicTerm term in terms.terms) {
         if (DateTime.now().isAfter(term.startTime) &&
             DateTime.now().isBefore(term.endTime)) {
@@ -177,7 +185,7 @@ class DataBase {
 
     Future<List<Class>> getClasses() async {
       List<Class> classes = List();
-      String userID = await getCurrentUserID();
+      print(userID);
       firestore.collection("classes")
           .where("user_id", isEqualTo: userID)
           .snapshots().listen((data) =>
@@ -199,6 +207,7 @@ class DataBase {
 
     void updateTermName(String termName, String newTermName)
     async {
+      //Get the correct term
       QuerySnapshot querySnapshot = await firestore.collection("terms").where("user_id", isEqualTo: userID).where("term_name", isEqualTo: termName).getDocuments();
       print("Updating " + termName);
       if(querySnapshot.documents.length == 1)
@@ -209,6 +218,45 @@ class DataBase {
               "term_name" : newTermName
             }
           );
+          print("term changed from " + termName);
+          querySnapshot = await firestore.collection("classes").where("user_id", isEqualTo: userID).where("term_name", isEqualTo: termName).getDocuments();
+          print("Update " + termName +  "Classes has " + querySnapshot.documents.length.toString());
+          for(int i = 0; i < querySnapshot.documents.length; i++)
+            {
+              querySnapshot.documents[i].reference.updateData(
+                {
+                  "term_name" : newTermName
+                }
+              );
+            }
+          querySnapshot = await firestore.collection("events").where("user_id", isEqualTo: userID).where("term_name", isEqualTo: termName).getDocuments();
+          for(int i = 0; i < querySnapshot.documents.length; i++)
+          {
+            querySnapshot.documents[i].reference.updateData(
+                {
+                  "term_name" : newTermName
+                }
+            );
+          }
+          querySnapshot = await firestore.collection("tasks").where("user_id", isEqualTo: userID).where("term_name", isEqualTo: termName).getDocuments();
+          for(int i = 0; i < querySnapshot.documents.length; i++)
+          {
+            querySnapshot.documents[i].reference.updateData(
+                {
+                  "term_name" : newTermName
+                }
+            );
+          }
+          print("Update " + termName +  "Classes has " + querySnapshot.documents.length.toString());
+          querySnapshot = await firestore.collection("clubs").where("user_id", isEqualTo: userID).where("term_name", isEqualTo: termName).getDocuments();
+          for(int i = 0; i < querySnapshot.documents.length; i++)
+          {
+            querySnapshot.documents[i].reference.updateData(
+                {
+                  "term_name" : newTermName
+                }
+            );
+          }
         }
       else if(querySnapshot.documents.length == 0)
         {
@@ -238,7 +286,7 @@ class DataBase {
         "days_of_event" : daysOfEvent,
         "start_time" : startTime,
         "end_time" : endTime,
-        "term" : termName
+        "term_name" : termName
       });
 
       classCollectionReference.collection("assignments").document();
@@ -345,7 +393,7 @@ class DataBase {
             {
               addTask(t.title, t.location, t.description, t.daysOfEvent,
                   t.isRepeated, t.dueDate, t.id, t.priority, t.duration, termName,
-                  newClubReference);
+                  newClubReference.collection("tasks").document());
             }
         }
 
@@ -355,7 +403,7 @@ class DataBase {
             {
               addEvent(e.title, e.location, e.description, e.daysOfEvent, e.isRepeated,
                   e.startTime, e.endTime, e.id, e.priority, e.duration, termName,
-                  newClubReference);
+                  newClubReference.collection("events").document());
             }
         }
       return newClubReference.documentID;

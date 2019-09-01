@@ -208,7 +208,7 @@ class _ExpandableClassListState extends State<ExpandableClassList> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: firestore.collection("classes").where("user_id", isEqualTo: dataBase.userID).where("term", isEqualTo: widget.term.termName)
+      stream: firestore.collection("classes").where("user_id", isEqualTo: dataBase.userID).where("term_name", isEqualTo: widget.term.termName)
           .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         classItems.clear();
@@ -231,7 +231,6 @@ class _ExpandableClassListState extends State<ExpandableClassList> {
           }
         else
           {
-            print("Does not read any classes");
             classItems.add(ListTile(
                 title: Text(
                   "No Classes so far",
@@ -308,7 +307,6 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
           }
         }
         else {
-          print("Does not read any tasks");
           taskItems.add(ListTile(
               title: Text(
                 "No Tasks so far",
@@ -395,7 +393,6 @@ class _ExpandableEventListState extends State<ExpandableEventList> {
           }
         }
         else {
-          print("Does not read any events");
           eventItems.add(ListTile(
               title: Text(
                 "No Events so far",
@@ -482,7 +479,6 @@ class _ExpandableClubListState extends State<ExpandableClubList> {
           }
         }
         else {
-          print("Does not read any clubs");
           clubItems.add(ListTile(
               title: Text(
                 "No Clubs so far",

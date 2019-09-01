@@ -63,16 +63,7 @@ class _MainDrawerState extends State<MainDrawer> {
   }
 
   Future<AcademicTerm> getCurrentTerm() async {
-    AllTerms allTerms = await database.getTerms();
-    for (AcademicTerm term in allTerms.terms) {
-      if (DateTime.now().isAfter(term.startTime) &&
-          DateTime.now().isBefore(term.endTime)) {
-        setState(() {
-          this.term = term;
-        });
-        return term;
-      }
-    }
+    this.term = await database.getCurrentTerm();
     return null;
   }
 
