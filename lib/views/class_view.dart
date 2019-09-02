@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/database.dart';
 import 'package:cognito/database/notifications.dart';
 import 'package:cognito/models/academic_term.dart';
@@ -40,7 +41,6 @@ class _ClassViewState extends State<ClassView> {
   void removeClass(Class classToRemove) {
     setState(() {
       term.removeClass(classToRemove);
-
     });
   }
 
@@ -84,118 +84,140 @@ class _ClassViewState extends State<ClassView> {
 
   /// Builds [Card]s from the [AcademicTerm]'s list of [Class] objects
   /// in the form of a [ListView]
-  ListView _getClassCards() {
-    return ListView.builder(
-      itemCount: term.classes.length,
-      itemBuilder: (BuildContext context, int index) {
-        Class classObj = term.classes[index];
+  Widget _getClassCards() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: Firestore.instance.collection("classes")
+          .where('user_id', isEqualTo: database.userID)
+          .where('term_name', isEqualTo: term.termName).snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if(snapshot.hasData) {
+          return new ListView(
+            children: snapshot.data.documents.map((document) {
+              Class classObj = database.documentToClass(document);
+              return Container(
+                margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
+                child: InkWell(
+                  onTap: () async {
+                    for (int i in classObj.daysOfEvent) {
+                      noti.cancelNotification(classObj.id);
+                    }
+                    await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                GradeBookView(
+                                  selectedClass: classObj,
+                                )));
+                    database.allTerms.updateTerm(term);
+                    database.updateDatabase();
 
-        return Container(
-          margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
-          child: InkWell(
-            onTap: () async {
-              for (int i in classObj.daysOfEvent) {
-                noti.cancelNotification(classObj.id);
-              }
-              await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => GradeBookView(
-                            selectedClass: classObj,
-                          )));
-              database.allTerms.updateTerm(term);
-              database.updateDatabase();
-
-              for (int i in classObj.daysOfEvent) {
-                noti.showWeeklyAtDayAndTime(
-                    title: classObj.title,
-                    body: classObj.title + " is starting in 15 mins",
-                    id: classObj.id,
-                    dayToRepeat: i,
-                    timeToRepeat:
-                        classObj.startTime.subtract(Duration(minutes: 15)));
-              }
-            },
-            child: Dismissible(
-              key: Key(term.classes[index].toString()),
-              direction: DismissDirection.endToStart,
-              onDismissed: (direction) {
-                for (int i in classObj.daysOfEvent) {
-                  noti.cancelNotification(classObj.id);
-                }
-
-                undoClass = classObj;
-                removeClass(classObj);
-                database.allTerms.updateTerm(term);
-                database.updateDatabase();
-                Scaffold.of(context).showSnackBar(SnackBar(
-                  content: Text("${classObj.title} deleted"),
-                  action: SnackBarAction(
-                    label: "Undo",
-                    onPressed: () {
-                      undo(undoClass);
-                      database.updateDatabase();
-                    },
-                  ),
-                  duration: Duration(seconds: 3),
-                ));
-              },
-              child: Card(
-                elevation: 10.0,
-                color: Theme.of(context).primaryColor,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0)),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.label,
-                    color: Colors.white,
-                  ),
-                  subtitle: Text(
-                    calculateGrade(classObj),
-                    style: Theme.of(context).primaryTextTheme.body1,
-                  ),
-                  title: Text(
-                    classObj.subjectArea +
-                        " " +
-                        classObj.courseNumber +
-                        " - " +
-                        classObj.title,
-                    style: Theme.of(context).primaryTextTheme.body1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  trailing: IconButton(
-                    icon: Icon(
-                      Icons.info_outline,
-                      color: Colors.white,
-                    ),
-                    onPressed: () async {
+                    for (int i in classObj.daysOfEvent) {
+                      noti.showWeeklyAtDayAndTime(
+                          title: classObj.title,
+                          body: classObj.title + " is starting in 15 mins",
+                          id: classObj.id,
+                          dayToRepeat: i,
+                          timeToRepeat:
+                          classObj.startTime.subtract(Duration(minutes: 15)));
+                    }
+                  },
+                  child: Dismissible(
+                    key: Key(classObj.toString()),
+                    direction: DismissDirection.endToStart,
+                    onDismissed: (direction) {
                       for (int i in classObj.daysOfEvent) {
                         noti.cancelNotification(classObj.id);
                       }
-                      await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  ClassEditingView(classObj: classObj)));
+
+                      undoClass = classObj;
+                      removeClass(classObj);
                       database.allTerms.updateTerm(term);
                       database.updateDatabase();
-
-                      for (int i in classObj.daysOfEvent) {
-                        noti.showWeeklyAtDayAndTime(
-                            title: classObj.title,
-                            body: classObj.title + " is starting in 15 mins",
-                            id: classObj.id,
-                            dayToRepeat: i,
-                            timeToRepeat: classObj.startTime
-                                .subtract(Duration(minutes: 15)));
-                      }
+                      Scaffold.of(context).showSnackBar(SnackBar(
+                        content: Text("${classObj.title} deleted"),
+                        action: SnackBarAction(
+                          label: "Undo",
+                          onPressed: () {
+                            undo(undoClass);
+                            database.updateDatabase();
+                          },
+                        ),
+                        duration: Duration(seconds: 3),
+                      ));
                     },
+                    child: Card(
+                      elevation: 10.0,
+                      color: Theme
+                          .of(context)
+                          .primaryColor,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0)),
+                      child: ListTile(
+                        leading: Icon(
+                          Icons.label,
+                          color: Colors.white,
+                        ),
+                        subtitle: Text(
+                          calculateGrade(classObj),
+                          style: Theme
+                              .of(context)
+                              .primaryTextTheme
+                              .body1,
+                        ),
+                        title: Text(
+                          classObj.subjectArea +
+                              " " +
+                              classObj.courseNumber +
+                              " - " +
+                              classObj.title,
+                          style: Theme
+                              .of(context)
+                              .primaryTextTheme
+                              .body1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        trailing: IconButton(
+                          icon: Icon(
+                            Icons.info_outline,
+                            color: Colors.white,
+                          ),
+                          onPressed: () async {
+                            for (int i in classObj.daysOfEvent) {
+                              print(classObj.id);
+                              noti.cancelNotification(classObj.id);
+                            }
+                            await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ClassEditingView(classObj: classObj)));
+                            database.allTerms.updateTerm(term);
+                            database.updateDatabase();
+
+                            for (int i in classObj.daysOfEvent) {
+                              noti.showWeeklyAtDayAndTime(
+                                  title: classObj.title,
+                                  body: classObj.title +
+                                      " is starting in 15 mins",
+                                  id: classObj.id,
+                                  dayToRepeat: i,
+                                  timeToRepeat: classObj.startTime
+                                      .subtract(Duration(minutes: 15)));
+                            }
+                          },
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ),
-        );
+              );
+            }).toList(),
+          );
+        }
+        else
+          {
+            return new Container();
+          }
       },
     );
   }
@@ -238,7 +260,7 @@ class _ClassViewState extends State<ClassView> {
         backgroundColor: Theme.of(context).accentColor,
         foregroundColor: Colors.black,
       ),
-      body: term.classes.isNotEmpty ? _getClassCards() : null,
+      body: _getClassCards(),
     );
   }
 }

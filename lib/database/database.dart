@@ -155,15 +155,15 @@ class DataBase {
     Future<AllTerms> getTerms() async {
       AllTerms allTerms = AllTerms();
       userID = await getCurrentUserID();
-      print("User ID in Terms: " + userID);
       QuerySnapshot querySnapshot = await firestore
           .collection('terms')
           .where('user_id', isEqualTo: userID)
           .getDocuments();
-//TODO: NO DATA ON SNAPSHOT
-      querySnapshot.documents.map((doc) =>
-          allTerms.terms.add(
-              AcademicTerm(doc['term_name'], doc['start_date'].toDate(), doc['end_date'].toDate())));
+      for(int i = 0; i < querySnapshot.documents.length; i++)
+        {
+          DocumentSnapshot document = querySnapshot.documents[i];
+          allTerms.addTerm(AcademicTerm(document['term_name'], document['start_date'].toDate(), document['end_date'].toDate()));
+        }
       return allTerms;
     }
 
@@ -172,9 +172,8 @@ class DataBase {
     }
 
     Future<AcademicTerm> getCurrentTerm() async {
-      AllTerms terms = allTerms;
-      print(terms.terms.length);
-      for (AcademicTerm term in terms.terms) {
+      updateTerms();
+      for (AcademicTerm term in allTerms.terms) {
         if (DateTime.now().isAfter(term.startTime) &&
             DateTime.now().isBefore(term.endTime)) {
           return term;
@@ -185,7 +184,6 @@ class DataBase {
 
     Future<List<Class>> getClasses() async {
       List<Class> classes = List();
-      print(userID);
       firestore.collection("classes")
           .where("user_id", isEqualTo: userID)
           .snapshots().listen((data) =>
@@ -194,9 +192,17 @@ class DataBase {
                   courseNumber: doc['course_number'], instructor: doc['instructor'],
                   units: doc['units'], location: doc['location'],
                   officeLocation: doc['office_location'], description: doc['description'],
-                  daysOfEvent: doc['days_of_event'],
+                  daysOfEvent: dynamicToIntList(doc['days_of_event']),
                   start: doc['start_time'].toDate(), end: doc['end_time'].toDate())
           )));
+      return classes;
+    }
+
+    List<int> dynamicToIntList(List<dynamic> list)
+    {
+      List<int> list = List();
+      list.forEach((item)=>list.add(item));
+      return list;
     }
 
     void removeClass(String subjectArea, String courseNumber, String title)
