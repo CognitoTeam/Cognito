@@ -245,7 +245,7 @@ class _AddTaskViewState extends State<AddTaskView> {
                     _selectedPriority,
                     Duration(
                         minutes: int.parse(_durationController.text)),
-                    widget.enteredTerm.termName,
+                    widget.enteredTerm,
                     null);
               }
               Navigator.of(context).pop(_titleController != null
@@ -303,7 +303,7 @@ class _AddTaskViewState extends State<AddTaskView> {
                       _selectedPriority,
                       Duration(
                           minutes: int.parse(_durationController.text)),
-                      widget.enteredTerm.termName,
+                      widget.enteredTerm,
                       null);
                 }
               //Enter as general task

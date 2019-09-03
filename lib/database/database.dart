@@ -171,6 +171,15 @@ class DataBase {
       allTerms = await getTerms();
     }
 
+    Future<int> generateTermID(AcademicTerm term)
+    async {
+      QuerySnapshot termsSnapshot = await firestore.collection('terms').where('user_id', isEqualTo: userID)
+          .where('start_date', isEqualTo: term.startTime).where('end_date', isEqualTo: term.endTime)
+          .where('term_name', isEqualTo: term.termName).getDocuments();
+      String s = termsSnapshot.documents[0].documentID;
+      return s.hashCode;
+    }
+
     Future<AcademicTerm> getCurrentTerm() async {
       updateTerms();
       for (AcademicTerm term in allTerms.terms) {
@@ -275,7 +284,7 @@ class DataBase {
     }
 
     void addClass(String subjectArea, String courseNumber, String title, int units, String location, String instructor,
-        String officeLocation, String description, List<int> daysOfEvent, DateTime startTime, DateTime endTime, String termName) async {
+        String officeLocation, String description, List<int> daysOfEvent, DateTime startTime, DateTime endTime, AcademicTerm term) async {
 
       DocumentReference classCollectionReference = Firestore.instance.collection("classes").document();
       FirebaseUser user = await FirebaseAuth.instance.currentUser();
@@ -292,7 +301,8 @@ class DataBase {
         "days_of_event" : daysOfEvent,
         "start_time" : startTime,
         "end_time" : endTime,
-        "term_name" : termName
+        "term_name" : term.termName,
+        "term_id" : await generateTermID(term)
       });
 
       classCollectionReference.collection("assignments").document();
@@ -327,7 +337,7 @@ class DataBase {
     }
 
     void addEvent(String title, String location, String description, List<int> daysOfEvent, bool isRepeated,
-        DateTime startTime, DateTime endTime, int id, int priority, Duration duration, String termName, DocumentReference newEventReferenceLocation) async {
+        DateTime startTime, DateTime endTime, int id, int priority, Duration duration, AcademicTerm term, DocumentReference newEventReferenceLocation) async {
       if(newEventReferenceLocation == null) {
         newEventReferenceLocation = firestore.collection("events").document();
       }
@@ -341,16 +351,16 @@ class DataBase {
         "repeated" : isRepeated,
         "start_time" : startTime,
         "end_time" : endTime,
-        "id" : id,
+        "term_id" : await generateTermID(term),
         "priority" : priority,
         "duration_in_minutes" : duration.inMinutes,
-        "term_name" : termName
+        "term_name" : term.termName
       });
     }
 
-    void addTask(String title, String location, String description, List<int> daysOfEvent, bool isRepeated,
-        DateTime dueDate, int id, int priority, Duration duration, String termName, DocumentReference newTaskReferenceLocation)
-    {
+    Future addTask(String title, String location, String description, List<int> daysOfEvent, bool isRepeated,
+        DateTime dueDate, int id, int priority, Duration duration, AcademicTerm term, DocumentReference newTaskReferenceLocation)
+    async {
       if(newTaskReferenceLocation == null)
         {
           newTaskReferenceLocation = firestore.collection("tasks").document();
@@ -363,15 +373,15 @@ class DataBase {
         "days_of_event" : daysOfEvent,
         "repeated" : isRepeated,
         "due_date" : dueDate,
-        "id" : id,
+        "term_id" : await generateTermID(term),
         "priority" : priority,
         "duration_in_minutes" : duration.inMinutes,
-        "term_name" : termName
+        "term_name" : term.termName
       });
     }
 
-    String addClub(Club club, String termName)
-    {
+    Future<String> addClub(Club club, AcademicTerm term)
+    async {
       print("adding club");
       DocumentReference newClubReference = firestore.collection("clubs").document();
       newClubReference.setData({
@@ -380,7 +390,8 @@ class DataBase {
         "location" : club.location,
         "description" : club.description,
         "id" : club.id,
-        "term_name" : termName
+        "term_name" : term.termName,
+        'term_id' : await generateTermID(term)
       });
 
       if(club.officers.isNotEmpty)
@@ -398,7 +409,7 @@ class DataBase {
           for(Task t in club.tasks)
             {
               addTask(t.title, t.location, t.description, t.daysOfEvent,
-                  t.isRepeated, t.dueDate, t.id, t.priority, t.duration, termName,
+                  t.isRepeated, t.dueDate, t.id, t.priority, t.duration, term,
                   newClubReference.collection("tasks").document());
             }
         }
@@ -408,7 +419,7 @@ class DataBase {
           for(Event e in club.events)
             {
               addEvent(e.title, e.location, e.description, e.daysOfEvent, e.isRepeated,
-                  e.startTime, e.endTime, e.id, e.priority, e.duration, termName,
+                  e.startTime, e.endTime, e.id, e.priority, e.duration, term,
                   newClubReference.collection("events").document());
             }
         }
@@ -427,7 +438,7 @@ class DataBase {
       start: document['start_time'].toDate(), end: document['end_time'].toDate(),
       subjectArea: document['subject_area'], courseNumber: document['course_number'],
       instructor: document['instructor'], units: document['units'],
-      daysOfEvent: listOfInt);
+      daysOfEvent: listOfInt, id: document['term_id']);
     }
 
     Event documentToEvent(DocumentSnapshot document)
@@ -477,18 +488,49 @@ class DataBase {
         snapshot.documents.map((document) => firestore.collection('classes').document(documentID).delete());
 
         snapshot = await firestore.collection('tasks').where('user_id', isEqualTo: userID)
-            .where('term_name'
-            '', isEqualTo: termToRemove.termName).getDocuments();
+            .where('term_name', isEqualTo: termToRemove.termName).getDocuments();
         snapshot.documents.map((document) => firestore.collection('tasks').document(documentID).delete());
 
         snapshot = await firestore.collection('clubs').where('user_id', isEqualTo: userID)
-            .where('term_name'
-            '', isEqualTo: termToRemove.termName).getDocuments();
+            .where('term_name', isEqualTo: termToRemove.termName).getDocuments();
         snapshot.documents.map((document) => firestore.collection('clubs').document(documentID).delete());
 
         snapshot = await firestore.collection('events').where('user_id', isEqualTo: userID)
-            .where('term_name'
-            '', isEqualTo: termToRemove.termName).getDocuments();
+            .where('term_name', isEqualTo: termToRemove.termName).getDocuments();
         snapshot.documents.map((document) => firestore.collection('events').document(documentID).delete());
     }
+
+  Future updateClass(Class oldClass, Class editedClass) async {
+      AcademicTerm currentTerm = await getCurrentTerm();
+      QuerySnapshot snapshot = await firestore.collection('classes').where('user_id', isEqualTo: userID)
+          .where('title', isEqualTo: oldClass.title)
+          .getDocuments();
+      print("Snapshot length " + snapshot.documents.length.toString());
+      for(int i = 0; i < snapshot.documents.length; i++)
+      {
+        snapshot.documents[i].reference.updateData(
+          await classToMap(editedClass, currentTerm)
+        );
+      }
+  }
+
+  Future<Map<String, dynamic>> classToMap(Class classObj, AcademicTerm currentTerm)
+  async {
+    return {
+      "user_id" : userID,
+      "title" : classObj.title,
+      "subject_area" : classObj.subjectArea,
+      "course_number" : classObj.courseNumber,
+      "instructor" : classObj.instructor,
+      "units" : classObj.units,
+      "location" : classObj.location,
+      "office_location" : classObj.officeLocation,
+      "description" : classObj.description,
+      "days_of_event" : classObj.daysOfEvent,
+      "start_time" : classObj.startTime,
+      "end_time" : classObj.endTime,
+      "term_name" : currentTerm.termName,
+      'term_id' : await generateTermID(currentTerm)
+    };
+  }
 }

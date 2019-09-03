@@ -485,7 +485,7 @@ class _AddClassViewState extends State<AddClassView> {
                       _courseNumberController.text, _courseTitleController.text,
                       int.parse(_unitCountController.text),  _locationController.text,
                       _instructorController.text, _officeLocationController.text,
-                      _descriptionController.text, daysOfEvent, startTime, endTime, widget.term.termName);
+                      _descriptionController.text, daysOfEvent, startTime, endTime, widget.term);
                   Navigator.of(context).pop();
                 }
               else
@@ -525,7 +525,7 @@ class _AddClassViewState extends State<AddClassView> {
                   _courseNumberController.text, _courseTitleController.text,
                   int.parse(_unitCountController.text),  _locationController.text,
                   _instructorController.text, _officeLocationController.text,
-                  _descriptionController.text, daysOfEvent, startTime, endTime, widget.term.termName);
+                  _descriptionController.text, daysOfEvent, startTime, endTime, widget.term);
               Navigator.of(context).pop();
             }
           });

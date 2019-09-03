@@ -313,7 +313,7 @@ class _AddEventViewState extends State<AddEventView> {
                     Duration(
                         minutes: int.parse(_durationController.text)
                     ),
-                widget.enteredTerm.termName, null);
+                widget.enteredTerm, null);
               }
               Navigator.of(context).pop(_titleController != null
                   ? Event(
@@ -370,7 +370,7 @@ class _AddEventViewState extends State<AddEventView> {
                     Duration(
                         minutes: int.parse(_durationController.text)
                     ),
-                widget.enteredTerm.termName, null);
+                widget.enteredTerm, null);
               }
               Navigator.of(context).pop(_titleController != null
                   ? Event(

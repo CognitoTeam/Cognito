@@ -108,8 +108,6 @@ class _ClassViewState extends State<ClassView> {
                                 GradeBookView(
                                   selectedClass: classObj,
                                 )));
-                    database.allTerms.updateTerm(term);
-                    database.updateDatabase();
 
                     for (int i in classObj.daysOfEvent) {
                       noti.showWeeklyAtDayAndTime(
@@ -183,7 +181,6 @@ class _ClassViewState extends State<ClassView> {
                           ),
                           onPressed: () async {
                             for (int i in classObj.daysOfEvent) {
-                              print(classObj.id);
                               noti.cancelNotification(classObj.id);
                             }
                             await Navigator.push(
@@ -191,8 +188,6 @@ class _ClassViewState extends State<ClassView> {
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         ClassEditingView(classObj: classObj)));
-                            database.allTerms.updateTerm(term);
-                            database.updateDatabase();
 
                             for (int i in classObj.daysOfEvent) {
                               noti.showWeeklyAtDayAndTime(

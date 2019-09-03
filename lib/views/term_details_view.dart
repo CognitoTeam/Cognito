@@ -246,7 +246,6 @@ class _ExpandableClassListState extends State<ExpandableClassList> {
           ),
           leading: Icon(Icons.add),
           onTap: () async {
-            //TODO
             Class result = await Navigator.of(context)
                 .push(MaterialPageRoute(builder: (context) => AddClassView(widget.term)));
           },
