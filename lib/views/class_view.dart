@@ -41,6 +41,7 @@ class _ClassViewState extends State<ClassView> {
   void removeClass(Class classToRemove) {
     setState(() {
       term.removeClass(classToRemove);
+      database.removeClass(classToRemove, term);
     });
   }
 
@@ -128,16 +129,14 @@ class _ClassViewState extends State<ClassView> {
                       }
 
                       undoClass = classObj;
-                      removeClass(classObj);
-                      database.allTerms.updateTerm(term);
-                      database.updateDatabase();
+                      snapshot.data.documents.remove(document);
+                      database.removeClass(classObj, term);
                       Scaffold.of(context).showSnackBar(SnackBar(
                         content: Text("${classObj.title} deleted"),
                         action: SnackBarAction(
                           label: "Undo",
                           onPressed: () {
                             undo(undoClass);
-                            database.updateDatabase();
                           },
                         ),
                         duration: Duration(seconds: 3),
@@ -233,9 +232,6 @@ class _ClassViewState extends State<ClassView> {
           Class result = await Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => AddClassView(term)));
           if (result != null) {
-            term.addClass(result);
-            database.allTerms.updateTerm(term);
-            database.updateDatabase();
             setState(() {});
             for (int i in result.daysOfEvent) {
               noti.showWeeklyAtDayAndTime(

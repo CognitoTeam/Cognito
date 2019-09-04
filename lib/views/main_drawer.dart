@@ -151,7 +151,7 @@ class _MainDrawerState extends State<MainDrawer> {
                           );
                         })
                     : Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => ClubView()));
+                        MaterialPageRoute(builder: (context) => ClubView(term)));
               }),
           ListTile(
               title: Text("GPA"),

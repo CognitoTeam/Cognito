@@ -214,12 +214,6 @@ class DataBase {
       return list;
     }
 
-    void removeClass(String subjectArea, String courseNumber, String title)
-    {
-//    firestore.collection("classes").where("user_id", isEqualTo: )
-    }
-
-
     void updateTermName(String termName, String newTermName)
     async {
       //Get the correct term
@@ -472,6 +466,29 @@ class DataBase {
     Club documentToClub(DocumentSnapshot document) {
       return new Club(title: document['title'], location: document['location'], description: document['description'],
       id: document['id']);
+    }
+
+
+    Future removeClass(Class classObj, AcademicTerm term)
+    async {
+      QuerySnapshot snapshot = await firestore.collection('classes').where('user_id', isEqualTo: userID)
+          .where('term_name', isEqualTo: term.termName)
+          .getDocuments();
+      snapshot.documents.forEach((document) =>
+        firestore.collection('classes').document(document.documentID).delete()
+      );
+    }
+
+    Future removeClub(Club clubObj, AcademicTerm term)
+    async {
+      QuerySnapshot snapshot = await firestore.collection('clubs').where('user_id', isEqualTo: userID)
+          .where('term_name', isEqualTo: term.termName).where('term_id', isEqualTo: term.getID())
+          .getDocuments();
+      for(DocumentSnapshot doc in snapshot.documents)
+        {
+          print(doc.documentID);
+          firestore.collection('clubs').document(doc.documentID).delete();
+        }
     }
 
     void removeAcademicTerm(AcademicTerm termToRemove)
