@@ -104,167 +104,176 @@ class _AgendaViewState extends State<AgendaView>
 
   List<Widget> _listOfClassAssign(AsyncSnapshot<QuerySnapshot> snapshot) {
     List<Widget> listTasks = List();
-    if (snapshot.hasData) {
-        snapshot.data.documents.forEach((document) {
-          Class c = database.documentToClass(document);
-          listTasks.add(
-            ListTile(
-                title: Text(
-                  c.title,
-                  style: Theme.of(context).accentTextTheme.body2,
-                ),
-                onTap: () async {
-                  setState(() {
-                    isOpened = !isOpened;
-                    animate();
-                  });
+          if (snapshot.hasData) {
+              snapshot.data.documents.forEach((document) {
+                Class c = database.documentToClass(document);
+                listTasks.add(
+                  ListTile(
+                      title: Text(
+                        c.title,
+                        style: Theme.of(context).accentTextTheme.body2,
+                      ),
+                      onTap: () async {
+                        setState(() {
+                          isOpened = !isOpened;
+                          animate();
+                        });
 
-                  Navigator.of(context).pop();
-                  Assignment result =
-                  await Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => AddAssignmentView(
-                        aClass: c,
-                      )));
-                  if (result != null) {
-                    DateTime dateTime = DateTime(
-                        result.dueDate.year,
-                        result.dueDate.month,
-                        result.dueDate.day,
-                        c.startTime.hour,
-                        c.startTime.minute);
-                    dateTime = dateTime.subtract(Duration(minutes: 15));
-                    noti.scheduleNotification(
-                        title: "Assignment due",
-                        body: result.title +
-                            " for " +
-                            c.title +
-                            " is due at " +
-                            dateTime.hour.toString() +
-                            ":" +
-                            dateTime.minute.toString(),
-                        dateTime: dateTime,
-                        id: result.id);
-                    c.addTodoItem(c.ASSIGNMENTTAG, assignment: result);
-                    database.updateDatabase();
-                  }
-                }),
-          );
-        });
-      } else {
-      listTasks.add(ListTile(
-        title: Text(
-          "No classes have been added yet!",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-      ));
-    }
+                        Navigator.of(context).pop();
+                        Assignment result =
+                        await Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => AddAssignmentView(
+                              aClass: c,
+                            )));
+                        if (result != null) {
+                          DateTime dateTime = DateTime(
+                              result.dueDate.year,
+                              result.dueDate.month,
+                              result.dueDate.day,
+                              c.startTime.hour,
+                              c.startTime.minute);
+                          dateTime = dateTime.subtract(Duration(minutes: 15));
+                          noti.scheduleNotification(
+                              title: "Assignment due",
+                              body: result.title +
+                                  " for " +
+                                  c.title +
+                                  " is due at " +
+                                  dateTime.hour.toString() +
+                                  ":" +
+                                  dateTime.minute.toString(),
+                              dateTime: dateTime,
+                              id: result.id);
+                          c.addTodoItem(c.ASSIGNMENTTAG, assignment: result);
+                          database.updateDatabase();
+                        }
+                      }),
+                );
+              });
+            } else {
+            listTasks.add(ListTile(
+              title: Text(
+                "No classes have been added yet!",
+                style: Theme.of(context).accentTextTheme.body2,
+              ),
+            ));
+          }
     return listTasks;
   }
 
-  List<Widget> _listOfClassAssess() {
+  List<Widget> _listOfClassAssess(AsyncSnapshot<QuerySnapshot> snapshot) {
     List<Widget> listTasks = List();
-    if (widget.term.classes.isNotEmpty) {
-      for (Class c in widget.term.classes) {
-        listTasks.add(
-          ListTile(
+          if (snapshot.hasData) {
+            snapshot.data.documents.forEach((document){
+              Class c = database.documentToClass(document);
+              listTasks.add(
+                ListTile(
+                    title: Text(
+                      c.title,
+                      style: Theme.of(context).accentTextTheme.body2,
+                    ),
+                    onTap: () async {
+                      setState(() {
+                        isOpened = !isOpened;
+                        animate();
+                      });
+
+                      Navigator.of(context).pop();
+                      Assignment result =
+                      await Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => AddAssessmentView(
+                            aClass: c,
+                          )));
+                      if (result != null) {
+                        DateTime input = DateTime(
+                            result.dueDate.year,
+                            result.dueDate.month,
+                            result.dueDate.day,
+                            result.dueDate.hour,
+                            result.dueDate.minute);
+                        input = input.subtract(Duration(minutes: 15));
+                        noti.scheduleNotification(
+                            title: "Assessment today",
+                            body: result.title +
+                                " for " +
+                                c.title +
+                                " starts in 15 mins",
+                            dateTime: input,
+                            id: result.id);
+
+                        c.addTodoItem(c.ASSESSMENTTAG, assignment: result);
+                        database.updateDatabase();
+                      }
+                    }),
+              );
+            });
+          } else {
+            listTasks.add(ListTile(
               title: Text(
-                c.title,
+                "No classes have been added yet!",
                 style: Theme.of(context).accentTextTheme.body2,
               ),
-              onTap: () async {
-                setState(() {
-                  isOpened = !isOpened;
-                  animate();
-                });
-
-                Navigator.of(context).pop();
-                Assignment result =
-                    await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => AddAssessmentView(
-                              aClass: c,
-                            )));
-                if (result != null) {
-                  DateTime input = DateTime(
-                      result.dueDate.year,
-                      result.dueDate.month,
-                      result.dueDate.day,
-                      result.dueDate.hour,
-                      result.dueDate.minute);
-                  input = input.subtract(Duration(minutes: 15));
-                  noti.scheduleNotification(
-                      title: "Assessment today",
-                      body: result.title +
-                          " for " +
-                          c.title +
-                          " starts in 15 mins",
-                      dateTime: input,
-                      id: result.id);
-
-                  c.addTodoItem(c.ASSESSMENTTAG, assignment: result);
-                  database.updateDatabase();
-                }
-              }),
-        );
-      }
-    } else {
-      listTasks.add(ListTile(
-        title: Text(
-          "No classes have been added yet!",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-      ));
-    }
+            ));
+          }
     return listTasks;
   }
 
   Widget assessment() {
-    return Container(
-      child: FloatingActionButton(
-        heroTag: "assessmentButton",
-        onPressed: () {
-          setState(() {
-            animate();
-          });
-          showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return SimpleDialog(
-                    title: Text("Choose a class"),
-                    children: _listOfClassAssess());
-              });
-        },
-        tooltip: 'Assessment',
-        child: Icon(Icons.assessment),
-      ),
-    );
+          return Container(
+            child: FloatingActionButton(
+              heroTag: "assessmentButton",
+              onPressed: () {
+                setState(() {
+                  animate();
+                });
+                showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return StreamBuilder<QuerySnapshot>(
+                      stream: Firestore.instance.collection('classes')
+                          .where('user_id', isEqualTo: database.userID)
+                          .where('term_name', isEqualTo: widget.term.termName).snapshots(),
+                      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                        return SimpleDialog(
+                            title: Text("Choose a class"),
+                            children: _listOfClassAssess(snapshot));
+                      });
+                });
+              },
+              tooltip: 'Assessment',
+              child: Icon(Icons.assessment),
+            ),
+          );
   }
 
   Widget assignment() {
-    return Container(
-      child: FloatingActionButton(
-        heroTag: "assignmentButton",
-        onPressed: () {
-          setState(() {
-            animate();
-          });
-          showDialog(
+          return Container(
+            child: FloatingActionButton(
+            heroTag: "assignmentButton",
+            onPressed: () {
+              setState(() {
+                animate();
+              });
+            showDialog(
               context: context,
               builder: (BuildContext context) {
                 return StreamBuilder<QuerySnapshot>(
-                    stream: Firestore.instance.collection('classes')
-                        .where('user_id', isEqualTo: database.userID)
-                        .where('term_name', isEqualTo: widget.term.termName).snapshots(),
-                    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                      return SimpleDialog(
-                      title: Text("Choose a class"),
-                      children: _listOfClassAssign(snapshot));
-                    });
-              });
-        },
-        tooltip: 'Assignment',
-        child: Icon(Icons.assignment),
-      ),
-    );
+                  stream: Firestore.instance.collection('classes')
+                      .where('user_id', isEqualTo: database.userID)
+                      .where('term_name', isEqualTo: widget.term.termName).snapshots(),
+                  builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  return SimpleDialog(
+                    title: Text("Choose a class"),
+                    children: _listOfClassAssign(snapshot));
+                  }
+                  );
+              }
+            );
+            },
+            tooltip: 'Assignment',
+            child: Icon(Icons.assignment),
+            ),
+          );
   }
 
   Widget event() {
@@ -459,14 +468,17 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
 
   List<Widget> _classes(AsyncSnapshot<QuerySnapshot> snapshot) {
     List<Widget> classesList = List();
-    if (snapshot.hasData) {
+    if(snapshot.data != null) {
       snapshot.data.documents.forEach((document) {
         Class c = widget.database.documentToClass(document);
         if (c.daysOfEvent.contains(widget.date.weekday)) {
           classesList.add(ListTile(
             title: Text(
               c.subjectArea + " " + c.courseNumber + " - " + c.title,
-              style: Theme.of(context).accentTextTheme.body2,
+              style: Theme
+                  .of(context)
+                  .accentTextTheme
+                  .body2,
             ),
             subtitle: Text(DateFormat.jm().format(c.startTime) +
                 " - " +
@@ -475,7 +487,8 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
               noti.cancelNotification(c.id);
 
               Class result = await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => ClassDetailsView(
+                  builder: (context) =>
+                      ClassDetailsView(
                         classObj: c,
                       )));
               if (result != null) {
@@ -488,7 +501,7 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
                       id: result.id,
                       dayToRepeat: i,
                       timeToRepeat:
-                          result.startTime.subtract(Duration(minutes: 15)));
+                      result.startTime.subtract(Duration(minutes: 15)));
                 }
                 setState(() {});
               }
@@ -498,13 +511,14 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
       }
       );
     }
-    else{
-      classesList.add(ListTile(
-          title: Text(
-        "No classes today",
-        style: Theme.of(context).accentTextTheme.body2,
-      )));
-    }
+      if(classesList.length == 0)
+        {
+          classesList.add(ListTile(
+              title: Text(
+                "No classes today",
+                style: Theme.of(context).accentTextTheme.body2,
+              )));
+        }
     return classesList;
   }
 
