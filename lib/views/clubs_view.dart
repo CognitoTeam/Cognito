@@ -60,9 +60,10 @@ class _ClubViewState extends State<ClubView> {
                       key: Key(clubObj.toString()),
                       direction: DismissDirection.endToStart,
                       onDismissed: (direction) {
+                        Club clubCopy = clubObj;
                         database.removeClub(clubObj, widget.term);
                         Scaffold.of(context).showSnackBar(SnackBar(
-                          content: Text("${clubObj.title} deleted"),
+                          content: Text("${clubCopy.title} deleted"),
                         ));
                       },
                       child: Card(

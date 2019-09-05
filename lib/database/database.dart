@@ -314,6 +314,7 @@ class DataBase {
         "term_name" : term.termName,
         "start_date" : term.startTime,
         "end_date" : term.endTime,
+        "term_id" : await generateTermID(term)
       });
 
       newTermReference.collection("classes_collection").document();
@@ -483,6 +484,7 @@ class DataBase {
     async {
       QuerySnapshot snapshot = await firestore.collection('clubs').where('user_id', isEqualTo: userID)
           .where('term_name', isEqualTo: term.termName).where('term_id', isEqualTo: term.getID())
+          .where('title', isEqualTo: clubObj.title)
           .getDocuments();
       for(DocumentSnapshot doc in snapshot.documents)
         {
