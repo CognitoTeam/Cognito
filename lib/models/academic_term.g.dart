@@ -15,7 +15,7 @@ AcademicTerm _$AcademicTermFromJson(Map<String, dynamic> json) {
       json['endTime'] == null
           ? null
           : DateTime.parse(json['endTime'] as String))
-    ..idCounter = json['idCounter'] as int
+    ..id = json['idCounter'] as int
     ..classes = (json['classes'] as List)
         ?.map(
             (e) => e == null ? null : Class.fromJson(e as Map<String, dynamic>))
@@ -39,7 +39,7 @@ Map<String, dynamic> _$AcademicTermToJson(AcademicTerm instance) =>
       'termName': instance.termName,
       'startTime': instance.startTime?.toIso8601String(),
       'endTime': instance.endTime?.toIso8601String(),
-      'idCounter': instance.idCounter,
+      'idCounter': instance.id,
       'classes': instance.classes,
       'clubs': instance.clubs,
       'tasks': instance.tasks,

@@ -14,7 +14,7 @@ class AcademicTerm {
     String termName;
     DateTime startTime; //Academic term start 
     DateTime endTime;   //Academic term end
-    int idCounter;
+    int id;
     List<Class> classes;
     List<Club> clubs;
     List<Task> tasks;
@@ -24,7 +24,7 @@ class AcademicTerm {
       clubs = List();
       tasks = List();
       events = List();
-      idCounter = 0;
+      id = 0;
     }
     factory AcademicTerm.fromJson(Map<String, dynamic> json) => _$AcademicTermFromJson(json);
 
@@ -40,7 +40,7 @@ class AcademicTerm {
     }
 
     int getID(){
-      return idCounter++;
+      return id;
     }
     void addEvent(Event event){
       events.add(event);

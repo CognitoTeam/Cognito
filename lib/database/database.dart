@@ -483,9 +483,10 @@ class DataBase {
     Future removeClub(Club clubObj, AcademicTerm term)
     async {
       QuerySnapshot snapshot = await firestore.collection('clubs').where('user_id', isEqualTo: userID)
-          .where('term_name', isEqualTo: term.termName).where('term_id', isEqualTo: term.getID())
+          .where('term_name', isEqualTo: term.termName).where('term_id', isEqualTo: await generateTermID(term))
           .where('title', isEqualTo: clubObj.title)
           .getDocuments();
+      print("Documents has a length of " + snapshot.documents.length.toString());
       for(DocumentSnapshot doc in snapshot.documents)
         {
           print(doc.documentID);
