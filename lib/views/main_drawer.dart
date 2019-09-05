@@ -105,7 +105,7 @@ class _MainDrawerState extends State<MainDrawer> {
                           );
                         })
                     : Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => AgendaView()));
+                        MaterialPageRoute(builder: (context) => AgendaView(term)));
               }),
           ListTile(
               title: Text("Personal Energy Levels"),

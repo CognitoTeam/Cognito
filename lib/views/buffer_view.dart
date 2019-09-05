@@ -16,12 +16,14 @@ class BufferView extends StatefulWidget {
 class _BufferViewState extends State<BufferView> {
   DataBase database = DataBase();
   Notifications noti = Notifications();
+  AcademicTerm term;
 
 /**
  * Initialize the database and if no data is stored 
  * then go to Academic term view else go to Agenda view
  */
   Future<bool> _initializeDatabase() async {
+    this.term = await database.getCurrentTerm();
     String p = await database.initializeFireStore();
     if (p == '[]' ||
         p == '{}' ||
@@ -35,7 +37,7 @@ class _BufferViewState extends State<BufferView> {
     } else {
       Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => AgendaView()),
+          MaterialPageRoute(builder: (context) => AgendaView(term)),
           ModalRoute.withName("/Home"));
     }
     // Initialize notifications after database is initialized

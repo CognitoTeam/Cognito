@@ -26,6 +26,10 @@ import '../views/utils/main_agenda.dart';
 /// @author Julian Vu
 
 class AgendaView extends StatefulWidget {
+  final AcademicTerm term;
+
+  AgendaView(this.term);
+
   @override
   _AgendaViewState createState() => _AgendaViewState();
 }
@@ -38,7 +42,7 @@ class _AgendaViewState extends State<AgendaView>
   Notifications noti = Notifications();
 
   DateTime selectedDate;
-  AcademicTerm term;
+
   bool isOpened = false;
   AnimationController _animationController;
   Animation<Color> _buttonColor;
@@ -47,24 +51,12 @@ class _AgendaViewState extends State<AgendaView>
   double _fabHeight = 56.0;
   DataBase database = DataBase();
 
-  Future<AcademicTerm> getCurrentTerm() async {
-    AllTerms terms = await database.getTerms();
-    for (AcademicTerm term in terms.terms) {
-      if (DateTime.now().isAfter(term.startTime) &&
-          DateTime.now().isBefore(term.endTime)) {
-        this.term = term;
-        return term;
-      }
-    }
-    return null;
-  }
-
   @override
   void initState() {
     super.initState();
     setState(() {
       selectedDate = DateTime.now();
-      getCurrentTerm();
+      database.getCurrentTerm();
     });
     _animationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 200))
@@ -110,54 +102,55 @@ class _AgendaViewState extends State<AgendaView>
     isOpened = !isOpened;
   }
 
-  List<Widget> _listOfClassAssign() {
+  List<Widget> _listOfClassAssign(AsyncSnapshot<QuerySnapshot> snapshot) {
     List<Widget> listTasks = List();
-    if (term.classes.isNotEmpty) {
-      for (Class c in term.classes) {
-        listTasks.add(
-          ListTile(
-              title: Text(
-                c.title,
-                style: Theme.of(context).accentTextTheme.body2,
-              ),
-              onTap: () async {
-                setState(() {
-                  isOpened = !isOpened;
-                  animate();
-                });
+    if (snapshot.hasData) {
+        snapshot.data.documents.forEach((document) {
+          Class c = database.documentToClass(document);
+          listTasks.add(
+            ListTile(
+                title: Text(
+                  c.title,
+                  style: Theme.of(context).accentTextTheme.body2,
+                ),
+                onTap: () async {
+                  setState(() {
+                    isOpened = !isOpened;
+                    animate();
+                  });
 
-                Navigator.of(context).pop();
-                Assignment result =
-                    await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => AddAssignmentView(
-                              aClass: c,
-                            )));
-                if (result != null) {
-                  DateTime dateTime = DateTime(
-                      result.dueDate.year,
-                      result.dueDate.month,
-                      result.dueDate.day,
-                      c.startTime.hour,
-                      c.startTime.minute);
-                  dateTime = dateTime.subtract(Duration(minutes: 15));
-                  noti.scheduleNotification(
-                      title: "Assignment due",
-                      body: result.title +
-                          " for " +
-                          c.title +
-                          " is due at " +
-                          dateTime.hour.toString() +
-                          ":" +
-                          dateTime.minute.toString(),
-                      dateTime: dateTime,
-                      id: result.id);
-                  c.addTodoItem(c.ASSIGNMENTTAG, assignment: result);
-                  database.updateDatabase();
-                }
-              }),
-        );
-      }
-    } else {
+                  Navigator.of(context).pop();
+                  Assignment result =
+                  await Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => AddAssignmentView(
+                        aClass: c,
+                      )));
+                  if (result != null) {
+                    DateTime dateTime = DateTime(
+                        result.dueDate.year,
+                        result.dueDate.month,
+                        result.dueDate.day,
+                        c.startTime.hour,
+                        c.startTime.minute);
+                    dateTime = dateTime.subtract(Duration(minutes: 15));
+                    noti.scheduleNotification(
+                        title: "Assignment due",
+                        body: result.title +
+                            " for " +
+                            c.title +
+                            " is due at " +
+                            dateTime.hour.toString() +
+                            ":" +
+                            dateTime.minute.toString(),
+                        dateTime: dateTime,
+                        id: result.id);
+                    c.addTodoItem(c.ASSIGNMENTTAG, assignment: result);
+                    database.updateDatabase();
+                  }
+                }),
+          );
+        });
+      } else {
       listTasks.add(ListTile(
         title: Text(
           "No classes have been added yet!",
@@ -170,8 +163,8 @@ class _AgendaViewState extends State<AgendaView>
 
   List<Widget> _listOfClassAssess() {
     List<Widget> listTasks = List();
-    if (term.classes.isNotEmpty) {
-      for (Class c in term.classes) {
+    if (widget.term.classes.isNotEmpty) {
+      for (Class c in widget.term.classes) {
         listTasks.add(
           ListTile(
               title: Text(
@@ -257,9 +250,15 @@ class _AgendaViewState extends State<AgendaView>
           showDialog(
               context: context,
               builder: (BuildContext context) {
-                return SimpleDialog(
-                    title: Text("Choose a class"),
-                    children: _listOfClassAssign());
+                return StreamBuilder<QuerySnapshot>(
+                    stream: Firestore.instance.collection('classes')
+                        .where('user_id', isEqualTo: database.userID)
+                        .where('term_name', isEqualTo: widget.term.termName).snapshots(),
+                    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                      return SimpleDialog(
+                      title: Text("Choose a class"),
+                      children: _listOfClassAssign(snapshot));
+                    });
               });
         },
         tooltip: 'Assignment',
@@ -319,7 +318,7 @@ class _AgendaViewState extends State<AgendaView>
             print(
               "Event returned: " + result.title,
             );
-            term.addEvent(result);
+            widget.term.addEvent(result);
             database.updateDatabase();
           }
           setState(() {
@@ -349,12 +348,12 @@ class _AgendaViewState extends State<AgendaView>
     Expanded mainAgenda = Expanded(
       child: ListView(
         children: <Widget>[
-          FilteredClassExpansion(term, selectedDate, database),
+          FilteredClassExpansion(widget.term, selectedDate, database),
           FilteredAssignmentExpansion(
-              term, selectedDate, false, database),
+              widget.term, selectedDate, false, database),
           FilteredAssignmentExpansion(
-              term, selectedDate, true, database),
-          FilteredEventExpansion(term, selectedDate, database),
+              widget.term, selectedDate, true, database),
+          FilteredEventExpansion(widget.term, selectedDate, database),
         ],
       ),
     );
@@ -458,10 +457,11 @@ class FilteredClassExpansion extends StatefulWidget {
 class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
   Notifications noti = Notifications();
 
-  List<Widget> _classes() {
+  List<Widget> _classes(AsyncSnapshot<QuerySnapshot> snapshot) {
     List<Widget> classesList = List();
-    if (widget.term.classes.isNotEmpty) {
-      for (Class c in widget.term.classes) {
+    if (snapshot.hasData) {
+      snapshot.data.documents.forEach((document) {
+        Class c = widget.database.documentToClass(document);
         if (c.daysOfEvent.contains(widget.date.weekday)) {
           classesList.add(ListTile(
             title: Text(
@@ -496,8 +496,9 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
           ));
         }
       }
+      );
     }
-    if (classesList.isEmpty) {
+    else{
       classesList.add(ListTile(
           title: Text(
         "No classes today",
@@ -509,15 +510,22 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-      leading: Icon(Icons.class_),
-      title: Text(
-        "Classes",
-        style: Theme.of(context).accentTextTheme.body2,
-      ),
-      children: _classes(),
-      initiallyExpanded: true,
-    );
+    return StreamBuilder<QuerySnapshot>(
+        stream: Firestore.instance.collection('classes')
+            .where('user_id', isEqualTo: widget.database.userID)
+            .where('term_name', isEqualTo: widget.term.termName).snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          return ExpansionTile(
+
+            leading: Icon(Icons.class_),
+            title: Text(
+              "Classes",
+              style: Theme.of(context).accentTextTheme.body2,
+            ),
+            children: _classes(snapshot),
+            initiallyExpanded: true,
+          );
+        });
   }
 }
 
