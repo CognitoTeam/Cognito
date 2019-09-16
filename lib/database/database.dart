@@ -6,6 +6,8 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/firebase_login.dart';
 import 'package:cognito/models/all_terms.dart';
+import 'package:cognito/models/assignment.dart';
+import 'package:cognito/models/category.dart';
 import 'package:cognito/models/class.dart';
 import 'package:cognito/models/club.dart';
 import 'package:cognito/models/event.dart';
@@ -33,6 +35,8 @@ class DataBase {
     AllTerms allTerms = AllTerms();
 
     String userID;
+
+    int term_id = 0;
 
     //Fire store instance
     final firestore = Firestore.instance;
@@ -83,9 +87,9 @@ class DataBase {
     void update() {
       readJSON().then((String jsonString) {
         Map<String, dynamic> updateData = <String, dynamic>{"terms": jsonString};
-        _documentReference.updateData(updateData).whenComplete(() {
+        /*_documentReference.updateData(updateData).whenComplete(() {
           print("Document Updated");
-        }).catchError((e) => print(e));
+        }).catchError((e) => print(e));*/
       });
     }
 
@@ -148,7 +152,7 @@ class DataBase {
 //    print("Writing database to storage");
 //    writeJSON(jsonString);
       print("Update database");
-      update();
+//      update();
     }
 
 
@@ -170,6 +174,8 @@ class DataBase {
     Future updateTerms() async {
       allTerms = await getTerms();
     }
+
+
 
     Future<int> generateTermID(AcademicTerm term)
     async {
@@ -421,6 +427,77 @@ class DataBase {
       return newClubReference.documentID;
     }
 
+    Future updateTermID(AcademicTerm term)
+    async {
+      term_id = await generateTermID(term);
+    }
+
+    Future addAssignment(Assignment assignment, Class classObj, AcademicTerm term) async {
+
+      int termID = await generateTermID(term);
+      String collectionName = assignment.isAssessment ? "assessments" : "assignments";
+      DocumentReference documentReference;
+      QuerySnapshot snapshot = await firestore.collection("grades").where("user_id", isEqualTo: userID).where("term_name", isEqualTo: term.termName).getDocuments();
+      //if first time
+      if(snapshot.documents.isEmpty) {
+        documentReference = Firestore.instance.collection("grades").document();
+        documentReference.setData({
+          "user_id" : userID,
+          "term_name" : term.termName
+        });
+        //document reference is on user/term need creation of new collection document
+        documentReference = documentReference.collection(collectionName).document();
+      }
+      // user/term exists so add onto collection
+      else
+        {
+          String userAndTermID = snapshot.documents[0].documentID;
+          documentReference = Firestore.instance.collection("grades").document(userAndTermID).collection(collectionName).document();
+        }
+
+      documentReference.setData({
+        "category_title" : assignment.category.title,
+        "category_weight_in_percentage" : assignment.category.weightInPercentage,
+        "category_points_earned" : assignment.category.pointsEarned,
+        "category_points_possible" : assignment.category.pointsPossible,
+        "points_earned" : assignment.pointsEarned,
+        "points_possible" : assignment.pointsPossible,
+        "title" : assignment.title,
+        "is_assessment" : assignment.isAssessment,
+        "location" : assignment.location,
+        "description" : assignment.description,
+        "due_date" : assignment.dueDate,
+        "term_id" : termID,
+        "priority" : assignment.priority,
+        "duration_in_minutes" : assignment.duration.inMinutes,
+        "class_title" : classObj.title,
+        "class_subject" : classObj.subjectArea,
+        "class_number" : classObj.courseNumber
+      });
+
+      FirebaseUser user = await FirebaseAuth.instance.currentUser();
+      print(user.uid + " " + classObj.title + " " + classObj.instructor + " " + term.termName);
+      snapshot = await firestore.collection("classes").where('user_id', isEqualTo: user.uid).where('title', isEqualTo: classObj.title)
+          .where('instructor', isEqualTo: classObj.instructor).where('term_name', isEqualTo:  term.termName).getDocuments();
+      if(snapshot.documents.length == 0) print("ERROR: Did not find any data by this query");
+      if(snapshot.documents.length > 1) print("ERROR: Found more than one data entries");
+      if(snapshot.documents.length == 1)
+        {
+          firestore.collection("classes").document(snapshot.documents[0].documentID).collection('grades').document().setData(
+            {
+              "category_title" : assignment.category.title,
+              "category_weight_in_percentage" : assignment.category.weightInPercentage,
+              "category_points_earned" : assignment.category.pointsEarned,
+              "category_points_possible" : assignment.category.pointsPossible,
+              "points_earned" : assignment.pointsEarned,
+              "points_possible" : assignment.pointsPossible,
+              "title" : assignment.title,
+              "is_assessment" : assignment.isAssessment,
+            }
+          );
+        }
+    }
+
     Class documentToClass(DocumentSnapshot document)
     {
       List<int> listOfInt = List();
@@ -469,6 +546,18 @@ class DataBase {
       id: document['id']);
     }
 
+    Assignment documentToAssignment(DocumentSnapshot document)
+    {
+      int minutes = document['duration_in_minutes'];
+      Duration d = new Duration(minutes: minutes);
+      return new Assignment(title: document['title'], isAssessment: document['is_assessment'], description: document['description'],
+      location: document['location'], dueDate: document['due_date'].toDate(),
+      id: document['term_id'], priority: document['priority'], duration: d,
+      pointsEarned: document['points_earned'], pointsPossible: document['points_possible'],
+          category: Category(
+            title: document['category_title'], weightInPercentage: document['category_weight_in_percentage']
+          ));
+    }
 
     Future removeClass(Class classObj, AcademicTerm term)
     async {
@@ -491,6 +580,18 @@ class DataBase {
         {
           print(doc.documentID);
           firestore.collection('clubs').document(doc.documentID).delete();
+        }
+    }
+
+    Future<int> termID(AcademicTerm term)
+    async {
+      if(term_id == 0)
+        {
+          return await generateTermID(term);
+        }
+      else
+        {
+          return term_id;
         }
     }
 

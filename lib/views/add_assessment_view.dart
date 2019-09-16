@@ -1,4 +1,5 @@
 import 'package:cognito/database/database.dart';
+import 'package:cognito/database/notifications.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/category.dart';
@@ -15,7 +16,8 @@ enum Day { M, Tu, W, Th, F, Sat, Sun }
 
 class AddAssessmentView extends StatefulWidget {
   final Class aClass;
-  AddAssessmentView({Key key, @required this.aClass}) : super(key: key);
+  final AcademicTerm term;
+  AddAssessmentView({Key key, @required this.aClass, @required this.term}) : super(key: key);
   @override
   _AddAssessmentViewState createState() => _AddAssessmentViewState();
 }
@@ -35,6 +37,8 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
   final TextEditingController _categoryWeightEdit = TextEditingController();
   bool _isRepeated = false;
   int _selectedPriority = 1;
+  int termID = 0;
+  Notifications noti = Notifications();
 
   //  Stepper
   //  init step to 0th position
@@ -514,20 +518,12 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
             IconButton(
               icon: Icon(Icons.check),
               onPressed: () {
+                Assignment result = Assignment(title: _titleController.text, description: _descriptionController.text, location: _locationController.text,
+                    start: null, end: null, dueDate: dueDate, pointsEarned: double.parse(_earnedController.text), category: category, pointsPossible: double.parse(_possibleController.text),
+                    isAssessment: true, duration: Duration(minutes: int.parse(_durationController.text)));
+                database.addAssignment(result, widget.aClass, widget.term);
                 Navigator.of(context).pop(_titleController != null
-                    ? Assignment(
-                        category: category,
-                        pointsEarned: double.parse(_earnedController.text),
-                        pointsPossible: double.parse(_possibleController.text),
-                        title: _titleController.text,
-                        isAssessment: true,
-                        location: _locationController.text,
-                        description: _descriptionController.text,
-                        dueDate: dueDate,
-                        id: getCurrentTerm().getID(),
-                        priority: _selectedPriority,
-                        duration: Duration(
-                            minutes: int.parse(_durationController.text)))
+                    ? result
                     : null);
               },
             )
@@ -556,21 +552,12 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
               if (currentStep < getSteps().length - 1) {
                 currentStep++;
               } else {
-                Navigator.of(context).pop(_titleController != null
-                    ? Assignment(
-                        category: category,
-                        pointsEarned: double.parse(_earnedController.text),
-                        pointsPossible: double.parse(_possibleController.text),
-                        title: _titleController.text,
-                        isAssessment: true,
-                        location: _locationController.text,
-                        description: _descriptionController.text,
-                        dueDate: dueDate,
-                        id: getCurrentTerm().getID(),
-                        priority: _selectedPriority,
-                        duration: Duration(
-                            minutes: int.parse(_durationController.text)))
-                    : null);
+                //Needs term id
+                Assignment result = Assignment(title: _titleController.text, description: _descriptionController.text, location: _locationController.text,
+                  start: null, end: null, dueDate: dueDate, pointsEarned: double.parse(_earnedController.text), category: category, pointsPossible: double.parse(_possibleController.text),
+                  isAssessment: true, duration: Duration(minutes: int.parse(_durationController.text)));
+                database.addAssignment(result, widget.aClass, widget.term);
+                Navigator.of(context).pop(result);
               }
             });
           },

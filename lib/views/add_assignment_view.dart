@@ -14,7 +14,8 @@ enum Day { M, Tu, W, Th, F, Sat, Sun }
 
 class AddAssignmentView extends StatefulWidget {
   final Class aClass;
-  AddAssignmentView({Key key, @required this.aClass}) : super(key: key);
+  final AcademicTerm term;
+  AddAssignmentView({Key key, @required this.aClass, @required this.term}) : super(key: key);
 
   @override
   _AddAssignmentViewState createState() => _AddAssignmentViewState();
@@ -35,6 +36,7 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
   final TextEditingController _categoryWeightEdit = TextEditingController();
   bool _isRepeated = false;
   int _selectedPriority = 1;
+  int termID = 0;
 
   //  Stepper
   //  init step to 0th position
@@ -176,6 +178,7 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
       subtitle: subtitle,
     );
   }
+
 
   void selectDay(Day day) {
     setState(() {
@@ -449,6 +452,11 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
     return null;
   }
 
+  Future updateTermID()
+  async {
+    termID = await database.generateTermID(widget.term);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -459,20 +467,12 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
             IconButton(
               icon: Icon(Icons.check),
               onPressed: () {
+                Assignment result = Assignment(title: _titleController.text, description: _descriptionController.text, location: _locationController.text,
+                    start: null, end: null, dueDate: dueDate, pointsEarned: double.parse(_earnedController.text), category: category, pointsPossible: double.parse(_possibleController.text),
+                    isAssessment: false, duration: Duration(minutes: int.parse(_durationController.text)), priority: _selectedPriority);
+                database.addAssignment(result, widget.aClass, widget.term);
                 Navigator.of(context).pop(_titleController != null
-                    ? Assignment(
-                        category: category,
-                        pointsEarned: double.parse(_earnedController.text),
-                        pointsPossible: double.parse(_possibleController.text),
-                        title: _titleController.text,
-                        isAssessment: true,
-                        location: _locationController.text,
-                        description: _descriptionController.text,
-                        dueDate: dueDate,
-                        id: getCurrentTerm().getID(),
-                        priority: _selectedPriority,
-                        duration: Duration(
-                            minutes: int.parse(_durationController.text)))
+                    ? result
                     : null);
               },
             )
@@ -501,21 +501,13 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
               if (currentStep < getSteps().length - 1) {
                 currentStep++;
               } else {
-                Navigator.of(context).pop(_titleController != null
-                    ? Assignment(
-                        category: category,
-                        pointsEarned: double.parse(_earnedController.text),
-                        pointsPossible: double.parse(_possibleController.text),
-                        title: _titleController.text,
-                        isAssessment: true,
-                        location: _locationController.text,
-                        description: _descriptionController.text,
-                        dueDate: dueDate,
-                        id: getCurrentTerm().getID(),
-                        priority: _selectedPriority,
-                        duration: Duration(
-                            minutes: int.parse(_durationController.text)))
-                    : null);
+                updateTermID();
+                //Needs term id
+                Assignment result = Assignment(title: _titleController.text, description: _descriptionController.text, location: _locationController.text,
+                    start: null, end: null, dueDate: dueDate, pointsEarned: double.parse(_earnedController.text), category: category, pointsPossible: double.parse(_possibleController.text),
+                    isAssessment: false, priority: _selectedPriority, duration: Duration(minutes: int.parse(_durationController.text)));
+                database.addAssignment(result, widget.aClass, widget.term);
+                Navigator.of(context).pop(result);
               }
             });
           },
