@@ -74,7 +74,7 @@ class _GradeBookViewState extends State<GradeBookView> {
       rowsOfWidgets.add(
         ListTile(
             title: Text(c.title),
-            trailing: Text(c.getPercentage().toString() + "%")),
+            trailing: Text(c.weightInPercentage.toString() + "%")),
       );
     }
     rowsOfWidgets.add(Divider());
