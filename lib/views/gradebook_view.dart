@@ -87,8 +87,7 @@ class _GradeBookViewState extends State<GradeBookView> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         trailing: Text(
-          //TODO: Need to get the grade of a selected CLASS IN GRADE BOOK
-          printGradeOfSelectedClass(selectedClass),
+          selectedClass.getGrade(selectedClass.assessments, selectedClass.assignments, selectedClass.categories),
           style: TextStyle(fontWeight: FontWeight.bold),
         )));
     return rowsOfWidgets;

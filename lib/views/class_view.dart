@@ -132,6 +132,9 @@ class _ClassViewState extends State<ClassView> {
               Class classObj = database.documentToClass(document);
               updateClassStream(classObj);
               updateGradebookValues(classObj);
+              classObj.assessments = assessments;
+              classObj.assignments = assignments;
+              classObj.categories = categories;
               return Container(
                 margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
                 child: InkWell(
@@ -215,13 +218,6 @@ class _ClassViewState extends State<ClassView> {
                                       );
                                   }
                               }),
-//                              subtitle: Text(
-//                                calculateGrade(classObj),
-//                                style: Theme
-//                                    .of(context)
-//                                    .primaryTextTheme
-//                                    .body1,
-//                              ),
                               title: Text(
                                 classObj.subjectArea +
                                     " " +
