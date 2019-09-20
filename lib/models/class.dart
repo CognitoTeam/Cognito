@@ -76,7 +76,6 @@ class Class extends Event {
 
   String getGrade(assessments, assignments, categories) {
     Map<Assignment, Category> gradebook = Map();
-
     for (Assignment a in assessments) {
       gradebook[a] = a.category;
     }
@@ -94,26 +93,6 @@ class Class extends Event {
     GradeCalculator gradeCalculator = GradeCalculator(cat, gradebook);
     gradeCalculator.calculateGrade();
     return gradeCalculator.letterGrade;
-  }
-
-  String getPercentage() {
-    Map<Assignment, Category> gradebook = Map();
-    for (Assignment a in assessments) {
-      gradebook[a] = a.category;
-    }
-    for (Assignment a in assignments) {
-      gradebook[a] = a.category;
-    }
-    if (gradebook.isEmpty) {
-      return "No Grades yet";
-    }
-    List<Category> cat = List();
-    for (Category c in categories) {
-      cat.add(c);
-    }
-    GradeCalculator gradeCalculator = GradeCalculator(cat, gradebook);
-    gradeCalculator.calculateGrade();
-    return gradeCalculator.percentage.toString() + "%";
   }
 
   addCategory(Category category) {

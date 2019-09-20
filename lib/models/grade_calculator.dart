@@ -73,7 +73,6 @@ class GradeCalculator {
 
     double sumOfCurrentAssignedCategories = 0;
     List<Category> uniqueCategoriesUsed = List();
-    print(gradeBook.length);
     // Re-count points for every assignment
     for (Assignment assignment in gradeBook.keys) {
       //Figure out sum of currently assigned categories

@@ -93,25 +93,6 @@ class _GradeBookViewState extends State<GradeBookView> {
     return rowsOfWidgets;
   }
 
-  String printGradeOfSelectedClass(Class c)
-  {
-    List<Assignment> assignments = List();
-    List<Assignment> assessments = List();
-    List<Category> categories = List();
-    widget.database.getAssignments(c, widget.term, false).then((assignmentList)=>
-    assignments = assignmentList
-    );
-
-    widget.database.getAssignments(c, widget.term, true).then((assignmentList)=>
-    assessments = assignmentList
-    );
-
-    widget.database.getCategories(c, widget.term).then((categoriesList)=>
-    categories = categoriesList
-    );
-    return c.getPercentage() + " - " + c.getGrade(assessments, assignments, categories);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

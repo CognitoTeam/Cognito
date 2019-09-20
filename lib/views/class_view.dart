@@ -29,9 +29,6 @@ class _ClassViewState extends State<ClassView> {
   List<Class> classes;
   Class undoClass;
   DataBase database = DataBase();
-  List<Assignment> assignments = List();
-  List<Assignment> assessments = List();
-  List<Category> categories = List();
   String classDocID = "";
 
   @override
@@ -86,15 +83,22 @@ class _ClassViewState extends State<ClassView> {
 
   Future updateGradebookValues(Class c)
   async {
-    assignments = await database.getAssignments(c, term, false);
-    assessments = await database.getAssignments(c, term, true);
-    categories = await database.getCategories(c, term);
+    //TODO: these are empty when there is more than one class
+    List<Assignment> assignments = await database.getAssignments(c, term, false);
+    List<Assignment> assessments = await database.getAssignments(c, term, true);
+    List<Category> categories = await database.getCategories(c, term);
+    //c is passed by reference
+    c.assessments = assessments;
+    c.assignments = assignments;
+    c.categories = categories;
+    return [assignments, assessments, categories];
   }
   /// Gets the grade from this the given [Class]
-  // Snapshot is passed to get it asynchronously
+  //TODO: Not graded when there are more than one classes
   Future<String> calculateGrade(Class c) async {
-    await updateGradebookValues(c);
-    return "Grade: " + c.getGrade(assessments, assignments, categories);
+    var gradeBookValue = await updateGradebookValues(c);
+    String value = c.getGrade(gradeBookValue[1], gradeBookValue[0], gradeBookValue[2]);
+    return "Grade: " + value;
   }
 
 
@@ -132,9 +136,6 @@ class _ClassViewState extends State<ClassView> {
               Class classObj = database.documentToClass(document);
               updateClassStream(classObj);
               updateGradebookValues(classObj);
-              classObj.assessments = assessments;
-              classObj.assignments = assignments;
-              classObj.categories = categories;
               return Container(
                 margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
                 child: InkWell(
@@ -164,7 +165,8 @@ class _ClassViewState extends State<ClassView> {
                   child: Dismissible(
                     key: Key(classObj.toString()),
                     direction: DismissDirection.endToStart,
-                    onDismissed: (direction) {
+                    onDismissed: (direction)
+                    {
                       for (int i in classObj.daysOfEvent) {
                         noti.cancelNotification(classObj.id);
                       }
@@ -197,26 +199,28 @@ class _ClassViewState extends State<ClassView> {
                                 color: Colors.white,
                               ),
                               subtitle: new FutureBuilder(
+                                //TODO: Not graded when there are more than one classes
                                   future: calculateGrade(classObj),
                                   builder: (BuildContext context, AsyncSnapshot<String> snapshot){
-                                  switch(snapshot.connectionState) {
-                                    case ConnectionState.waiting:
-                                      return new Text(
-                                      'Calculting result...',
-                                          style: Theme
-                                          .of(context)
-                                          .primaryTextTheme
-                                          .body1,
-                                    );
-                                    default:
-                                      return new Text(
-                                        '${snapshot.data}',
+                                    updateGradebookValues(classObj);
+                                    switch(snapshot.connectionState) {
+                                      case ConnectionState.waiting:
+                                        return new Text(
+                                        'Calculting result...',
                                             style: Theme
                                             .of(context)
                                             .primaryTextTheme
                                             .body1,
                                       );
-                                  }
+                                      default:
+                                        return new Text(
+                                          '${snapshot.data}',
+                                              style: Theme
+                                              .of(context)
+                                              .primaryTextTheme
+                                              .body1,
+                                        );
+                                    }
                               }),
                               title: Text(
                                 classObj.subjectArea +
