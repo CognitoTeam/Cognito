@@ -224,7 +224,7 @@ class _ExpandableClassListState extends State<ExpandableClassList> {
                     ),
                     onTap: () async {
                       c = await Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => ClassDetailsView(classObj: c)));
+                          builder: (context) => ClassDetailsView(classObj: c, term: widget.term,)));
                     })
                 );
               }

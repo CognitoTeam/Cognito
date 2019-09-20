@@ -49,7 +49,8 @@ class GPACalculator {
       print("No classes have been added to the class yet");
     } else {
       for (Class c in term.classes) {
-        String g = c.getGrade();
+        //TODO: Calculate term grade by collecting classes
+        String g = c.getGrade(null, null, null);
         if (g != "No Grades yet") {
           gradePointMultiplier = gradePointsMultiplier[g];
           units = c.units;

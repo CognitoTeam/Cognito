@@ -88,6 +88,6 @@ void main() {
     c1.addTodoItem(c1.ASSIGNMENTTAG, assignment: hw5);
     c1.addTodoItem(c1.ASSESSMENTTAG, assignment: midtermExam);
     c1.addTodoItem(c1.ASSESSMENTTAG, assignment: finalExam1);
-    print(c1.getGrade());
+    //print(c1.getGrade());
   });
 }

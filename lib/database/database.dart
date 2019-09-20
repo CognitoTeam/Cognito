@@ -175,6 +175,58 @@ class DataBase {
       allTerms = await getTerms();
     }
 
+    Future<List<Assignment>> getAssignments(Class classObj, AcademicTerm term, bool forAssessment)
+    async {
+      List<Assignment> assignments = List();
+      QuerySnapshot querySnapshot = await firestore.collection('classes').where('user_id', isEqualTo: userID).where('term_name', isEqualTo: term.termName)
+          .where('title', isEqualTo: classObj.title).where('instructor', isEqualTo: classObj.instructor).getDocuments();
+      //Documents for the class
+      List<DocumentSnapshot> documents = querySnapshot.documents;
+      if(documents.length == 0)
+        {
+          print("database.dart -> getAssignments ERROR: could not find any class");
+        }
+      else if(documents.length > 1)
+        {
+          print("database.dart -> getAssignments ERROR: found more than one class");
+        }
+      else
+        {
+         QuerySnapshot snapshot = await firestore.collection('classes').document(documents[0].documentID).collection("assignments").getDocuments();
+         for(DocumentSnapshot documentSnapshot in snapshot.documents)
+           {
+             if(documentSnapshot.data["is_assessment"] == forAssessment)
+               {
+                 assignments.add(mapToAssignment(documentSnapshot.data));
+               }
+           }
+        }
+      return assignments;
+    }
+
+    Future<List<Category>> getCategories(Class classObj, AcademicTerm term)
+    async {
+      List<Category> categories = List();
+      QuerySnapshot querySnapshot = await firestore.collection('classes').where('user_id', isEqualTo: userID).where('term_name', isEqualTo: term.termName)
+          .where('title', isEqualTo: classObj.title).where('instructor', isEqualTo: classObj.instructor).getDocuments();
+      List<DocumentSnapshot> documents = querySnapshot.documents;
+      if(documents.length == 0)
+      {
+        print("database.dart->getAssignments ERROR: could not find any class");
+      }
+      else if(documents.length > 1)
+      {
+        print("database.dart->getAssignments ERROR: found more than one class");
+      }
+      else
+      {
+        QuerySnapshot snapshot = await firestore.collection('classes').document(documents[0].documentID).collection('categories').getDocuments();
+        snapshot.documents.forEach((map)=>
+            categories.add(mapToCategory(map.data))
+        );
+      }
+      return categories;
+    }
 
 
     Future<int> generateTermID(AcademicTerm term)
@@ -469,7 +521,6 @@ class DataBase {
       // user/term exists so add onto collection
       else
         {
-          //TODO: MAKE SURE THAT IT IS COMPLIANT WITH ASSIGNMENT OR ASSESSMENTS
           //Need the user and term ID to add onto the correct GRADES collection
           String userAndTermID = snapshot.documents[0].documentID;
           //Now the correct reference is added to grades {user, term_name} -> assignment collection
@@ -594,6 +645,22 @@ class DataBase {
 
     Category documentToCategory(DocumentSnapshot document) {
       return new Category(title: document['category_title'], weightInPercentage: document['category_weight_in_percentage']);
+    }
+
+    Assignment mapToAssignment(Map<String, dynamic> data)
+    {
+      return Assignment(title: data['title'], isAssessment: data['is_assessment'],
+          pointsEarned: data['points_earned'], pointsPossible: data['points_possible'],
+          category: Category(
+              title: data['category_title'], weightInPercentage: data['category_weight_in_percentage']
+          ));
+    }
+
+    Category mapToCategory(Map<String, dynamic> data)
+    {
+      return Category(
+        title: data['category_title'], weightInPercentage: data['category_weight_in_percentage']
+      );
     }
 
     Future removeClass(Class classObj, AcademicTerm term)

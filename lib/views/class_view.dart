@@ -6,7 +6,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/database.dart';
 import 'package:cognito/database/notifications.dart';
 import 'package:cognito/models/academic_term.dart';
+import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/class.dart';
+import 'package:cognito/models/category.dart';
 import 'package:cognito/views/add_class_view.dart';
 import 'package:cognito/views/class_editing_view.dart';
 import 'package:cognito/views/gradebook_view.dart';
@@ -27,6 +29,10 @@ class _ClassViewState extends State<ClassView> {
   List<Class> classes;
   Class undoClass;
   DataBase database = DataBase();
+  List<Assignment> assignments = List();
+  List<Assignment> assessments = List();
+  List<Category> categories = List();
+  String classDocID = "";
 
   @override
   void initState() {
@@ -78,23 +84,54 @@ class _ClassViewState extends State<ClassView> {
     });
   }
 
+  Future updateGradebookValues(Class c)
+  async {
+    assignments = await database.getAssignments(c, term, false);
+    assessments = await database.getAssignments(c, term, true);
+    categories = await database.getCategories(c, term);
+  }
   /// Gets the grade from this the given [Class]
-  String calculateGrade(Class c) {
-    return "Grade: " + c.getGrade();
+  // Snapshot is passed to get it asynchronously
+  Future<String> calculateGrade(Class c) async {
+    await updateGradebookValues(c);
+    return "Grade: " + c.getGrade(assessments, assignments, categories);
+  }
+
+
+  Future updateClassStream(Class c) async
+  {
+    QuerySnapshot snapshot = await Firestore.instance.collection('classes')
+        .where('user_id', isEqualTo: database.userID)
+        .where('term_name', isEqualTo: term.termName)
+        .where('title', isEqualTo: c.title)
+        .where('instructor', isEqualTo: c.instructor).getDocuments();
+    //This is the document of grades now we need assignments collection doc
+    if(snapshot.documents.length == 1)
+    {
+      classDocID = snapshot.documents[0].documentID;
+    }
+    else if(snapshot.documents.length > 1)
+    {
+      print("ERROR: Query for grade found more than 1 length");
+    }
   }
 
   /// Builds [Card]s from the [AcademicTerm]'s list of [Class] objects
   /// in the form of a [ListView]
   Widget _getClassCards() {
+    Query classesForUserQuery = Firestore.instance.collection("classes")
+        .where('user_id', isEqualTo: database.userID)
+        .where('term_name', isEqualTo: term.termName);
     return StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance.collection("classes")
-          .where('user_id', isEqualTo: database.userID)
-          .where('term_name', isEqualTo: term.termName).snapshots(),
+      stream: classesForUserQuery.snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+
         if(snapshot.hasData) {
           return new ListView(
             children: snapshot.data.documents.map((document) {
               Class classObj = database.documentToClass(document);
+              updateClassStream(classObj);
+              updateGradebookValues(classObj);
               return Container(
                 margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
                 child: InkWell(
@@ -108,6 +145,7 @@ class _ClassViewState extends State<ClassView> {
                             builder: (context) =>
                                 GradeBookView(
                                   selectedClass: classObj,
+                                  term: term,
                                 )));
 
                     for (int i in classObj.daysOfEvent) {
@@ -149,58 +187,82 @@ class _ClassViewState extends State<ClassView> {
                           .primaryColor,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0)),
-                      child: ListTile(
-                        leading: Icon(
-                          Icons.label,
-                          color: Colors.white,
-                        ),
-                        subtitle: Text(
-                          calculateGrade(classObj),
-                          style: Theme
-                              .of(context)
-                              .primaryTextTheme
-                              .body1,
-                        ),
-                        title: Text(
-                          classObj.subjectArea +
-                              " " +
-                              classObj.courseNumber +
-                              " - " +
-                              classObj.title,
-                          style: Theme
-                              .of(context)
-                              .primaryTextTheme
-                              .body1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        trailing: IconButton(
-                          icon: Icon(
-                            Icons.info_outline,
-                            color: Colors.white,
-                          ),
-                          onPressed: () async {
-                            for (int i in classObj.daysOfEvent) {
-                              noti.cancelNotification(classObj.id);
-                            }
-                            await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        ClassEditingView(classObj: classObj)));
+                      //StreamBuilder stream of only one
+                      child:  ListTile(
+                              leading: Icon(
+                                Icons.label,
+                                color: Colors.white,
+                              ),
+                              subtitle: new FutureBuilder(
+                                  future: calculateGrade(classObj),
+                                  builder: (BuildContext context, AsyncSnapshot<String> snapshot){
+                                  switch(snapshot.connectionState) {
+                                    case ConnectionState.waiting:
+                                      return new Text(
+                                      'Calculting result...',
+                                          style: Theme
+                                          .of(context)
+                                          .primaryTextTheme
+                                          .body1,
+                                    );
+                                    default:
+                                      return new Text(
+                                        '${snapshot.data}',
+                                            style: Theme
+                                            .of(context)
+                                            .primaryTextTheme
+                                            .body1,
+                                      );
+                                  }
+                              }),
+//                              subtitle: Text(
+//                                calculateGrade(classObj),
+//                                style: Theme
+//                                    .of(context)
+//                                    .primaryTextTheme
+//                                    .body1,
+//                              ),
+                              title: Text(
+                                classObj.subjectArea +
+                                    " " +
+                                    classObj.courseNumber +
+                                    " - " +
+                                    classObj.title,
+                                style: Theme
+                                    .of(context)
+                                    .primaryTextTheme
+                                    .body1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              trailing: IconButton(
+                                icon: Icon(
+                                  Icons.info_outline,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () async {
+                                  for (int i in classObj.daysOfEvent) {
+                                    noti.cancelNotification(classObj.id);
+                                  }
+                                  await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              ClassEditingView(
+                                                  classObj: classObj)));
 
-                            for (int i in classObj.daysOfEvent) {
-                              noti.showWeeklyAtDayAndTime(
-                                  title: classObj.title,
-                                  body: classObj.title +
-                                      " is starting in 15 mins",
-                                  id: classObj.id,
-                                  dayToRepeat: i,
-                                  timeToRepeat: classObj.startTime
-                                      .subtract(Duration(minutes: 15)));
-                            }
-                          },
-                        ),
-                      ),
+                                  for (int i in classObj.daysOfEvent) {
+                                    noti.showWeeklyAtDayAndTime(
+                                        title: classObj.title,
+                                        body: classObj.title +
+                                            " is starting in 15 mins",
+                                        id: classObj.id,
+                                        dayToRepeat: i,
+                                        timeToRepeat: classObj.startTime
+                                            .subtract(Duration(minutes: 15)));
+                                  }
+                                },
+                              ),
+                            )
                     ),
                   ),
                 ),
@@ -218,6 +280,7 @@ class _ClassViewState extends State<ClassView> {
 
   @override
   Widget build(BuildContext context) {
+//    updateGradeStream(term);
     return Scaffold(
       drawer: MainDrawer(),
       appBar: AppBar(

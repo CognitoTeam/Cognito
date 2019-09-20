@@ -1,5 +1,7 @@
 // Copyright 2019 UniPlan. All rights reserved.
 
+import 'dart:collection';
+
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/category.dart';
 
@@ -58,6 +60,7 @@ class GradeCalculator {
   /// Calculates grade
   void calculateGrade() {
     // Reset points for each category
+    //Calculate how much category weight should be
     categories.forEach((category) {
       if (category.title.toLowerCase() == "default") {
         category.pointsEarned = 1.0;
@@ -68,27 +71,33 @@ class GradeCalculator {
       }
     });
 
+    double sumOfCurrentAssignedCategories = 0;
+    List<Category> uniqueCategoriesUsed = List();
+    print(gradeBook.length);
     // Re-count points for every assignment
     for (Assignment assignment in gradeBook.keys) {
-      Category category;
-      for (Category c in categories) {
-        if (c.title == assignment.category.title) {
-          category = c;
+      //Figure out sum of currently assigned categories
+      if(!uniqueCategoriesUsed.contains(assignment.category))
+        {
+          sumOfCurrentAssignedCategories += assignment.category.weightInPercentage;
+          uniqueCategoriesUsed.add(assignment.category);
         }
-      }
-      category.pointsEarned += assignment.pointsEarned;
-      category.pointsPossible += assignment.pointsPossible;
+      assignment.category.pointsEarned += assignment.pointsEarned;
+      assignment.category.pointsPossible += assignment.pointsPossible;
     }
 
     // Reset and recalculate percentage
     percentage = 0.0;
-    categories.forEach((category) {
-      percentage += category.pointsPossible == 0.0
+    uniqueCategoriesUsed.forEach((category) {
+      percentage += (category.pointsPossible == 0.0
           ? 0.0
           : double.parse(((category.pointsEarned / category.pointsPossible) *
                   category.weightInPercentage)
-              .toStringAsFixed(2));
+              .toStringAsFixed(2)));
     });
+    //Add default percentage
+
+    percentage += (100 - sumOfCurrentAssignedCategories);
 
     // Determine letter grade from percentage value
     if (percentage >= gradeScale["F"] && percentage < gradeScale["F+"]) {
