@@ -435,27 +435,48 @@ class DataBase {
     Future addAssignment(Assignment assignment, Class classObj, AcademicTerm term) async {
 
       int termID = await generateTermID(term);
-      String collectionName = assignment.isAssessment ? "assessments" : "assignments";
-      DocumentReference documentReference;
+      String collectionName;
+      String otherCollectionName;
+      if (assignment.isAssessment)
+        {
+          collectionName = "assessments";
+          otherCollectionName = "assignments";
+        }
+      else
+        {
+          collectionName = "assignments";
+          otherCollectionName = "assessments";
+        }
+
+      DocumentReference docRefGradesUserTerm;
+      DocumentReference docRefGradesUserTermAssignment;
+      //Grades are separated into each [term of user]
+      //Look for a [term of user]
       QuerySnapshot snapshot = await firestore.collection("grades").where("user_id", isEqualTo: userID).where("term_name", isEqualTo: term.termName).getDocuments();
-      //if first time
+
+      //First time adding a grade will need to create a [term of user]
       if(snapshot.documents.isEmpty) {
-        documentReference = Firestore.instance.collection("grades").document();
-        documentReference.setData({
+        docRefGradesUserTerm = Firestore.instance.collection("grades").document();
+        docRefGradesUserTerm.setData({
           "user_id" : userID,
           "term_name" : term.termName
         });
-        //document reference is on user/term need creation of new collection document
-        documentReference = documentReference.collection(collectionName).document();
+
+        //create an assignment and assessment collection in grades since first time in
+        docRefGradesUserTerm.collection(otherCollectionName);
+        docRefGradesUserTermAssignment = docRefGradesUserTerm.collection(collectionName).document();
       }
       // user/term exists so add onto collection
       else
         {
+          //TODO: MAKE SURE THAT IT IS COMPLIANT WITH ASSIGNMENT OR ASSESSMENTS
+          //Need the user and term ID to add onto the correct GRADES collection
           String userAndTermID = snapshot.documents[0].documentID;
-          documentReference = Firestore.instance.collection("grades").document(userAndTermID).collection(collectionName).document();
+          //Now the correct reference is added to grades {user, term_name} -> assignment collection
+          docRefGradesUserTermAssignment = Firestore.instance.collection('grades').document(userAndTermID).collection(collectionName).document();
         }
 
-      documentReference.setData({
+      docRefGradesUserTermAssignment.setData({
         "category_title" : assignment.category.title,
         "category_weight_in_percentage" : assignment.category.weightInPercentage,
         "category_points_earned" : assignment.category.pointsEarned,
@@ -476,14 +497,15 @@ class DataBase {
       });
 
       FirebaseUser user = await FirebaseAuth.instance.currentUser();
-      print(user.uid + " " + classObj.title + " " + classObj.instructor + " " + term.termName);
+      //Get the correct class document in class collection
       snapshot = await firestore.collection("classes").where('user_id', isEqualTo: user.uid).where('title', isEqualTo: classObj.title)
           .where('instructor', isEqualTo: classObj.instructor).where('term_name', isEqualTo:  term.termName).getDocuments();
-      if(snapshot.documents.length == 0) print("ERROR: Did not find any data by this query");
+      if(snapshot.documents.length == 0) print("ERROR: FDid not find any data by this query");
       if(snapshot.documents.length > 1) print("ERROR: Found more than one data entries");
+      //Should be only a unique class
       if(snapshot.documents.length == 1)
         {
-          firestore.collection("classes").document(snapshot.documents[0].documentID).collection('grades').document().setData(
+          firestore.collection("classes").document(snapshot.documents[0].documentID).collection('assignments').document().setData(
             {
               "category_title" : assignment.category.title,
               "category_weight_in_percentage" : assignment.category.weightInPercentage,
@@ -496,6 +518,17 @@ class DataBase {
             }
           );
         }
+    }
+
+
+    Future addCategoryToClass(Category cat, Class aClass, AcademicTerm term) async {
+      //Need to find the correct class
+      QuerySnapshot snapshot = await firestore.collection('classes').where('user_id', isEqualTo: userID).where("term_name", isEqualTo: term.termName)
+          .where('title', isEqualTo: aClass.title).where('instructor', isEqualTo: aClass.instructor).getDocuments();
+      Firestore.instance.collection('classes').document(snapshot.documents[0].documentID).collection("categories").document().setData({
+        "category_title" : cat.title,
+        "category_weight_in_percentage" : cat.weightInPercentage
+      });
     }
 
     Class documentToClass(DocumentSnapshot document)
@@ -557,6 +590,10 @@ class DataBase {
           category: Category(
             title: document['category_title'], weightInPercentage: document['category_weight_in_percentage']
           ));
+    }
+
+    Category documentToCategory(DocumentSnapshot document) {
+      return new Category(title: document['category_title'], weightInPercentage: document['category_weight_in_percentage']);
     }
 
     Future removeClass(Class classObj, AcademicTerm term)

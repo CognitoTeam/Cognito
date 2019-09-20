@@ -575,9 +575,9 @@ class _FilteredAssignmentExpansionState
     return StreamBuilder<QuerySnapshot>(
       //Want multiple documents
       //Get to collection
-        stream: Firestore.instance.collection('grades').document(
-            docID
-        ).collection((widget.isAssessment ? 'assessments' : 'assignments')).snapshots(),
+      //docID may be null
+        stream: (docID == "" ? null : Firestore.instance.collection('grades').document(docID)
+            .collection((widget.isAssessment ? 'assessments' : 'assignments')).snapshots()),
         builder: (BuildContext context,
             AsyncSnapshot<QuerySnapshot> snapshot) {
           return ExpansionTile(
@@ -597,7 +597,7 @@ class _FilteredAssignmentExpansionState
 
   List<Widget> _assignments(AsyncSnapshot<QuerySnapshot> snapshot) {
     List<Widget> assignmentList = List();
-    if (snapshot.data.documents.length > 0) {
+    if (snapshot.hasData && snapshot.data.documents.length > 0) {
       snapshot.data.documents.forEach((document) async {
         Assignment a = widget.database.documentToAssignment(document);
         if (a.isAssessment) {

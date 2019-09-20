@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/database.dart';
 import 'package:cognito/database/notifications.dart';
 import 'package:cognito/models/academic_term.dart';
@@ -39,6 +40,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
   int _selectedPriority = 1;
   int termID = 0;
   Notifications noti = Notifications();
+  String classDocID = "";
 
   //  Stepper
   //  init step to 0th position
@@ -67,6 +69,83 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
       ),
       subtitle: subtitle,
     );
+  }
+
+  Future updateClassStream(AcademicTerm term)
+  async {
+    QuerySnapshot snapshot = await Firestore.instance.collection('classes')
+        .where('user_id', isEqualTo: database.userID)
+        .where('term_name', isEqualTo: term.termName)
+        .where('title', isEqualTo: widget.aClass.title)
+        .where('instructor', isEqualTo: widget.aClass.instructor).getDocuments();
+    //This is the document of grades now we need assignments collection doc
+    if(snapshot.documents.length == 1)
+    {
+      print("UpdateClassStream: Found the class ID");
+      classDocID = snapshot.documents[0].documentID;
+    }else
+      {
+        print("ERROR UpdateClassStream: Did not find only one class in finding ID");
+      }
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    //Class document id stream
+    updateClassStream(widget.term);
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("Add New Assessment"),
+          backgroundColor: Theme.of(context).primaryColorDark,
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.check),
+              onPressed: () {
+                Assignment result = Assignment(title: _titleController.text, description: _descriptionController.text, location: _locationController.text,
+                    start: null, end: null, dueDate: dueDate, pointsEarned: double.parse(_earnedController.text), category: category, pointsPossible: double.parse(_possibleController.text),
+                    isAssessment: true, duration: Duration(minutes: int.parse(_durationController.text)));
+                database.addAssignment(result, widget.aClass, widget.term);
+                Navigator.of(context).pop(_titleController != null
+                    ? result
+                    : null);
+              },
+            )
+          ],
+        ),
+        body: Stepper(
+          currentStep: this.currentStep,
+          type: StepperType.vertical,
+          steps: getSteps(),
+          onStepTapped: (step) {
+            setState(() {
+              currentStep = step;
+            });
+          },
+          onStepCancel: () {
+            setState(() {
+              if (currentStep > 0) {
+                currentStep--;
+              } else {
+                currentStep = 0;
+              }
+            });
+          },
+          onStepContinue: () {
+            setState(() {
+              if (currentStep < getSteps().length - 1) {
+                currentStep++;
+              } else {
+                //Needs term id
+                Assignment result = Assignment(title: _titleController.text, description: _descriptionController.text, location: _locationController.text,
+                    start: null, end: null, dueDate: dueDate, pointsEarned: double.parse(_earnedController.text), category: category, pointsPossible: double.parse(_possibleController.text),
+                    isAssessment: true, duration: Duration(minutes: int.parse(_durationController.text)));
+                database.addAssignment(result, widget.aClass, widget.term);
+                Navigator.of(context).pop(result);
+              }
+            });
+          },
+        ));
   }
 
   List<Step> getSteps() {
@@ -168,12 +247,17 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
         ),
         state: StepState.indexed,
         isActive: true,
-        content: ExpansionTile(
-            title: Text(
-              _categoryListTitle,
-              style: Theme.of(context).accentTextTheme.body2,
-            ),
-            children: _listOfCategories()),
+        content: StreamBuilder<QuerySnapshot>(
+          stream: (classDocID == "" ? null : Firestore.instance.collection('classes').document(classDocID).collection('categories').snapshots()),
+          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            return ExpansionTile(
+                title: Text(
+                  _categoryListTitle,
+                  style: Theme.of(context).accentTextTheme.body2,
+                ),
+                children: _listOfCategories(snapshot));
+          },
+        )
       ),
       Step(
           title: Text(
@@ -235,9 +319,142 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
 
   String _categoryListTitle = "Select a category";
   // Returns a LitsTile widget categories as a list of widgets
-  List<Widget> _listOfCategories() {
+  List<Widget> _listOfCategories(AsyncSnapshot<QuerySnapshot> snapshot) {
     List<Widget> listCategories = List();
-    if (widget.aClass.categories.isNotEmpty) {
+    //Need to get category from Firestore
+    if (snapshot.hasData && snapshot.data.documents.length > 0) {
+      snapshot.data.documents.forEach((document) {
+        Category c = database.documentToCategory(document);
+          listCategories.add(
+            ListTile(
+              title: Text(
+                c.title.toString() + ": " + c.weightInPercentage.toString() +
+                    "%",
+                style: Theme
+                    .of(context)
+                    .accentTextTheme
+                    .body2,
+              ),
+              onTap: () async {
+                setState(
+                      () {
+                    _categoryListTitle =
+                        c.title + ": " + c.weightInPercentage.toString() + "%";
+                    category = c;
+                  },
+                );
+              },
+              onLongPress: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return SimpleDialog(
+                          title:
+                          Text("Are you sure you want to delete " + c.title),
+                          children: <Widget>[
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                RaisedButton(
+                                  color: Colors.white,
+                                  child: Text("Yes"),
+                                  onPressed: () {
+                                    setState(() {
+                                      widget.aClass.deleteCategory(c);
+                                      database.updateDatabase();
+                                      Navigator.of(context).pop();
+                                    });
+                                  },
+                                ),
+                                RaisedButton(
+                                  color: Colors.white,
+                                  child: Text("Cancel"),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                RaisedButton(
+                                  child: Text("Edit"),
+                                  color: Colors.white,
+                                  onPressed: () {
+                                    setState(() {
+                                      _categoryTitleEdit.text = c.title;
+                                      _categoryWeightEdit.text =
+                                          c.weightInPercentage.toString();
+                                    });
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return SimpleDialog(
+                                            title: Text("Edit category"),
+                                            children: <Widget>[
+                                              TextFormField(
+                                                controller: _categoryTitleEdit,
+                                                style: Theme
+                                                    .of(context)
+                                                    .accentTextTheme
+                                                    .body2,
+                                                decoration: InputDecoration(
+                                                  hintText: "Category title",
+                                                  hintStyle: TextStyle(
+                                                      color: Colors.black45),
+                                                  contentPadding:
+                                                  EdgeInsets.fromLTRB(
+                                                      20.0, 10.0, 20.0, 10.0),
+                                                ),
+
+                                                //Navigator.pop(context);
+                                                textInputAction:
+                                                TextInputAction.done,
+                                              ),
+                                              TextFormField(
+                                                controller: _categoryWeightEdit,
+                                                style: Theme
+                                                    .of(context)
+                                                    .accentTextTheme
+                                                    .body2,
+                                                decoration: InputDecoration(
+                                                  hintText: "Category Weight",
+                                                  hintStyle: TextStyle(
+                                                      color: Colors.black45),
+                                                  contentPadding:
+                                                  EdgeInsets.fromLTRB(
+                                                      20.0, 10.0, 20.0, 10.0),
+                                                ),
+                                                textInputAction:
+                                                TextInputAction.done,
+                                              ),
+                                              RaisedButton(
+                                                color: Colors.white,
+                                                child: Text("Done"),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    c.title =
+                                                        _categoryTitleEdit.text;
+                                                    c.weightInPercentage =
+                                                        double.parse(
+                                                            _categoryWeightEdit
+                                                                .text);
+                                                  });
+                                                  Navigator.pop(context);
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        });
+                                  },
+                                )
+                              ],
+                            )
+                          ]);
+                    });
+              },
+            ),);
+      });
+    }
+    else if (widget.aClass.categories.isNotEmpty) {
       for (Category c in widget.aClass.categories) {
         listCategories.add(
           ListTile(
@@ -247,7 +464,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
             ),
             onTap: () async {
               setState(
-                () {
+                    () {
                   _categoryListTitle =
                       c.title + ": " + c.weightInPercentage.toString() + "%";
                   category = c;
@@ -260,7 +477,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                   builder: (BuildContext context) {
                     return SimpleDialog(
                         title:
-                            Text("Are you sure you want to delete " + c.title),
+                        Text("Are you sure you want to delete " + c.title),
                         children: <Widget>[
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -309,13 +526,13 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                                                 hintStyle: TextStyle(
                                                     color: Colors.black45),
                                                 contentPadding:
-                                                    EdgeInsets.fromLTRB(
-                                                        20.0, 10.0, 20.0, 10.0),
+                                                EdgeInsets.fromLTRB(
+                                                    20.0, 10.0, 20.0, 10.0),
                                               ),
 
                                               //Navigator.pop(context);
                                               textInputAction:
-                                                  TextInputAction.done,
+                                              TextInputAction.done,
                                             ),
                                             TextFormField(
                                               controller: _categoryWeightEdit,
@@ -327,11 +544,11 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                                                 hintStyle: TextStyle(
                                                     color: Colors.black45),
                                                 contentPadding:
-                                                    EdgeInsets.fromLTRB(
-                                                        20.0, 10.0, 20.0, 10.0),
+                                                EdgeInsets.fromLTRB(
+                                                    20.0, 10.0, 20.0, 10.0),
                                               ),
                                               textInputAction:
-                                                  TextInputAction.done,
+                                              TextInputAction.done,
                                             ),
                                             RaisedButton(
                                               color: Colors.white,
@@ -362,7 +579,8 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
           ),
         );
       }
-    } else {
+    }
+    else {
       listCategories.add(ListTile(
         title: Text(
           "No Categories so far",
@@ -410,6 +628,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                       textInputAction: TextInputAction.done,
                     ),
                     RaisedButton(
+                      //Every time add category
                       child: Text("Done"),
                       onPressed: () {
                         setState(() {
@@ -417,7 +636,9 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                           cat.weightInPercentage =
                               double.parse(_categoryWeight.text);
                           try {
-                            widget.aClass.addCategory(cat);
+                            //Adding category here will be a permanent measure and stored without compliance with the assignment
+                            //Therefore it will be stored in the classes collection and this will access classes to retrieve all the categories
+                            database.addCategoryToClass(cat, widget.aClass, widget.term);
                           } catch (e) {
                             Scaffold.of(context).showSnackBar(SnackBar(
                               content: Text(e),
@@ -506,61 +727,5 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
             picked.hour, picked.minute);
       });
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text("Add New Assessment"),
-          backgroundColor: Theme.of(context).primaryColorDark,
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.check),
-              onPressed: () {
-                Assignment result = Assignment(title: _titleController.text, description: _descriptionController.text, location: _locationController.text,
-                    start: null, end: null, dueDate: dueDate, pointsEarned: double.parse(_earnedController.text), category: category, pointsPossible: double.parse(_possibleController.text),
-                    isAssessment: true, duration: Duration(minutes: int.parse(_durationController.text)));
-                database.addAssignment(result, widget.aClass, widget.term);
-                Navigator.of(context).pop(_titleController != null
-                    ? result
-                    : null);
-              },
-            )
-          ],
-        ),
-        body: Stepper(
-          currentStep: this.currentStep,
-          type: StepperType.vertical,
-          steps: getSteps(),
-          onStepTapped: (step) {
-            setState(() {
-              currentStep = step;
-            });
-          },
-          onStepCancel: () {
-            setState(() {
-              if (currentStep > 0) {
-                currentStep--;
-              } else {
-                currentStep = 0;
-              }
-            });
-          },
-          onStepContinue: () {
-            setState(() {
-              if (currentStep < getSteps().length - 1) {
-                currentStep++;
-              } else {
-                //Needs term id
-                Assignment result = Assignment(title: _titleController.text, description: _descriptionController.text, location: _locationController.text,
-                  start: null, end: null, dueDate: dueDate, pointsEarned: double.parse(_earnedController.text), category: category, pointsPossible: double.parse(_possibleController.text),
-                  isAssessment: true, duration: Duration(minutes: int.parse(_durationController.text)));
-                database.addAssignment(result, widget.aClass, widget.term);
-                Navigator.of(context).pop(result);
-              }
-            });
-          },
-        ));
   }
 }
