@@ -28,14 +28,20 @@ import '../views/utils/main_agenda.dart';
 class AgendaView extends StatefulWidget {
   AcademicTerm term;
 
-  AgendaView(this.term);
+  AgendaView(AcademicTerm term)
+  {
+    if(term == null)
+      {
+        term = new AcademicTerm("", null, null);
+      }
+    else
+      {
+        this.term = term;
+      }
+  }
 
   @override
   _AgendaViewState createState(){
-    if(this.term == null)
-      {
-        this.term = AcademicTerm("", null, null);
-      }
     return _AgendaViewState();
   }
 }
@@ -110,7 +116,7 @@ class _AgendaViewState extends State<AgendaView>
 
   List<Widget> _listOfClassAssign(AsyncSnapshot<QuerySnapshot> snapshot) {
     List<Widget> listTasks = List();
-          if (snapshot.hasData) {
+          if (snapshot.data.documents.length == 0 ||snapshot.hasData) {
               snapshot.data.documents.forEach((document) {
                 Class c = database.documentToClass(document);
                 listTasks.add(
@@ -170,7 +176,7 @@ class _AgendaViewState extends State<AgendaView>
 
   List<Widget> _listOfClassAssess(AsyncSnapshot<QuerySnapshot> snapshot) {
     List<Widget> listTasks = List();
-          if (snapshot.hasData) {
+          if (snapshot.data.documents.length == 0 || snapshot.hasData) {
             snapshot.data.documents.forEach((document){
               Class c = database.documentToClass(document);
               listTasks.add(
@@ -518,22 +524,47 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-        stream: Firestore.instance.collection('classes')
-            .where('user_id', isEqualTo: widget.database.userID)
-            .where('term_name', isEqualTo: widget.term.termName).snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          return ExpansionTile(
+    if (widget.term != null) {
+      return StreamBuilder<QuerySnapshot>(
+          stream: Firestore.instance.collection('classes')
+              .where('user_id', isEqualTo: widget.database.userID)
+              .where('term_name', isEqualTo: widget.term.termName).snapshots(),
+          builder: (BuildContext context,
+              AsyncSnapshot<QuerySnapshot> snapshot) {
+            return ExpansionTile(
 
-            leading: Icon(Icons.class_),
+              leading: Icon(Icons.class_),
+              title: Text(
+                "Classes",
+                style: Theme
+                    .of(context)
+                    .accentTextTheme
+                    .body2,
+              ),
+              children: _classes(snapshot),
+              initiallyExpanded: true,
+            );
+          });
+    }
+    else {
+      return ExpansionTile(
+
+        leading: Icon(Icons.class_),
+        title: Text(
+          "Classes",
+          style: Theme
+              .of(context)
+              .accentTextTheme
+              .body2,
+        ),
+        children: [ListTile(
             title: Text(
-              "Classes",
+              "No classes today",
               style: Theme.of(context).accentTextTheme.body2,
-            ),
-            children: _classes(snapshot),
-            initiallyExpanded: true,
-          );
-        });
+            ))],
+        initiallyExpanded: true,
+      );
+    }
   }
 }
 
@@ -577,28 +608,56 @@ class _FilteredAssignmentExpansionState
 
   @override
   Widget build(BuildContext context) {
-    updateGradeStream(widget.term);
-    return StreamBuilder<QuerySnapshot>(
-      //Want multiple documents
-      //Get to collection
-      //docID may be null
-        stream: (docID == "" ? null : Firestore.instance.collection('grades').document(docID)
-            .collection((widget.isAssessment ? 'assessments' : 'assignments')).snapshots()),
-        builder: (BuildContext context,
-            AsyncSnapshot<QuerySnapshot> snapshot) {
-          return ExpansionTile(
+    if(widget.term != null) {
+      updateGradeStream(widget.term);
+      return StreamBuilder<QuerySnapshot>(
+        //Want multiple documents
+        //Get to collection
+        //docID may be null
+          stream: (docID == "" ? null : Firestore.instance.collection('grades')
+              .document(docID)
+              .collection((widget.isAssessment ? 'assessments' : 'assignments'))
+              .snapshots()),
+          builder: (BuildContext context,
+              AsyncSnapshot<QuerySnapshot> snapshot) {
+            return ExpansionTile(
+              leading: Icon(Icons.class_),
+              title: Text(
+                widget.isAssessment ? "Assessments" : "Assignments",
+                style: Theme
+                    .of(context)
+                    .accentTextTheme
+                    .body2,
+              ),
+              children: _assignments(snapshot),
+              initiallyExpanded: true,
+            );
+          });
+    }
+    else
+      {
+        return ExpansionTile(
             leading: Icon(Icons.class_),
             title: Text(
-              widget.isAssessment? "Assessments" : "Assignments",
-              style: Theme
-                  .of(context)
-                  .accentTextTheme
-                  .body2,
+            widget.isAssessment ? "Assessments" : "Assignments",
+            style: Theme
+                .of(context)
+                .accentTextTheme
+                .body2,
             ),
-            children: _assignments(snapshot),
+            children: [ListTile(
+                title: Text(
+                  widget.isAssessment
+                      ? "No assessments due today"
+                      : "No assignments due today",
+                  style: Theme
+                      .of(context)
+                      .accentTextTheme
+                      .body2,
+                ))],
             initiallyExpanded: true,
-          );
-        });
+        );
+      }
   }
 
   List<Widget> _assignments(AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -943,14 +1002,38 @@ class _FilteredEventExpansionState extends State<FilteredEventExpansion> {
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-      leading: Icon(Icons.event),
-      title: Text(
-        "Events",
-        style: Theme.of(context).accentTextTheme.body2,
-      ),
-      children: _events(),
-      initiallyExpanded: true,
-    );
+    if(widget.term != null) {
+      return ExpansionTile(
+        leading: Icon(Icons.event),
+        title: Text(
+          "Events",
+          style: Theme
+              .of(context)
+              .accentTextTheme
+              .body2,
+        ),
+        children: _events(),
+        initiallyExpanded: true,
+      );
+    }
+    else
+      {
+        return ExpansionTile(
+          leading: Icon(Icons.event),
+          title: Text(
+            "Events",
+            style: Theme
+                .of(context)
+                .accentTextTheme
+                .body2,
+          ),
+          children: [ListTile(
+              title: Text(
+                "No events today",
+                style: Theme.of(context).accentTextTheme.body2,
+              ))],
+          initiallyExpanded: true,
+        );
+      }
   }
 }

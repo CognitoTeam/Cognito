@@ -81,8 +81,8 @@ class _UpdateUserInfoState extends State<UpdateUserInfo>
                         hintStyle: TextStyle(
                           color: Colors.white70,
                         ),
-                        contentPadding:
-                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+//                        contentPadding:
+//                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
 
                       ),
                     ), 
@@ -96,8 +96,8 @@ class _UpdateUserInfoState extends State<UpdateUserInfo>
                         hintStyle: TextStyle(
                           color: Colors.white70,
                         ),
-                        contentPadding:
-                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+//                        contentPadding:
+//                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                       ),
                     ), 
                   ],

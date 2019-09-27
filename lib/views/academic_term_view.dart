@@ -34,6 +34,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
   AllTerms allTerms;
 
   String userID;
+  bool userIDLoaded = false;
   //static AllTerms terms = new AllTerms();
 
   Future<void> updateAllTerms() async {
@@ -101,7 +102,9 @@ class _AcademicTermViewState extends State<AcademicTermView> {
         backgroundColor: Theme.of(context).primaryColorDark,
       ),
 
-        body: StreamBuilder<QuerySnapshot> (
+        body: !userIDLoaded ?
+        Center(child: Text(""),):
+        StreamBuilder<QuerySnapshot> (
           stream: Firestore.instance.collection("terms").where('user_id', isEqualTo: userID).snapshots(),
           builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if(snapshot.data == null || snapshot.data.documents.length == 0) {
@@ -238,6 +241,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     setState(() {
       userID = user.uid;
+      userIDLoaded = true;
     });
   }
 

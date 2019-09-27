@@ -49,9 +49,6 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
 
   @override
   Widget build(BuildContext context) {
-    if (authStatus == AuthStatus.signedIn) {
-      return BufferView();
-    } else {
       final logo = Hero(
         tag: "hero",
         child: CircleAvatar(
@@ -154,4 +151,3 @@ class _LoginSelectionViewState extends State<LoginSelectionView> {
       );
     }
   }
-}

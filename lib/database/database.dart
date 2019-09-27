@@ -147,7 +147,6 @@ class DataBase {
       for(int i = 0; i < querySnapshot.documents.length; i++)
         {
           DocumentSnapshot document = querySnapshot.documents[i];
-          print("There is a term");
           allTerms.addTerm(AcademicTerm(document['term_name'], document['start_date'].toDate(), document['end_date'].toDate()));
         }
       return allTerms;
@@ -361,7 +360,7 @@ class DataBase {
         "term_name" : term.termName,
         "start_date" : term.startTime,
         "end_date" : term.endTime,
-        "term_id" : await generateTermID(term)
+        "term_id" : newTermReference.documentID.hashCode
       });
 
       newTermReference.collection("classes_collection").document();
