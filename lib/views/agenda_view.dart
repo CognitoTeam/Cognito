@@ -163,14 +163,7 @@ class _AgendaViewState extends State<AgendaView>
                       }),
                 );
               });
-            } else {
-            listTasks.add(ListTile(
-              title: Text(
-                "No classes have been added yet!",
-                style: Theme.of(context).accentTextTheme.body2,
-              ),
-            ));
-          }
+            }
     return listTasks;
   }
 
@@ -206,13 +199,6 @@ class _AgendaViewState extends State<AgendaView>
                     }),
               );
             });
-          } else {
-            listTasks.add(ListTile(
-              title: Text(
-                "No classes have been added yet!",
-                style: Theme.of(context).accentTextTheme.body2,
-              ),
-            ));
           }
     return listTasks;
   }
@@ -236,7 +222,15 @@ class _AgendaViewState extends State<AgendaView>
                       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                         return SimpleDialog(
                             title: Text("Choose a class"),
-                            children: _listOfClassAssess(snapshot));
+                            children: (snapshot.data != null && snapshot.data.documents.length > 0)
+                                ? _listOfClassAssess(snapshot)
+                                : [ListTile(
+                                    title: Text(
+                                  "No classes have been added yet!",
+                                  style: Theme.of(context).accentTextTheme.body2,
+                                  ),
+                                  )]
+                        );
                       });
                 });
               },
@@ -262,11 +256,23 @@ class _AgendaViewState extends State<AgendaView>
                       .where('user_id', isEqualTo: database.userID)
                       .where('term_name', isEqualTo: widget.term.termName).snapshots(),
                   builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  return SimpleDialog(
-                    title: Text("Choose a class"),
-                    children: _listOfClassAssign(snapshot));
-                  }
-                  );
+                    return SimpleDialog(
+                        title: Text("Choose a class"),
+                        children: (snapshot.data != null &&
+                            snapshot.data.documents.length > 0)
+                            ? _listOfClassAssign(snapshot)
+                            : [ListTile(
+                          title: Text(
+                            "No classes have been added yet!",
+                            style: Theme
+                                .of(context)
+                                .accentTextTheme
+                                .body2,
+                          ),
+                        )
+                        ]
+                    );
+                  });
               }
             );
             },

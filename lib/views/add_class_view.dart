@@ -50,32 +50,40 @@ class _AddClassViewState extends State<AddClassView> {
   int currentStep = 0;
 
   String userID;
+  bool userIDLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    getCurrentUserID();
-    updateCurrentTerm();
-    readSubjects();
+    setState(() {
+      getCurrentUserID();
+      updateCurrentTerm();
+      readSubjects();
+    });
   }
 
   Future readSubjects()
   async {
-    QuerySnapshot querySnapshot = await firestore
-        .collection("subjects")
-        .where("userID", isEqualTo: userID)
-        .getDocuments();
-    setState(() {
-    subjectsString = querySnapshot.documents
-      .map((document) => document['subject_name'].toString())
-      .toList();
-    });
+    if(userIDLoaded) {
+      QuerySnapshot querySnapshot = await firestore
+          .collection("subjects")
+          .where("user_id", isEqualTo: userID)
+          .getDocuments();
+      setState(() {
+        subjectsString = querySnapshot.documents
+            .map((document) => document['subject_name'].toString())
+            .toList();
+      });
+      print("Subjects: " + subjectsString.length.toString());
+    }
   }
 
   Future<String> getCurrentUserID() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    userID = user.uid;
-    return user.uid;
+    setState(() {
+      userID = user.uid;
+      userIDLoaded = true;
+    });
   }
 
   /// Return list of [Step] objects representing the different kinds of inputs
@@ -402,6 +410,7 @@ class _AddClassViewState extends State<AddClassView> {
   /// Shows dialog window to select a subject
   void _showSubjectSelectionDialog() {
     List<Widget> subjects = List();
+
     ListTile addSubject = ListTile(
         onTap: () {
           showDialog(
@@ -425,6 +434,8 @@ class _AddClassViewState extends State<AddClassView> {
                         print(val);
                         setState(() {
                           database.addSubject(val);
+                          readSubjects();
+                          print("Subjects: " + subjectsString.length.toString());
                         });
                         Navigator.pop(context);
                       },
@@ -439,10 +450,24 @@ class _AddClassViewState extends State<AddClassView> {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          subjects = new List.generate(subjectsString.length, (index) => _itemInListOfSubjects(subjectsString[index]));
-          subjects.add(addSubject);
-          return SimpleDialog(
+//          subjects = new List.generate(subjectsString.length, (index) => _itemInListOfSubjects(subjectsString[index]));
+
+          return StreamBuilder<QuerySnapshot> (
+            stream: Firestore.instance.collection("subjects").where('user_id', isEqualTo: userID).snapshots(),
+            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              subjects.clear();
+              if(snapshot.data != null) {
+                print("Snapshot data: " +
+                    snapshot.data.documents.length.toString());
+                snapshot.data.documents.forEach((document) =>
+                    subjects.add(
+                        _itemInListOfSubjects(document['subject_name'])));
+              }
+              subjects.add(addSubject);
+              return SimpleDialog(
               title: Text("Choose a subject"), children: subjects);
+            }
+          );
         });
   }
 
