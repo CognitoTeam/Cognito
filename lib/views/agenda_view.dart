@@ -26,12 +26,18 @@ import '../views/utils/main_agenda.dart';
 /// @author Julian Vu
 
 class AgendaView extends StatefulWidget {
-  final AcademicTerm term;
+  AcademicTerm term;
 
   AgendaView(this.term);
 
   @override
-  _AgendaViewState createState() => _AgendaViewState();
+  _AgendaViewState createState(){
+    if(this.term == null)
+      {
+        this.term = AcademicTerm("", null, null);
+      }
+    return _AgendaViewState();
+  }
 }
 
 class _AgendaViewState extends State<AgendaView>

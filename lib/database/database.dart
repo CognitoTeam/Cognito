@@ -48,32 +48,12 @@ class DataBase {
     Future<String> initializeFireStore() async {
       String uID = await _fireBaseLogin.currentUser();
       assert(uID != null);
-      print(uID);
-      Query query = firestore.collection('user_info').where('user_id', isEqualTo: uID);
-      int uIDNumber;
-      query.getDocuments().then((snapshot) {
-        uIDNumber = snapshot.documents.length;
-      });
       //If the users_info does not exist
-      if (uIDNumber == 0) {
-        //Create a user in the user info collection
-//      allTerms = AllTerms();
-        DocumentReference newUserInfo = Firestore.instance.collection("user_info").document();
-        newUserInfo.setData({
-          "user_id" : uID
-        });
-        return "";
-      }
-      //If user does exist in user_info collection
-      else if (uIDNumber == 1){
-        //print("Write json to disk from firestaore");
-        //await writeJSON(documentSnapshot.data['terms']);
-        getTerms();
-        //      allTerms = await getAllTermsFromString(documentSnapshot.data['terms']);
-        //String jsonString = await readJSON();
-        //return jsonString;
-        return "";
-      }
+      DocumentReference newUserInfo = Firestore.instance.collection('user_info').document();
+      newUserInfo.setData({
+        "user_id" : uID
+      });
+      return "";
     }
 
     /// Gets the current user's ID from Firebase.
@@ -333,6 +313,13 @@ class DataBase {
         {
           print("DATABASE getTermsReference(): Retrieved duplicate data");
         }
+    }
+
+    void addUser(FirebaseUser user)
+    {
+      Firestore.instance.collection('user_info').document().setData({
+        'user' : user.uid
+      });
     }
 
     void addClass(String subjectArea, String courseNumber, String title, int units, String location, String instructor,
@@ -666,7 +653,7 @@ class DataBase {
     Future removeClass(Class classObj, AcademicTerm term)
     async {
       QuerySnapshot snapshot = await firestore.collection('classes').where('user_id', isEqualTo: userID)
-          .where('term_name', isEqualTo: term.termName)
+          .where('term_name', isEqualTo: term.termName).where('title', isEqualTo: classObj.title).where('instructor', isEqualTo: classObj.instructor)
           .getDocuments();
       snapshot.documents.forEach((document) =>
         firestore.collection('classes').document(document.documentID).delete()

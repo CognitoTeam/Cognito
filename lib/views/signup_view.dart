@@ -1,3 +1,4 @@
+import 'package:cognito/database/database.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'dart:async';
@@ -23,6 +24,7 @@ class _SignUpViewState extends State<SignUpView> {
   String _email;
   String _password;
   String _confirmPassword;
+  DataBase database = DataBase();
 
   void _submit(BuildContext context) {
     final form = _formKey.currentState;
@@ -47,10 +49,10 @@ class _SignUpViewState extends State<SignUpView> {
       return false;
     } else {
       try {
-        final firebaseUser =
-            await _fireBaseLogin.createEmailUser(_email, _password);
+        final firebaseUser = await _fireBaseLogin.createEmailUser(_email, _password);
         firebaseUser.sendEmailVerification();
         if (firebaseUser != null) {
+          database.initializeFireStore();
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => WelcomeView()));
           return true;

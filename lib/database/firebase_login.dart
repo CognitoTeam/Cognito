@@ -2,12 +2,14 @@
 ///@author Praneet Singh
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cognito/database/database.dart';
 import 'dart:async';
 
 class FireBaseLogin {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = new GoogleSignIn();
   FirebaseUser _user;
+  DataBase dataBase;
 
   Future<FirebaseUser> signInGoogleUser() async {
     final GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
