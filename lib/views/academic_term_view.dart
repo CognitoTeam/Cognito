@@ -43,9 +43,9 @@ class _AcademicTermViewState extends State<AcademicTermView> {
   @override
   void initState() {
     super.initState();
-    getCurrentUserID();
     setState(() {
       updateAllTerms();
+      getCurrentUserID();
     });
   }
 
@@ -91,7 +91,6 @@ class _AcademicTermViewState extends State<AcademicTermView> {
   /// start date and end date for the [AcademicTerm].
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       drawer: MainDrawer(),
       appBar: AppBar(
@@ -105,7 +104,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
         body: StreamBuilder<QuerySnapshot> (
           stream: Firestore.instance.collection("terms").where('user_id', isEqualTo: userID).snapshots(),
           builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if(!snapshot.hasData) {
+            if(snapshot.data == null || snapshot.data.documents.length == 0) {
               return new Center(
                 child: Text("Lets start by adding a term!"),
               );
@@ -235,13 +234,15 @@ class _AcademicTermViewState extends State<AcademicTermView> {
   }
 
   /// Gets the current user's ID from Firebase.
-  Future<String> getCurrentUserID() async {
+  void getCurrentUserID() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    return user.uid;
+    setState(() {
+      userID = user.uid;
+    });
   }
 
   void deleteTermFromFireStore(AcademicTerm term) {
-    Query query = firestore.collection('terms').where('user_id', isEqualTo: getCurrentUserID()).where('term_name', isEqualTo: term.termName);
+    Query query = firestore.collection('terms').where('user_id', isEqualTo: userID).where('term_name', isEqualTo: term.termName);
     query.getDocuments().then((snapshot) {
       for(DocumentSnapshot ds in snapshot.documents){
         ds.reference.delete();

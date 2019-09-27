@@ -138,6 +138,7 @@ class DataBase {
 
     Future<AllTerms> getTerms() async {
       AllTerms allTerms = AllTerms();
+      userID = "";
       userID = await getCurrentUserID();
       QuerySnapshot querySnapshot = await firestore
           .collection('terms')
@@ -146,6 +147,7 @@ class DataBase {
       for(int i = 0; i < querySnapshot.documents.length; i++)
         {
           DocumentSnapshot document = querySnapshot.documents[i];
+          print("There is a term");
           allTerms.addTerm(AcademicTerm(document['term_name'], document['start_date'].toDate(), document['end_date'].toDate()));
         }
       return allTerms;
