@@ -49,10 +49,14 @@ class DataBase {
       String uID = await _fireBaseLogin.currentUser();
       assert(uID != null);
       //If the users_info does not exist
-      DocumentReference newUserInfo = Firestore.instance.collection('user_info').document();
-      newUserInfo.setData({
-        "user_id" : uID
-      });
+      QuerySnapshot query = await Firestore.instance.collection('user_info').where('user_id', isEqualTo: uID).getDocuments();
+      if(query.documents.length == 0) {
+        DocumentReference newUserInfo = Firestore.instance.collection(
+            'user_info').document();
+        newUserInfo.setData({
+          "user_id": uID
+        });
+      }
       return "";
     }
 
@@ -314,13 +318,6 @@ class DataBase {
         {
           print("DATABASE getTermsReference(): Retrieved duplicate data");
         }
-    }
-
-    void addUser(FirebaseUser user)
-    {
-      Firestore.instance.collection('user_info').document().setData({
-        'user' : user.uid
-      });
     }
 
     void addClass(String subjectArea, String courseNumber, String title, int units, String location, String instructor,

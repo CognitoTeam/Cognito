@@ -63,12 +63,16 @@ class _AgendaViewState extends State<AgendaView>
   double _fabHeight = 56.0;
   DataBase database = DataBase();
 
+  String gradesDocID = "";
+  bool gradesDocIDFound = false;
+
   @override
   void initState() {
     super.initState();
     setState(() {
       selectedDate = DateTime.now();
       database.getCurrentTerm();
+      updateGradesID();
     });
     _animationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 200))
@@ -99,6 +103,22 @@ class _AgendaViewState extends State<AgendaView>
     ));
   }
 
+  void updateGradesID()
+  async {
+    //
+    QuerySnapshot gradesQuery = await Firestore.instance.collection("grades").where(
+        'user_id', isEqualTo: database.userID).where('term_name', isEqualTo: widget.term.termName).getDocuments();
+    if(gradesQuery.documents.length != 1)
+    {
+      print("No Assignment found");
+    }
+    else if(gradesQuery.documents.length == 1)
+    {
+      gradesDocID = gradesQuery.documents[0].documentID;
+      gradesDocIDFound = true;
+    }
+  }
+
   @override
   dispose() {
     _animationController.dispose();
@@ -114,9 +134,10 @@ class _AgendaViewState extends State<AgendaView>
     isOpened = !isOpened;
   }
 
+  //Edit snapshot
   List<Widget> _listOfClassAssign(AsyncSnapshot<QuerySnapshot> snapshot) {
     List<Widget> listTasks = List();
-          if (snapshot.data.documents.length == 0 ||snapshot.hasData) {
+          if ( snapshot.data != null && snapshot.data.documents.length == 0) {
               snapshot.data.documents.forEach((document) {
                 Class c = database.documentToClass(document);
                 listTasks.add(
@@ -169,7 +190,7 @@ class _AgendaViewState extends State<AgendaView>
 
   List<Widget> _listOfClassAssess(AsyncSnapshot<QuerySnapshot> snapshot) {
     List<Widget> listTasks = List();
-          if (snapshot.data.documents.length == 0 || snapshot.hasData) {
+          if (snapshot.data != null && snapshot.data.documents.length == 0) {
             snapshot.data.documents.forEach((document){
               Class c = database.documentToClass(document);
               listTasks.add(
@@ -216,9 +237,8 @@ class _AgendaViewState extends State<AgendaView>
                 builder: (BuildContext context) {
                   return StreamBuilder<QuerySnapshot>(
                       stream: Firestore.instance.collection('classes')
-                          .where('user_id', isEqualTo: database.userID)
-                          .where('term_name', isEqualTo: widget.term.termName)
-                          .snapshots(),
+                          .document(gradesDocID).collection("assignments").where('is_assessment', isEqualTo: true)
+                          .where('due_date', isLessThanOrEqualTo: DateTime.now()).snapshots(),
                       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                         return SimpleDialog(
                             title: Text("Choose a class"),
@@ -252,9 +272,9 @@ class _AgendaViewState extends State<AgendaView>
               context: context,
               builder: (BuildContext context) {
                 return StreamBuilder<QuerySnapshot>(
-                  stream: Firestore.instance.collection('classes')
-                      .where('user_id', isEqualTo: database.userID)
-                      .where('term_name', isEqualTo: widget.term.termName).snapshots(),
+                  stream: Firestore.instance.collection('grades')
+                      .document(gradesDocID).collection("assignments").where('is_assessment', isEqualTo: false)
+                      .where('due_date', isLessThanOrEqualTo: DateTime.now()).snapshots(),
                   builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                     return SimpleDialog(
                         title: Text("Choose a class"),
@@ -593,63 +613,99 @@ class _FilteredAssignmentExpansionState
 
   Notifications noti = Notifications();
   DateTime oneWeekFromToday = DateTime.now().add(Duration(days: 7));
-  String docID = "";
+  String gradesDocID = "";
+  bool gradesDocIDFound = false;
+  DataBase database = DataBase();
 
-  Future updateGradeStream(AcademicTerm term)
-  async {
-    QuerySnapshot snapshot = await Firestore.instance.collection('grades')
-        .where('user_id', isEqualTo: widget.database.userID)
-        .where('term_name', isEqualTo: term.termName).getDocuments();
-    //This is the document of grades now we need assignments collection doc
-    if(snapshot.documents.length == 1)
-      {
-        docID = snapshot.documents[0].documentID;
-      }
-    else if(snapshot.documents.length > 1)
-      {
-        print("ERROR: Query for grade found more than 1 length");
-      }
-
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      updateGradesID();
+    });
   }
+
+  void updateGradesID()
+  async {
+    //
+    QuerySnapshot gradesQuery = await Firestore.instance.collection("grades").where(
+        'user_id', isEqualTo: database.userID).where('term_name', isEqualTo: widget.term.termName).getDocuments();
+    if(gradesQuery.documents.length != 1)
+    {
+      print("No Assignment found");
+    }
+    else if(gradesQuery.documents.length == 1)
+    {
+      gradesDocID = gradesQuery.documents[0].documentID;
+      gradesDocIDFound = true;
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    if(widget.term != null) {
-      updateGradeStream(widget.term);
-      return StreamBuilder<QuerySnapshot>(
-        //Want multiple documents
-        //Get to collection
-        //docID may be null
-          stream: (docID == "" ? null : Firestore.instance.collection('grades')
-              .document(docID)
-              .collection((widget.isAssessment ? 'assessments' : 'assignments'))
-              .snapshots()),
-          builder: (BuildContext context,
-              AsyncSnapshot<QuerySnapshot> snapshot) {
-            return ExpansionTile(
-              leading: Icon(Icons.class_),
-              title: Text(
-                widget.isAssessment ? "Assessments" : "Assignments",
-                style: Theme
-                    .of(context)
-                    .accentTextTheme
-                    .body2,
-              ),
-              children: _assignments(snapshot),
-              initiallyExpanded: true,
-            );
-          });
-    }
-    else
-      {
-        return ExpansionTile(
+      updateGradesID();
+      if(gradesDocIDFound) {
+        return StreamBuilder<QuerySnapshot>(
+          //Want multiple documents
+          //Get to collection
+          //docID may be null
+            stream: (gradesDocID == "" ? null : Firestore.instance.collection(
+                'grades')
+                .document(gradesDocID)
+                .collection(
+                (widget.isAssessment ? 'assessments' : 'assignments'))
+                .snapshots()),
+            builder: (BuildContext context,
+                AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.data != null && snapshot.data.documents.length > 0) {
+                return ExpansionTile(
+                  leading: Icon(Icons.class_),
+                  title: Text(
+                    widget.isAssessment ? "Assessments" : "Assignments",
+                    style: Theme
+                        .of(context)
+                        .accentTextTheme
+                        .body2,
+                  ),
+                  children: _assignments(snapshot),
+                  initiallyExpanded: true,
+                );
+              } else {
+                return ExpansionTile(
+                  leading: Icon(Icons.class_),
+                  title: Text(
+                    widget.isAssessment ? "Assessments" : "Assignments",
+                    style: Theme
+                        .of(context)
+                        .accentTextTheme
+                        .body2,
+                  ),
+                  children: [ListTile(
+                      title: Text(
+                        widget.isAssessment
+                            ? "No assessments due today"
+                            : "No assignments due today",
+                        style: Theme
+                            .of(context)
+                            .accentTextTheme
+                            .body2,
+                      ))
+                  ],
+                  initiallyExpanded: true,
+                );
+              }
+            });
+      }else
+        {
+          return ExpansionTile(
             leading: Icon(Icons.class_),
             title: Text(
-            widget.isAssessment ? "Assessments" : "Assignments",
-            style: Theme
-                .of(context)
-                .accentTextTheme
-                .body2,
+              widget.isAssessment ? "Assessments" : "Assignments",
+              style: Theme
+                  .of(context)
+                  .accentTextTheme
+                  .body2,
             ),
             children: [ListTile(
                 title: Text(
@@ -660,10 +716,11 @@ class _FilteredAssignmentExpansionState
                       .of(context)
                       .accentTextTheme
                       .body2,
-                ))],
+                ))
+            ],
             initiallyExpanded: true,
-        );
-      }
+          );
+        }
   }
 
   List<Widget> _assignments(AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -898,6 +955,8 @@ class FilteredEventExpansion extends StatefulWidget {
 
 class _FilteredEventExpansionState extends State<FilteredEventExpansion> {
   Notifications noti = Notifications();
+
+
   List<Widget> _events() {
     List<Widget> eventsList = List();
     if (widget.term.events.isNotEmpty) {
