@@ -137,9 +137,10 @@ class _AgendaViewState extends State<AgendaView>
   //Edit snapshot
   List<Widget> _listOfClassAssign(AsyncSnapshot<QuerySnapshot> snapshot) {
     List<Widget> listTasks = List();
-          if ( snapshot.data != null && snapshot.data.documents.length == 0) {
+          if (snapshot.data != null && snapshot.data.documents.length > 0) {
               snapshot.data.documents.forEach((document) {
                 Class c = database.documentToClass(document);
+                print("Classes: " + c.title);
                 listTasks.add(
                   ListTile(
                       title: Text(
@@ -190,7 +191,7 @@ class _AgendaViewState extends State<AgendaView>
 
   List<Widget> _listOfClassAssess(AsyncSnapshot<QuerySnapshot> snapshot) {
     List<Widget> listTasks = List();
-          if (snapshot.data != null && snapshot.data.documents.length == 0) {
+          if (snapshot.data != null && snapshot.data.documents.length > 0) {
             snapshot.data.documents.forEach((document){
               Class c = database.documentToClass(document);
               listTasks.add(
@@ -237,8 +238,8 @@ class _AgendaViewState extends State<AgendaView>
                 builder: (BuildContext context) {
                   return StreamBuilder<QuerySnapshot>(
                       stream: Firestore.instance.collection('classes')
-                          .document(gradesDocID).collection("assignments").where('is_assessment', isEqualTo: true)
-                          .where('due_date', isLessThanOrEqualTo: DateTime.now()).snapshots(),
+                          .where('user_id', isEqualTo: database.userID)
+                          .where('term_name', isEqualTo: widget.term.termName).snapshots(),
                       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                         return SimpleDialog(
                             title: Text("Choose a class"),
@@ -272,9 +273,9 @@ class _AgendaViewState extends State<AgendaView>
               context: context,
               builder: (BuildContext context) {
                 return StreamBuilder<QuerySnapshot>(
-                  stream: Firestore.instance.collection('grades')
-                      .document(gradesDocID).collection("assignments").where('is_assessment', isEqualTo: false)
-                      .where('due_date', isLessThanOrEqualTo: DateTime.now()).snapshots(),
+                  stream: Firestore.instance.collection('classes')
+                      .where('user_id', isEqualTo: database.userID)
+                      .where('term_name', isEqualTo: widget.term.termName).snapshots(),
                   builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                     return SimpleDialog(
                         title: Text("Choose a class"),
