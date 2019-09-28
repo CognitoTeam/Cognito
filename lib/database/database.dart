@@ -618,6 +618,11 @@ class DataBase {
       id: document['id']);
     }
 
+    Officer documentToOfficer(DocumentSnapshot document)
+    {
+      return new Officer(document['officer_name'], document['officer_position']);
+    }
+
     Assignment documentToAssignment(DocumentSnapshot document)
     {
       int minutes = document['duration_in_minutes'];

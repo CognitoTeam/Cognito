@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cognito/database/database.dart';
 import 'package:cognito/models/academic_term.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 /// Club details view
 /// View screen to edit an Club object
 /// @author Praneet Singh
@@ -17,7 +20,6 @@ class ClubDetailsView extends StatefulWidget {
   // Hold Club object
   final Club club;
   final AcademicTerm term;
-
   // Constructor that takes in an academic Club object
   ClubDetailsView({Key key, @required this.club, this.term}) : super(key: key);
 
@@ -163,11 +165,26 @@ class ExpandableOfficerList extends StatefulWidget {
 class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
   final _officerNameController = TextEditingController();
   final _officerPosController = TextEditingController();
+  String userID;
+  bool userIDLoaded = false;
+  String docID = "";
+  DataBase dataBase = DataBase();
 
-  List<Widget> _listOfOfficers() {
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      getCurrentUserID();
+      updateClubID();
+    });
+  }
+
+  List<Widget> _listOfOfficers(AsyncSnapshot<QuerySnapshot> snapshot) {
+    getCurrentUserID();
     List<Widget> listOfficers = List();
-    if (widget.club.officers.isNotEmpty) {
-      for (Officer o in widget.club.officers) {
+    if (snapshot.data != null && snapshot.data.documents.length != 0) {
+      snapshot.data.documents.forEach((document){
+        Officer o = dataBase.documentToOfficer(document);
         listOfficers.add(
           ListTile(
               title: Text(
@@ -220,7 +237,7 @@ class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
                     });
               }),
         );
-      }
+      });
     } else {
       listOfficers.add(ListTile(
           title: Text(
@@ -284,15 +301,57 @@ class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
     return listOfficers;
   }
 
+  /// Gets the current user's ID from Firebase.
+  void getCurrentUserID() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    setState(() {
+      userID = user.uid;
+      userIDLoaded = true;
+    });
+  }
+
+  void updateClubID()
+  async {
+    QuerySnapshot clubQuery = await Firestore.instance.collection("clubs").where(
+        'user_id', isEqualTo: userID).getDocuments();
+    if(clubQuery.documents.length != 1)
+      {
+        print("No Club found");
+      }
+    else if(clubQuery.documents.length == 1)
+      {
+        docID = clubQuery.documents[0].documentID;
+      }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-        leading: Icon(Icons.person_outline),
-        title: Text(
-          "Officers",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-        children: _listOfOfficers());
+    if(userIDLoaded && docID != "") {
+      return StreamBuilder<QuerySnapshot>(
+          stream: Firestore.instance.collection('clubs').document(docID).collection('officers').snapshots(),
+          builder: (BuildContext context,
+              AsyncSnapshot<QuerySnapshot> snapshot) {
+            return ExpansionTile(
+                leading: Icon(Icons.person_outline),
+                title: Text(
+                  "Officers",
+                  style: Theme.of(context).accentTextTheme.body2,
+                ),
+                children: _listOfOfficers(snapshot));
+          });
+    }
+    else {
+      return ExpansionTile(
+          leading: Icon(Icons.person_outline),
+          title: Text(
+            "Officers",
+            style: Theme
+                .of(context)
+                .accentTextTheme
+                .body2,
+          ),
+          children: []);
+    }
   }
 }
 
@@ -306,10 +365,49 @@ class ExpandableTaskList extends StatefulWidget {
 }
 
 class _ExpandableTaskListState extends State<ExpandableTaskList> {
-  List<Widget> _listOfTasks() {
+
+  String userID;
+  bool userIDLoaded = false;
+  String docID = "";
+  DataBase dataBase = DataBase();
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      getCurrentUserID();
+      updateClubID();
+    });
+  }
+
+  /// Gets the current user's ID from Firebase.
+  void getCurrentUserID() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    setState(() {
+      userID = user.uid;
+      userIDLoaded = true;
+    });
+  }
+
+  void updateClubID()
+  async {
+    QuerySnapshot clubQuery = await Firestore.instance.collection("clubs").where(
+        'user_id', isEqualTo: userID).getDocuments();
+    if(clubQuery.documents.length != 1)
+    {
+      print("No Club found");
+    }
+    else if(clubQuery.documents.length == 1)
+    {
+      docID = clubQuery.documents[0].documentID;
+    }
+  }
+
+  List<Widget> _listOfTasks(AsyncSnapshot<QuerySnapshot> snapshot) {
     List<Widget> listTasks = List();
-    if (widget.club.tasks.isNotEmpty) {
-      for (Task t in widget.club.tasks) {
+    if (snapshot.data != null && snapshot.data.documents.length != 0) {
+      snapshot.data.documents.forEach((document){
+        Task t = dataBase.documentToTask(document);
         listTasks.add(
           ListTile(
               title: Text(
@@ -325,7 +423,7 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
                 }
               }),
         );
-      }
+      });
     } else {
       listTasks.add(ListTile(
         title: Text(
@@ -359,13 +457,39 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-        leading: Icon(Icons.check_box),
-        title: Text(
-          "Tasks",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-        children: _listOfTasks());
+    if (userIDLoaded && docID != ""
+    ) {
+      return StreamBuilder<QuerySnapshot>(
+          stream: Firestore.instance.collection('clubs')
+              .document(docID)
+              .collection('tasks')
+              .snapshots(),
+          builder: (BuildContext context,
+              AsyncSnapshot<QuerySnapshot> snapshot) {
+            return ExpansionTile(
+                leading: Icon(Icons.person_outline),
+                title: Text(
+                  "Tasks",
+                  style: Theme
+                      .of(context)
+                      .accentTextTheme
+                      .body2,
+                ),
+                children: _listOfTasks(snapshot));
+          });
+    }
+    else {
+      return ExpansionTile(
+          leading: Icon(Icons.person_outline),
+          title: Text(
+            "Tasks",
+            style: Theme
+                .of(context)
+                .accentTextTheme
+                .body2,
+          ),
+          children: []);
+    }
   }
 }
 
@@ -379,15 +503,57 @@ class ExpandableEventList extends StatefulWidget {
 }
 
 class _ExpandableEventListState extends State<ExpandableEventList> {
-  List<Widget> _listOfEvents() {
+
+  String userID;
+  bool userIDLoaded = false;
+  String docID = "";
+  DataBase dataBase = DataBase();
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      getCurrentUserID();
+      updateClubID();
+    });
+  }
+
+  /// Gets the current user's ID from Firebase.
+  void getCurrentUserID() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    setState(() {
+      userID = user.uid;
+      userIDLoaded = true;
+    });
+  }
+
+  void updateClubID()
+  async {
+    QuerySnapshot clubQuery = await Firestore.instance.collection("clubs").where(
+        'user_id', isEqualTo: userID).getDocuments();
+    if(clubQuery.documents.length != 1)
+    {
+      print("No Club found");
+    }
+    else if(clubQuery.documents.length == 1)
+    {
+      docID = clubQuery.documents[0].documentID;
+    }
+  }
+
+  List<Widget> _listOfEvents(AsyncSnapshot snapshot) {
     List<Widget> listEvents = List();
-    if (widget.club.events.isNotEmpty) {
-      for (Event e in widget.club.events) {
+    if (snapshot.data != null && snapshot.data.documents.length != 0) {
+      snapshot.data.documents.forEach((document) {
+        Event e = dataBase.documentToEvent(document);
         listEvents.add(
           ListTile(
               title: Text(
                 e.title,
-                style: Theme.of(context).accentTextTheme.body2,
+                style: Theme
+                    .of(context)
+                    .accentTextTheme
+                    .body2,
               ),
               onTap: () async {
                 Event result = await Navigator.of(context).push(
@@ -398,7 +564,7 @@ class _ExpandableEventListState extends State<ExpandableEventList> {
                 }
               }),
         );
-      }
+      });
     } else {
       listEvents.add(ListTile(
           title: Text(
@@ -431,12 +597,37 @@ class _ExpandableEventListState extends State<ExpandableEventList> {
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-        leading: Icon(Icons.event),
-        title: Text(
-          "Events",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-        children: _listOfEvents());
+    if (userIDLoaded && docID != "") {
+      return StreamBuilder<QuerySnapshot>(
+          stream: Firestore.instance.collection('clubs')
+              .document(docID)
+              .collection('events')
+              .snapshots(),
+          builder: (BuildContext context,
+              AsyncSnapshot<QuerySnapshot> snapshot) {
+            return ExpansionTile(
+                leading: Icon(Icons.event),
+                title: Text(
+                  "Events",
+                  style: Theme
+                      .of(context)
+                      .accentTextTheme
+                      .body2,
+                ),
+                children: _listOfEvents(snapshot));
+          });
+    }
+    else {
+      return ExpansionTile(
+          leading: Icon(Icons.event),
+          title: Text(
+            "Events",
+            style: Theme
+                .of(context)
+                .accentTextTheme
+                .body2,
+          ),
+          children: []);
+    }
   }
 }
