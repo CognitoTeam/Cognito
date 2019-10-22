@@ -1,5 +1,6 @@
 //import 'dart:io';
 //import 'dart:convert';
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -45,16 +46,15 @@ class DataBase {
       _instance = null;
     }
 
+    /// Create a new user
     Future<String> initializeFireStore() async {
       String uID = await _fireBaseLogin.currentUser();
       assert(uID != null);
       //If the users_info does not exist
       QuerySnapshot query = await Firestore.instance.collection('user_info').where('user_id', isEqualTo: uID).getDocuments();
       if(query.documents.length == 0) {
-        DocumentReference newUserInfo = Firestore.instance.collection(
-            'user_info').document();
-        newUserInfo.setData({
-          "user_id": uID
+        firestore.collection('user_info').document(uID).setData({
+          'date_created' : DateTime.now()
         });
       }
       return "";
@@ -97,8 +97,8 @@ class DataBase {
     }
     Future<AllTerms> getAllTermsFromString(String stringObject) async{
       Map<String, dynamic> allMap = await json.decode(stringObject);
-      AllTerms all = AllTerms.fromJson(allMap);
-      return all;
+//      AllTerms all = AllTerms.fromJson(allMap);
+      return null;
     }
 
     Future<File> get _localFile async {
@@ -151,10 +151,21 @@ class DataBase {
       for(int i = 0; i < querySnapshot.documents.length; i++)
         {
           DocumentSnapshot document = querySnapshot.documents[i];
-          allTerms.addTerm(AcademicTerm(document['term_name'], document['start_date'].toDate(), document['end_date'].toDate()));
+          allTerms.addTerm(AcademicTerm(termName: document['term_name'], startTime: document['start_date'].toDate(), endTime: document['end_date'].toDate()));
         }
       return allTerms;
     }
+
+    Stream<List<AcademicTerm>> streamTerms(FirebaseUser user) {
+      print("User ID is " + user.uid);
+      Query ref = firestore.collection('terms');
+      ref.snapshots().map((list) =>
+          list.documents.map((doc) => print("Academic Term: " + AcademicTerm.fromFirestore(doc).toString())));
+      return ref.snapshots().map((list) =>
+        list.documents.map((doc) => AcademicTerm.fromFirestore(doc)).toList()
+      );
+    }
+
 
     Future updateTerms() async {
       allTerms = await getTerms();
@@ -347,7 +358,7 @@ class DataBase {
 
     void addAcademicTerm(String text, DateTime startDate, DateTime endDate) async
     {
-      AcademicTerm term = new AcademicTerm(text, startDate, endDate);
+      AcademicTerm term = new AcademicTerm(termName: text, startTime: startDate, endTime: endDate);
       allTerms.addTerm(term);
       DocumentReference newTermReference = firestore.collection("terms").document();
 
@@ -357,7 +368,7 @@ class DataBase {
         "term_name" : term.termName,
         "start_date" : term.startTime,
         "end_date" : term.endTime,
-        "term_id" : newTermReference.documentID.hashCode
+        "term_id" : newTermReference.documentID
       });
 
       newTermReference.collection("classes_collection").document();

@@ -74,7 +74,8 @@ class _AddClubViewState extends State<AddClubView> {
               club.title = _titleController.text;
               club.location = _locationController.text;
               club.description = _descriptionController.text;
-              club.id = widget.enteredTerm.getID();
+              //TODO: Fix this
+              //club.id = widget.enteredTerm.getID();
               database.addClub(club, widget.enteredTerm);
               Navigator.of(context)
                   .pop(

@@ -1,4 +1,6 @@
 // Copyright 2019 UniPlan. All rights reserved.
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/database.dart';
 import 'package:cognito/database/notifications.dart';
@@ -32,7 +34,8 @@ class AgendaView extends StatefulWidget {
   {
     if(term == null)
       {
-        term = new AcademicTerm("", null, null);
+        //TODO: Fix this
+        term = new AcademicTerm();
       }
     else
       {
@@ -66,9 +69,22 @@ class _AgendaViewState extends State<AgendaView>
   String gradesDocID = "";
   bool gradesDocIDFound = false;
 
+
+
+  final db = Firestore.instance;
+  StreamSubscription sub;
+  Map data;
+
   @override
   void initState() {
+    sub = db.collection('terms').document('id').snapshots().listen((snap) {
+      setState(() {
+        data = snap.data;
+      });
+    });
     super.initState();
+
+
     setState(() {
       selectedDate = DateTime.now();
       database.getCurrentTerm();

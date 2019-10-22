@@ -308,7 +308,8 @@ class _AddEventViewState extends State<AddEventView> {
                     _isRepeated,
                     startTime,
                     endTime,
-                    widget.enteredTerm.getID(),
+                    //TODO: Fix this
+                    0,//widget.enteredTerm.getID(),
                     _selectedPriority,
                     Duration(
                         minutes: int.parse(_durationController.text)
@@ -324,7 +325,8 @@ class _AddEventViewState extends State<AddEventView> {
                   isRepeated: _isRepeated,
                   start: startTime,
                   end: endTime,
-                  id: widget.enteredTerm.getID(),
+                  //TODO: Fix this
+                  id: 0,//widget.enteredTerm.getID(),
                   priority: _selectedPriority,
                   duration: Duration(
                       minutes: int.parse(_durationController.text)))
@@ -365,7 +367,8 @@ class _AddEventViewState extends State<AddEventView> {
                     _isRepeated,
                     startTime,
                     endTime,
-                    widget.enteredTerm.getID(),
+                    //TODO: Fix this
+                    0,//widget.enteredTerm.getID(),
                     _selectedPriority,
                     Duration(
                         minutes: int.parse(_durationController.text)
@@ -381,7 +384,8 @@ class _AddEventViewState extends State<AddEventView> {
                   isRepeated: _isRepeated,
                   start: startTime,
                   end: endTime,
-                  id: widget.enteredTerm.getID(),
+                  //TODO: Fix this
+                  id: 0,//widget.enteredTerm.getID(),
                   priority: _selectedPriority,
                   duration: Duration(
                       minutes: int.parse(_durationController.text)))

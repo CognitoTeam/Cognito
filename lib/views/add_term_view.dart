@@ -172,7 +172,7 @@ class _AddTermViewState extends State<AddTermView> {
         .where("user_id", isEqualTo: getUserID)
         .snapshots().listen((data) =>
         data.documents.forEach((doc) => allTerms.addTerm(
-            new AcademicTerm(doc['user_id'], doc['start_date'].toDate(), doc['end_date'].toDate()))
+            new AcademicTerm(id: doc['user_id'], startTime: doc['start_date'].toDate(), endTime: doc['end_date'].toDate()))
         )
     );
   }
@@ -189,13 +189,13 @@ class _AddTermViewState extends State<AddTermView> {
         .where("user_id", isEqualTo: getCurrentUserID())
         .snapshots().listen((data)=>
         data.documents.forEach((doc) => allTerms.addTerm(
-            new AcademicTerm(doc['user_id'], doc['start_date'], doc['end_date'])))
+            new AcademicTerm(id: doc['user_id'], startTime: doc['start_date'], endTime: doc['end_date'])))
     );
   }
 
   Future<AcademicTerm> addAcademicTerm() async
   {
-    AcademicTerm term = new AcademicTerm(_termNameController.text, newStartDate, newEndDate);
+    AcademicTerm term = new AcademicTerm(termName: _termNameController.text, startTime: newStartDate, endTime: newEndDate);
     DocumentReference newTermReference = firestore.collection("terms").document();
 
     FirebaseUser user = await FirebaseAuth.instance.currentUser();

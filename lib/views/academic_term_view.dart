@@ -10,6 +10,7 @@ import 'package:cognito/views/main_drawer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/models/all_terms.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
 /// Academic term view screen
 /// Displays AcademicTerm objects in the form of cards
@@ -52,15 +53,13 @@ class _AcademicTermViewState extends State<AcademicTermView> {
 
   /// Undoes the deletion of an academic term
   Future undo(AcademicTerm undo) async {
-    AcademicTerm term = new AcademicTerm(undo.termName, undo.startTime, undo.endTime);
     DocumentReference newTermReference = firestore.collection("terms").document();
-
-    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    var user = Provider.of<FirebaseUser>(context);
     newTermReference.setData({
       "user_id" : user.uid,
-      "term_name" : term.termName,
-      "start_date" : term.startTime,
-      "end_date" : term.endTime,
+      "term_name" : undo.termName,
+      "start_date" : undo.startTime,
+      "end_date" : undo.endTime,
     });
 
     newTermReference.collection("classes_collection").document();
@@ -92,6 +91,9 @@ class _AcademicTermViewState extends State<AcademicTermView> {
   /// start date and end date for the [AcademicTerm].
   @override
   Widget build(BuildContext context) {
+    //get user from the provider
+    var user = Provider.of<FirebaseUser>(context);
+
     return Scaffold(
       drawer: MainDrawer(),
       appBar: AppBar(
@@ -104,20 +106,18 @@ class _AcademicTermViewState extends State<AcademicTermView> {
 
         body: !userIDLoaded ?
         Center(child: Text(""),):
-        StreamBuilder<QuerySnapshot> (
-          stream: Firestore.instance.collection("terms").where('user_id', isEqualTo: userID).snapshots(),
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if(snapshot.data == null || snapshot.data.documents.length == 0) {
+        StreamBuilder<List<AcademicTerm>> (
+          stream: database.streamTerms(user),
+          builder: (context,snapshot) {
+            List<AcademicTerm> terms = snapshot.data;
+            if(snapshot.data == null || terms.length == 0) {
               return new Center(
                 child: Text("Lets start by adding a term!"),
               );
             }
             else {
               return new ListView(
-                children: snapshot.data.documents.map((document) {
-                  Timestamp startTime = document['start_date'];
-                  Timestamp endTime = document['end_date'];
-                  AcademicTerm term = new AcademicTerm(document['term_name'], startTime.toDate(), endTime.toDate());
+                children: terms.map((term) {
                   return new Container(
                     margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
                     child: SizedBox(
@@ -153,7 +153,6 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                             print("Swipped");
                           },
                           onDismissed: (direction) {
-                            snapshot.data.documents.remove(document);
                             database.removeAcademicTerm(term);
                             deletedTerm = term;
 

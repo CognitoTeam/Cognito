@@ -117,8 +117,6 @@ class _UpdateUserInfoState extends State<UpdateUserInfo>
                           onPressed: () async{
                             await _fireBaseLogin.updateUser(_firstName.text, _lastName.text);
                             String user = await _fireBaseLogin.userName();
-                            print(user);
-                            print(_firstName.text+ _lastName.text);
                             Navigator.pushAndRemoveUntil(context, 
                             MaterialPageRoute(builder: (context) => 
                                 AcademicTermView()), ModalRoute.withName("/Home"));

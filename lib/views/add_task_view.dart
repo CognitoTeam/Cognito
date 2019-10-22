@@ -241,7 +241,8 @@ class _AddTaskViewState extends State<AddTaskView> {
                     daysOfEvent,
                     _isRepeated,
                     dueDate,
-                    widget.enteredTerm.getID(),
+                    //TODO: Fix this
+                    0,//widget.enteredTerm.getID(),
                     _selectedPriority,
                     Duration(
                         minutes: int.parse(_durationController.text)),
@@ -256,7 +257,8 @@ class _AddTaskViewState extends State<AddTaskView> {
                   daysOfEvent: daysOfEvent,
                   isRepeated: _isRepeated,
                   dueDate: dueDate,
-                  id: widget.enteredTerm.getID(),
+                  id: //TODO: Fix this
+                  0,//widget.enteredTerm.getID(),
                   priority: _selectedPriority,
                   duration: Duration(
                       minutes: int.parse(_durationController.text)))
@@ -299,7 +301,8 @@ class _AddTaskViewState extends State<AddTaskView> {
                       daysOfEvent,
                       _isRepeated,
                       dueDate,
-                      widget.enteredTerm.getID(),
+                      //TODO: Fix this
+                      0,//widget.enteredTerm.getID(),
                       _selectedPriority,
                       Duration(
                           minutes: int.parse(_durationController.text)),
@@ -315,7 +318,8 @@ class _AddTaskViewState extends State<AddTaskView> {
                     daysOfEvent: daysOfEvent,
                     isRepeated: _isRepeated,
                     dueDate: dueDate,
-                    id: widget.enteredTerm.getID(),
+                    id: //TODO: Fix this
+                    0,//widget.enteredTerm.getID(),
                     priority: _selectedPriority,
                     duration: Duration(
                         minutes: int.parse(_durationController.text)))

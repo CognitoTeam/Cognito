@@ -8,7 +8,7 @@ import 'package:test/test.dart';
 void main() {
   test("Test GPA", () {
     AcademicTerm term =
-        AcademicTerm("Spring 2018", DateTime(2018), DateTime(2019));
+        AcademicTerm(termName: "Spring 2018", startTime: DateTime(2018), endTime: DateTime(2019));
     Class class1 = Class(
         subjectArea: "CS", courseNumber: "160", location: "SJSU", units: 4);
     Class class2 = Class(
@@ -110,7 +110,7 @@ void main() {
 
     gp.calculateTermGPA(term);
     AcademicTerm term1 =
-        AcademicTerm("Spring 2018", DateTime(2018), DateTime(2019));
+        AcademicTerm(termName: "Spring 2018", startTime: DateTime(2018), endTime: DateTime(2019));
     Class class11 = Class(
         subjectArea: "CS", courseNumber: "160", location: "SJSU", units: 3);
     Class class21 = Class(
@@ -218,7 +218,7 @@ void main() {
 
   test("Test Term grade", () {
     AcademicTerm term =
-        AcademicTerm("Spring 2018", DateTime(2018), DateTime(2019));
+        AcademicTerm(termName: "Spring 2018", startTime: DateTime(2018), endTime: DateTime(2019));
     Class class1 = Class(
         subjectArea: "CS", courseNumber: "160", location: "SJSU", units: 4);
     Class class2 = Class(
@@ -318,7 +318,7 @@ void main() {
     term.addClass(class4);
 
     AcademicTerm term1 =
-        AcademicTerm("Spring 2018", DateTime(2018), DateTime(2019));
+        AcademicTerm(termName: "Spring 2018", startTime: DateTime(2018), endTime: DateTime(2019));
     Class class11 = Class(
         subjectArea: "CS", courseNumber: "160", location: "SJSU", units: 3);
     Class class21 = Class(
@@ -424,7 +424,7 @@ void main() {
   });
    test("Test No assignments", () {
       AcademicTerm term =
-        AcademicTerm("Spring 2018", DateTime(2018), DateTime(2019));
+        AcademicTerm(termName: "Spring 2018", startTime: DateTime(2018), endTime: DateTime(2019));
     Class class1 = Class(
         subjectArea: "CS", courseNumber: "160", location: "SJSU", units: 4);
         term.addClass(class1);
