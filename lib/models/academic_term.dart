@@ -29,9 +29,19 @@ class AcademicTerm {
 
     factory AcademicTerm.fromFirestore(DocumentSnapshot doc) {
       Map data = doc.data;
-      print("Being called");
+      print("Being called for term :" + data['term_name'].toString() + ' ' + data['start_date'].toString());
       return AcademicTerm(
         id: doc.documentID,
+        termName: data['term_name'],
+        startTime: data['start_date'].toDate(),
+        endTime: data['end_date'].toDate(),
+      );
+    }
+
+    factory AcademicTerm.fromMap(Map data) {
+      data = data ?? { };
+      return AcademicTerm(
+        id: 'idnumber',
         termName: data['term_name'],
         startTime: data['start_date'],
         endTime: data['end_date'],

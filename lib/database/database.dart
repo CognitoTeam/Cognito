@@ -157,15 +157,22 @@ class DataBase {
     }
 
     Stream<List<AcademicTerm>> streamTerms(FirebaseUser user) {
-      print("User ID is " + user.uid);
-      Query ref = firestore.collection('terms');
+      Query ref = firestore.collection('terms').where('user_id', isEqualTo: user.uid);
+      print("In streamTerms");
       ref.snapshots().map((list) =>
-          list.documents.map((doc) => print("Academic Term: " + AcademicTerm.fromFirestore(doc).toString())));
+          print("In MAPPING"));
       return ref.snapshots().map((list) =>
         list.documents.map((doc) => AcademicTerm.fromFirestore(doc)).toList()
       );
     }
 
+    Stream<AcademicTerm> streamTerm(String id) {
+      return firestore
+          .collection('terms')
+          .document(id)
+          .snapshots()
+          .map((snap) => AcademicTerm.fromMap(snap.data));
+    }
 
     Future updateTerms() async {
       allTerms = await getTerms();
