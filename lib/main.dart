@@ -1,3 +1,5 @@
+import 'package:cognito/database/database.dart';
+import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/views/login_selection_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +13,7 @@ void main(){
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
 
+  DataBase db = DataBase();
   @override
   Widget build(BuildContext context){
     return MultiProvider(

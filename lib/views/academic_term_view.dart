@@ -51,22 +51,6 @@ class _AcademicTermViewState extends State<AcademicTermView> {
     });
   }
 
-  /// Undoes the deletion of an academic term
-  Future undo(AcademicTerm undo) async {
-    DocumentReference newTermReference = firestore.collection("terms").document();
-    var user = Provider.of<FirebaseUser>(context);
-    newTermReference.setData({
-      "user_id" : user.uid,
-      "term_name" : undo.termName,
-      "start_date" : undo.startTime,
-      "end_date" : undo.endTime,
-    });
-
-    newTermReference.collection("classes_collection").document();
-    newTermReference.collection("assignments_collection").document();
-    newTermReference.collection("events_collection").document();
-  }
-
   /// Removes terms from database and re-renders page to show deletion
   void removeTerm(AcademicTerm termToRemove) {
     //deleteTermFromFireStore(termToRemove);
@@ -155,18 +139,12 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                           onDismissed: (direction) {
                             database.removeAcademicTerm(term);
                             deletedTerm = term;
-
-//                          String jsonString = json.encode(database.allTerms);
-//                          database.writeJSON(jsonString);
-//                          database.update();
-                            updateAllTerms();
                             Scaffold.of(context).showSnackBar(SnackBar(
                               content: Text("${term.termName} deleted"),
                               action: SnackBarAction(
                                 label: "Undo",
                                 onPressed: () {
-                                  undo(deletedTerm);
-                                  updateAllTerms();
+                                  database.addAcademicTerm(deletedTerm.termName, deletedTerm.startTime, deletedTerm.endTime, user.uid);
                                 },
                               ),
                               duration: Duration(seconds: 7),

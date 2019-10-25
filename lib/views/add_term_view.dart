@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
 
 /// Academic term creation view
@@ -85,130 +86,103 @@ class _AddTermViewState extends State<AddTermView> {
 
   @override
   Widget build(BuildContext context) {
-    updateAllTerms();
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Add New Academic Term"),
-        backgroundColor: Theme.of(context).primaryColorDark,
-        actions: <Widget>[
-          Builder(builder: (BuildContext context) {
-            return IconButton(
-                icon: Icon(Icons.check),
-                onPressed: () {
-                  if (!timeConflict(newStartDate, newEndDate)) {
-                    Navigator.of(context).pop(_termNameController != null
-                    //Add the term to fire store
-                        ? database.addAcademicTerm(_termNameController.text, newStartDate, newEndDate)
-                        : null);
-                  } else {
-                    Scaffold.of(context).showSnackBar(SnackBar(
-                      content: Text("There is a time conflict with term: " +
-                          conflictTerm),
-                      duration: Duration(seconds: 7),
-                    ));
-                  }
-                });
-          }),
-        ],
-      ),
-      body: ListView(
-        children: <Widget>[
-          Padding(padding: EdgeInsets.all(0.0)),
-          ListTile(
-            leading: Icon(Icons.label),
-            title: TextFormField(
-              controller: _termNameController,
-              autofocus: false,
-              style: Theme.of(context).accentTextTheme.body1,
-              decoration: InputDecoration(
-                hintText: "Term title (e.g. \"Spring 2019\")",
-                hintStyle: TextStyle(color: Colors.black45),
+    var user = Provider.of<FirebaseUser>(context);
+    return FutureBuilder(
+        future: database.doesTermNameAlreadyExist(_termNameController.text, user.uid),
+        builder: (context, AsyncSnapshot<bool> result) {
+            return Scaffold(
+              appBar: AppBar(
+                title: Text("Add New Academic Term"),
+                backgroundColor: Theme.of(context).primaryColorDark,
+                actions: <Widget>[
+                  Builder(builder: (BuildContext context) {
+                    return IconButton(
+                        icon: Icon(Icons.check),
+                        onPressed: () {
+                            if (!timeConflict(newStartDate, newEndDate) && !result.hasData) {
+                              Navigator.of(context).pop(_termNameController != null
+                              //Add the term to fire store
+                                  ? database.addAcademicTerm(
+                                  _termNameController.text, newStartDate, newEndDate,
+                                  user.uid)
+                                  : null);
+                            } else if(timeConflict(newStartDate, newEndDate) && !result.hasData) {
+                              print("Here");
+                              Scaffold.of(context).showSnackBar(SnackBar(
+                                content: Text("There is a time conflict with term: " +
+                                    conflictTerm),
+                                duration: Duration(seconds: 7),
+                              ));
+                            }
+                            else {
+                              print("THere");
+                              Scaffold.of(context).showSnackBar(SnackBar(
+                                content: Text(_termNameController.text + " already exists for you"),
+                                duration: Duration(seconds: 7),
+                              ));
+                            }
+                        });
+                  }),
+                ],
               ),
-              onFieldSubmitted: (newTermName) {
-                setState(() {
-                  newTermName = _termNameController.text;
-                });
-              },
-            ),
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.calendar_today),
-            title: Text(
-              "Select Start Date",
-              style: Theme.of(context).accentTextTheme.body2,
-            ),
-            trailing: Text(
-              newStartDate != null
-                  ? "${newStartDate.month.toString()}/${newStartDate.day.toString()}/${newStartDate.year.toString()}"
-                  : "",
-            ),
-            onTap: () => _selectDate(true, context),
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.calendar_today),
-            title: Text(
-              "Select End Date",
-              style: Theme.of(context).accentTextTheme.body2,
-            ),
-            trailing: Text(
-              newEndDate != null
-                  ? "${newEndDate.month.toString()}/${newEndDate.day.toString()}/${newEndDate.year.toString()}"
-                  : "",
-            ),
-            onTap: () => _selectDate(false, context),
-          ),
-          Divider()
-        ],
-      ),
-    );
-  }
-
-  Future updateAllTerms()
-  async {
-    String getUserID = await getCurrentUserID();
-    firestore.collection("terms")
-        .where("user_id", isEqualTo: getUserID)
-        .snapshots().listen((data) =>
-        data.documents.forEach((doc) => allTerms.addTerm(
-            new AcademicTerm(id: doc['user_id'], startTime: doc['start_date'].toDate(), endTime: doc['end_date'].toDate()))
-        )
-    );
+              body: ListView(
+                children: <Widget>[
+                  Padding(padding: EdgeInsets.all(0.0)),
+                  ListTile(
+                    leading: Icon(Icons.label),
+                    title: TextFormField(
+                      controller: _termNameController,
+                      autofocus: false,
+                      style: Theme.of(context).accentTextTheme.body1,
+                      decoration: InputDecoration(
+                        hintText: "Term title (e.g. \"Spring 2019\")",
+                        hintStyle: TextStyle(color: Colors.black45),
+                      ),
+                      onFieldSubmitted: (newTermName) {
+                        setState(() {
+                          newTermName = _termNameController.text;
+                        });
+                      },
+                    ),
+                  ),
+                  Divider(),
+                  ListTile(
+                    leading: Icon(Icons.calendar_today),
+                    title: Text(
+                      "Select Start Date",
+                      style: Theme.of(context).accentTextTheme.body2,
+                    ),
+                    trailing: Text(
+                      newStartDate != null
+                          ? "${newStartDate.month.toString()}/${newStartDate.day.toString()}/${newStartDate.year.toString()}"
+                          : "",
+                    ),
+                    onTap: () => _selectDate(true, context),
+                  ),
+                  Divider(),
+                  ListTile(
+                    leading: Icon(Icons.calendar_today),
+                    title: Text(
+                      "Select End Date",
+                      style: Theme.of(context).accentTextTheme.body2,
+                    ),
+                    trailing: Text(
+                      newEndDate != null
+                          ? "${newEndDate.month.toString()}/${newEndDate.day.toString()}/${newEndDate.year.toString()}"
+                          : "",
+                    ),
+                    onTap: () => _selectDate(false, context),
+                  ),
+                  Divider()
+                ],
+              ),
+            );
+        });
   }
 
   /// Gets the current user's ID from Firebase.
   Future<String> getCurrentUserID() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     return user.uid;
-  }
-
-  void getFireStoreTerms() async {
-    allTerms.terms.clear();
-    firestore.collection("terms")
-        .where("user_id", isEqualTo: getCurrentUserID())
-        .snapshots().listen((data)=>
-        data.documents.forEach((doc) => allTerms.addTerm(
-            new AcademicTerm(id: doc['user_id'], startTime: doc['start_date'], endTime: doc['end_date'])))
-    );
-  }
-
-  Future<AcademicTerm> addAcademicTerm() async
-  {
-    AcademicTerm term = new AcademicTerm(termName: _termNameController.text, startTime: newStartDate, endTime: newEndDate);
-    DocumentReference newTermReference = firestore.collection("terms").document();
-
-    FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    newTermReference.setData({
-    "user_id" : user.uid,
-    "term_name" : term.termName,
-    "start_date" : term.startTime,
-    "end_date" : term.endTime,
-    });
-
-    newTermReference.collection("classes_collection").document();
-    newTermReference.collection("assignments_collection").document();
-    newTermReference.collection("events_collection").document();
-    return term;
   }
 }

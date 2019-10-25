@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' as prefix0;
 import 'package:cognito/database/firebase_login.dart';
 import 'package:cognito/models/all_terms.dart';
 import 'package:cognito/models/assignment.dart';
@@ -17,6 +18,7 @@ import 'package:cognito/models/officer.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
 /// FireStore storage for terms
 /// @author Praneet Singh
@@ -158,20 +160,9 @@ class DataBase {
 
     Stream<List<AcademicTerm>> streamTerms(FirebaseUser user) {
       Query ref = firestore.collection('terms').where('user_id', isEqualTo: user.uid);
-      print("In streamTerms");
-      ref.snapshots().map((list) =>
-          print("In MAPPING"));
       return ref.snapshots().map((list) =>
         list.documents.map((doc) => AcademicTerm.fromFirestore(doc)).toList()
       );
-    }
-
-    Stream<AcademicTerm> streamTerm(String id) {
-      return firestore
-          .collection('terms')
-          .document(id)
-          .snapshots()
-          .map((snap) => AcademicTerm.fromMap(snap.data));
     }
 
     Future updateTerms() async {
@@ -363,21 +354,23 @@ class DataBase {
       classCollectionReference.collection("assignments").document();
     }
 
-    void addAcademicTerm(String text, DateTime startDate, DateTime endDate) async
-    {
-      AcademicTerm term = new AcademicTerm(termName: text, startTime: startDate, endTime: endDate);
-      allTerms.addTerm(term);
-      DocumentReference newTermReference = firestore.collection("terms").document();
+    Future<bool> doesTermNameAlreadyExist(String termName, String userID) async {
+      final QuerySnapshot result = await Firestore.instance.collection('terms')
+          .where('term_name', isEqualTo: termName).limit(1).getDocuments();
+      final List<DocumentSnapshot> documents = result.documents;
+      return documents.length == 1;
+    }
 
-      FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    void addAcademicTerm(String text, DateTime startDate, DateTime endDate, String userID) async
+    {
+      DocumentReference newTermReference = firestore.collection("terms").document();
       newTermReference.setData({
-        "user_id" : user.uid,
-        "term_name" : term.termName,
-        "start_date" : term.startTime,
-        "end_date" : term.endTime,
+        "user_id" : userID,
+        "term_name" : text,
+        "start_date" : startDate,
+        "end_date" : endDate,
         "term_id" : newTermReference.documentID
       });
-
       newTermReference.collection("classes_collection").document();
       newTermReference.collection("assignments_collection").document();
       newTermReference.collection("events_collection").document();
