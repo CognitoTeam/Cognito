@@ -13,14 +13,21 @@ import 'package:cognito/views/add_class_view.dart';
 import 'package:cognito/views/class_editing_view.dart';
 import 'package:cognito/views/gradebook_view.dart';
 import 'package:cognito/views/main_drawer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 /// Class view
 /// Displays list of Class cards
 /// [author] Julian Vu
 class ClassView extends StatefulWidget {
+
+  AcademicTerm term;
+
+  ClassView(this.term);
+
   @override
-  _ClassViewState createState() => _ClassViewState();
+  _ClassViewState createState() => _ClassViewState(term);
 }
 
 class _ClassViewState extends State<ClassView> {
@@ -35,9 +42,15 @@ class _ClassViewState extends State<ClassView> {
   void initState() {
     super.initState();
     setState(() {
-      updateTerm();
-      updateClasses();
+      //updateTerm();
+      //updateClasses();
     });
+  }
+
+  _ClassViewState(term)
+  {
+    print("++++++++" + term.toString());
+    this.term = term;
   }
 
   /// Removes class from [AcademicTerm]
@@ -122,18 +135,15 @@ class _ClassViewState extends State<ClassView> {
 
   /// Builds [Card]s from the [AcademicTerm]'s list of [Class] objects
   /// in the form of a [ListView]
-  Widget _getClassCards() {
-    Query classesForUserQuery = Firestore.instance.collection("classes")
-        .where('user_id', isEqualTo: database.userID)
-        .where('term_name', isEqualTo: term.termName);
-    return StreamBuilder<QuerySnapshot>(
-      stream: classesForUserQuery.snapshots(),
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+  Widget _getClassCards(FirebaseUser user, AcademicTerm term){
 
-        if(snapshot.hasData) {
+    return StreamBuilder<List<Class>>(
+      stream: database.streamClasses(user, term),
+      builder: (context, snapshot) {
+
+        if(snapshot.data != null) {
           return new ListView(
-            children: snapshot.data.documents.map((document) {
-              Class classObj = database.documentToClass(document);
+            children: snapshot.data.map((classObj) {
               updateClassStream(classObj);
               updateGradebookValues(classObj);
               return Container(
@@ -172,7 +182,7 @@ class _ClassViewState extends State<ClassView> {
                       }
 
                       undoClass = classObj;
-                      snapshot.data.documents.remove(document);
+                      snapshot.data.remove(classObj);
                       database.removeClass(classObj, term);
                       Scaffold.of(context).showSnackBar(SnackBar(
                         content: Text("${classObj.title} deleted"),
@@ -281,6 +291,8 @@ class _ClassViewState extends State<ClassView> {
   @override
   Widget build(BuildContext context) {
 //    updateGradeStream(term);
+    var user = Provider.of<FirebaseUser>(context);
+
     return Scaffold(
       drawer: MainDrawer(),
       appBar: AppBar(
@@ -314,7 +326,11 @@ class _ClassViewState extends State<ClassView> {
         backgroundColor: Theme.of(context).accentColor,
         foregroundColor: Colors.black,
       ),
-      body: _getClassCards(),
-    );
+      body: new FutureBuilder(
+        future: database.getCurrentTerm(user),
+        builder: (context, snapshot){
+          return _getClassCards(user, term);
+        }
+    ));
   }
 }

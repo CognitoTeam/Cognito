@@ -4,8 +4,10 @@ import 'dart:async';
 
 import 'package:cognito/database/database.dart';
 import 'package:cognito/models/class.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 enum Day { M, Tu, W, Th, F, Sat, Sun }
 
@@ -440,6 +442,7 @@ class _ClassEditingViewState extends State<ClassEditingView> {
 
   @override
   Widget build(BuildContext context) {
+    var user = Provider.of<FirebaseUser>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("Edit Class"),
@@ -464,7 +467,7 @@ class _ClassEditingViewState extends State<ClassEditingView> {
               widget.classObj.daysOfEvent = daysOfEvent;
               print("OLD: " + oldClass.description.toString());
               print("NEW: " + widget.classObj.description.toString());
-              await database.updateClass(oldClass, widget.classObj);
+              await database.updateClass(oldClass, widget.classObj , user);
               Navigator.of(context).pop();
             },
           ),

@@ -29,7 +29,6 @@ class AcademicTerm {
 
     factory AcademicTerm.fromFirestore(DocumentSnapshot doc) {
       Map data = doc.data;
-      print("Being called for term :" + data['term_name'].toString() + ' ' + data['start_date'].toString());
       return AcademicTerm(
         id: doc.documentID,
         termName: data['term_name'],

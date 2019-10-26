@@ -47,7 +47,6 @@ class Event {
 
   factory Event.fromFirestore(DocumentSnapshot doc) {
     Map data = doc.data;
-    print("Being called for Events :" + data['term_name'].toString() + ' ' + data['start_date'].toString());
     return Event(
       id: doc.documentID,
       title: data['title'],

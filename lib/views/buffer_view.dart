@@ -5,8 +5,10 @@ import 'package:cognito/models/event.dart';
 import 'package:cognito/models/task.dart';
 import 'package:cognito/views/academic_term_view.dart';
 import 'package:cognito/views/agenda_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cognito/database/notifications.dart';
+import 'package:provider/provider.dart';
 
 class BufferView extends StatefulWidget {
   @override
@@ -22,14 +24,14 @@ class _BufferViewState extends State<BufferView> {
  * Initialize the database and if no data is stored 
  * then go to Academic term view else go to Agenda view
  */
-  Future<bool> _initializeDatabase() async {
-    this.term = await database.getCurrentTerm();
+  Future<bool> _initializeDatabase(FirebaseUser user) async {
+    this.term = await database.getCurrentTerm(user);
     String p = await database.initializeFireStore();
     if (p == '[]' ||
         p == '{}' ||
         p == null ||
         p == '{"terms":[],"subjects":[]}' ||
-        database.getCurrentTerm() == null) {
+        database.getCurrentTerm(user) == null) {
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => AcademicTermView()),
@@ -41,16 +43,16 @@ class _BufferViewState extends State<BufferView> {
           ModalRoute.withName("/Home"));
     }
     // Initialize notifications after database is initialized
-    _initializeNotifications();
+    _initializeNotifications(user);
   }
 /**
  * Initialize the notifications and create 
  * all notifications for current term.
  */
-  Future<bool> _initializeNotifications() async {
+  Future<bool> _initializeNotifications(FirebaseUser user) async {
     noti.initialize(context);
     noti.cancelAllNotifications();
-    AcademicTerm term = await database.getCurrentTerm();
+    AcademicTerm term = await database.getCurrentTerm(user);
     if (term != null) {
       for (Class c in term.classes) {
         for (int day in c.getDaysOfEvent) {
@@ -94,11 +96,12 @@ class _BufferViewState extends State<BufferView> {
   @override
   void initState() {
     super.initState();
-    _initializeDatabase();
   }
 
   @override
   Widget build(BuildContext context) {
+    var user = Provider.of<FirebaseUser>(context);
+    _initializeDatabase(user);
     return Scaffold(
         body: Center(
             child: Column(

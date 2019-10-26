@@ -38,7 +38,6 @@ class Club extends Event {
 
   factory Club.fromFirestore(DocumentSnapshot doc) {
     Map data = doc.data;
-    print("Being called for Clubs :" + data['term_name'].toString() + ' ' + data['start_date'].toString());
     return Club(
         id: doc.documentID,
         title: data['title'],

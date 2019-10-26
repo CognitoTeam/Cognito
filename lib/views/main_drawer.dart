@@ -10,7 +10,9 @@ import 'package:cognito/views/class_view.dart';
 import 'package:cognito/views/clubs_view.dart';
 import 'package:cognito/views/energy_view.dart';
 import 'package:cognito/views/login_selection_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MainDrawer extends StatefulWidget {
   static MainDrawer _instance;
@@ -34,7 +36,6 @@ class _MainDrawerState extends State<MainDrawer> {
     setState(() {
       //TODO: what is this here for
       _getUserID();
-      getCurrentTerm();
     });
   }
 
@@ -62,133 +63,156 @@ class _MainDrawerState extends State<MainDrawer> {
     }
   }
 
-  Future<AcademicTerm> getCurrentTerm() async {
-    this.term = await database.getCurrentTerm();
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          DrawerHeader(
-            child: Row(
+    var user = Provider.of<FirebaseUser>(context);
+    return FutureBuilder<AcademicTerm>(
+      future: database.getCurrentTerm(user),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if(snapshot.connectionState == ConnectionState.done)
+        {
+          return Drawer(
+            child: ListView(
+              padding: EdgeInsets.zero,
               children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    Text(_userID,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 22.0,
-                        )),
-                  ],
+                DrawerHeader(
+                  child: Row(
+                    children: <Widget>[
+                      Column(
+                        children: <Widget>[
+                          Text(_userID,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 22.0,
+                              )),
+                        ],
+                      ),
+                    ],
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme
+                        .of(context)
+                        .accentColor,
+                  ),
+                ),
+                ListTile(
+                    title: Text("Agenda"),
+                    onTap: () {
+                      if (snapshot == null) {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return SimpleDialog(
+                                title: Text(
+                                    "Oops, looks like there is no current term. Create one in Academic terms."),
+                                children: <Widget>[],
+                              );
+                            });
+                      } else {
+                        Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(builder: (context) =>
+                                AgendaView(snapshot.data)));
+                      }
+                    }),
+                ListTile(
+                    title: Text("Personal Energy Levels"),
+                    onTap: () {
+                      Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                              builder: (context) => EnergyView()));
+                    }),
+                ListTile(
+                  title: Text('Classes'),
+                  onTap: () {
+                    if (snapshot.data == null) {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return SimpleDialog(
+                              title: Text(
+                                  "Oops, looks like there is no current term. Create one in Academic terms."),
+                              children: <Widget>[],
+                            );
+                          });
+                    }
+                    else {
+                      Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (context) =>
+                              ClassView(snapshot.data)));
+                    }
+                  },
+                ),
+                ListTile(
+                  title: Text('Academic Terms'),
+                  onTap: () {
+                    Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                            builder: (context) => AcademicTermView()));
+                  },
+                ),
+                ListTile(
+                    title: Text('Clubs'),
+                    onTap: () {
+                      if (snapshot == null) {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return SimpleDialog(
+                                title: Text(
+                                    "Oops, looks like there is no current term. Create one in Academic terms."),
+                                children: <Widget>[],
+                              );
+                            });
+                      } else {
+                        Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(builder: (context) =>
+                                ClubView(snapshot.data)));
+                      }
+                    }
+                ),
+                ListTile(
+                    title: Text("GPA"),
+                    onTap: () {
+                      term == null
+                          ? showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return SimpleDialog(
+                              title: Text(
+                                  "Oops, looks like there is no current term. Create one in Academic terms."),
+                              children: <Widget>[],
+                            );
+                          })
+                          : Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (context) => GPAView()));
+                    }),
+                RaisedButton(
+                  color: Colors.red,
+                  child: Text(
+                    "Sign out",
+                    style: TextStyle(
+                      color: Colors.black,
+                    ),
+                  ),
+                  onPressed: () async {
+                    bool b = await _signOutUser();
+                    b
+                        ? Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                            builder: (context) => LoginSelectionView()),
+                        ModalRoute.withName("/LoginSelection"))
+                        : print("Error SignOut!");
+                  },
                 ),
               ],
             ),
-            decoration: BoxDecoration(
-              color: Theme.of(context).accentColor,
-            ),
-          ),
-          ListTile(
-              title: Text("Agenda"),
-              onTap: () {
-                term == null
-                    ? showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return SimpleDialog(
-                            title: Text(
-                                "Oops, looks like there is no current term. Create one in Academic terms."),
-                            children: <Widget>[],
-                          );
-                        })
-                    : Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => AgendaView(term)));
-              }),
-          ListTile(
-              title: Text("Personal Energy Levels"),
-              onTap: () {
-                Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => EnergyView()));
-              }),
-          ListTile(
-            title: Text('Classes'),
-            onTap: () {
-              term == null
-                  ? showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return SimpleDialog(
-                          title: Text(
-                              "Oops, looks like there is no current term. Create one in Academic terms."),
-                          children: <Widget>[],
-                        );
-                      })
-                  : Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => ClassView()));
-            },
-          ),
-          ListTile(
-            title: Text('Academic Terms'),
-            onTap: () {
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => AcademicTermView()));
-            },
-          ),
-          ListTile(
-              title: Text('Clubs'),
-              onTap: () {
-                term == null
-                    ? showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return SimpleDialog(
-                            title: Text(
-                                "Oops, looks like there is no current term. Create one in Academic terms."),
-                            children: <Widget>[],
-                          );
-                        })
-                    : Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => ClubView(term)));
-              }),
-          ListTile(
-              title: Text("GPA"),
-              onTap: () {
-                term == null
-                    ? showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return SimpleDialog(
-                            title: Text(
-                                "Oops, looks like there is no current term. Create one in Academic terms."),
-                            children: <Widget>[],
-                          );
-                        })
-                    : Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => GPAView()));
-              }),
-          RaisedButton(
-            color: Colors.red,
-            child: Text(
-              "Sign out",
-              style: TextStyle(
-                color: Colors.black,
-              ),
-            ),
-            onPressed: () async {
-              bool b = await _signOutUser();
-              b
-                  ? Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(
-                          builder: (context) => LoginSelectionView()),
-                      ModalRoute.withName("/LoginSelection"))
-                  : print("Error SignOut!");
-            },
-          ),
-        ],
-      ),
+          );
+        }
+        else
+          {
+            return new Text("Awaiting Result...");
+          }
+      },
     );
   }
 }

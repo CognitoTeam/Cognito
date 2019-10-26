@@ -18,8 +18,10 @@ import 'package:cognito/views/calendar_view.dart';
 import 'package:cognito/views/class_details_view.dart';
 import 'package:cognito/views/event_details_view.dart';
 import 'package:cognito/views/main_drawer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../views/utils/PriorityAgenda/priority_agenda.dart';
 import '../views/utils/main_agenda.dart';
 
@@ -87,7 +89,6 @@ class _AgendaViewState extends State<AgendaView>
 
     setState(() {
       selectedDate = DateTime.now();
-      database.getCurrentTerm();
       updateGradesID();
     });
     _animationController =
@@ -394,7 +395,8 @@ class _AgendaViewState extends State<AgendaView>
 
   @override
   Widget build(BuildContext context) {
-
+    var user = Provider.of<FirebaseUser>(context);
+    database.getCurrentTerm(user);
     Expanded mainAgenda = Expanded(
       child: ListView(
         children: <Widget>[
