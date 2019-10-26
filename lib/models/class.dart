@@ -64,10 +64,11 @@ class Class extends Event {
     starting = Category(title: "Default", weightInPercentage: 100.0);
   }
 
-
   factory Class.fromFirestore(DocumentSnapshot doc) {
     Map data = doc.data;
-    return Class(
+    List<int> list = List();
+    data['days_of_event'].forEach((item) => list.add(item));
+    Class c = Class(
       title: data['title'],
       subjectArea: data['subject_area'],
       courseNumber: data['course_number'],
@@ -76,11 +77,12 @@ class Class extends Event {
       location: data['location'],
       officeLocation: data['office_location'],
       description: data['description'],
-      daysOfEvent: data['days_of_event'],
-      start: data['start_time'],
-      end: data['end_time'],
+      daysOfEvent: list,
+      start: data['start_time'].toDate(),
+      end: data['end_time'].toDate(),
       id: doc.documentID
     );
+    return c;
   }
 
   factory Class.fromJson(Map<String, dynamic> json) => _$ClassFromJson(json);

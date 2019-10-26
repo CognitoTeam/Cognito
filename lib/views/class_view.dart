@@ -139,150 +139,158 @@ class _ClassViewState extends State<ClassView> {
 
     return StreamBuilder<List<Class>>(
       stream: database.streamClasses(user, term),
-      builder: (context, snapshot) {
-
-        if(snapshot.data != null) {
-          return new ListView(
-            children: snapshot.data.map((classObj) {
-              updateClassStream(classObj);
-              updateGradebookValues(classObj);
-              return Container(
-                margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
-                child: InkWell(
-                  onTap: () async {
-                    for (int i in classObj.daysOfEvent) {
-                      noti.cancelNotification(classObj.id);
-                    }
-                    await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                GradeBookView(
-                                  selectedClass: classObj,
-                                  term: term,
-                                )));
-
-                    for (int i in classObj.daysOfEvent) {
-                      noti.showWeeklyAtDayAndTime(
-                          title: classObj.title,
-                          body: classObj.title + " is starting in 15 mins",
-                          id: classObj.id,
-                          dayToRepeat: i,
-                          timeToRepeat:
-                          classObj.startTime.subtract(Duration(minutes: 15)));
-                    }
-                  },
-                  child: Dismissible(
-                    key: Key(classObj.toString()),
-                    direction: DismissDirection.endToStart,
-                    onDismissed: (direction)
-                    {
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if(snapshot.connectionState == ConnectionState.done || snapshot.connectionState == ConnectionState.active) {
+          if (snapshot.data != null || classes.length == 0) {
+            classes = snapshot.data;
+            print(classes.length.toString());
+            return new ListView(
+              children: classes.map((classObj) {
+                updateClassStream(classObj);
+                updateGradebookValues(classObj);
+                return Container(
+                  margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
+                  child: InkWell(
+                    onTap: () async {
                       for (int i in classObj.daysOfEvent) {
                         noti.cancelNotification(classObj.id);
                       }
+                      await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  GradeBookView(
+                                    selectedClass: classObj,
+                                    term: term,
+                                  )));
 
-                      undoClass = classObj;
-                      snapshot.data.remove(classObj);
-                      database.removeClass(classObj, term);
-                      Scaffold.of(context).showSnackBar(SnackBar(
-                        content: Text("${classObj.title} deleted"),
-                        action: SnackBarAction(
-                          label: "Undo",
-                          onPressed: () {
-                            undo(undoClass);
-                          },
-                        ),
-                        duration: Duration(seconds: 3),
-                      ));
+                      for (int i in classObj.daysOfEvent) {
+                        noti.showWeeklyAtDayAndTime(
+                            title: classObj.title,
+                            body: classObj.title + " is starting in 15 mins",
+                            id: classObj.id,
+                            dayToRepeat: i,
+                            timeToRepeat:
+                            classObj.startTime.subtract(Duration(minutes: 15)));
+                      }
                     },
-                    child: Card(
-                      elevation: 10.0,
-                      color: Theme
-                          .of(context)
-                          .primaryColor,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0)),
-                      //StreamBuilder stream of only one
-                      child:  ListTile(
-                              leading: Icon(
-                                Icons.label,
-                                color: Colors.white,
-                              ),
-                              subtitle: new FutureBuilder(
-                                //TODO: Not graded when there are more than one classes
-                                  future: calculateGrade(classObj),
-                                  builder: (BuildContext context, AsyncSnapshot<String> snapshot){
-                                    updateGradebookValues(classObj);
-                                    switch(snapshot.connectionState) {
-                                      case ConnectionState.waiting:
-                                        return new Text(
+                    child: Dismissible(
+                      key: Key(classObj.toString()),
+                      direction: DismissDirection.endToStart,
+                      onDismissed: (direction) {
+                        for (int i in classObj.daysOfEvent) {
+                          noti.cancelNotification(classObj.id);
+                        }
+
+                        undoClass = classObj;
+                        snapshot.data.remove(classObj);
+                        database.removeClass(classObj, term);
+                        Scaffold.of(context).showSnackBar(SnackBar(
+                          content: Text("${classObj.title} deleted"),
+                          action: SnackBarAction(
+                            label: "Undo",
+                            onPressed: () {
+                              undo(undoClass);
+                            },
+                          ),
+                          duration: Duration(seconds: 3),
+                        ));
+                      },
+                      child: Card(
+                          elevation: 10.0,
+                          color: Theme
+                              .of(context)
+                              .primaryColor,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0)),
+                          //StreamBuilder stream of only one
+                          child: ListTile(
+                            leading: Icon(
+                              Icons.label,
+                              color: Colors.white,
+                            ),
+                            subtitle: new FutureBuilder(
+                              //TODO: Not graded when there are more than one classes
+                                future: calculateGrade(classObj),
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<String> snapshot) {
+                                  updateGradebookValues(classObj);
+                                  switch (snapshot.connectionState) {
+                                    case ConnectionState.waiting:
+                                      return new Text(
                                         'Calculting result...',
-                                            style: Theme
+                                        style: Theme
                                             .of(context)
                                             .primaryTextTheme
                                             .body1,
                                       );
-                                      default:
-                                        return new Text(
-                                          '${snapshot.data}',
-                                              style: Theme
-                                              .of(context)
-                                              .primaryTextTheme
-                                              .body1,
-                                        );
-                                    }
-                              }),
-                              title: Text(
-                                classObj.subjectArea +
-                                    " " +
-                                    classObj.courseNumber +
-                                    " - " +
-                                    classObj.title,
-                                style: Theme
-                                    .of(context)
-                                    .primaryTextTheme
-                                    .body1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              trailing: IconButton(
-                                icon: Icon(
-                                  Icons.info_outline,
-                                  color: Colors.white,
-                                ),
-                                onPressed: () async {
-                                  for (int i in classObj.daysOfEvent) {
-                                    noti.cancelNotification(classObj.id);
+                                    default:
+                                      return new Text(
+                                        '${snapshot.data}',
+                                        style: Theme
+                                            .of(context)
+                                            .primaryTextTheme
+                                            .body1,
+                                      );
                                   }
-                                  await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              ClassEditingView(
-                                                  classObj: classObj)));
+                                }),
+                            title: Text(
+                              classObj.subjectArea +
+                                  " " +
+                                  classObj.courseNumber +
+                                  " - " +
+                                  classObj.title,
+                              style: Theme
+                                  .of(context)
+                                  .primaryTextTheme
+                                  .body1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            trailing: IconButton(
+                              icon: Icon(
+                                Icons.info_outline,
+                                color: Colors.white,
+                              ),
+                              onPressed: () async {
+                                for (int i in classObj.daysOfEvent) {
+                                  noti.cancelNotification(classObj.id);
+                                }
+                                await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            ClassEditingView(
+                                                classObj: classObj)));
 
-                                  for (int i in classObj.daysOfEvent) {
-                                    noti.showWeeklyAtDayAndTime(
-                                        title: classObj.title,
-                                        body: classObj.title +
-                                            " is starting in 15 mins",
-                                        id: classObj.id,
-                                        dayToRepeat: i,
-                                        timeToRepeat: classObj.startTime
-                                            .subtract(Duration(minutes: 15)));
-                                  }
-                                },
-                              ),
-                            )
+                                for (int i in classObj.daysOfEvent) {
+                                  noti.showWeeklyAtDayAndTime(
+                                      title: classObj.title,
+                                      body: classObj.title +
+                                          " is starting in 15 mins",
+                                      id: classObj.id,
+                                      dayToRepeat: i,
+                                      timeToRepeat: classObj.startTime
+                                          .subtract(Duration(minutes: 15)));
+                                }
+                              },
+                            ),
+                          )
+                      ),
                     ),
                   ),
-                ),
-              );
-            }).toList(),
-          );
-        }
-        else
+                );
+              }).toList(),
+            );
+          }
+          else {
+            return new Container(
+              child: Center(child: Text("No Classes Yet"),),);
+          }
+        }else
           {
-            return new Container();
+            print(snapshot.connectionState.toString());
+            return new Container(
+              child: Center(child: Text("Loading your classes..." ),),);
           }
       },
     );
