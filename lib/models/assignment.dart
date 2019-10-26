@@ -26,7 +26,7 @@ class Assignment extends Task {
         double pointsEarned = 0.0,
         bool isAssessment = false,
         Category category,
-        int id, 
+        String id,
         int priority = 1,
         Duration duration}) : super(
       title: title,

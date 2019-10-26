@@ -18,7 +18,7 @@ Class _$ClassFromJson(Map<String, dynamic> json) {
       units: json['units'] as int,
       daysOfEvent:
           (json['daysOfEvent'] as List)?.map((e) => e as int)?.toList(),
-      id: json['id'] as int)
+      id: json['id'] as String)
     ..startTime = json['startTime'] == null
         ? null
         : DateTime.parse(json['startTime'] as String)

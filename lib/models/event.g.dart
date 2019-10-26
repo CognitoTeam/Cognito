@@ -14,7 +14,7 @@ Event _$EventFromJson(Map<String, dynamic> json) {
       isRepeated: json['isRepeated'] as bool,
       daysOfEvent:
           (json['daysOfEvent'] as List)?.map((e) => e as int)?.toList(),
-      id: json['id'] as int,
+      id: json['id'] as String,
       priority: json['priority'] as int,
       duration: json['duration'] == null
           ? null

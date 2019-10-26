@@ -230,19 +230,18 @@ class _AddTaskViewState extends State<AddTaskView> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.check),
-            onPressed: () {
+            onPressed: () async {
               //Enter from club task
               //Did not enter from club task
+              String id;
               if(!widget.clubTask) {
-                database.addTask(
+                id = await database.addTask(
                     _titleController.text,
                     _locationController.text,
                     _descriptionController.text,
                     daysOfEvent,
                     _isRepeated,
                     dueDate,
-                    //TODO: Fix this
-                    0,//widget.enteredTerm.getID(),
                     _selectedPriority,
                     Duration(
                         minutes: int.parse(_durationController.text)),
@@ -257,8 +256,7 @@ class _AddTaskViewState extends State<AddTaskView> {
                   daysOfEvent: daysOfEvent,
                   isRepeated: _isRepeated,
                   dueDate: dueDate,
-                  id: //TODO: Fix this
-                  0,//widget.enteredTerm.getID(),
+                  id: id,//widget.enteredTerm.getID(),
                   priority: _selectedPriority,
                   duration: Duration(
                       minutes: int.parse(_durationController.text)))
@@ -286,15 +284,16 @@ class _AddTaskViewState extends State<AddTaskView> {
           });
         },
         onStepContinue: () {
-          setState(() {
+          setState(() async {
             if (currentStep < getSteps().length - 1) {
               currentStep++;
             } else {
               //Enter from club task
               //Did not enter from club task
+              String id;
               if(!widget.clubTask)
                 {
-                  database.addTask(
+                  id = await database.addTask(
                       _titleController.text,
                       _locationController.text,
                       _descriptionController.text,
@@ -302,7 +301,6 @@ class _AddTaskViewState extends State<AddTaskView> {
                       _isRepeated,
                       dueDate,
                       //TODO: Fix this
-                      0,//widget.enteredTerm.getID(),
                       _selectedPriority,
                       Duration(
                           minutes: int.parse(_durationController.text)),
@@ -318,8 +316,7 @@ class _AddTaskViewState extends State<AddTaskView> {
                     daysOfEvent: daysOfEvent,
                     isRepeated: _isRepeated,
                     dueDate: dueDate,
-                    id: //TODO: Fix this
-                    0,//widget.enteredTerm.getID(),
+                    id: id,//widget.enteredTerm.getID(),w
                     priority: _selectedPriority,
                     duration: Duration(
                         minutes: int.parse(_durationController.text)))

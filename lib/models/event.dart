@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 /// Models an event on a schedule
 /// 
@@ -13,7 +14,8 @@ class Event {
   String title, description, location;
   DateTime startTime, endTime;
   bool isRepeated;
-  int id, priority;
+  String id;
+  int priority;
   Duration duration;
   // Elements in list represent day(s) on which this event occurs
   // 1 => Monday, 2 => Tuesday ... 7 => Sunday
@@ -28,7 +30,7 @@ class Event {
       DateTime end,
       bool isRepeated,
       List<int> daysOfEvent,
-      int id, 
+      String id,
       int priority = 1,
       Duration duration}) {
     this.title = title;
@@ -38,11 +40,27 @@ class Event {
     this.endTime =  end;
     this.isRepeated = isRepeated;
     this.daysOfEvent = daysOfEvent;
-    this.id =id;
+    this.id = id;
     this.priority = priority;
     this.duration = duration;
   }
 
+  factory Event.fromFirestore(DocumentSnapshot doc) {
+    Map data = doc.data;
+    print("Being called for Events :" + data['term_name'].toString() + ' ' + data['start_date'].toString());
+    return Event(
+      id: doc.documentID,
+      title: data['title'],
+      description: data['description'],
+      location: data['location'],
+      priority: data['priority'],
+      isRepeated: data['repeated'],
+      start: data['start_time'].toDate(),
+      end: data['end_time'].toDate(),
+      duration: data['duration_in_minutes'],
+      daysOfEvent: data['days_of_event']
+    );
+  }
 
 factory Event.fromJson(Map<String, dynamic> json) => _$EventFromJson(json);
 

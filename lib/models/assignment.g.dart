@@ -20,7 +20,7 @@ Assignment _$AssignmentFromJson(Map<String, dynamic> json) {
       category: json['category'] == null
           ? null
           : Category.fromJson(json['category'] as Map<String, dynamic>),
-      id: json['id'] as int,
+      id: json['id'] as String,
       priority: json['priority'] as int,
       duration: json['duration'] == null
           ? null

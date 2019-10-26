@@ -2,6 +2,8 @@ import 'package:cognito/views/login_selection_view.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     as notifications;
 import 'package:flutter/material.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
 
 class Notifications {
   static Notifications _instance;
@@ -25,7 +27,7 @@ initialize(BuildContext context){
       {@required String title,
       @required String body,
       @required DateTime dateTime,
-      @required int id}) async {
+      @required String id}) async {
     var scheduledNotificationDateTime = dateTime;
 
     var androidPlatformChannelSpecifics =
@@ -39,7 +41,7 @@ initialize(BuildContext context){
     var platformChannelSpecifics = new notifications.NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
 
-    await flutterLocalNotificationsPlugin.schedule(id, title, body,
+    await flutterLocalNotificationsPlugin.schedule(id.hashCode, title, body,
         scheduledNotificationDateTime, platformChannelSpecifics);
     print("Notification created for: " +
         dateTime.hour.toString() +
@@ -62,7 +64,7 @@ initialize(BuildContext context){
       @required DateTime timeToRepeat,
       @required String title,
       @required String body,
-      @required int id}) async {
+      @required String id}) async {
     notifications.Time time = notifications.Time(
         timeToRepeat.hour, timeToRepeat.minute, timeToRepeat.second);
     notifications.Day day =
@@ -75,7 +77,7 @@ initialize(BuildContext context){
     var platformChannelSpecifics = new notifications.NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.showWeeklyAtDayAndTime(
-        id, title, body, day, time, platformChannelSpecifics);
+        id.hashCode, title, body, day, time, platformChannelSpecifics);
     print("Notification created for: " +
         time.hour.toString() +
         ":" +
@@ -88,10 +90,9 @@ initialize(BuildContext context){
     await flutterLocalNotificationsPlugin.cancelAll();
     print("Notification deleted");
   }
-  Future cancelNotification(int id) async {
+  Future cancelNotification(String id) async {
     print("Notification deleted called");
-
-    await flutterLocalNotificationsPlugin.cancel(id);
+    await flutterLocalNotificationsPlugin.cancel(id.hashCode);
     print("Notification deleted");
   }
 

@@ -11,7 +11,7 @@ Club _$ClubFromJson(Map<String, dynamic> json) {
       title: json['title'] as String,
       description: json['description'] as String,
       location: json['location'] as String,
-      id: json['id'] as int,
+      id: json['id'] as String,
       priority: json['priority'] as int)
     ..startTime = json['startTime'] == null
         ? null

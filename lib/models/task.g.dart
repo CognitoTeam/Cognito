@@ -17,7 +17,7 @@ Task _$TaskFromJson(Map<String, dynamic> json) {
       dueDate: json['dueDate'] == null
           ? null
           : DateTime.parse(json['dueDate'] as String),
-      id: json['id'] as int,
+      id: json['id'] as String,
       priority: json['priority'] as int,
       duration: json['duration'] == null
           ? null

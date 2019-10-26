@@ -38,16 +38,6 @@ class AcademicTerm {
       );
     }
 
-    factory AcademicTerm.fromMap(Map data) {
-      data = data ?? { };
-      return AcademicTerm(
-        id: 'idnumber',
-        termName: data['term_name'],
-        startTime: data['start_date'],
-        endTime: data['end_date'],
-      );
-    }
-
 //    factory AcademicTerm.fromJson(Map<String, dynamic> json) => _$AcademicTermFromJson(json);
 //
 //

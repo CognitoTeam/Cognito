@@ -41,7 +41,7 @@ class Class extends Event {
       String subjectArea,
       int units,
       List<int> daysOfEvent,
-      int id})
+      String id})
       : super(
             title: title,
             description: description,
@@ -63,6 +63,26 @@ class Class extends Event {
     tasks = List();
     starting = Category(title: "Default", weightInPercentage: 100.0);
   }
+
+
+  factory Class.fromFirestore(DocumentSnapshot doc) {
+    Map data = doc.data;
+    return Class(
+      title: data['title'],
+      subjectArea: data['subject_area'],
+      courseNumber: data['course_number'],
+      instructor: data['instructor'],
+      units: data['units'],
+      location: data['location'],
+      officeLocation: data['office_location'],
+      description: data['description'],
+      daysOfEvent: data['days_of_event'],
+      start: data['start_time'],
+      end: data['end_time'],
+      id: doc.documentID
+    );
+  }
+
   factory Class.fromJson(Map<String, dynamic> json) => _$ClassFromJson(json);
 
   Map<String, dynamic> toJson() => _$ClassToJson(this);

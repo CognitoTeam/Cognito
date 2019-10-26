@@ -297,10 +297,10 @@ class _AddEventViewState extends State<AddEventView> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.check),
-            onPressed: () {
-              //TODO: add in database
+            onPressed: () async {
+              String id;
               if(_titleController != null) {
-                database.addEvent(
+                id = await database.addEvent(
                     _titleController.text,
                     _locationController.text,
                     _descriptionController.text,
@@ -308,8 +308,6 @@ class _AddEventViewState extends State<AddEventView> {
                     _isRepeated,
                     startTime,
                     endTime,
-                    //TODO: Fix this
-                    0,//widget.enteredTerm.getID(),
                     _selectedPriority,
                     Duration(
                         minutes: int.parse(_durationController.text)
@@ -325,8 +323,7 @@ class _AddEventViewState extends State<AddEventView> {
                   isRepeated: _isRepeated,
                   start: startTime,
                   end: endTime,
-                  //TODO: Fix this
-                  id: 0,//widget.enteredTerm.getID(),
+                  id: id,
                   priority: _selectedPriority,
                   duration: Duration(
                       minutes: int.parse(_durationController.text)))
@@ -367,8 +364,6 @@ class _AddEventViewState extends State<AddEventView> {
                     _isRepeated,
                     startTime,
                     endTime,
-                    //TODO: Fix this
-                    0,//widget.enteredTerm.getID(),
                     _selectedPriority,
                     Duration(
                         minutes: int.parse(_durationController.text)
@@ -384,8 +379,6 @@ class _AddEventViewState extends State<AddEventView> {
                   isRepeated: _isRepeated,
                   start: startTime,
                   end: endTime,
-                  //TODO: Fix this
-                  id: 0,//widget.enteredTerm.getID(),
                   priority: _selectedPriority,
                   duration: Duration(
                       minutes: int.parse(_durationController.text)))

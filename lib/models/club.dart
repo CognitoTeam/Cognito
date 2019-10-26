@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 /// Models a club
 /// @author Julian Vu
 import 'package:cognito/models/event.dart';
@@ -20,7 +21,7 @@ class Club extends Event {
       String location = "",
       DateTime start,
       DateTime end,
-      int id,
+      String id,
       int priority = 1})
       : super(
             title: title,
@@ -34,6 +35,21 @@ class Club extends Event {
     events = List();
     tasks = List();
   }
+
+  factory Club.fromFirestore(DocumentSnapshot doc) {
+    Map data = doc.data;
+    print("Being called for Clubs :" + data['term_name'].toString() + ' ' + data['start_date'].toString());
+    return Club(
+        id: doc.documentID,
+        title: data['title'],
+        description: data['description'],
+        location: data['location'],
+        priority: data['priority'],
+        start: data['start_time'].toDate(),
+        end: data['end_time'].toDate(),
+    );
+  }
+
 factory Club.fromJson(Map<String, dynamic> json) => _$ClubFromJson(json);
 
   Map<String, dynamic> toJson() => _$ClubToJson(this);

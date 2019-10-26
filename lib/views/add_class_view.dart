@@ -10,6 +10,7 @@ import 'package:cognito/models/class.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 /// Class creation view
 /// [author] Julian Vu
@@ -49,40 +50,11 @@ class _AddClassViewState extends State<AddClassView> {
   //  init step to 0th position
   int currentStep = 0;
 
-  String userID;
-  bool userIDLoaded = false;
-
   @override
   void initState() {
     super.initState();
     setState(() {
-      getCurrentUserID();
       updateCurrentTerm();
-      readSubjects();
-    });
-  }
-
-  Future readSubjects()
-  async {
-    if(userIDLoaded) {
-      QuerySnapshot querySnapshot = await firestore
-          .collection("subjects")
-          .where("user_id", isEqualTo: userID)
-          .getDocuments();
-      setState(() {
-        subjectsString = querySnapshot.documents
-            .map((document) => document['subject_name'].toString())
-            .toList();
-      });
-      print("Subjects: " + subjectsString.length.toString());
-    }
-  }
-
-  Future<String> getCurrentUserID() async {
-    FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    setState(() {
-      userID = user.uid;
-      userIDLoaded = true;
     });
   }
 
@@ -409,8 +381,8 @@ class _AddClassViewState extends State<AddClassView> {
 
   /// Shows dialog window to select a subject
   void _showSubjectSelectionDialog() {
+    var user = Provider.of<FirebaseUser>(context);
     List<Widget> subjects = List();
-
     ListTile addSubject = ListTile(
         onTap: () {
           showDialog(
@@ -434,8 +406,6 @@ class _AddClassViewState extends State<AddClassView> {
                         print(val);
                         setState(() {
                           database.addSubject(val);
-                          readSubjects();
-                          print("Subjects: " + subjectsString.length.toString());
                         });
                         Navigator.pop(context);
                       },
@@ -450,10 +420,8 @@ class _AddClassViewState extends State<AddClassView> {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-//          subjects = new List.generate(subjectsString.length, (index) => _itemInListOfSubjects(subjectsString[index]));
-
           return StreamBuilder<QuerySnapshot> (
-            stream: Firestore.instance.collection("subjects").where('user_id', isEqualTo: userID).snapshots(),
+            stream: Firestore.instance.collection("subjects").where('user_id', isEqualTo: user.uid).snapshots(),
             builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
               subjects.clear();
               if(snapshot.data != null) {
@@ -492,6 +460,7 @@ class _AddClassViewState extends State<AddClassView> {
 
   @override
   Widget build(BuildContext context) {
+    var user = Provider.of<FirebaseUser>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("Add New Class"),
@@ -506,7 +475,7 @@ class _AddClassViewState extends State<AddClassView> {
               _officeLocationController.text != null || _descriptionController.text != null || daysOfEvent.isNotEmpty ||
               startTime != null || endTime != null)
                 {
-                  database.addClass(_subjectController.text,
+                  database.addClass(user, _subjectController.text,
                       _courseNumberController.text, _courseTitleController.text,
                       int.parse(_unitCountController.text),  _locationController.text,
                       _instructorController.text, _officeLocationController.text,
@@ -546,7 +515,7 @@ class _AddClassViewState extends State<AddClassView> {
             if (currentStep < getSteps().length - 1) {
               currentStep++;
             } else {
-              database.addClass(_subjectController.text,
+              database.addClass(user, _subjectController.text,
                   _courseNumberController.text, _courseTitleController.text,
                   int.parse(_unitCountController.text),  _locationController.text,
                   _instructorController.text, _officeLocationController.text,
