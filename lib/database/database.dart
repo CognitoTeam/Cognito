@@ -264,6 +264,13 @@ class DataBase {
     });
   }
 
+  void updateClubName(String clubId, String newTitle) {
+    DocumentReference ref = firestore.collection('clubs').document(clubId);
+    ref.updateData({
+      "title" : newTitle
+    });
+  }
+
   Future<AcademicTerm> getCurrentTerm(FirebaseUser user) async {
     AcademicTerm term = await firestore
         .collection('terms')

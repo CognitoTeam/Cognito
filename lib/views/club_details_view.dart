@@ -108,6 +108,7 @@ class _ClubDetailsViewState extends State<ClubDetailsView> {
                             setState(() {
                               widget.club.title = val;
                             });
+                            database.updateClubName(widget.club.id, val);
                             Navigator.pop(context);
                           },
                           textInputAction: TextInputAction.done,
