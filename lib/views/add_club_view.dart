@@ -7,9 +7,11 @@ import 'package:cognito/views/add_event_view.dart';
 import 'package:cognito/views/add_task_view.dart';
 import 'package:cognito/views/event_details_view.dart';
 import 'package:cognito/views/task_details_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cognito/models/club.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 
 
 /// club creation view
@@ -30,12 +32,10 @@ class AddClubView extends StatefulWidget {
 
 class _AddClubViewState extends State<AddClubView> {
   DataBase database = DataBase();
-  int id;
   Club club = Club();
   final _titleController = TextEditingController();
   final _locationController = TextEditingController();
   final _descriptionController = TextEditingController();
-
 
   ListTile textFieldTile(
       {Widget leading,
@@ -43,7 +43,8 @@ class _AddClubViewState extends State<AddClubView> {
       TextInputType keyboardType,
       String hint,
       Widget subtitle,
-      TextEditingController controller}) {
+      TextEditingController controller}
+      ) {
     return ListTile(
       leading: leading,
       trailing: trailing,
@@ -63,54 +64,66 @@ class _AddClubViewState extends State<AddClubView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Add New club"),
-        backgroundColor: Theme.of(context).primaryColorDark,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.check),
-            onPressed: () {
-              club.title = _titleController.text;
-              club.location = _locationController.text;
-              club.description = _descriptionController.text;
-              //TODO: Fix this
-              //club.id = widget.enteredTerm.getID();
-              database.addClub(club, widget.enteredTerm);
-              Navigator.of(context)
-                  .pop(
-                Club(title: club.title, description: club.description, location: club.location,
-                id: club.id)
-              );
-              //TODO: Make check for last continue
-            },
+    var user = Provider.of<FirebaseUser>(context);
+    return FutureBuilder(
+      future: database.doesClubNameAlreadyExist(_titleController.text, user.uid),
+      builder: (context, snapshot) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text("Add New club"),
+            backgroundColor: Theme
+                .of(context)
+                .primaryColorDark,
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.check),
+                onPressed: () {
+                  club.title = _titleController.text;
+                  club.location = _locationController.text;
+                  club.description = _descriptionController.text;
+                  //TODO: Fix this
+                  database.addClub(club, widget.enteredTerm, user);
+                  Navigator.of(context)
+                      .pop(
+                      Club(title: club.title,
+                          description: club.description,
+                          location: club.location,
+                          id: club.id)
+                  );
+                  //TODO: Make check for last continue
+                },
+              ),
+            ],
           ),
-        ],
-      ),
-      body: ListView(
-        children: <Widget>[
-          Padding(padding: EdgeInsets.all(0.0)),
-          textFieldTile(hint: "Club title", controller: _titleController),
-          textFieldTile(
-              hint: "Location (Optional)", controller: _locationController),
-          ListTile(
-            title: TextFormField(
-              controller: _descriptionController,
-              autofocus: false,
-              style: Theme.of(context).accentTextTheme.body1,
-              keyboardType: TextInputType.multiline,
-              textInputAction: TextInputAction.done,
-              maxLines: 5,
-              decoration: InputDecoration(
-                  hintText: "Description",
-                  hintStyle: TextStyle(color: Colors.black45)),
-            ),
+          body: ListView(
+            children: <Widget>[
+              Padding(padding: EdgeInsets.all(0.0)),
+              textFieldTile(hint: "Club title", controller: _titleController),
+              textFieldTile(
+                  hint: "Location (Optional)", controller: _locationController),
+              ListTile(
+                title: TextFormField(
+                  controller: _descriptionController,
+                  autofocus: false,
+                  style: Theme
+                      .of(context)
+                      .accentTextTheme
+                      .body1,
+                  keyboardType: TextInputType.multiline,
+                  textInputAction: TextInputAction.done,
+                  maxLines: 5,
+                  decoration: InputDecoration(
+                      hintText: "Description",
+                      hintStyle: TextStyle(color: Colors.black45)),
+                ),
+              ),
+              ExpandableOfficerList(club, widget.enteredTerm),
+              ExpandableEventList(club, widget.enteredTerm),
+              ExpandableTaskList(club, widget.enteredTerm)
+            ],
           ),
-          ExpandableOfficerList(club, widget.enteredTerm),
-          ExpandableEventList(club, widget.enteredTerm),
-          ExpandableTaskList(club, widget.enteredTerm)
-        ],
-      ),
+        );
+      }
     );
   }
 }
@@ -232,6 +245,7 @@ class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
                     RaisedButton(
                       child: Text("Add"),
                       onPressed: () {
+                        //Adds the officer to the club instance
                         widget.club.addOfficer(Officer(
                             _officerNameController.text,
                             _officerPosController.text));

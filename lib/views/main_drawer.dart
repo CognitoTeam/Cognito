@@ -68,8 +68,8 @@ class _MainDrawerState extends State<MainDrawer> {
     var user = Provider.of<FirebaseUser>(context);
     return FutureBuilder<AcademicTerm>(
       future: database.getCurrentTerm(user),
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        if(snapshot.connectionState == ConnectionState.done)
+      builder: (BuildContext context, AsyncSnapshot<AcademicTerm> snapshot) {
+        if(snapshot.connectionState == ConnectionState.done || snapshot.connectionState == ConnectionState.active)
         {
           return Drawer(
             child: ListView(
@@ -153,7 +153,7 @@ class _MainDrawerState extends State<MainDrawer> {
                 ListTile(
                     title: Text('Clubs'),
                     onTap: () {
-                      if (snapshot == null) {
+                      if (snapshot.data == null) {
                         showDialog(
                             context: context,
                             builder: (BuildContext context) {

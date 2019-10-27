@@ -2,9 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/database.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/views/add_priority_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/task.dart';
+import 'package:provider/provider.dart';
 
 /// Task creation view
 /// @author Praneet Singh
@@ -223,6 +225,7 @@ class _AddTaskViewState extends State<AddTaskView> {
 
   @override
   Widget build(BuildContext context) {
+    var user = Provider.of<FirebaseUser>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("Add New Task"),
@@ -235,7 +238,8 @@ class _AddTaskViewState extends State<AddTaskView> {
               //Did not enter from club task
               String id;
               if(!widget.clubTask) {
-                id = await database.addTask(
+                database.addTask(
+                    user.uid,
                     _titleController.text,
                     _locationController.text,
                     _descriptionController.text,
@@ -284,23 +288,22 @@ class _AddTaskViewState extends State<AddTaskView> {
           });
         },
         onStepContinue: () {
-          setState(() async {
+          setState(() {
             if (currentStep < getSteps().length - 1) {
               currentStep++;
             } else {
               //Enter from club task
               //Did not enter from club task
-              String id;
               if(!widget.clubTask)
                 {
-                  id = await database.addTask(
+                  database.addTask(
+                      user.uid,
                       _titleController.text,
                       _locationController.text,
                       _descriptionController.text,
                       daysOfEvent,
                       _isRepeated,
                       dueDate,
-                      //TODO: Fix this
                       _selectedPriority,
                       Duration(
                           minutes: int.parse(_durationController.text)),
@@ -316,7 +319,6 @@ class _AddTaskViewState extends State<AddTaskView> {
                     daysOfEvent: daysOfEvent,
                     isRepeated: _isRepeated,
                     dueDate: dueDate,
-                    id: id,//widget.enteredTerm.getID(),w
                     priority: _selectedPriority,
                     duration: Duration(
                         minutes: int.parse(_durationController.text)))

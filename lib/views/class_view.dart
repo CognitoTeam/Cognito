@@ -49,7 +49,6 @@ class _ClassViewState extends State<ClassView> {
 
   _ClassViewState(term)
   {
-    print("++++++++" + term.toString());
     this.term = term;
   }
 
@@ -143,7 +142,6 @@ class _ClassViewState extends State<ClassView> {
         if(snapshot.connectionState == ConnectionState.done || snapshot.connectionState == ConnectionState.active) {
           if (snapshot.data != null || classes.length == 0) {
             classes = snapshot.data;
-            print(classes.length.toString());
             return new ListView(
               children: classes.map((classObj) {
                 updateClassStream(classObj);
@@ -288,7 +286,6 @@ class _ClassViewState extends State<ClassView> {
           }
         }else
           {
-            print(snapshot.connectionState.toString());
             return new Container(
               child: Center(child: Text("Loading your classes..." ),),);
           }
@@ -301,44 +298,52 @@ class _ClassViewState extends State<ClassView> {
 //    updateGradeStream(term);
     var user = Provider.of<FirebaseUser>(context);
 
-    return Scaffold(
-      drawer: MainDrawer(),
-      appBar: AppBar(
-        title: Text(
-          term.termName + " - Classes",
-          style: Theme.of(context).primaryTextTheme.title,
-        ),
-        backgroundColor: Theme.of(context).primaryColorDark,
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          Class result = await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => AddClassView(term)));
-          if (result != null) {
-            setState(() {});
-            for (int i in result.daysOfEvent) {
-              noti.showWeeklyAtDayAndTime(
-                  title: result.title,
-                  body: result.title + " is starting in 15 mins",
-                  id: result.id,
-                  dayToRepeat: i,
-                  timeToRepeat:
-                      result.startTime.subtract(Duration(minutes: 15)));
-            }
-          }
-        },
-        child: Icon(
-          Icons.add,
-          size: 42.0,
-        ),
-        backgroundColor: Theme.of(context).accentColor,
-        foregroundColor: Colors.black,
-      ),
-      body: new FutureBuilder(
-        future: database.getCurrentTerm(user),
-        builder: (context, snapshot){
-          return _getClassCards(user, term);
+    return FutureBuilder(
+      future: database.getCurrentTerm(user),
+      builder: (context, snapshot){
+        if(snapshot.connectionState == ConnectionState.done || snapshot.connectionState == ConnectionState.active)
+        {
+          return Scaffold(
+              drawer: MainDrawer(),
+              appBar: AppBar(
+                title: Text(
+                  snapshot.data.termName + " - Classes",
+                  style: Theme.of(context).primaryTextTheme.title,
+                ),
+                backgroundColor: Theme.of(context).primaryColorDark,
+              ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () async {
+                  Class result = await Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => AddClassView(snapshot.data)));
+                  if (result != null) {
+                    setState(() {});
+                    for (int i in result.daysOfEvent) {
+                      noti.showWeeklyAtDayAndTime(
+                          title: result.title,
+                          body: result.title + " is starting in 15 mins",
+                          id: result.id,
+                          dayToRepeat: i,
+                          timeToRepeat:
+                          result.startTime.subtract(Duration(minutes: 15)));
+                    }
+                  }
+                },
+                child: Icon(
+                  Icons.add,
+                  size: 42.0,
+                ),
+                backgroundColor: Theme.of(context).accentColor,
+                foregroundColor: Colors.black,
+              ),
+              body: _getClassCards(user, term)
+          );
         }
-    ));
+        else
+          {
+            return new Container();
+          }
+      },
+    );
   }
 }

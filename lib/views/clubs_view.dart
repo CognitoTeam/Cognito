@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cognito/models/event.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cognito/models/club.dart';
 import 'package:cognito/models/academic_term.dart';
@@ -6,6 +8,7 @@ import 'package:cognito/views/main_drawer.dart';
 import 'package:cognito/views/add_club_view.dart';
 import 'package:cognito/views/club_details_view.dart';
 import 'package:cognito/database/database.dart';
+import 'package:provider/provider.dart';
 
 /// Club view
 /// Displays list of Club cards
@@ -17,15 +20,22 @@ class ClubView extends StatefulWidget {
   ClubView(this.term);
 
   @override
-  _ClubViewState createState() => _ClubViewState();
+  _ClubViewState createState() => _ClubViewState(term);
 }
 
 class _ClubViewState extends State<ClubView> {
   DataBase database = DataBase();
+  AcademicTerm term;
+
 
   @override
   void initState() {
     super.initState();
+  }
+
+  _ClubViewState(AcademicTerm term)
+  {
+    this.term = term;
   }
 
   void removeClub(Club clubToRemove) {
@@ -34,18 +44,16 @@ class _ClubViewState extends State<ClubView> {
     });
   }
 
-  Widget _getClubCards()
-  {
-    return StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance.collection('clubs')
-        .where('user_id', isEqualTo: database.userID)
-        .where('term_name', isEqualTo: widget.term.termName).snapshots(),
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if(snapshot.hasData)
-          {
+
+  Widget _getClubCards(FirebaseUser user, AcademicTerm term) {
+    return StreamBuilder<List<Club>>(
+      stream: database.streamClubs(user),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if(snapshot.connectionState == ConnectionState.done || snapshot.connectionState == ConnectionState.active) {
+          List<Club> clubs = snapshot.data;
+          if (snapshot.data != null) {
             return new ListView(
-              children: snapshot.data.documents.map((document) {
-                Club clubObj = database.documentToClub(document);
+              children: clubs.map((clubObj) {
                 return Container(
                   margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
                   child: InkWell(
@@ -67,7 +75,9 @@ class _ClubViewState extends State<ClubView> {
                         ));
                       },
                       child: Card(
-                        color: Theme.of(context).primaryColor,
+                        color: Theme
+                            .of(context)
+                            .primaryColor,
                         child: Column(
                           children: <Widget>[
                             ListTile(
@@ -77,7 +87,10 @@ class _ClubViewState extends State<ClubView> {
                               ),
                               title: Text(
                                 clubObj.title,
-                                style: Theme.of(context).primaryTextTheme.body1,
+                                style: Theme
+                                    .of(context)
+                                    .primaryTextTheme
+                                    .body1,
                               ),
                             )
                           ],
@@ -89,9 +102,15 @@ class _ClubViewState extends State<ClubView> {
               }).toList(),
             );
           }
-        else
+          else {
+            return new Container(
+              child: Center(child: Text("No Clubs Yet"),),
+            );
+          }
+        }else
           {
-            return new Container();
+            return new Container(
+            child: Center(child: Text("Loading your clubs..." ),),);
           }
       },
     );
@@ -99,30 +118,43 @@ class _ClubViewState extends State<ClubView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: MainDrawer(),
-      appBar: AppBar(
-        title: Text(
-          widget.term.termName + " - Clubs",
-          style: Theme.of(context).primaryTextTheme.title,
-        ),
-        backgroundColor: Theme.of(context).primaryColorDark,
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddClubView(widget.term)));
-          if (result != null) {
-          }
-        },
-        child: Icon(
-          Icons.add,
-          size: 42.0,
-        ),
-        backgroundColor: Theme.of(context).accentColor,
-        foregroundColor: Colors.black,
-      ),
-      body: _getClubCards()
+    var user = Provider.of<FirebaseUser>(context);
+    return FutureBuilder(
+      future: database.getCurrentTerm(user),
+      builder: (context,snapshot) {
+        if(snapshot.connectionState == ConnectionState.done || snapshot.connectionState == ConnectionState.active)
+        {
+          return Scaffold(
+              drawer: MainDrawer(),
+              appBar: AppBar(
+                title: Text(
+                  snapshot.data.termName + " - Clubs",
+                  style: Theme.of(context).primaryTextTheme.title,
+                ),
+                backgroundColor: Theme.of(context).primaryColorDark,
+              ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () async {
+                  final result = await Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (context) => AddClubView(snapshot.data)));
+                  if (result != null) {
+                  }
+                },
+                child: Icon(
+                  Icons.add,
+                  size: 42.0,
+                ),
+                backgroundColor: Theme.of(context).accentColor,
+                foregroundColor: Colors.black,
+              ),
+              body: _getClubCards(user, term)
+          );
+        }
+        else
+        {
+          return new Container();
+        }
+      },
     );
   }
 }

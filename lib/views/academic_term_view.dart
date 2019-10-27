@@ -94,7 +94,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
           stream: database.streamTerms(user),
           builder: (context,snapshot) {
             List<AcademicTerm> terms = snapshot.data;
-            if(snapshot.data == null || terms.length == 0) {
+            if(snapshot.data == null) {
               return new Center(
                 child: Text("Lets start by adding a term!"),
               );

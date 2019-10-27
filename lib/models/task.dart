@@ -41,16 +41,20 @@ class Task extends Event {
 
   factory Task.fromFirestore(DocumentSnapshot doc) {
     Map data = doc.data;
-    return Task(
+    List<int> list = List();
+    data['days_of_event'].forEach((item) => list.add(item));
+    Task t = Task(
       id: doc.documentID,
       title: data['title'],
       location: data['location'],
       description: data['description'],
       isRepeated: data['repeated'],
-      dueDate: data['due_date'],
-      daysOfEvent: data['days_of_event'],
-      priority: data['priority']
+      dueDate: data['due_date'].toDate(),
+      daysOfEvent: list,
+      priority: data['priority'],
+      duration: Duration(minutes: data['duration_in_minutes']),
     );
+    return t;
   }
 
   factory Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);

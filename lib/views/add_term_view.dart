@@ -107,7 +107,6 @@ class _AddTermViewState extends State<AddTermView> {
                                   user.uid)
                                   : null);
                             } else if(timeConflict(newStartDate, newEndDate) && !result.hasData) {
-                              print("Here");
                               Scaffold.of(context).showSnackBar(SnackBar(
                                 content: Text("There is a time conflict with term: " +
                                     conflictTerm),
@@ -115,7 +114,6 @@ class _AddTermViewState extends State<AddTermView> {
                               ));
                             }
                             else {
-                              print("THere");
                               Scaffold.of(context).showSnackBar(SnackBar(
                                 content: Text(_termNameController.text + " already exists for you"),
                                 duration: Duration(seconds: 7),

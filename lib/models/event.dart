@@ -47,7 +47,10 @@ class Event {
 
   factory Event.fromFirestore(DocumentSnapshot doc) {
     Map data = doc.data;
-    return Event(
+    List<int> list = List();
+    data['days_of_event'].forEach((item) => list.add(item));
+
+    Event e =  Event(
       id: doc.documentID,
       title: data['title'],
       description: data['description'],
@@ -56,9 +59,10 @@ class Event {
       isRepeated: data['repeated'],
       start: data['start_time'].toDate(),
       end: data['end_time'].toDate(),
-      duration: data['duration_in_minutes'],
-      daysOfEvent: data['days_of_event']
+      duration: Duration(minutes: data['duration_in_minutes']),
+      daysOfEvent: list
     );
+    return e;
   }
 
 factory Event.fromJson(Map<String, dynamic> json) => _$EventFromJson(json);

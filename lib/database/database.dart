@@ -191,18 +191,76 @@ class DataBase {
         list.documents.map((doc) => Class.fromFirestore(doc)).toList());
   }
 
-  Stream<AcademicTerm> streamCurrentTerm(FirebaseUser user) {
-    Query ref =
-        firestore.collection('terms').where('user_id', isEqualTo: user.uid);
-    ref.snapshots().forEach((list) {
-      AcademicTerm term = AcademicTerm.fromFirestore(list.documents[0]);
-      if (DateTime.now().isAfter(term.startTime) &&
-          DateTime.now().isBefore(term.endTime)) {
-        list.documents.map((doc) {
-          return AcademicTerm.fromFirestore(doc);
-        });
-      }
-      return null;
+  Stream<List<Event>> streamClubEvents(String clubId) {
+    Query ref = firestore
+        .collection('clubs').document(clubId).collection('events');
+    return ref.snapshots().map((list) =>
+        list.documents.map((doc) => Event.fromFirestore(doc)).toList());
+  }
+
+  Stream<List<Task>> streamClubTasks(String clubId) {
+    Query ref = firestore
+        .collection('clubs').document(clubId).collection('tasks');
+    return ref.snapshots().map((list) =>
+        list.documents.map((doc) => Task.fromFirestore(doc)).toList());
+  }
+
+  Stream<List<Officer>> streamClubOfficers(String clubId) {
+    Query ref = firestore
+        .collection('clubs')
+        .document(clubId).collection('officers');
+    return ref.snapshots().map((list) =>
+        list.documents.map((doc) => Officer.fromFirestore(doc)).toList());
+  }
+
+  Stream<List<Club>> streamClubs(FirebaseUser user) {
+    Query ref = firestore
+        .collection('clubs')
+        .where('user_id', isEqualTo: user.uid);
+    return ref.snapshots().map((list) =>
+        list.documents.map((doc) => Club.fromFirestore(doc)).toList());
+  }
+
+  void addOfficer(Officer o, String clubId) {
+    firestore.collection('clubs').document(clubId).collection('officers').document().setData({
+      'officer_name' : o.officerName,
+      'officer_position' : o.officerPosition
+    });
+  }
+
+  void addClubTask(String userId,
+      String title, String location, String description, List<int> daysOfEvent, bool isRepeated,
+      DateTime dueDate, int priority, Duration duration, AcademicTerm term, String clubId) {
+    DocumentReference ref = firestore.collection('clubs').document(clubId).collection('tasks').document();
+    ref.setData({
+      "title": title,
+      "location": location,
+      "description": description,
+      "days_of_event": daysOfEvent,
+      "repeated": isRepeated,
+      "due_date": dueDate,
+      "priority": priority,
+      "duration_in_minutes": duration.inMinutes,
+      "term_name": term.termName,
+      "id": ref.documentID
+    });
+  }
+
+  void addClubEvent(Event e, String clubId, AcademicTerm term){
+    DocumentReference ref = firestore.collection('clubs').document(clubId).collection('events').document();
+    ref.setData({
+      "user_id": userID,
+      "title": e.title,
+      "location": e.location,
+      "description": e.description,
+      "days_of_event": e.daysOfEvent,
+      "repeated": e.isRepeated,
+      "start_time": e.startTime,
+      "end_time": e.endTime,
+      "priority": e.priority,
+      "duration_in_minutes": e.duration.inMinutes,
+      "term_name": term.termName,
+      "id": ref.documentID
     });
   }
 
@@ -437,6 +495,16 @@ class DataBase {
     return documents.length == 1;
   }
 
+  Future<bool> doesClubNameAlreadyExist(String clubName, String userID) async {
+    final QuerySnapshot result = await Firestore.instance
+        .collection('club')
+        .where('title', isEqualTo: clubName)
+        .limit(1)
+        .getDocuments();
+    final List<DocumentSnapshot> documents = result.documents;
+    return documents.length == 1;
+  }
+
   void addAcademicTerm(
       String text, DateTime startDate, DateTime endDate, String userID) async {
     DocumentReference newTermReference =
@@ -451,6 +519,64 @@ class DataBase {
     newTermReference.collection("classes_collection").document();
     newTermReference.collection("assignments_collection").document();
     newTermReference.collection("events_collection").document();
+  }
+
+  Future<String> addClub(Club club, AcademicTerm term, FirebaseUser user) async {
+    DocumentReference newClubReference =
+    firestore.collection("clubs").document();
+    newClubReference.setData({
+      "user_id": user.uid,
+      "title": club.title,
+      "location": club.location,
+      "description": club.description,
+      "id": newClubReference.documentID,
+      "term_name": term.termName,
+      'term_id': term.getID()
+    });
+
+    if (club.officers.isNotEmpty) {
+      for (Officer o in club.officers) {
+        newClubReference.collection("officers").document().setData({
+          "officer_name": o.officerName,
+          "officer_position": o.officerPosition
+        });
+      }
+    }
+
+    if (club.tasks.isNotEmpty) {
+      for (Task t in club.tasks) {
+        addTask(
+            user.uid,
+            t.title,
+            t.location,
+            t.description,
+            t.daysOfEvent,
+            t.isRepeated,
+            t.dueDate,
+            t.priority,
+            t.duration,
+            term,
+            newClubReference.collection("tasks").document());
+      }
+    }
+
+    if (club.events.isNotEmpty) {
+      for (Event e in club.events) {
+        addEvent(
+            e.title,
+            e.location,
+            e.description,
+            e.daysOfEvent,
+            e.isRepeated,
+            e.startTime,
+            e.endTime,
+            e.priority,
+            e.duration,
+            term,
+            newClubReference.collection("events").document());
+      }
+    }
+    return newClubReference.documentID;
   }
 
   void addSubject(String subjectName) async {
@@ -486,7 +612,6 @@ class DataBase {
       "repeated": isRepeated,
       "start_time": startTime,
       "end_time": endTime,
-      "term_id": await generateTermID(term),
       "priority": priority,
       "duration_in_minutes": duration.inMinutes,
       "term_name": term.termName,
@@ -497,6 +622,7 @@ class DataBase {
   }
 
   Future addTask(
+      String userId,
       String title,
       String location,
       String description,
@@ -511,7 +637,7 @@ class DataBase {
       newTaskReferenceLocation = firestore.collection("tasks").document();
     }
     newTaskReferenceLocation.setData({
-      "user_id": userID,
+      "user_id": userId,
       "title": title,
       "location": location,
       "description": description,
@@ -524,64 +650,6 @@ class DataBase {
       "id": newTaskReferenceLocation.documentID
     });
     return newTaskReferenceLocation.documentID;
-  }
-
-  Future<String> addClub(Club club, AcademicTerm term) async {
-    print("adding club");
-    DocumentReference newClubReference =
-        firestore.collection("clubs").document();
-    newClubReference.setData({
-      "user_id": userID,
-      "title": club.title,
-      "location": club.location,
-      "description": club.description,
-      "id": club.id,
-      "term_name": term.termName,
-      'term_id': await generateTermID(term)
-    });
-
-    if (club.officers.isNotEmpty) {
-      for (Officer o in club.officers) {
-        newClubReference.collection("officers").document().setData({
-          "officer_name": o.officerName,
-          "officer_position": o.officerPosition
-        });
-      }
-    }
-
-    if (club.tasks.isNotEmpty) {
-      for (Task t in club.tasks) {
-        addTask(
-            t.title,
-            t.location,
-            t.description,
-            t.daysOfEvent,
-            t.isRepeated,
-            t.dueDate,
-            t.priority,
-            t.duration,
-            term,
-            newClubReference.collection("tasks").document());
-      }
-    }
-
-    if (club.events.isNotEmpty) {
-      for (Event e in club.events) {
-        addEvent(
-            e.title,
-            e.location,
-            e.description,
-            e.daysOfEvent,
-            e.isRepeated,
-            e.startTime,
-            e.endTime,
-            e.priority,
-            e.duration,
-            term,
-            newClubReference.collection("events").document());
-      }
-    }
-    return newClubReference.documentID;
   }
 
   Future updateTermID(AcademicTerm term) async {
