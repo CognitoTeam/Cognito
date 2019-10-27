@@ -6,9 +6,12 @@ import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/category.dart';
 import 'package:cognito/models/class.dart';
 import 'package:cognito/views/add_priority_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
+
+import 'package:provider/provider.dart';
 
 /// Assessment creation view
 /// @author Praneet Singh
@@ -71,29 +74,11 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
     );
   }
 
-  Future updateClassStream(AcademicTerm term)
-  async {
-    QuerySnapshot snapshot = await Firestore.instance.collection('classes')
-        .where('user_id', isEqualTo: database.userID)
-        .where('term_name', isEqualTo: term.termName)
-        .where('title', isEqualTo: widget.aClass.title)
-        .where('instructor', isEqualTo: widget.aClass.instructor).getDocuments();
-    //This is the document of grades now we need assignments collection doc
-    if(snapshot.documents.length == 1)
-    {
-      print("UpdateClassStream: Found the class ID");
-      classDocID = snapshot.documents[0].documentID;
-    }else
-      {
-        print("ERROR UpdateClassStream: Did not find only one class in finding ID");
-      }
-  }
-
 
   @override
   Widget build(BuildContext context) {
     //Class document id stream
-    updateClassStream(widget.term);
+    var user = Provider.of<FirebaseUser>(context);
     return Scaffold(
         appBar: AppBar(
           title: Text("Add New Assessment"),
@@ -105,7 +90,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                 Assignment result = Assignment(title: _titleController.text, description: _descriptionController.text, location: _locationController.text,
                     start: null, end: null, dueDate: dueDate, pointsEarned: double.parse(_earnedController.text), category: category, pointsPossible: double.parse(_possibleController.text),
                     isAssessment: true, duration: Duration(minutes: int.parse(_durationController.text)));
-                database.addAssignment(result, widget.aClass, widget.term);
+                database.addAssignment(result, widget.aClass, widget.term, user.uid);
                 Navigator.of(context).pop(_titleController != null
                     ? result
                     : null);
@@ -140,7 +125,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                 Assignment result = Assignment(title: _titleController.text, description: _descriptionController.text, location: _locationController.text,
                     start: null, end: null, dueDate: dueDate, pointsEarned: double.parse(_earnedController.text), category: category, pointsPossible: double.parse(_possibleController.text),
                     isAssessment: true, duration: Duration(minutes: int.parse(_durationController.text)));
-                database.addAssignment(result, widget.aClass, widget.term);
+                database.addAssignment(result, widget.aClass, widget.term, user.uid);
                 Navigator.of(context).pop(result);
               }
             });
@@ -247,15 +232,15 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
         ),
         state: StepState.indexed,
         isActive: true,
-        content: StreamBuilder<QuerySnapshot>(
-          stream: (classDocID == "" ? null : Firestore.instance.collection('classes').document(classDocID).collection('categories').snapshots()),
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        content: StreamBuilder<List<Category>>(
+          stream: database.streamCategory(widget.aClass),
+          builder: (BuildContext context, AsyncSnapshot<List<Category>> snapshot) {
             return ExpansionTile(
                 title: Text(
                   _categoryListTitle,
                   style: Theme.of(context).accentTextTheme.body2,
                 ),
-                children: _listOfCategories(snapshot));
+                children: _listOfCategories(snapshot.data));
           },
         )
       ),
@@ -319,12 +304,11 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
 
   String _categoryListTitle = "Select a category";
   // Returns a LitsTile widget categories as a list of widgets
-  List<Widget> _listOfCategories(AsyncSnapshot<QuerySnapshot> snapshot) {
+  List<Widget> _listOfCategories(List<Category> categories) {
     List<Widget> listCategories = List();
     //Need to get category from Firestore
-    if (snapshot.hasData && snapshot.data.documents.length > 0) {
-      snapshot.data.documents.forEach((document) {
-        Category c = database.documentToCategory(document);
+    if (categories != null && categories.length > 0) {
+      categories.forEach((c) {
           listCategories.add(
             ListTile(
               title: Text(

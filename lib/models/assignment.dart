@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/models/category.dart';
 /// Models an assignment for a class
 /// @author Julian Vu
@@ -45,7 +46,30 @@ class Assignment extends Task {
     this.category = category;
     calculateRawScore();
   }
-factory Assignment.fromJson(Map<String, dynamic> json) => _$AssignmentFromJson(json);
+
+  factory Assignment.fromFirestore(DocumentSnapshot doc) {
+    Map data = doc.data;
+    int minutes = data['duration_in_minutes'];
+    Duration d = new Duration(minutes: minutes);
+    Assignment a = Assignment(
+      title: data['title'],
+      isAssessment: data['is_assessment'],
+      description: data['description'],
+      location: data['location'],
+      dueDate: data['due_date'].toDate(),
+      id: doc.documentID,
+      priority: data['priority'],
+      duration: d,
+      pointsEarned: data['points_earned'],
+      pointsPossible: data['points_possible'],
+      category: Category(
+        title: data['category_title'],
+        weightInPercentage: data['category_weight_in_percentage'])
+    );
+    return a;
+  }
+
+  factory Assignment.fromJson(Map<String, dynamic> json) => _$AssignmentFromJson(json);
 
 
   Map<String, dynamic> toJson() => _$AssignmentToJson(this);

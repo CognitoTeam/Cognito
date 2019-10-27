@@ -89,7 +89,6 @@ class _AgendaViewState extends State<AgendaView>
 
     setState(() {
       selectedDate = DateTime.now();
-      updateGradesID();
     });
     _animationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 200))
@@ -120,22 +119,6 @@ class _AgendaViewState extends State<AgendaView>
     ));
   }
 
-  void updateGradesID()
-  async {
-    //
-    QuerySnapshot gradesQuery = await Firestore.instance.collection("grades").where(
-        'user_id', isEqualTo: database.userID).where('term_name', isEqualTo: widget.term.termName).getDocuments();
-    if(gradesQuery.documents.length != 1)
-    {
-      print("No Assignment found");
-    }
-    else if(gradesQuery.documents.length == 1)
-    {
-      gradesDocID = gradesQuery.documents[0].documentID;
-      gradesDocIDFound = true;
-    }
-  }
-
   @override
   dispose() {
     _animationController.dispose();
@@ -152,65 +135,66 @@ class _AgendaViewState extends State<AgendaView>
   }
 
   //Edit snapshot
-  List<Widget> _listOfClassAssign(AsyncSnapshot<QuerySnapshot> snapshot) {
+  List<Widget> _listOfClassAssign(List<Class> classes) {
     List<Widget> listTasks = List();
-          if (snapshot.data != null && snapshot.data.documents.length > 0) {
-              snapshot.data.documents.forEach((document) {
-                Class c = database.documentToClass(document);
-                print("Classes: " + c.title);
-                listTasks.add(
-                  ListTile(
-                      title: Text(
-                        c.title,
-                        style: Theme.of(context).accentTextTheme.body2,
-                      ),
-                      onTap: () async {
-                        setState(() {
-                          isOpened = !isOpened;
-                          animate();
-                        });
+    if (classes != null && classes.length > 0) {
+      classes.forEach((Class c) {
+        print("Classes: " + c.title);
+        listTasks.add(
+          ListTile(
+              title: Text(
+                c.title,
+                style: Theme
+                    .of(context)
+                    .accentTextTheme
+                    .body2,
+              ),
+              onTap: () async {
+                setState(() {
+                  isOpened = !isOpened;
+                  animate();
+                });
 
-                        Navigator.of(context).pop();
-                        Assignment result =
-                        await Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => AddAssignmentView(
-                              aClass: c,
-                              term: widget.term,
-                            )));
-//                        if (result != null) {
-//                          DateTime dateTime = DateTime(
-//                              result.dueDate.year,
-//                              result.dueDate.month,
-//                              result.dueDate.day,
-//                              c.startTime.hour,
-//                              c.startTime.minute);
-//                          dateTime = dateTime.subtract(Duration(minutes: 15));
-//                          noti.scheduleNotification(
-//                              title: "Assignment due",
-//                              body: result.title +
-//                                  " for " +
-//                                  c.title +
-//                                  " is due at " +
-//                                  dateTime.hour.toString() +
-//                                  ":" +
-//                                  dateTime.minute.toString(),
-//                              dateTime: dateTime,
-//                              id: result.id);
-//                          c.addTodoItem(c.ASSIGNMENTTAG, assignment: result);
-//                          database.updateDatabase();
-//                        }
-                      }),
-                );
-              });
-            }
+                Navigator.of(context).pop();
+                Assignment result =
+                await Navigator.push(context, MaterialPageRoute(
+                    builder: (context) =>
+                        AddAssignmentView(
+                          aClass: c,
+                          term: widget.term,
+                        )));
+                if (result != null) {
+                  DateTime dateTime = DateTime(
+                      result.dueDate.year,
+                      result.dueDate.month,
+                      result.dueDate.day,
+                      c.startTime.hour,
+                      c.startTime.minute);
+                  dateTime = dateTime.subtract(Duration(minutes: 15));
+                  noti.scheduleNotification(
+                      title: "Assignment due",
+                      body: result.title +
+                          " for " +
+                          c.title +
+                          " is due at " +
+                          dateTime.hour.toString() +
+                          ":" +
+                          dateTime.minute.toString(),
+                      dateTime: dateTime,
+                      id: result.id);
+                  c.addTodoItem(c.ASSIGNMENTTAG, assignment: result);
+                }
+              }),
+        );
+      });
+    }
     return listTasks;
   }
 
-  List<Widget> _listOfClassAssess(AsyncSnapshot<QuerySnapshot> snapshot) {
+  List<Widget> _listOfClassAssess(List<Class> classes) {
     List<Widget> listTasks = List();
-          if (snapshot.data != null && snapshot.data.documents.length > 0) {
-            snapshot.data.documents.forEach((document){
-              Class c = database.documentToClass(document);
+          if (classes != null && classes.length > 0) {
+            classes.forEach((c){
               listTasks.add(
                 ListTile(
                     title: Text(
@@ -231,7 +215,24 @@ class _AgendaViewState extends State<AgendaView>
                             term: widget.term,
                           )));
                       if (result != null) {
-
+                        DateTime dateTime = DateTime(
+                            result.dueDate.year,
+                            result.dueDate.month,
+                            result.dueDate.day,
+                            c.startTime.hour,
+                            c.startTime.minute);
+                        dateTime = dateTime.subtract(Duration(minutes: 15));
+                        noti.scheduleNotification(
+                            title: "Assignment due",
+                            body: result.title +
+                                " for " +
+                                c.title +
+                                " is due at " +
+                                dateTime.hour.toString() +
+                                ":" +
+                                dateTime.minute.toString(),
+                            dateTime: dateTime,
+                            id: result.id);
                         c.addTodoItem(c.ASSESSMENTTAG, assignment: result);
                         database.updateDatabase();
                       }
@@ -242,7 +243,7 @@ class _AgendaViewState extends State<AgendaView>
     return listTasks;
   }
 
-  Widget assessment() {
+  Widget assessment(FirebaseUser user) {
           return Container(
             child: FloatingActionButton(
               heroTag: "assessmentButton",
@@ -250,15 +251,13 @@ class _AgendaViewState extends State<AgendaView>
                 showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  return StreamBuilder<QuerySnapshot>(
-                      stream: Firestore.instance.collection('classes')
-                          .where('user_id', isEqualTo: database.userID)
-                          .where('term_name', isEqualTo: widget.term.termName).snapshots(),
-                      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  return StreamBuilder<List<Class>>(
+                      stream: database.streamClasses(user, widget.term),
+                      builder: (BuildContext context, snapshot) {
                         return SimpleDialog(
                             title: Text("Choose a class"),
-                            children: (snapshot.data != null && snapshot.data.documents.length > 0)
-                                ? _listOfClassAssess(snapshot)
+                            children: (snapshot.data != null && snapshot.data.length > 0)
+                                ? _listOfClassAssess(snapshot.data)
                                 : [ListTile(
                                     title: Text(
                                   "No classes have been added yet!",
@@ -278,7 +277,7 @@ class _AgendaViewState extends State<AgendaView>
           );
   }
 
-  Widget assignment() {
+  Widget assignment(FirebaseUser user) {
           return Container(
             child: FloatingActionButton(
             heroTag: "assignmentButton",
@@ -286,16 +285,14 @@ class _AgendaViewState extends State<AgendaView>
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  return StreamBuilder<QuerySnapshot>(
-                    stream: Firestore.instance.collection('classes')
-                        .where('user_id', isEqualTo: database.userID)
-                        .where('term_name', isEqualTo: widget.term.termName).snapshots(),
-                    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  return StreamBuilder<List<Class>>(
+                    stream: database.streamClasses(user, widget.term),
+                    builder: (BuildContext context, AsyncSnapshot<List<Class>> snapshot) {
                       return SimpleDialog(
                           title: Text("Choose a class"),
                           children: (snapshot.data != null &&
-                              snapshot.data.documents.length > 0)
-                              ? _listOfClassAssign(snapshot)
+                              snapshot.data.length > 0)
+                              ? _listOfClassAssign(snapshot.data)
                               : [ListTile(
                             title: Text(
                               "No classes have been added yet!",
@@ -423,74 +420,78 @@ class _AgendaViewState extends State<AgendaView>
           }
       );
     }
-
     return Scaffold(
-        floatingActionButton: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            Transform(
-              transform: Matrix4.translationValues(
-                0.0,
-                _translateButton.value * 3.0,
-                0.0,
-              ),
-              child: assignment(),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          Transform(
+            transform: Matrix4.translationValues(
+              0.0,
+              _translateButton.value * 3.0,
+              0.0,
             ),
-            Transform(
-              transform: Matrix4.translationValues(
-                0.0,
-                _translateButton.value * 2.0,
-                0.0,
-              ),
-              child: assessment(),
-            ),
-            Transform(
-              transform: Matrix4.translationValues(
-                0.0,
-                _translateButton.value,
-                0.0,
-              ),
-              child: event(),
-            ),
-            toggle(),
-          ],
-        ),
-        drawer: MainDrawer(),
-        appBar: AppBar(
-          elevation: 0,
-          title: Text(
-            DateFormat.MMMMEEEEd().format(selectedDate),
-            style: Theme.of(context).primaryTextTheme.title,
+            child: assignment(user),
           ),
-          backgroundColor: Theme.of(context).primaryColorDark,
+          Transform(
+            transform: Matrix4.translationValues(
+              0.0,
+              _translateButton.value * 2.0,
+              0.0,
+            ),
+            child: assessment(user),
+          ),
+          Transform(
+            transform: Matrix4.translationValues(
+              0.0,
+              _translateButton.value,
+              0.0,
+            ),
+            child: event(),
+          ),
+          toggle(),
+        ],
+      ),
+      drawer: MainDrawer(),
+      appBar: AppBar(
+        elevation: 0,
+        title: Text(
+          DateFormat.MMMMEEEEd().format(selectedDate),
+          style: Theme
+              .of(context)
+              .primaryTextTheme
+              .title,
         ),
+        backgroundColor: Theme
+            .of(context)
+            .primaryColorDark,
+      ),
 
-        body: Column(
-          children: <Widget>[
-            CalendarView(
-              onDateSelected: (DateTime date) {
-                setState(() {
-                  selectedDate = date;
-                });
-              },
-            ),
-            (_currentIndex == 0) ? mainAgenda : priorityAgenda
-          ],
-        ),
-        bottomNavigationBar : BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: onTabTapped,
-          items: [
-            BottomNavigationBarItem(
-              icon: new Icon(Icons.home),
-              title: new Text('Agenda'),
-            ),
-            BottomNavigationBarItem(
-              icon: new Icon(Icons.list),
-              title: new Text('Priorities'),
-            ),
-          ],
-        ),
+      body: Column(
+        children: <Widget>[
+          CalendarView(
+            onDateSelected: (DateTime date) {
+              setState(() {
+                selectedDate = date;
+              });
+            },
+          ),
+          (_currentIndex == 0) ? mainAgenda : priorityAgenda
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: onTabTapped,
+        items: [
+          BottomNavigationBarItem(
+            icon: new Icon(Icons.home),
+            title: new Text('Agenda'),
+          ),
+          BottomNavigationBarItem(
+            icon: new Icon(Icons.list),
+            title: new Text('Priorities'),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -509,11 +510,9 @@ class FilteredClassExpansion extends StatefulWidget {
 class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
   Notifications noti = Notifications();
 
-  List<Widget> _classes(AsyncSnapshot<QuerySnapshot> snapshot) {
+  List<Widget> _classes(List<Class> classes) {
     List<Widget> classesList = List();
-    if(snapshot.data != null) {
-      snapshot.data.documents.forEach((document) {
-        Class c = widget.database.documentToClass(document);
+      classes.forEach((Class c) {
         if (c.daysOfEvent.contains(widget.date.weekday)) {
           classesList.add(ListTile(
             title: Text(
@@ -553,7 +552,6 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
         }
       }
       );
-    }
       if(classesList.length == 0)
         {
           classesList.add(ListTile(
@@ -567,15 +565,12 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
 
   @override
   Widget build(BuildContext context) {
+    var user = Provider.of<FirebaseUser>(context);
     if (widget.term != null) {
-      return StreamBuilder<QuerySnapshot>(
-          stream: Firestore.instance.collection('classes')
-              .where('user_id', isEqualTo: widget.database.userID)
-              .where('term_name', isEqualTo: widget.term.termName).snapshots(),
-          builder: (BuildContext context,
-              AsyncSnapshot<QuerySnapshot> snapshot) {
+      return StreamBuilder<List<Class>>(
+          stream: widget.database.streamClasses(user, widget.term),
+          builder: (BuildContext context, snapshot) {
             return ExpansionTile(
-
               leading: Icon(Icons.class_),
               title: Text(
                 "Classes",
@@ -584,7 +579,7 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
                     .accentTextTheme
                     .body2,
               ),
-              children: _classes(snapshot),
+              children: _classes(snapshot.data),
               initiallyExpanded: true,
             );
           });
@@ -638,30 +633,10 @@ class _FilteredAssignmentExpansionState
   @override
   void initState() {
     super.initState();
-    setState(() {
-      updateGradesID();
-    });
-  }
-
-  void updateGradesID()
-  async {
-    //
-    QuerySnapshot gradesQuery = await Firestore.instance.collection("grades").where(
-        'user_id', isEqualTo: database.userID).where('term_name', isEqualTo: widget.term.termName).getDocuments();
-    if(gradesQuery.documents.length != 1)
-    {
-      print("No Assignment found");
-    }
-    else if(gradesQuery.documents.length == 1)
-    {
-      gradesDocID = gradesQuery.documents[0].documentID;
-      gradesDocIDFound = true;
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-      updateGradesID();
       if(gradesDocIDFound) {
         return StreamBuilder<QuerySnapshot>(
           //Want multiple documents
@@ -675,7 +650,6 @@ class _FilteredAssignmentExpansionState
                 .snapshots()),
             builder: (BuildContext context,
                 AsyncSnapshot<QuerySnapshot> snapshot) {
-                print("Assignments DATA exists");
                 return ExpansionTile(
                   leading: Icon(Icons.class_),
                   title: Text(
