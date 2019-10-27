@@ -579,7 +579,7 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
                     .accentTextTheme
                     .body2,
               ),
-              children: _classes(snapshot.data),
+              children: _classes(snapshot.data ?? []),
               initiallyExpanded: true,
             );
           });
@@ -635,21 +635,34 @@ class _FilteredAssignmentExpansionState
     super.initState();
   }
 
+  void updateGradesID(String userId)
+  async {
+    QuerySnapshot gradesQuery = await Firestore.instance.collection("grades").where(
+        'user_id', isEqualTo: database.userID).where('term_name', isEqualTo: widget.term.termName).getDocuments();
+    if(gradesQuery.documents.length != 1)
+    {
+      print("No Assignment found");
+    }
+    else if(gradesQuery.documents.length == 1)
+    {
+      gradesDocID = gradesQuery.documents[0].documentID;
+      gradesDocIDFound = true;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    var user = Provider.of<FirebaseUser>(context);
+    updateGradesID(user.uid);
       if(gradesDocIDFound) {
-        return StreamBuilder<QuerySnapshot>(
-          //Want multiple documents
-          //Get to collection
-          //docID may be null
-            stream: (gradesDocID == "" ? null : Firestore.instance.collection(
-                'grades')
-                .document(gradesDocID)
-                .collection(
-                (widget.isAssessment ? 'assessments' : 'assignments'))
-                .snapshots()),
-            builder: (BuildContext context,
-                AsyncSnapshot<QuerySnapshot> snapshot) {
+        print("GradeID is " + gradesDocID);
+        return StreamBuilder<List<Assignment>>(
+            stream: database.streamAssignments(gradesDocID, widget.isAssessment),
+            builder: (BuildContext context, snapshot) {
+              List<Assignment> assignments = snapshot.data;
+              if(assignments.length > 0) {
+                print(assignments[0].classObjId);
+              }
                 return ExpansionTile(
                   leading: Icon(Icons.class_),
                   title: Text(
@@ -659,11 +672,12 @@ class _FilteredAssignmentExpansionState
                         .accentTextTheme
                         .body2,
                   ),
-                  children: _assignments(snapshot),
+                  children: _assignments(assignments),
                   //Expanded is true however value is not synchronized
                   initiallyExpanded: true,
                 );
-            });
+            }
+            );
       }else
         {
           return ExpansionTile(
@@ -691,13 +705,250 @@ class _FilteredAssignmentExpansionState
         }
   }
 
+  Widget getAssignmentListTile(Assignment a, bool isDueToday)
+  {
+    return StreamBuilder<Class>(
+        stream: database.getClass(a.classObjId),
+        builder: (context, snapshot)
+        {
+          if(snapshot.connectionState == ConnectionState.done || snapshot.connectionState == ConnectionState.active) {
+            if(snapshot.data != null)
+              {
+                Class c = snapshot.data;
+                return ListTile(
+                  title: Text(a.title),
+                  subtitle: Text(
+                    c.title,
+                  ),
+                  trailing: isDueToday
+                      ? Text(
+                    "Due today",
+                    style: TextStyle(color: Colors.red),
+                  )
+                      : Text("Due in " +
+                      (a.dueDate
+                          .difference(DateTime.now())
+                          .inDays + 1)
+                          .toString() +
+                      " days"),
+                  onLongPress: () {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return SimpleDialog(
+                              title: Text("Are you sure you want to delete " +
+                                  a.title +
+                                  " ?"),
+                              children: <Widget>[
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    RaisedButton(
+                                      color: Colors.white,
+                                      child: Text("Yes"),
+                                      onPressed: () {
+                                        setState(() {
+                                          c.assignments.remove(a);
+                                          Navigator.of(context).pop();
+                                          widget.database.updateDatabase();
+                                        });
+                                      },
+                                    ),
+                                    RaisedButton(
+                                      color: Colors.white,
+                                      child: Text("Cancel"),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    )
+                                  ],
+                                )
+                              ]);
+                        });
+                  },
+                  onTap: () async {
+                    noti.cancelNotification(a.id);
+                    Assignment result =
+                    await Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) =>
+                            AssignmentDetailsView(
+                              aClass: c,
+                              assignment: a,
+                            )));
+                    if (result != null) {
+                      print("Assignment updated: " + result.title);
+                      DateTime dateTime = DateTime(
+                          result.dueDate.year,
+                          result.dueDate.month,
+                          result.dueDate.day,
+                          c.startTime.hour,
+                          c.startTime.minute);
+                      dateTime = dateTime.subtract(Duration(minutes: 15));
+                      noti.scheduleNotification(
+                          title: "Assignment due",
+                          body: result.title +
+                              " for " +
+                              c.title +
+                              " is due at " +
+                              dateTime.hour.toString() +
+                              ":" +
+                              dateTime.minute.toString(),
+                          dateTime: dateTime,
+                          id: result.id);
+                      widget.database.updateDatabase();
+                      setState(() {});
+                    }
+                  },
+                );
+              }else
+                {
+                  return ListTile(
+                      title: Text(
+                        "No assignments due today",
+                        style: Theme
+                            .of(context)
+                            .accentTextTheme
+                            .body2,
+                      ));
+                }
+          }
+          else
+            {
+              return ListTile(
+                  title: Text(
+                      "Getting assignments for today",
+                  style: Theme
+                      .of(context)
+                  .accentTextTheme
+                  .body2,));
+            }
+        }
+    );
+  }
 
-  List<Widget> _assignments(AsyncSnapshot<QuerySnapshot> snapshot) {
+  Widget getAssessmentListTile(Assignment a, bool isDueToday)
+  {
+    return StreamBuilder<Class>(
+      stream: database.getClass(a.classObjId),
+      builder: (context, snapshot)
+      {
+        if(snapshot.connectionState == ConnectionState.done || snapshot.connectionState == ConnectionState.active) {
+          if(snapshot.data != null)
+          {
+            Class c = snapshot.data;
+            print("Title ${c.title}");
+            return ListTile(
+              title: Text(a.title),
+              subtitle: Text(
+                c.title,
+              ),
+              trailing: isDueToday
+                  ? Text(
+                "Today at ${DateFormat.jm().format(a.dueDate)}",
+                style: TextStyle(color: Colors.red),
+              )
+                  : Text("${(a.dueDate
+                  .difference(DateTime.now())
+                  .inDays + 1)
+                  .toString()} days"),
+              onLongPress: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return SimpleDialog(
+                          title: Text(
+                              "Are you sure you want to delete ${a.title}"),
+                          children: <Widget>[
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                RaisedButton(
+                                  color: Colors.white,
+                                  child: Text("Yes"),
+                                  onPressed: () {
+                                    setState(() {
+                                      c.assessments.remove(a);
+                                      Navigator.of(context).pop();
+                                      widget.database.updateDatabase();
+                                    });
+                                  },
+                                ),
+                                RaisedButton(
+                                  color: Colors.white,
+                                  child: Text("Cancel"),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                )
+                              ],
+                            )
+                          ]);
+                    });
+              },
+              onTap: () async {
+                noti.cancelNotification(a.id);
+                Assignment result =
+                await Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) =>
+                        AssessmentDetailsView(
+                          aClass: c,
+                          assignment: a,
+                        )));
+                if (result != null) {
+                  print("Assessment updated: " + result.title);
+                  DateTime dateTime = DateTime(
+                      result.dueDate.year,
+                      result.dueDate.month,
+                      result.dueDate.day,
+                      c.startTime.hour,
+                      c.startTime.minute);
+                  dateTime = dateTime.subtract(Duration(minutes: 15));
+                  noti.scheduleNotification(
+                      title: "Assignment due",
+                      body: "${result.title} for ${c.title} is due at ${dateTime.hour.toString()}:${dateTime.minute.toString()}",
+                      dateTime: dateTime,
+                      id: result.id);
+                  widget.database.updateDatabase();
+                  setState(() {});
+                }
+              },
+            );
+          }
+          else
+            {
+            return ListTile(
+            title: Text(
+            "No assessments due today",
+            style: Theme
+                .of(context)
+                .accentTextTheme
+                .body2,
+            ));
+            }
+        }
+        else
+          {
+            return ListTile(
+                title: Text(
+                  "Getting assessments for today",
+                  style: Theme
+                      .of(context)
+                      .accentTextTheme
+                      .body2,));
+          }
+      },
+    );
+  }
+
+  List<Widget> _assignments(List<Assignment> assignments) {
     List<Widget> assignmentList = List();
     //Snapshot has data
-    if (snapshot.hasData && snapshot.data.documents.length > 0) {
-      snapshot.data.documents.forEach((document) async {
-        Assignment a = widget.database.documentToAssignment(document);
+    if (assignments.length > 0) {
+      assignments.forEach((Assignment a) {
+//        print("ID: ${a.classObjId}");
+        //For each assignment get its class
         bool isWithinWeek = a.dueDate.isAfter(widget.date) &&
             a.dueDate.isBefore(oneWeekFromToday);
         bool isDueToday = widget.date.day == a.dueDate.day &&
@@ -705,200 +956,19 @@ class _FilteredAssignmentExpansionState
             widget.date.year == a.dueDate.year;
         //Particular assessment is within the time
         if (a.isAssessment && (isWithinWeek || isDueToday)) {
-          QuerySnapshot snapshot = await Firestore.instance.collection(
-              "classes").where("user_id", isEqualTo: widget.database.userID)
-              .where("title", isEqualTo: document['class_title']).where(
-              "subject_area", isEqualTo: document["class_subject"])
-              .where("course_number", isEqualTo: document['class_number'])
-              .getDocuments();
-          Class c = widget.database.documentToClass(snapshot.documents[0]);
-          assignmentList.add(ListTile(
-            title: Text(a.title),
-            subtitle: Text(
-              c.title,
-            ),
-            trailing: isDueToday
-                ? Text(
-              "Today at " + DateFormat.jm().format(a.dueDate),
-              style: TextStyle(color: Colors.red),
-            )
-                : Text((a.dueDate
-                .difference(DateTime.now())
-                .inDays + 1)
-                .toString() +
-                " days"),
-            onLongPress: () {
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return SimpleDialog(
-                        title: Text(
-                            "Are you sure you want to delete " + a.title),
-                        children: <Widget>[
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              RaisedButton(
-                                color: Colors.white,
-                                child: Text("Yes"),
-                                onPressed: () {
-                                  setState(() {
-                                    c.assessments.remove(a);
-                                    Navigator.of(context).pop();
-                                    widget.database.updateDatabase();
-                                  });
-                                },
-                              ),
-                              RaisedButton(
-                                color: Colors.white,
-                                child: Text("Cancel"),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              )
-                            ],
-                          )
-                        ]);
-                  });
-            },
-            onTap: () async {
-              noti.cancelNotification(a.id);
-              Assignment result =
-              await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) =>
-                      AssessmentDetailsView(
-                        aClass: c,
-                        assignment: a,
-                      )));
-              if (result != null) {
-                print("Assessment updated: " + result.title);
-                DateTime dateTime = DateTime(
-                    result.dueDate.year,
-                    result.dueDate.month,
-                    result.dueDate.day,
-                    c.startTime.hour,
-                    c.startTime.minute);
-                dateTime = dateTime.subtract(Duration(minutes: 15));
-                noti.scheduleNotification(
-                    title: "Assignment due",
-                    body: result.title +
-                        " for " +
-                        c.title +
-                        " is due at " +
-                        dateTime.hour.toString() +
-                        ":" +
-                        dateTime.minute.toString(),
-                    dateTime: dateTime,
-                    id: result.id);
-                widget.database.updateDatabase();
-                setState(() {});
-              }
-            },
-          ));
+          //Get the data
+          assignmentList.add(getAssessmentListTile(a, isDueToday));
         }
         //Particular assessment is within the time
         else if (!a.isAssessment && (isWithinWeek || isDueToday)) {
-          QuerySnapshot snapshot = await Firestore.instance.collection(
-              "classes").where("user_id", isEqualTo: widget.database.userID)
-              .where("title", isEqualTo: document['class_title']).where(
-              "subject_area", isEqualTo: document["class_subject"])
-              .where("course_number", isEqualTo: document['class_number'])
-              .getDocuments();
-          Class c = widget.database.documentToClass(snapshot.documents[0]);
-          assignmentList.add(ListTile(
-            title: Text(a.title),
-            subtitle: Text(
-              c.title,
-            ),
-            trailing: isDueToday
-                ? Text(
-              "Due today",
-              style: TextStyle(color: Colors.red),
-            )
-                : Text("Due in " +
-                (a.dueDate
-                    .difference(DateTime.now())
-                    .inDays + 1)
-                    .toString() +
-                " days"),
-            onLongPress: () {
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return SimpleDialog(
-                        title: Text("Are you sure you want to delete " +
-                            a.title +
-                            " ?"),
-                        children: <Widget>[
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              RaisedButton(
-                                color: Colors.white,
-                                child: Text("Yes"),
-                                onPressed: () {
-                                  setState(() {
-                                    c.assignments.remove(a);
-                                    Navigator.of(context).pop();
-                                    widget.database.updateDatabase();
-                                  });
-                                },
-                              ),
-                              RaisedButton(
-                                color: Colors.white,
-                                child: Text("Cancel"),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              )
-                            ],
-                          )
-                        ]);
-                  });
-            },
-            onTap: () async {
-              noti.cancelNotification(a.id);
-              Assignment result =
-              await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) =>
-                      AssignmentDetailsView(
-                        aClass: c,
-                        assignment: a,
-                      )));
-              if (result != null) {
-                print("Assignment updated: " + result.title);
-                DateTime dateTime = DateTime(
-                    result.dueDate.year,
-                    result.dueDate.month,
-                    result.dueDate.day,
-                    c.startTime.hour,
-                    c.startTime.minute);
-                dateTime = dateTime.subtract(Duration(minutes: 15));
-                noti.scheduleNotification(
-                    title: "Assignment due",
-                    body: result.title +
-                        " for " +
-                        c.title +
-                        " is due at " +
-                        dateTime.hour.toString() +
-                        ":" +
-                        dateTime.minute.toString(),
-                    dateTime: dateTime,
-                    id: result.id);
-                widget.database.updateDatabase();
-                setState(() {});
-              }
-            },
-          ));
+          assignmentList.add(getAssignmentListTile(a, isDueToday));
         }
         else {
           assignmentList.add(ListTile(
               title: Text(
                 widget.isAssessment
-                    ? "No assessments due today"
-                    : "No assignments due today",
+                    ? "Getting assessments due today..."
+                    : "Getting assignments due today...",
                 style: Theme
                     .of(context)
                     .accentTextTheme
@@ -910,6 +980,7 @@ class _FilteredAssignmentExpansionState
     }
     //No data
     else {
+      print("No In Assignments");
       assignmentList.add(ListTile(
           title: Text(
             widget.isAssessment

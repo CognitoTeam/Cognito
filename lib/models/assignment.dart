@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/models/category.dart';
+import 'package:cognito/models/class.dart';
 /// Models an assignment for a class
 /// @author Julian Vu
 ///
@@ -16,6 +17,7 @@ class Assignment extends Task {
   double pointsPossible, pointsEarned, _rawScore;
   bool isAssessment;
   Category category;
+  String classObjId;
   Assignment(
       {String title,
         String description = "",
@@ -27,6 +29,7 @@ class Assignment extends Task {
         double pointsEarned = 0.0,
         bool isAssessment = false,
         Category category,
+        String classObjId,
         String id,
         int priority = 1,
         Duration duration}) : super(
@@ -36,7 +39,7 @@ class Assignment extends Task {
       start: start,
       end: end,
       dueDate: dueDate,
-      id: id, 
+      id: id,
       priority: priority,
       duration: duration
   ) {
@@ -44,6 +47,7 @@ class Assignment extends Task {
     this.pointsEarned = pointsEarned;
     this.isAssessment = isAssessment;
     this.category = category;
+    this.classObjId = classObjId;
     calculateRawScore();
   }
 
@@ -51,7 +55,10 @@ class Assignment extends Task {
     Map data = doc.data;
     int minutes = data['duration_in_minutes'];
     Duration d = new Duration(minutes: minutes);
+    print("CLASS ID" + data['class_id']);
+    print("ASSIGNMENT TITLE" + data['title']);
     Assignment a = Assignment(
+      classObjId: data['class_id'],
       title: data['title'],
       isAssessment: data['is_assessment'],
       description: data['description'],

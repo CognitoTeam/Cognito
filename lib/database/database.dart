@@ -228,20 +228,20 @@ class DataBase {
       list.documents.map((doc) => Category.fromFirestore(doc)).toList());
   }
 
-  Stream<List<Assignment>> streamAssignment(Class classObj, Assignment assignment)
+  Stream<List<Assignment>> streamAssignments(String termGradesId, bool isAssessment)
   {
-    Query ref = firestore.collection('classes').document(classObj.id).collection('assignments')
-        .where('is_assessment', isEqualTo: false);
+    String s = isAssessment ? "assessments" : "assignments";
+    Query ref = firestore.collection('grades').document(termGradesId)
+        .collection(s);
     return ref.snapshots().map((list) =>
         list.documents.map((doc) => Assignment.fromFirestore(doc)).toList());
   }
 
-  Stream<List<Assignment>> streamAssessment(Class classObj, Assignment assignment)
-  {
-    Query ref = firestore.collection('classes').document(classObj.id).collection('assignments')
-        .where('is_assessment', isEqualTo: true);
-    return ref.snapshots().map((list) =>
-        list.documents.map((doc) => Assignment.fromFirestore(doc)).toList());
+
+  Stream<Class> getClass(String classId) {
+    print("getClass: ${classId}");
+    return firestore
+        .collection('classes').document(classId).snapshots().map((snap) => Class.fromMap(snap.data));
   }
 
   void addOfficer(Officer o, String clubId) {
@@ -317,6 +317,7 @@ class DataBase {
       );
     return term;
   }
+
 
   Future<List<Class>> getClasses() async {
     List<Class> classes = List();
@@ -717,7 +718,12 @@ class DataBase {
     if (snapshot.documents.isEmpty) {
       docRefGradesUserTerm = Firestore.instance.collection("grades").document();
       docRefGradesUserTerm
-          .setData({"user_id": userId, "term_name": term.termName, "term_id" : term.getID()});
+          .setData(
+          {"user_id": userId,
+            "term_name": term.termName,
+            "term_id" : term.getID(),
+            "id" : docRefGradesUserTerm.documentID
+          });
 
       docRefGradesUserTermCurrent =
           docRefGradesUserTerm.collection(collectionName).document();
@@ -752,6 +758,7 @@ class DataBase {
       "class_title": classObj.title,
       "class_subject": classObj.subjectArea,
       "class_number": classObj.courseNumber,
+      "class_id" : classObj.id,
       "id" : docRefGradesUserTermCurrent.documentID
     });
 
