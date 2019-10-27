@@ -4,8 +4,10 @@ import 'package:cognito/database/database.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/views/add_priority_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 /// Event creation view
 /// @author Praneet Singh
@@ -290,6 +292,7 @@ class _AddEventViewState extends State<AddEventView> {
 
   @override
   Widget build(BuildContext context) {
+    var user = Provider.of<FirebaseUser>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("Add New Event"),
@@ -298,9 +301,9 @@ class _AddEventViewState extends State<AddEventView> {
           IconButton(
             icon: Icon(Icons.check),
             onPressed: () async {
-              String id;
               if(_titleController != null) {
-                id = await database.addEvent(
+                database.addEvent(
+                  user.uid,
                     _titleController.text,
                     _locationController.text,
                     _descriptionController.text,
@@ -323,7 +326,6 @@ class _AddEventViewState extends State<AddEventView> {
                   isRepeated: _isRepeated,
                   start: startTime,
                   end: endTime,
-                  id: id,
                   priority: _selectedPriority,
                   duration: Duration(
                       minutes: int.parse(_durationController.text)))
@@ -357,6 +359,7 @@ class _AddEventViewState extends State<AddEventView> {
             } else {
               if(_titleController != null) {
                 database.addEvent(
+                    user.uid,
                     _titleController.text,
                     _locationController.text,
                     _descriptionController.text,

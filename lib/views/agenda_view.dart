@@ -139,7 +139,6 @@ class _AgendaViewState extends State<AgendaView>
     List<Widget> listTasks = List();
     if (classes != null && classes.length > 0) {
       classes.forEach((Class c) {
-        print("Classes: " + c.title);
         listTasks.add(
           ListTile(
               title: Text(
@@ -655,14 +654,10 @@ class _FilteredAssignmentExpansionState
     var user = Provider.of<FirebaseUser>(context);
     updateGradesID(user.uid);
       if(gradesDocIDFound) {
-        print("GradeID is " + gradesDocID);
         return StreamBuilder<List<Assignment>>(
             stream: database.streamAssignments(gradesDocID, widget.isAssessment),
             builder: (BuildContext context, snapshot) {
               List<Assignment> assignments = snapshot.data;
-              if(assignments.length > 0) {
-                print(assignments[0].classObjId);
-              }
                 return ExpansionTile(
                   leading: Icon(Icons.class_),
                   title: Text(
@@ -967,8 +962,8 @@ class _FilteredAssignmentExpansionState
           assignmentList.add(ListTile(
               title: Text(
                 widget.isAssessment
-                    ? "Getting assessments due today..."
-                    : "Getting assignments due today...",
+                    ? "No assessments due today"
+                    : "No assignments due today",
                 style: Theme
                     .of(context)
                     .accentTextTheme
@@ -980,7 +975,6 @@ class _FilteredAssignmentExpansionState
     }
     //No data
     else {
-      print("No In Assignments");
       assignmentList.add(ListTile(
           title: Text(
             widget.isAssessment
@@ -1011,10 +1005,10 @@ class _FilteredEventExpansionState extends State<FilteredEventExpansion> {
   Notifications noti = Notifications();
 
 
-  List<Widget> _events() {
+  List<Widget> _events(List<Event> events) {
     List<Widget> eventsList = List();
-    if (widget.term.events.isNotEmpty) {
-      for (Event e in widget.term.events) {
+    if (events.isNotEmpty) {
+      for (Event e in events) {
         if (e.daysOfEvent.contains(widget.date.weekday)) {
           eventsList.add(ListTile(
             title: Text(
@@ -1121,38 +1115,26 @@ class _FilteredEventExpansionState extends State<FilteredEventExpansion> {
 
   @override
   Widget build(BuildContext context) {
+    var user = Provider.of<FirebaseUser>(context);
     if(widget.term != null) {
-      return ExpansionTile(
-        leading: Icon(Icons.event),
-        title: Text(
-          "Events",
-          style: Theme
-              .of(context)
-              .accentTextTheme
-              .body2,
-        ),
-        children: _events(),
-        initiallyExpanded: true,
+      return StreamBuilder<List<Event>>(
+        stream: widget.database.streamEvents(user, widget.term),
+        builder: (context, snapshot)
+        {
+          return ExpansionTile(
+            leading: Icon(Icons.event),
+            title: Text(
+              "Events",
+              style: Theme
+                  .of(context)
+                  .accentTextTheme
+                  .body2,
+            ),
+            children: _events(snapshot.data ?? []),
+            initiallyExpanded: true,
+          );
+        },
       );
     }
-    else
-      {
-        return ExpansionTile(
-          leading: Icon(Icons.event),
-          title: Text(
-            "Events",
-            style: Theme
-                .of(context)
-                .accentTextTheme
-                .body2,
-          ),
-          children: [ListTile(
-              title: Text(
-                "No events today",
-                style: Theme.of(context).accentTextTheme.body2,
-              ))],
-          initiallyExpanded: true,
-        );
-      }
   }
 }

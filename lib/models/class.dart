@@ -65,7 +65,6 @@ class Class extends Event {
   }
 
   factory Class.fromMap(Map data) {
-    print("From Map" + data.toString());
     List<int> list = List();
     data['days_of_event'].forEach((item) => list.add(item));
     Class c = Class(
@@ -81,7 +80,6 @@ class Class extends Event {
       start: data['start_time'].toDate(),
       end: data['end_time'].toDate(),
     );
-    print("End");
     return c;
   }
 

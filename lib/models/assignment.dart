@@ -55,8 +55,6 @@ class Assignment extends Task {
     Map data = doc.data;
     int minutes = data['duration_in_minutes'];
     Duration d = new Duration(minutes: minutes);
-    print("CLASS ID" + data['class_id']);
-    print("ASSIGNMENT TITLE" + data['title']);
     Assignment a = Assignment(
       classObjId: data['class_id'],
       title: data['title'],

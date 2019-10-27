@@ -166,9 +166,8 @@ class DataBase {
 
   Stream<List<Event>> streamEvents(FirebaseUser user, AcademicTerm term) {
     Query ref = firestore
-        .collection('classes')
-        .where('user_id', isEqualTo: user.uid)
-        .where('term_name', isEqualTo: term.termName);
+        .collection('events')
+        .where('user_id', isEqualTo: user.uid);
     return ref.snapshots().map((list) =>
         list.documents.map((doc) => Event.fromFirestore(doc)).toList());
   }
@@ -239,7 +238,6 @@ class DataBase {
 
 
   Stream<Class> getClass(String classId) {
-    print("getClass: ${classId}");
     return firestore
         .collection('classes').document(classId).snapshots().map((snap) => Class.fromMap(snap.data));
   }
@@ -598,6 +596,7 @@ class DataBase {
     if (club.events.isNotEmpty) {
       for (Event e in club.events) {
         addEvent(
+          user.uid,
             e.title,
             e.location,
             e.description,
@@ -608,7 +607,8 @@ class DataBase {
             e.priority,
             e.duration,
             term,
-            newClubReference.collection("events").document());
+            newClubReference.collection("events").document(),
+            );
       }
     }
     return newClubReference.documentID;
@@ -623,6 +623,7 @@ class DataBase {
   }
 
   Future<String> addEvent(
+      String userId,
       String title,
       String location,
       String description,
@@ -639,7 +640,7 @@ class DataBase {
     }
 
     newEventReferenceLocation.setData({
-      "user_id": userID,
+      "user_id": userId,
       "title": title,
       "location": location,
       "description": description,
