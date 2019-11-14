@@ -158,36 +158,45 @@ class DataBase {
   }
 
   Stream<List<AcademicTerm>> streamTerms(FirebaseUser user) {
-    Query ref =
-        firestore.collection('terms').where('user_id', isEqualTo: user.uid);
-    return ref.snapshots().map((list) =>
-        list.documents.map((doc) => AcademicTerm.fromFirestore(doc)).toList());
+    if(user != null) {
+      Query ref =
+      firestore.collection('terms').where('user_id', isEqualTo: user.uid);
+      return ref.snapshots().map((list) =>
+          list.documents.map((doc) => AcademicTerm.fromFirestore(doc))
+              .toList());
+    }
   }
 
   Stream<List<Event>> streamEvents(FirebaseUser user, AcademicTerm term) {
-    Query ref = firestore
-        .collection('events')
-        .where('user_id', isEqualTo: user.uid);
-    return ref.snapshots().map((list) =>
-        list.documents.map((doc) => Event.fromFirestore(doc)).toList());
+    if(user != null) {
+      Query ref = firestore
+          .collection('events')
+          .where('user_id', isEqualTo: user.uid);
+      return ref.snapshots().map((list) =>
+          list.documents.map((doc) => Event.fromFirestore(doc)).toList());
+    }
   }
 
   Stream<List<Event>> streamTasks(FirebaseUser user, AcademicTerm term) {
-    Query ref = firestore
-        .collection('tasks')
-        .where('user_id', isEqualTo: user.uid)
-        .where('term_name', isEqualTo: term.termName);
-    return ref.snapshots().map((list) =>
-        list.documents.map((doc) => Task.fromFirestore(doc)).toList());
+    if(user != null) {
+      Query ref = firestore
+          .collection('tasks')
+          .where('user_id', isEqualTo: user.uid)
+          .where('term_name', isEqualTo: term.termName);
+      return ref.snapshots().map((list) =>
+          list.documents.map((doc) => Task.fromFirestore(doc)).toList());
+    }
   }
 
   Stream<List<Class>> streamClasses(FirebaseUser user, AcademicTerm term) {
-    Query ref = firestore
-        .collection('classes')
-        .where('user_id', isEqualTo: user.uid)
-        .where('term_name', isEqualTo: term.termName);
-    return ref.snapshots().map((list) =>
-        list.documents.map((doc) => Class.fromFirestore(doc)).toList());
+    if(user != null) {
+      Query ref = firestore
+          .collection('classes')
+          .where('user_id', isEqualTo: user.uid)
+          .where('term_name', isEqualTo: term.termName);
+      return ref.snapshots().map((list) =>
+          list.documents.map((doc) => Class.fromFirestore(doc)).toList());
+    }
   }
 
   Stream<List<Event>> streamClubEvents(String clubId) {
@@ -213,11 +222,13 @@ class DataBase {
   }
 
   Stream<List<Club>> streamClubs(FirebaseUser user) {
-    Query ref = firestore
-        .collection('clubs')
-        .where('user_id', isEqualTo: user.uid);
-    return ref.snapshots().map((list) =>
-        list.documents.map((doc) => Club.fromFirestore(doc)).toList());
+    if(user != null) {
+      Query ref = firestore
+          .collection('clubs')
+          .where('user_id', isEqualTo: user.uid);
+      return ref.snapshots().map((list) =>
+          list.documents.map((doc) => Club.fromFirestore(doc)).toList());
+    }
   }
 
   Stream<List<Category>> streamCategory(Class classObj)
@@ -314,6 +325,23 @@ class DataBase {
       }
       );
     return term;
+  }
+
+  Future<List<Class>> getClassForTerm(AcademicTerm term, String userId) async {
+    if(userId != null) {
+      List<Class> classes = List();
+      Firestore.instance.collection('classes').where(
+          'user_id', isEqualTo: userId).where(
+          'term_name', isEqualTo: term.termName).getDocuments().then((
+          QuerySnapshot snapshot) {
+        for (int i = 0; i < snapshot.documents.length; i++) {
+          classes.add(Class.fromFirestore(snapshot.documents[i]));
+        }
+        return classes;
+      });
+      print(classes.length);
+      return classes;
+    }
   }
 
 
@@ -519,39 +547,45 @@ class DataBase {
   }
 
   Future<bool> doesTermNameAlreadyExist(String termName, String userID) async {
-    final QuerySnapshot result = await Firestore.instance
-        .collection('terms')
-        .where('term_name', isEqualTo: termName)
-        .limit(1)
-        .getDocuments();
-    final List<DocumentSnapshot> documents = result.documents;
-    return documents.length == 1;
+    if(userID != "") {
+      final QuerySnapshot result = await Firestore.instance
+          .collection('terms')
+          .where('term_name', isEqualTo: termName)
+          .limit(1)
+          .getDocuments();
+      final List<DocumentSnapshot> documents = result.documents;
+      return documents.length == 1;
+    }
   }
 
   Future<bool> doesClubNameAlreadyExist(String clubName, String userID) async {
-    final QuerySnapshot result = await Firestore.instance
-        .collection('club')
-        .where('title', isEqualTo: clubName)
-        .limit(1)
-        .getDocuments();
-    final List<DocumentSnapshot> documents = result.documents;
-    return documents.length == 1;
+    if(userID != "") {
+      final QuerySnapshot result = await Firestore.instance
+          .collection('club')
+          .where('title', isEqualTo: clubName)
+          .limit(1)
+          .getDocuments();
+      final List<DocumentSnapshot> documents = result.documents;
+      return documents.length == 1;
+    }
   }
 
   void addAcademicTerm(
       String text, DateTime startDate, DateTime endDate, String userID) async {
-    DocumentReference newTermReference =
-        firestore.collection("terms").document();
-    newTermReference.setData({
-      "user_id": userID,
-      "term_name": text,
-      "start_date": startDate,
-      "end_date": endDate,
-      "term_id": newTermReference.documentID
-    });
-    newTermReference.collection("classes_collection").document();
-    newTermReference.collection("assignments_collection").document();
-    newTermReference.collection("events_collection").document();
+    if(userID != "") {
+      DocumentReference newTermReference =
+      firestore.collection("terms").document();
+      newTermReference.setData({
+        "user_id": userID,
+        "term_name": text,
+        "start_date": startDate,
+        "end_date": endDate,
+        "term_id": newTermReference.documentID
+      });
+      newTermReference.collection("classes_collection").document();
+      newTermReference.collection("assignments_collection").document();
+      newTermReference.collection("events_collection").document();
+    }
   }
 
   Future<String> addClub(Club club, AcademicTerm term, FirebaseUser user) async {

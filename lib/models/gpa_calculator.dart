@@ -1,11 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cognito/database/database.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/class.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 
 ///Model for the GPA calculator
 ///@author Praneet Singh
 
 class GPACalculator {
   final double maxGPMultiplier = 4.0;
+  DataBase dataBase = DataBase();
   double gpa = 0.0;
   List<AcademicTerm> terms = List(); // List of the Academic terms
   Map<AcademicTerm, double> termsMap =
@@ -31,25 +36,25 @@ class GPACalculator {
 
   ///Everytime a new term is added
   ///the GPA is recalculated
-  void addTerm(AcademicTerm term) {
+  void addTerm(AcademicTerm term, FirebaseUser user) {
     terms.add(term);
-    calculateTermGPA(term);
+    calculateTermGPA(term, user);
     calculateGPA();
   }
 
   ///Calculates the GPA for each term and
   ///stores in the map
-  void calculateTermGPA(AcademicTerm term) {
+  Future calculateTermGPA(AcademicTerm term, FirebaseUser user) async {
     double gradePointsEarned = 0.0;
     double gradePointMultiplier = 0.0;
     double gradePointsPossible = 0.0;
     int units = 0;
     double gpaTemp = 0.0;
-    if (term.classes.isEmpty) {
-      print("No classes have been added to the class yet");
+    //Get the all Classes of a term
+    List<Class> classes = await dataBase.getClassForTerm(term, user.uid);
+    if (classes == null || classes.isEmpty) {
     } else {
-      for (Class c in term.classes) {
-        //TODO: Calculate term grade by collecting classes
+      for (Class c in classes) {
         String g = c.getGrade(null, null, null);
         if (g != "No Grades yet") {
           gradePointMultiplier = gradePointsMultiplier[g];
@@ -64,7 +69,7 @@ class GPACalculator {
       }else{
         termsMap[term] = 4.0;
       }
-     
+
     }
   }
 

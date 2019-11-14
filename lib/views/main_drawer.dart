@@ -53,7 +53,7 @@ class _MainDrawerState extends State<MainDrawer> {
 
   Future<bool> _signOutUser() async {
     final api = await _fireBaseLogin.signOutUser();
-    if (api != null) {
+    if (api != "sign out") {
       return false;
     } else {
       DataBase dataBase = DataBase();
@@ -173,18 +173,21 @@ class _MainDrawerState extends State<MainDrawer> {
                 ListTile(
                     title: Text("GPA"),
                     onTap: () {
-                      term == null
-                          ? showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return SimpleDialog(
-                              title: Text(
-                                  "Oops, looks like there is no current term. Create one in Academic terms."),
-                              children: <Widget>[],
-                            );
-                          })
-                          : Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) => GPAView()));
+                      if (snapshot.data == null) {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return SimpleDialog(
+                                title: Text(
+                                    "Oops, looks like there is no current term. Create one in Academic terms."),
+                                children: <Widget>[],
+                              );
+                            });
+                      }
+                      else{
+                        Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(builder: (context) => GPAView(term)));
+                      }
                     }),
                 RaisedButton(
                   color: Colors.red,
@@ -195,13 +198,7 @@ class _MainDrawerState extends State<MainDrawer> {
                     ),
                   ),
                   onPressed: () async {
-                    bool b = await _signOutUser();
-                    b
-                        ? Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                            builder: (context) => LoginSelectionView()),
-                        ModalRoute.withName("/LoginSelection"))
-                        : print("Error SignOut!");
+                    await _logout();
                   },
                 ),
               ],
@@ -214,5 +211,13 @@ class _MainDrawerState extends State<MainDrawer> {
           }
       },
     );
+  }
+
+  _logout() async{
+    await _signOutUser().then((_){
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+              builder: (context) => LoginSelectionView()),ModalRoute.withName("/LoginSelection"));
+    });
   }
 }

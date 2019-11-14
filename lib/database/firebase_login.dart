@@ -82,10 +82,10 @@ class FireBaseLogin {
     return _auth.sendPasswordResetEmail(email: email);
   }
 
-  Future<FirebaseUser> signOutUser() async {
+  Future<String> signOutUser() async {
     await _auth.signOut();
     await _googleSignIn.signOut();
     print("User Signed out");
-    return _auth.currentUser();
+    return "signed out";
   }
 }
