@@ -38,11 +38,6 @@ class _SignUpViewState extends State<SignUpView> {
   ///User sign up with email and password
   Future<bool> _signUpUser(BuildContext context) async {
     if (_email == null || _password == null || _confirmPassword == null) {
-      print("Error null password or email " +
-          "Email: " +
-          _email +
-          " Password: " +
-          _password);
       return false;
     } else if (_password != _confirmPassword) {
       print("Password Dont match");

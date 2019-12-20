@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 //import 'package:json_serializable/json_serializable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'event.g.dart';
-
 @JsonSerializable()
 
 class Event {
@@ -65,10 +63,6 @@ class Event {
     return e;
   }
 
-factory Event.fromJson(Map<String, dynamic> json) => _$EventFromJson(json);
-
-  Map<String, dynamic> toJson() => _$EventToJson(this);
- 
   List<int> get getDaysOfEvent => daysOfEvent;
 
   void addDayOfEvent(int dayOfWeek) {

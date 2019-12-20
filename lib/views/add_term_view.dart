@@ -99,14 +99,16 @@ class _AddTermViewState extends State<AddTermView> {
                     return IconButton(
                         icon: Icon(Icons.check),
                         onPressed: () {
-                            if (!timeConflict(newStartDate, newEndDate) && !result.hasData) {
+                            print("Time conflict" + (!timeConflict(newStartDate, newEndDate)).toString());
+                            print("Result" + (!result.data).toString());
+                            if (!timeConflict(newStartDate, newEndDate) && !result.data) {
                               Navigator.of(context).pop(_termNameController != null
                               //Add the term to fire store
                                   ? database.addAcademicTerm(
                                   _termNameController.text, newStartDate, newEndDate,
                                   user.uid)
                                   : null);
-                            } else if(timeConflict(newStartDate, newEndDate) && !result.hasData) {
+                            } else if(timeConflict(newStartDate, newEndDate) && !result.data) {
                               Scaffold.of(context).showSnackBar(SnackBar(
                                 content: Text("There is a time conflict with term: " +
                                     conflictTerm),

@@ -48,11 +48,6 @@ class AllTerms {
     }
   }
 
-//  factory AllTerms.fromJson(Map<String, dynamic> json) =>
-//      _$AllTermsFromJson(json);
-//
-//  Map<String, dynamic> toJson() => _$AllTermsToJson(this);
-
   List<AcademicTerm> getTerms()
   {
     return terms;

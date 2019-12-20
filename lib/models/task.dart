@@ -5,7 +5,6 @@ import 'package:cognito/models/event.dart';
 /// @author Julian Vu
 import 'package:json_annotation/json_annotation.dart';
 
-part 'task.g.dart';
 
 @JsonSerializable()
 class Task extends Event {
@@ -56,10 +55,6 @@ class Task extends Event {
     );
     return t;
   }
-
-  factory Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);
-
-  Map<String, dynamic> toJson() => _$TaskToJson(this);
 
   /// Add subtask to list of subtasks
   addSubTask(Task subTask) => subTasks.add(subTask);

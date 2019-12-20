@@ -487,7 +487,6 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
             } else {
               _isRepeated = true;
             }
-            print(_isRepeated);
           },
         ),
       ],

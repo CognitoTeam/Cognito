@@ -132,12 +132,10 @@ class DataBase {
   }
 
   Future<void> updateDatabase() {
-    print("Encoding terms");
 //    String jsonString = json.encode(allTerms);
 //    print(jsonString);
 //    print("Writing database to storage");
 //    writeJSON(jsonString);
-    print("Update database");
 //      update();
   }
 
@@ -339,7 +337,6 @@ class DataBase {
         }
         return classes;
       });
-      print(classes.length);
       return classes;
     }
   }
@@ -383,9 +380,7 @@ class DataBase {
     //Documents for the class
     List<DocumentSnapshot> documents = querySnapshot.documents;
     if (documents.length == 0) {
-      print("database.dart -> getAssignments ERROR: could not find any class");
     } else if (documents.length > 1) {
-      print("database.dart -> getAssignments ERROR: found more than one class");
     } else {
       QuerySnapshot snapshot = await firestore
           .collection('classes')
@@ -413,9 +408,7 @@ class DataBase {
         .getDocuments();
     List<DocumentSnapshot> documents = querySnapshot.documents;
     if (documents.length == 0) {
-      print("database.dart->getAssignments ERROR: could not find any class");
     } else if (documents.length > 1) {
-      print("database.dart->getAssignments ERROR: found more than one class");
     } else {
       QuerySnapshot snapshot = await firestore
           .collection('classes')
@@ -453,12 +446,9 @@ class DataBase {
         .where("user_id", isEqualTo: userID)
         .where("term_name", isEqualTo: termName)
         .getDocuments();
-    print("Updating " + termName);
     if (querySnapshot.documents.length == 1) {
-      print("DATABASE getTermsReference(): Retrieved data");
       querySnapshot.documents[0].reference
           .updateData({"term_name": newTermName});
-      print("term changed from " + termName);
       querySnapshot = await firestore
           .collection("classes")
           .where("user_id", isEqualTo: userID)
@@ -504,9 +494,7 @@ class DataBase {
             .updateData({"term_name": newTermName});
       }
     } else if (querySnapshot.documents.length == 0) {
-      print("DATABASE getTermsReference(): Did not retrieve any data");
     } else {
-      print("DATABASE getTermsReference(): Retrieved duplicate data");
     }
   }
 
@@ -550,7 +538,7 @@ class DataBase {
     if(userID != "") {
       final QuerySnapshot result = await Firestore.instance
           .collection('terms')
-          .where('term_name', isEqualTo: termName)
+          .where('term_name', isEqualTo: termName).where('user_id', isEqualTo: userID)
           .limit(1)
           .getDocuments();
       final List<DocumentSnapshot> documents = result.documents;
@@ -811,9 +799,7 @@ class DataBase {
         .where('term_name', isEqualTo: term.termName)
         .getDocuments();
     if (snapshot.documents.length == 0)
-      print("ERROR: FDid not find any data by this query");
     if (snapshot.documents.length > 1)
-      print("ERROR: Found more than one data entries");
     //Should be only a unique class
     if (snapshot.documents.length == 1) {
       firestore

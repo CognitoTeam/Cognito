@@ -71,10 +71,8 @@ void main() {
     final jsonList = json.decode(jsonString);
 //    AllTerms t = AllTerms.fromJson(jsonList);
 //    List<AcademicTerm> allTheTerms = t.terms;
-//    //print(jsonList);
 //
 //    expect(allTheTerms.length, equals(actualTerms.length));
 //
-//    print(jsonString);
   });
 }

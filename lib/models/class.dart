@@ -9,8 +9,6 @@ import 'package:cognito/models/grade_calculator.dart';
 import 'package:cognito/models/task.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'class.g.dart';
-
 @JsonSerializable()
 
 /// Class extends event class
@@ -103,10 +101,6 @@ class Class extends Event {
     );
     return c;
   }
-
-  factory Class.fromJson(Map<String, dynamic> json) => _$ClassFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ClassToJson(this);
 
   ///
   ///adds office hours to a class

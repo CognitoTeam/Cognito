@@ -25,13 +25,11 @@ class FireBaseLogin {
   }
 
   Future<bool> updateUser(String firstName, String lastName, {String photoUrl = ""}) async{
-    print("Here");
     final FirebaseUser currentUser =  await _auth.currentUser();
     UserUpdateInfo userUpdateInfo = UserUpdateInfo();
     userUpdateInfo.displayName = firstName + " " + lastName;
     userUpdateInfo.photoUrl = photoUrl;
     await currentUser.updateProfile(userUpdateInfo);
-    print(currentUser);
   }
   Future<String> fireBaseUserID() async{
   final FirebaseUser currentUser =  await _auth.currentUser();
@@ -45,10 +43,8 @@ class FireBaseLogin {
 
   ///User can sign in with email and password
   Future<FirebaseUser> signEmailIn(String email, String password) async {
-    print("*******:");
     FirebaseUser user = await _auth.signInWithEmailAndPassword(
         email: email, password: password);
-    print("User: " + user.toString());
     assert(user != null);
     assert(await user.getIdToken() != null);
     final FirebaseUser currentUser = await _auth.currentUser();

@@ -143,6 +143,5 @@ void main(){
     testClass6.addCategory(category);
     testClass6.addTodoItem(key, assignment: assignTest);
     expect(testClass6.assessments.length, equals(1));
-    //print(testClass6.getGrade());
   });
 }

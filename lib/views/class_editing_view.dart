@@ -393,11 +393,9 @@ class _ClassEditingViewState extends State<ClassEditingView> {
                             EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                       ),
                       onFieldSubmitted: (val) {
-                        print(val);
                         setState(() {
                           database.allTerms.addSubject(val);
                           database.updateDatabase();
-                          print(database.allTerms.subjects);
                         });
                         Navigator.pop(context);
                       },

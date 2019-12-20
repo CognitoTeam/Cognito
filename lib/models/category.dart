@@ -3,7 +3,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 /// Models a category of an assignment in a grade book
 import 'package:json_annotation/json_annotation.dart';
-part 'category.g.dart';
 
 @JsonSerializable()
 
@@ -37,7 +36,4 @@ class Category {
     );
     return cat;
   }
-
-  factory Category.fromJson(Map<String, dynamic> json) => _$CategoryFromJson(json);
-  Map<String, dynamic> toJson() => _$CategoryToJson(this);
 }

@@ -90,7 +90,6 @@ class _AddTaskViewState extends State<AddTaskView> {
             } else {
               _isRepeated = true;
             }
-            print(_isRepeated);
           },
         ),
       ],

@@ -213,7 +213,6 @@
 //    expect(gp.termsMap.length, equals(2));
 //
 //    gp.calculateGPA();
-//    print(gp.gpa);
 //  });
 //
 //  test("Test Term grade", () {
@@ -419,7 +418,6 @@
 //    GPACalculator gp = GPACalculator();
 //    gp.addTerm(term);
 //    gp.addTerm(term1);
-//    print(gp.gpa);
 //    expect(gp.termsMap.length, equals(2));
 //  });
 //   test("Test No assignments", () {
@@ -430,7 +428,6 @@
 //        term.addClass(class1);
 //            GPACalculator gp = GPACalculator();
 //            gp.addTerm(term);
-//      print(gp.gpa);
 //
 //  });
 //}

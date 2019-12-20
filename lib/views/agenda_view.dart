@@ -1136,5 +1136,20 @@ class _FilteredEventExpansionState extends State<FilteredEventExpansion> {
         },
       );
     }
+    else
+      {
+        return ExpansionTile(
+            leading: Icon(Icons.event),
+            title: Text(
+            "Events",
+            style: Theme
+                .of(context)
+                .accentTextTheme
+                .body2,
+            ),
+            children: _events([]),
+            initiallyExpanded: true,
+        );
+      }
   }
 }

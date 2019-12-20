@@ -33,14 +33,7 @@ class _LoginViewState extends State<LoginView> {
   ///User can login if email and passowrd are not null and
   ///firebase accepts the account
   Future<bool> _loginUser() async {
-    print(_email);
-    print(_password);
     if (_email == null || _password == null) {
-      print("Error null password or email " +
-          "Email: " +
-          _email +
-          " Password: " +
-          _password);
       return false;
     } else {
       try {

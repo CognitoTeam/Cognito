@@ -134,7 +134,6 @@ class _AcademicTermViewState extends State<AcademicTermView> {
                           key: Key(term.toString()),
                           direction: DismissDirection.endToStart,
                           onResize: () {
-                            print("Swipped");
                           },
                           onDismissed: (direction) {
                             database.removeAcademicTerm(term);

@@ -34,7 +34,6 @@ void main() {
     term.addClub(club1);
     term.addClub(club2);
     term.addClub(club3);
-    print("Classes:");
     for (Class c in term.classes) {
       print(c.courseNumber);
     }

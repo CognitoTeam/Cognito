@@ -7,8 +7,6 @@ import 'package:cognito/models/class.dart';
 import 'package:cognito/models/task.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'assignment.g.dart';
-
 @JsonSerializable()
 
 
@@ -72,16 +70,6 @@ class Assignment extends Task {
         weightInPercentage: data['category_weight_in_percentage'])
     );
     return a;
-  }
-
-  factory Assignment.fromJson(Map<String, dynamic> json) => _$AssignmentFromJson(json);
-
-
-  Map<String, dynamic> toJson() => _$AssignmentToJson(this);
-  /// Calculates raw score and then returns
-  get rawScore {
-    _rawScore = calculateRawScore();
-    return _rawScore;
   }
 
   /// Calculates raw score from points possible and points earned on this
