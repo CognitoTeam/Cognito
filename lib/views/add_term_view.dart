@@ -85,7 +85,7 @@ class _AddTermViewState extends State<AddTermView> {
   String conflictTerm = "";
   bool timeConflict(DateTime startTime, DateTime endTime) {
     bool cond = false;
-    for (AcademicTerm t in terms.getTerms()) {
+    for (AcademicTerm t in terms) {
       if ((startTime.isAfter(t.startTime) && startTime.isBefore(t.endTime)) ||
           (endTime.isAfter(t.startTime) && endTime.isBefore(t.endTime)) ||
           (startTime.compareTo(t.startTime) == 0) &&
@@ -102,7 +102,6 @@ class _AddTermViewState extends State<AddTermView> {
     var user = Provider.of<FirebaseUser>(context);
     var terms = Provider.of<List<AcademicTerm>>(context);
     this.terms = terms;
-    print(this.terms.length.toString());
     return FutureBuilder(
         future: database.doesTermNameAlreadyExist(_termNameController.text, user.uid),
         builder: (context, AsyncSnapshot<bool> result) {
