@@ -194,7 +194,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
         onPressed: () async {
           //Retrieve Academic Term object from AddTermView
           final result = await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => AddTermView()));
+                        builder: (context) => AddTermViewProviderValue()));
 
 
           if (result != null) {

@@ -46,7 +46,6 @@ class _MainDrawerState extends State<MainDrawer> {
         _userID = userID;
       });
     } else {
-      //print("User ID null");
     }
     return userID;
   }

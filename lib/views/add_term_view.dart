@@ -9,6 +9,22 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 
+class AddTermViewProviderValue extends StatelessWidget {
+
+  final db = DataBase();
+
+  @override
+  Widget build(BuildContext context) {
+    var user = Provider.of<FirebaseUser>(context);
+    return Container(
+      child: StreamProvider<List<AcademicTerm>>.value(
+        value: db.streamTerms(user),
+        child: AddTermView(),
+      ),
+    );
+  }
+
+}
 
 /// Academic term creation view
 /// View screen to create a new AcademicTerm
@@ -23,9 +39,7 @@ class _AddTermViewState extends State<AddTermView> {
   DataBase database = DataBase();
   //Fire store instance
   final firestore = Firestore.instance;
-
-  //To check time conflict
-  AllTerms allTerms = new AllTerms();
+  var terms;
 
   @override
   void initState() {
@@ -64,7 +78,6 @@ class _AddTermViewState extends State<AddTermView> {
       print("Date selected: ${picked.toString()}");
       setState(() {
         isStart ? newStartDate = picked : newEndDate = picked;
-        //print(isStart ? newStartDate.toString() : newEndDate.toString());
       });
     }
   }
@@ -72,7 +85,7 @@ class _AddTermViewState extends State<AddTermView> {
   String conflictTerm = "";
   bool timeConflict(DateTime startTime, DateTime endTime) {
     bool cond = false;
-    for (AcademicTerm t in allTerms.getTerms()) {
+    for (AcademicTerm t in terms.getTerms()) {
       if ((startTime.isAfter(t.startTime) && startTime.isBefore(t.endTime)) ||
           (endTime.isAfter(t.startTime) && endTime.isBefore(t.endTime)) ||
           (startTime.compareTo(t.startTime) == 0) &&
@@ -87,6 +100,9 @@ class _AddTermViewState extends State<AddTermView> {
   @override
   Widget build(BuildContext context) {
     var user = Provider.of<FirebaseUser>(context);
+    var terms = Provider.of<List<AcademicTerm>>(context);
+    this.terms = terms;
+    print(this.terms.length.toString());
     return FutureBuilder(
         future: database.doesTermNameAlreadyExist(_termNameController.text, user.uid),
         builder: (context, AsyncSnapshot<bool> result) {

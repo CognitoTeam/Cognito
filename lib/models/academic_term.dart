@@ -37,11 +37,6 @@ class AcademicTerm {
       );
     }
 
-//    factory AcademicTerm.fromJson(Map<String, dynamic> json) => _$AcademicTermFromJson(json);
-//
-//
-//    Map<String, dynamic> toJson() => _$AcademicTermToJson(this);
-
     String getStartDateAsString() {
       return "${startTime.month}/${startTime.day}/${startTime.year}";
     }

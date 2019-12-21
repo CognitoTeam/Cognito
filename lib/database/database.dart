@@ -193,7 +193,7 @@ class DataBase {
           .where('user_id', isEqualTo: user.uid)
           .where('term_name', isEqualTo: term.termName);
       return ref.snapshots().map((list) =>
-          list.documents.map((doc) => Class.fromFirestore(doc)).toList());
+          list.documents.map((doc) => Class.fromMap(doc.data)).toList());
     }
   }
 
@@ -333,7 +333,7 @@ class DataBase {
           'term_name', isEqualTo: term.termName).getDocuments().then((
           QuerySnapshot snapshot) {
         for (int i = 0; i < snapshot.documents.length; i++) {
-          classes.add(Class.fromFirestore(snapshot.documents[i]));
+          classes.add(Class.fromMap(snapshot.documents[i].data));
         }
         return classes;
       });

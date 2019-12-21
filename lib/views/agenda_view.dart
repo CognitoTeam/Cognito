@@ -412,7 +412,6 @@ class _AgendaViewState extends State<AgendaView>
     
     void onTabTapped(int index)
     {
-      //print(index);
       setState(
           () {
             _currentIndex = index;

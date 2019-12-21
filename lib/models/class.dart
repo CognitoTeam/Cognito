@@ -81,26 +81,26 @@ class Class extends Event {
     return c;
   }
 
-  factory Class.fromFirestore(DocumentSnapshot doc) {
-    Map data = doc.data;
-    List<int> list = List();
-    data['days_of_event'].forEach((item) => list.add(item));
-    Class c = Class(
-      title: data['title'],
-      subjectArea: data['subject_area'],
-      courseNumber: data['course_number'],
-      instructor: data['instructor'],
-      units: data['units'],
-      location: data['location'],
-      officeLocation: data['office_location'],
-      description: data['description'],
-      daysOfEvent: list,
-      start: data['start_time'].toDate(),
-      end: data['end_time'].toDate(),
-      id: doc.documentID
-    );
-    return c;
-  }
+//  factory Class.fromFirestore(DocumentSnapshot doc) {
+//    Map data = doc.data;
+//    List<int> list = List();
+//    data['days_of_event'].forEach((item) => list.add(item));
+//    Class c = Class(
+//      title: data['title'],
+//      subjectArea: data['subject_area'],
+//      courseNumber: data['course_number'],
+//      instructor: data['instructor'],
+//      units: data['units'],
+//      location: data['location'],
+//      officeLocation: data['office_location'],
+//      description: data['description'],
+//      daysOfEvent: list,
+//      start: data['start_time'].toDate(),
+//      end: data['end_time'].toDate(),
+//      id: doc.documentID
+//    );
+//    return c;
+//  }
 
   ///
   ///adds office hours to a class
