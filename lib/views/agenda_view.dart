@@ -639,7 +639,6 @@ class _FilteredAssignmentExpansionState
         'user_id', isEqualTo: database.userID).where('term_name', isEqualTo: widget.term.termName).getDocuments();
     if(gradesQuery.documents.length != 1)
     {
-      print("No Assignment found");
     }
     else if(gradesQuery.documents.length == 1)
     {
@@ -939,7 +938,7 @@ class _FilteredAssignmentExpansionState
   List<Widget> _assignments(List<Assignment> assignments) {
     List<Widget> assignmentList = List();
     //Snapshot has data
-    if (assignments.length > 0) {
+    if (assignments != null && assignments.length > 0) {
       assignments.forEach((Assignment a) {
 //        print("ID: ${a.classObjId}");
         //For each assignment get its class

@@ -193,7 +193,7 @@ class DataBase {
           .where('user_id', isEqualTo: user.uid)
           .where('term_name', isEqualTo: term.termName);
       return ref.snapshots().map((list) =>
-          list.documents.map((doc) => Class.fromMap(doc.data)).toList());
+          list.documents.map((doc) => Class.fromFirestore(doc)).toList());
     }
   }
 
@@ -248,7 +248,7 @@ class DataBase {
 
   Stream<Class> getClass(String classId) {
     return firestore
-        .collection('classes').document(classId).snapshots().map((snap) => Class.fromMap(snap.data));
+        .collection('classes').document(classId).snapshots().map((snap) => Class.fromFirestore(snap));
   }
 
   void addOfficer(Officer o, String clubId) {
@@ -333,7 +333,7 @@ class DataBase {
           'term_name', isEqualTo: term.termName).getDocuments().then((
           QuerySnapshot snapshot) {
         for (int i = 0; i < snapshot.documents.length; i++) {
-          classes.add(Class.fromMap(snapshot.documents[i].data));
+          classes.add(Class.fromFirestore(snapshot.documents[i]));
         }
         return classes;
       });

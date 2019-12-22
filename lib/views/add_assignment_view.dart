@@ -184,6 +184,7 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
         content: StreamBuilder<List<Category>>(
           stream: database.streamCategory(widget.aClass),
           builder: (BuildContext context, snapshot) {
+            print("ID: " + widget.aClass.id.toString());
             return ExpansionTile(
                 title: Text(
                   _categoryListTitle,
@@ -446,7 +447,7 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
                             cat.weightInPercentage =
                                 double.parse(_categoryWeight.text);
                             try {
-                              widget.aClass.addCategory(cat);
+                              //TODO: widget.aClass.addCategory(cat);
                               database.addCategoryToClass(
                                   cat, widget.aClass, widget.term);
                             } catch (e) {
