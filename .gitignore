@@ -21,3 +21,5 @@ pubspec.lock
 \.vscode/settings\.json
 
 \.vscode/launch\.json
+
+ios/Flutter/flutter_export_environment.sh

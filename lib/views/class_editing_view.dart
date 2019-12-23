@@ -4,8 +4,10 @@ import 'dart:async';
 
 import 'package:cognito/database/database.dart';
 import 'package:cognito/models/class.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 enum Day { M, Tu, W, Th, F, Sat, Sun }
 
@@ -391,11 +393,9 @@ class _ClassEditingViewState extends State<ClassEditingView> {
                             EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                       ),
                       onFieldSubmitted: (val) {
-                        print(val);
                         setState(() {
                           database.allTerms.addSubject(val);
                           database.updateDatabase();
-                          print(database.allTerms.subjects);
                         });
                         Navigator.pop(context);
                       },
@@ -440,6 +440,7 @@ class _ClassEditingViewState extends State<ClassEditingView> {
 
   @override
   Widget build(BuildContext context) {
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("Edit Class"),
@@ -447,7 +448,10 @@ class _ClassEditingViewState extends State<ClassEditingView> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.check),
-            onPressed: () {
+            onPressed: () async {
+              Class oldClass = Class(title: widget.classObj.title, description: widget.classObj.description, location: widget.classObj.location, start: widget.classObj.startTime,
+                end: widget.classObj.endTime, units: widget.classObj.units, courseNumber: widget.classObj.courseNumber, subjectArea: widget.classObj.subjectArea,
+                  officeLocation: widget.classObj.officeLocation, daysOfEvent: widget.classObj.daysOfEvent, id: widget.classObj.id, instructor: widget.classObj.instructor);
               widget.classObj.subjectArea = _subjectController.text;
               widget.classObj.courseNumber = _courseNumberController.text;
               widget.classObj.title = _courseTitleController.text;
@@ -459,7 +463,10 @@ class _ClassEditingViewState extends State<ClassEditingView> {
               widget.classObj.startTime = startTime;
               widget.classObj.endTime = endTime;
               widget.classObj.daysOfEvent = daysOfEvent;
-              Navigator.of(context).pop(widget.classObj);
+              print("OLD: " + oldClass.description.toString());
+              print("NEW: " + widget.classObj.description.toString());
+              await database.updateClass(oldClass, widget.classObj , user);
+              Navigator.of(context).pop();
             },
           ),
         ],

@@ -4,8 +4,10 @@ import 'package:cognito/database/database.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/views/add_priority_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 /// Event creation view
 /// @author Praneet Singh
@@ -13,6 +15,11 @@ import 'package:intl/intl.dart';
 enum Day { M, Tu, W, Th, F, Sat, Sun }
 
 class AddEventView extends StatefulWidget {
+
+  AcademicTerm enteredTerm;
+
+  AddEventView(this.enteredTerm);
+
   @override
   _AddEventViewState createState() => _AddEventViewState();
 }
@@ -272,7 +279,7 @@ class _AddEventViewState extends State<AddEventView> {
       });
     }
   }
-
+  //TODO: Should add to term that is currently logged into
   AcademicTerm getCurrentTerm() {
     for (AcademicTerm term in database.allTerms.terms) {
       if (DateTime.now().isAfter(term.startTime) &&
@@ -285,6 +292,7 @@ class _AddEventViewState extends State<AddEventView> {
 
   @override
   Widget build(BuildContext context) {
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("Add New Event"),
@@ -292,20 +300,35 @@ class _AddEventViewState extends State<AddEventView> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.check),
-            onPressed: () {
+            onPressed: () async {
+              if(_titleController != null) {
+                database.addEvent(
+                  user.uid,
+                    _titleController.text,
+                    _locationController.text,
+                    _descriptionController.text,
+                    daysOfEvent,
+                    _isRepeated,
+                    startTime,
+                    endTime,
+                    _selectedPriority,
+                    Duration(
+                        minutes: int.parse(_durationController.text)
+                    ),
+                widget.enteredTerm, null);
+              }
               Navigator.of(context).pop(_titleController != null
                   ? Event(
-                      title: _titleController.text,
-                      location: _locationController.text,
-                      description: _descriptionController.text,
-                      daysOfEvent: daysOfEvent,
-                      isRepeated: _isRepeated,
-                      start: startTime,
-                      end: endTime,
-                      id: getCurrentTerm().getID(),
-                      priority: _selectedPriority,
-                      duration: Duration(
-                          minutes: int.parse(_durationController.text)))
+                  title: _titleController.text,
+                  location: _locationController.text,
+                  description: _descriptionController.text,
+                  daysOfEvent: daysOfEvent,
+                  isRepeated: _isRepeated,
+                  start: startTime,
+                  end: endTime,
+                  priority: _selectedPriority,
+                  duration: Duration(
+                      minutes: int.parse(_durationController.text)))
                   : null);
             },
           )
@@ -334,19 +357,34 @@ class _AddEventViewState extends State<AddEventView> {
             if (currentStep < getSteps().length - 1) {
               currentStep++;
             } else {
+              if(_titleController != null) {
+                database.addEvent(
+                    user.uid,
+                    _titleController.text,
+                    _locationController.text,
+                    _descriptionController.text,
+                    daysOfEvent,
+                    _isRepeated,
+                    startTime,
+                    endTime,
+                    _selectedPriority,
+                    Duration(
+                        minutes: int.parse(_durationController.text)
+                    ),
+                widget.enteredTerm, null);
+              }
               Navigator.of(context).pop(_titleController != null
                   ? Event(
-                      title: _titleController.text,
-                      location: _locationController.text,
-                      description: _descriptionController.text,
-                      daysOfEvent: daysOfEvent,
-                      isRepeated: _isRepeated,
-                      start: startTime,
-                      end: endTime,
-                      id: getCurrentTerm().getID(),
-                      priority: _selectedPriority,
-                      duration: Duration(
-                          minutes: int.parse(_durationController.text)))
+                  title: _titleController.text,
+                  location: _locationController.text,
+                  description: _descriptionController.text,
+                  daysOfEvent: daysOfEvent,
+                  isRepeated: _isRepeated,
+                  start: startTime,
+                  end: endTime,
+                  priority: _selectedPriority,
+                  duration: Duration(
+                      minutes: int.parse(_durationController.text)))
                   : null);
             }
           });

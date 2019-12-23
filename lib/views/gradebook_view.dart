@@ -1,5 +1,7 @@
 // Copyright 2019 UniPlan. All rights reserved.
 
+import 'package:cognito/database/database.dart';
+import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/category.dart';
 import 'package:cognito/models/class.dart';
@@ -7,8 +9,10 @@ import 'package:flutter/material.dart';
 
 class GradeBookView extends StatefulWidget {
   final Class selectedClass;
+  final AcademicTerm term;
+  DataBase database = DataBase();
 
-  GradeBookView({Key key, @required this.selectedClass}) : super(key: key);
+  GradeBookView({Key key, @required this.selectedClass, @required this.term}) : super(key: key);
 
   @override
   _GradeBookViewState createState() => _GradeBookViewState();
@@ -70,7 +74,7 @@ class _GradeBookViewState extends State<GradeBookView> {
       rowsOfWidgets.add(
         ListTile(
             title: Text(c.title),
-            trailing: Text(c.getPercentage().toString() + "%")),
+            trailing: Text(c.weightInPercentage.toString() + "%")),
       );
     }
     rowsOfWidgets.add(Divider());
@@ -83,7 +87,7 @@ class _GradeBookViewState extends State<GradeBookView> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         trailing: Text(
-          selectedClass.getPercentage() + " - " + selectedClass.getGrade(),
+          selectedClass.getGrade(selectedClass.assessments, selectedClass.assignments, selectedClass.categories),
           style: TextStyle(fontWeight: FontWeight.bold),
         )));
     return rowsOfWidgets;

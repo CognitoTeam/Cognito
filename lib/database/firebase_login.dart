@@ -2,12 +2,14 @@
 ///@author Praneet Singh
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cognito/database/database.dart';
 import 'dart:async';
 
 class FireBaseLogin {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = new GoogleSignIn();
   FirebaseUser _user;
+  DataBase dataBase;
 
   Future<FirebaseUser> signInGoogleUser() async {
     final GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
@@ -23,13 +25,11 @@ class FireBaseLogin {
   }
 
   Future<bool> updateUser(String firstName, String lastName, {String photoUrl = ""}) async{
-    print("Here");
     final FirebaseUser currentUser =  await _auth.currentUser();
     UserUpdateInfo userUpdateInfo = UserUpdateInfo();
     userUpdateInfo.displayName = firstName + " " + lastName;
     userUpdateInfo.photoUrl = photoUrl;
     await currentUser.updateProfile(userUpdateInfo);
-    print(currentUser);
   }
   Future<String> fireBaseUserID() async{
   final FirebaseUser currentUser =  await _auth.currentUser();
@@ -47,7 +47,6 @@ class FireBaseLogin {
         email: email, password: password);
     assert(user != null);
     assert(await user.getIdToken() != null);
-
     final FirebaseUser currentUser = await _auth.currentUser();
     assert(user.uid == currentUser.uid);
     _user = currentUser;
@@ -79,10 +78,10 @@ class FireBaseLogin {
     return _auth.sendPasswordResetEmail(email: email);
   }
 
-  Future<FirebaseUser> signOutUser() async {
+  Future<String> signOutUser() async {
     await _auth.signOut();
     await _googleSignIn.signOut();
     print("User Signed out");
-    return _auth.currentUser();
+    return "signed out";
   }
 }

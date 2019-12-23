@@ -342,7 +342,6 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
           leading: IconButton(
             icon: BackButtonIcon(),
             onPressed: () {
-              print("Returning a assignment");
               widget.assignment.title = _titleController.text;
               widget.assignment.description = _descriptionController.text;
               widget.assignment.pointsEarned =
@@ -384,7 +383,6 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
               if (currentStep < getSteps().length - 1) {
                 currentStep++;
               } else {
-                print("Returning a assignment");
                 widget.assignment.title = _titleController.text;
                 widget.assignment.description = _descriptionController.text;
                 widget.assignment.pointsEarned =
@@ -451,7 +449,6 @@ class _DateRowState extends State<DateRow> {
       ),
       trailing: Text(getDueDateAsString()),
       onTap: () {
-        print("Tapped on Due date");
         _selectDate(context);
       },
     );

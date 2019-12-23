@@ -1,5 +1,6 @@
 // Copyright 2019 UniPlan. All rights reserved
 
+import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/class.dart';
 import 'package:cognito/views/gradebook_view.dart';
 import 'package:flutter/material.dart';
@@ -11,9 +12,10 @@ enum Day { M, Tu, W, Th, F, Sat, Sun }
 class ClassDetailsView extends StatefulWidget {
   // Underlying class object
   final Class classObj;
+  final AcademicTerm term;
 
   // Ctor
-  ClassDetailsView({Key key, @required this.classObj}) : super(key: key);
+  ClassDetailsView({Key key, @required this.classObj, @required this.term}) : super(key: key);
 
   @override
   _ClassDetailsViewState createState() => _ClassDetailsViewState(classObj);
@@ -40,7 +42,7 @@ class _ClassDetailsViewState extends State<ClassDetailsView> {
         ),
       ),
       body: ListView(
-        children: <Widget>[GradeBookView(selectedClass: _classObjToReturn)],
+        children: <Widget>[GradeBookView(selectedClass: _classObjToReturn, term: widget.term,)],
       ),
     );
   }

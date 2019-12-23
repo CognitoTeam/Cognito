@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/database.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/views/add_priority_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:cognito/models/task.dart';
+import 'package:provider/provider.dart';
 
 /// Task creation view
 /// @author Praneet Singh
@@ -11,6 +14,12 @@ import 'package:cognito/models/task.dart';
 enum Day { M, Tu, W, Th, F, Sat, Sun }
 
 class AddTaskView extends StatefulWidget {
+
+  AcademicTerm enteredTerm;
+  bool clubTask;
+
+  AddTaskView(this.enteredTerm, this.clubTask);
+
   @override
   _AddTaskViewState createState() => _AddTaskViewState();
 }
@@ -81,7 +90,6 @@ class _AddTaskViewState extends State<AddTaskView> {
             } else {
               _isRepeated = true;
             }
-            print(_isRepeated);
           },
         ),
       ],
@@ -216,6 +224,7 @@ class _AddTaskViewState extends State<AddTaskView> {
 
   @override
   Widget build(BuildContext context) {
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("Add New Task"),
@@ -223,19 +232,37 @@ class _AddTaskViewState extends State<AddTaskView> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.check),
-            onPressed: () {
+            onPressed: () async {
+              //Enter from club task
+              //Did not enter from club task
+              String id;
+              if(!widget.clubTask) {
+                database.addTask(
+                    user.uid,
+                    _titleController.text,
+                    _locationController.text,
+                    _descriptionController.text,
+                    daysOfEvent,
+                    _isRepeated,
+                    dueDate,
+                    _selectedPriority,
+                    Duration(
+                        minutes: int.parse(_durationController.text)),
+                    widget.enteredTerm,
+                    null);
+              }
               Navigator.of(context).pop(_titleController != null
                   ? Task(
-                      title: _titleController.text,
-                      location: _locationController.text,
-                      description: _descriptionController.text,
-                      daysOfEvent: daysOfEvent,
-                      isRepeated: _isRepeated,
-                      dueDate: dueDate,
-                      id: getCurrentTerm().getID(),
-                      priority: _selectedPriority,
-                      duration: Duration(
-                          minutes: int.parse(_durationController.text)))
+                  title: _titleController.text,
+                  location: _locationController.text,
+                  description: _descriptionController.text,
+                  daysOfEvent: daysOfEvent,
+                  isRepeated: _isRepeated,
+                  dueDate: dueDate,
+                  id: id,//widget.enteredTerm.getID(),
+                  priority: _selectedPriority,
+                  duration: Duration(
+                      minutes: int.parse(_durationController.text)))
                   : null);
             },
           )
@@ -264,19 +291,37 @@ class _AddTaskViewState extends State<AddTaskView> {
             if (currentStep < getSteps().length - 1) {
               currentStep++;
             } else {
-              Navigator.of(context).pop(_titleController != null
-                  ? Task(
-                      title: _titleController.text,
-                      location: _locationController.text,
-                      description: _descriptionController.text,
-                      daysOfEvent: daysOfEvent,
-                      isRepeated: _isRepeated,
-                      dueDate: dueDate,
-                      id: getCurrentTerm().getID(),
-                      priority: _selectedPriority,
-                      duration: Duration(
-                          minutes: int.parse(_durationController.text)))
-                  : null);
+              //Enter from club task
+              //Did not enter from club task
+              if(!widget.clubTask)
+                {
+                  database.addTask(
+                      user.uid,
+                      _titleController.text,
+                      _locationController.text,
+                      _descriptionController.text,
+                      daysOfEvent,
+                      _isRepeated,
+                      dueDate,
+                      _selectedPriority,
+                      Duration(
+                          minutes: int.parse(_durationController.text)),
+                      widget.enteredTerm,
+                      null);
+                }
+              //Enter as general task
+                Navigator.of(context).pop(_titleController != null
+                    ? Task(
+                    title: _titleController.text,
+                    location: _locationController.text,
+                    description: _descriptionController.text,
+                    daysOfEvent: daysOfEvent,
+                    isRepeated: _isRepeated,
+                    dueDate: dueDate,
+                    priority: _selectedPriority,
+                    duration: Duration(
+                        minutes: int.parse(_durationController.text)))
+                    : null);
             }
           });
         },

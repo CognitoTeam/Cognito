@@ -5,8 +5,10 @@ import 'package:cognito/models/event.dart';
 import 'package:cognito/models/task.dart';
 import 'package:cognito/views/academic_term_view.dart';
 import 'package:cognito/views/agenda_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cognito/database/notifications.dart';
+import 'package:provider/provider.dart';
 
 class BufferView extends StatefulWidget {
   @override
@@ -16,27 +18,20 @@ class BufferView extends StatefulWidget {
 class _BufferViewState extends State<BufferView> {
   DataBase database = DataBase();
   Notifications noti = Notifications();
+  AcademicTerm term;
 
-  AcademicTerm getCurrentTerm() {
-    for (AcademicTerm term in database.allTerms.terms) {
-      if (DateTime.now().isAfter(term.startTime) &&
-          DateTime.now().isBefore(term.endTime)) {
-        return term;
-      }
-    }
-    return null;
-  }
 /**
  * Initialize the database and if no data is stored 
  * then go to Academic term view else go to Agenda view
  */
-  Future<bool> _initializeDatabase() async {
+  Future<bool> _initializeDatabase(FirebaseUser user) async {
+    this.term = await database.getCurrentTerm(user);
     String p = await database.initializeFireStore();
     if (p == '[]' ||
         p == '{}' ||
         p == null ||
         p == '{"terms":[],"subjects":[]}' ||
-        getCurrentTerm() == null) {
+        database.getCurrentTerm(user) == null) {
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => AcademicTermView()),
@@ -44,20 +39,20 @@ class _BufferViewState extends State<BufferView> {
     } else {
       Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => AgendaView()),
+          MaterialPageRoute(builder: (context) => AgendaView(term)),
           ModalRoute.withName("/Home"));
     }
     // Initialize notifications after database is initialized
-    _initializeNotifications();
+    _initializeNotifications(user);
   }
 /**
  * Initialize the notifications and create 
  * all notifications for current term.
  */
-  Future<bool> _initializeNotifications() async {
+  Future<bool> _initializeNotifications(FirebaseUser user) async {
     noti.initialize(context);
     noti.cancelAllNotifications();
-    AcademicTerm term = getCurrentTerm();
+    AcademicTerm term = await database.getCurrentTerm(user);
     if (term != null) {
       for (Class c in term.classes) {
         for (int day in c.getDaysOfEvent) {
@@ -101,11 +96,12 @@ class _BufferViewState extends State<BufferView> {
   @override
   void initState() {
     super.initState();
-    _initializeDatabase();
   }
 
   @override
   Widget build(BuildContext context) {
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
+    _initializeDatabase(user);
     return Scaffold(
         body: Center(
             child: Column(

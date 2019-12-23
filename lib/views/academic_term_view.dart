@@ -7,6 +7,10 @@ import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/views/add_term_view.dart';
 import 'package:cognito/views/term_details_view.dart';
 import 'package:cognito/views/main_drawer.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cognito/models/all_terms.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
 /// Academic term view screen
 /// Displays AcademicTerm objects in the form of cards
@@ -16,32 +20,42 @@ class AcademicTermView extends StatefulWidget {
   static String tag = "academic-term-view";
 
   @override
-  _AcademicTermViewState createState() => _AcademicTermViewState();
+  _AcademicTermViewState createState() =>_AcademicTermViewState();
 }
 
 class _AcademicTermViewState extends State<AcademicTermView> {
   AcademicTerm deletedTerm;
 
+  //Fire store instance
+  final firestore = Firestore.instance;
+
   // List of academic terms
   DataBase database = DataBase();
+
+  AllTerms allTerms;
+
+  String userID;
+  bool userIDLoaded = false;
+  //static AllTerms terms = new AllTerms();
+
+  Future<void> updateAllTerms() async {
+    allTerms = await database.getTerms();
+  }
 
   @override
   void initState() {
     super.initState();
-    setState(() {});
-  }
-
-  /// Undoes the deletion of an academic term
-  void undo(AcademicTerm undo) {
     setState(() {
-      database.allTerms.terms.add(undo);
+      updateAllTerms();
+      getCurrentUserID();
     });
   }
 
   /// Removes terms from database and re-renders page to show deletion
   void removeTerm(AcademicTerm termToRemove) {
+    //deleteTermFromFireStore(termToRemove);
     setState(() {
-      database.allTerms.terms.remove(termToRemove);
+      database.removeAcademicTerm(termToRemove);
     });
   }
 
@@ -61,6 +75,9 @@ class _AcademicTermViewState extends State<AcademicTermView> {
   /// start date and end date for the [AcademicTerm].
   @override
   Widget build(BuildContext context) {
+    //get user from the provider
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
+
     return Scaffold(
       drawer: MainDrawer(),
       appBar: AppBar(
@@ -71,112 +88,118 @@ class _AcademicTermViewState extends State<AcademicTermView> {
         backgroundColor: Theme.of(context).primaryColorDark,
       ),
 
-      body: database.allTerms.terms.isNotEmpty
-          ? ListView.builder(
-              itemCount: database.allTerms.terms.length,
-              itemBuilder: (BuildContext context, int index) {
-                // Grab academic term from list
-                AcademicTerm term = database.allTerms.terms[index];
-
-                // Academic Term Card
-                return Container(
-                  margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
-                  child: SizedBox(
-                    // Inkwell makes card "tappable"
-                    child: InkWell(
-                      onTap: () async {
-                        // Reference changed to object modified in details
-                        // The term should be updated upoen returning from
-                        // this navigation
-                        await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    TermDetailsView(term: term))).then((term) {
-                          if (term != null) {
-                            print("Term returned");
-                            database.updateDatabase();
-                          } else {
-                            print("Term was null");
-                          }
-                        });
-                      },
-
-                      // Dismissible allows for swiping to delete
-                      child: Dismissible(
-                        // Key needs to be unique for card dismissal to work
-                        // Use start date's string representation as key
-                        key: Key(database.allTerms.terms[index].toString()),
-                        direction: DismissDirection.endToStart,
-                        onResize: () {
-                          print("Swipped");
+        body: !userIDLoaded ?
+        Center(child: Text(""),):
+        StreamBuilder<List<AcademicTerm>> (
+          stream: database.streamTerms(user),
+          builder: (context,snapshot) {
+            List<AcademicTerm> terms = snapshot.data;
+            if(snapshot.data == null) {
+              return new Center(
+                child: Text("Lets start by adding a term!"),
+              );
+            }
+            else {
+              return new ListView(
+                children: terms.map((term) {
+                  return new Container(
+                    margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
+                    child: SizedBox(
+                      // Inkwell makes card "tappable"
+                      child: InkWell(
+                        onTap: () async {
+                          // Reference changed to object modified in details
+                          // The term should be updated upoen returning from
+                          // this navigation
+                          await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      TermDetailsView(term: term))).then((
+                              term) {
+                            if (term != null) {
+                              print("Term returned");
+                              updateAllTerms();
+                              //database.updateDatabase();
+                            } else {
+                              print("Term was null");
+                            }
+                          });
                         },
-                        onDismissed: (direction) {
-                          removeTerm(term);
-                          deletedTerm = term;
-                          String jsonString = json.encode(database.allTerms);
-                          database.writeJSON(jsonString);
-                          database.update();
-                          Scaffold.of(context).showSnackBar(SnackBar(
-                            content: Text("${term.termName} deleted"),
-                            action: SnackBarAction(
-                              label: "Undo",
-                              onPressed: () {
-                                undo(deletedTerm);
-                                database.updateDatabase();
-                              },
+
+                        // Dismissible allows for swiping to delete
+                        child: Dismissible(
+                          // Key needs to be unique for card dismissal to work
+                          // Use start date's string representation as key
+                          key: Key(term.toString()),
+                          direction: DismissDirection.endToStart,
+                          onResize: () {
+                          },
+                          onDismissed: (direction) {
+                            database.removeAcademicTerm(term);
+                            deletedTerm = term;
+                            Scaffold.of(context).showSnackBar(SnackBar(
+                              content: Text("${term.termName} deleted"),
+                              action: SnackBarAction(
+                                label: "Undo",
+                                onPressed: () {
+                                  database.addAcademicTerm(deletedTerm.termName, deletedTerm.startTime, deletedTerm.endTime, user.uid);
+                                },
+                              ),
+                              duration: Duration(seconds: 7),
+                            ));
+                          },
+                          child: Card(
+                            color: Theme
+                                .of(context)
+                                .primaryColor,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0)),
+                            child: Column(
+                              children: <Widget>[
+                                // Term name
+                                ListTile(
+                                  leading: Icon(
+                                    Icons.label,
+                                    color: Colors.white,
+                                  ),
+                                  title: Text(
+                                    term.termName,
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  subtitle: Text(
+                                    term.getStartDateAsString() +
+                                        " - " +
+                                        term.getEndDateAsString(),
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                )
+                              ],
                             ),
-                            duration: Duration(seconds: 7),
-                          ));
-                        },
-                        child: Card(
-                          color: Theme.of(context).primaryColor,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30.0)),
-                          child: Column(
-                            children: <Widget>[
-                              // Term name
-                              ListTile(
-                                leading: Icon(
-                                  Icons.label,
-                                  color: Colors.white,
-                                ),
-                                title: Text(
-                                  term.termName,
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                subtitle: Text(
-                                  term.getStartDateAsString() +
-                                      " - " +
-                                      term.getEndDateAsString(),
-                                  style: TextStyle(color: Colors.grey),
-                                ),
-                              )
-                            ],
                           ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              })
-          : Center(
-              child: Text("Lets start by adding a term!"),
-            ),
+                  );
+                }).toList(),
+              );
+            }
+          },
+        ),
+
 
       /// Floating action button is for displaying modal sheet for creating
       /// an [AcademicTerm]
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          // Retrieve Academic Term object from AddTermView
+          //Retrieve Academic Term object from AddTermView
           final result = await Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => AddTermView()));
+                        builder: (context) => AddTermViewProviderValue()));
+
+
           if (result != null) {
-            database.allTerms.terms.add(result);
-            String jsonString = json.encode(database.allTerms);
-            database.writeJSON(jsonString);
-            database.update();
-            setState((){});
+            setState((){
+            });
           }
         },
         child: Icon(
@@ -187,5 +210,23 @@ class _AcademicTermViewState extends State<AcademicTermView> {
         foregroundColor: Colors.black,
       ),
     );
+  }
+
+  /// Gets the current user's ID from Firebase.
+  void getCurrentUserID() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    setState(() {
+      userID = user.uid;
+      userIDLoaded = true;
+    });
+  }
+
+  void deleteTermFromFireStore(AcademicTerm term) {
+    Query query = firestore.collection('terms').where('user_id', isEqualTo: userID).where('term_name', isEqualTo: term.termName);
+    query.getDocuments().then((snapshot) {
+      for(DocumentSnapshot ds in snapshot.documents){
+        ds.reference.delete();
+      }
+    });
   }
 }

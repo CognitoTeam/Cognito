@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 ///Model for Academic term
 ///@author Praneet Singh
 
@@ -6,30 +7,35 @@ import 'package:cognito/models/club.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/models/task.dart';
 import 'package:json_annotation/json_annotation.dart';
-part 'academic_term.g.dart';
+//part 'academic_term.g.dart';
 
 @JsonSerializable()
 
 class AcademicTerm {
     String termName;
-    DateTime startTime; //Academic term start 
+    DateTime startTime; //Academic term start
     DateTime endTime;   //Academic term end
-    int idCounter;
+    String id;
     List<Class> classes;
     List<Club> clubs;
     List<Task> tasks;
     List<Event> events;
-    AcademicTerm(this.termName, this.startTime, this.endTime){
+    AcademicTerm({this.id, this.termName, this.startTime, this.endTime}){
       classes = List();
       clubs = List();
       tasks = List();
       events = List();
-      idCounter = 0;
     }
-    factory AcademicTerm.fromJson(Map<String, dynamic> json) => _$AcademicTermFromJson(json);
 
-
-  Map<String, dynamic> toJson() => _$AcademicTermToJson(this);
+    factory AcademicTerm.fromFirestore(DocumentSnapshot doc) {
+      Map data = doc.data;
+      return AcademicTerm(
+        id: doc.documentID,
+        termName: data['term_name'],
+        startTime: data['start_date'].toDate(),
+        endTime: data['end_date'].toDate(),
+      );
+    }
 
     String getStartDateAsString() {
       return "${startTime.month}/${startTime.day}/${startTime.year}";
@@ -39,8 +45,8 @@ class AcademicTerm {
       return "${endTime.month}/${endTime.day}/${endTime.year}";
     }
 
-    int getID(){
-      return idCounter++;
+    String getID(){
+      return id;
     }
     void addEvent(Event event){
       events.add(event);

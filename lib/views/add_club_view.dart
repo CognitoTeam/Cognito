@@ -7,8 +7,12 @@ import 'package:cognito/views/add_event_view.dart';
 import 'package:cognito/views/add_task_view.dart';
 import 'package:cognito/views/event_details_view.dart';
 import 'package:cognito/views/task_details_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cognito/models/club.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+
 
 /// club creation view
 /// View screen to create a new club object
@@ -17,18 +21,21 @@ import 'package:cognito/models/club.dart';
 enum Day { M, Tu, W, Th, F, Sat, Sun }
 
 class AddClubView extends StatefulWidget {
+
+  AcademicTerm enteredTerm;
+
+  AddClubView(this.enteredTerm);
+
   @override
   _AddClubViewState createState() => _AddClubViewState();
 }
 
 class _AddClubViewState extends State<AddClubView> {
   DataBase database = DataBase();
-  int id;
   Club club = Club();
   final _titleController = TextEditingController();
   final _locationController = TextEditingController();
   final _descriptionController = TextEditingController();
-
 
   ListTile textFieldTile(
       {Widget leading,
@@ -36,7 +43,8 @@ class _AddClubViewState extends State<AddClubView> {
       TextInputType keyboardType,
       String hint,
       Widget subtitle,
-      TextEditingController controller}) {
+      TextEditingController controller}
+      ) {
     return ListTile(
       leading: leading,
       trailing: trailing,
@@ -53,69 +61,78 @@ class _AddClubViewState extends State<AddClubView> {
       subtitle: subtitle,
     );
   }
-AcademicTerm getCurrentTerm() {
-    for (AcademicTerm term in database.allTerms.terms) {
-      if (DateTime.now().isAfter(term.startTime) &&
-          DateTime.now().isBefore(term.endTime)) {
-            
-        return term;
-      }
-    }
-    return null;
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Add New club"),
-        backgroundColor: Theme.of(context).primaryColorDark,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.check),
-            onPressed: () {
-              club.title = _titleController.text;
-              club.location = _locationController.text;
-              club.description = _descriptionController.text;
-              club.id = getCurrentTerm().getID();
-              Navigator.of(context)
-                  .pop(_titleController.text != null ? club : null);
-            },
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
+    return FutureBuilder(
+      future: database.doesClubNameAlreadyExist(_titleController.text, user.uid),
+      builder: (context, snapshot) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text("Add New club"),
+            backgroundColor: Theme
+                .of(context)
+                .primaryColorDark,
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.check),
+                onPressed: () {
+                  club.title = _titleController.text;
+                  club.location = _locationController.text;
+                  club.description = _descriptionController.text;
+                  //TODO: Fix this
+                  database.addClub(club, widget.enteredTerm, user);
+                  Navigator.of(context)
+                      .pop(
+                      Club(title: club.title,
+                          description: club.description,
+                          location: club.location,
+                          id: club.id)
+                  );
+                  //TODO: Make check for last continue
+                },
+              ),
+            ],
           ),
-        ],
-      ),
-      body: ListView(
-        children: <Widget>[
-          Padding(padding: EdgeInsets.all(0.0)),
-          textFieldTile(hint: "Club title", controller: _titleController),
-          textFieldTile(
-              hint: "Location (Optional)", controller: _locationController),
-          ListTile(
-            title: TextFormField(
-              controller: _descriptionController,
-              autofocus: false,
-              style: Theme.of(context).accentTextTheme.body1,
-              keyboardType: TextInputType.multiline,
-              textInputAction: TextInputAction.done,
-              maxLines: 5,
-              decoration: InputDecoration(
-                  hintText: "Description",
-                  hintStyle: TextStyle(color: Colors.black45)),
-            ),
+          body: ListView(
+            children: <Widget>[
+              Padding(padding: EdgeInsets.all(0.0)),
+              textFieldTile(hint: "Club title", controller: _titleController),
+              textFieldTile(
+                  hint: "Location (Optional)", controller: _locationController),
+              ListTile(
+                title: TextFormField(
+                  controller: _descriptionController,
+                  autofocus: false,
+                  style: Theme
+                      .of(context)
+                      .accentTextTheme
+                      .body1,
+                  keyboardType: TextInputType.multiline,
+                  textInputAction: TextInputAction.done,
+                  maxLines: 5,
+                  decoration: InputDecoration(
+                      hintText: "Description",
+                      hintStyle: TextStyle(color: Colors.black45)),
+                ),
+              ),
+              ExpandableOfficerList(club, widget.enteredTerm),
+              ExpandableEventList(club, widget.enteredTerm),
+              ExpandableTaskList(club, widget.enteredTerm)
+            ],
           ),
-          ExpandableOfficerList(club),
-          ExpandableEventList(club),
-          ExpandableTaskList(club)
-        ],
-      ),
+        );
+      }
     );
   }
 }
 
 class ExpandableOfficerList extends StatefulWidget {
   final Club club;
+  final AcademicTerm term;
 
-  ExpandableOfficerList(this.club);
+  ExpandableOfficerList(this.club, this.term);
 
   @override
   _ExpandableOfficerListState createState() => _ExpandableOfficerListState();
@@ -228,6 +245,7 @@ class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
                     RaisedButton(
                       child: Text("Add"),
                       onPressed: () {
+                        //Adds the officer to the club instance
                         widget.club.addOfficer(Officer(
                             _officerNameController.text,
                             _officerPosController.text));
@@ -259,8 +277,9 @@ class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
 
 class ExpandableTaskList extends StatefulWidget {
   final Club club;
+  final AcademicTerm term;
 
-  ExpandableTaskList(this.club);
+  ExpandableTaskList(this.club, this.term);
 
   @override
   _ExpandableTaskListState createState() => _ExpandableTaskListState();
@@ -303,8 +322,9 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
         ),
         leading: Icon(Icons.add),
         onTap: () async {
+          //TODO: Go to AddTaskView, but also don't save when confirmed
           Task result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddTaskView()));
+              .push(MaterialPageRoute(builder: (context) => AddTaskView(widget.term, true)));
           if (result != null) {
             print(result.title);
             widget.club.addTask(result);
@@ -331,8 +351,9 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
 
 class ExpandableEventList extends StatefulWidget {
   final Club club;
+  final AcademicTerm term;
 
-  ExpandableEventList(this.club);
+  ExpandableEventList(this.club, this.term);
 
   @override
   _ExpandableEventListState createState() => _ExpandableEventListState();
@@ -375,7 +396,7 @@ class _ExpandableEventListState extends State<ExpandableEventList> {
         leading: Icon(Icons.add),
         onTap: () async {
           Event result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddEventView()));
+              .push(MaterialPageRoute(builder: (context) => AddEventView(widget.term)));
           if (result != null) {
             print(result.title);
             widget.club.addEvent(result);

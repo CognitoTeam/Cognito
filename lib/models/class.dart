@@ -1,13 +1,13 @@
 // Copyright 2019 UniPlan. All rights reserved.
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cognito/database/database.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/category.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/models/grade_calculator.dart';
 import 'package:cognito/models/task.dart';
 import 'package:json_annotation/json_annotation.dart';
-
-part 'class.g.dart';
 
 @JsonSerializable()
 
@@ -39,7 +39,7 @@ class Class extends Event {
       String subjectArea,
       int units,
       List<int> daysOfEvent,
-      int id})
+      String id})
       : super(
             title: title,
             description: description,
@@ -61,9 +61,27 @@ class Class extends Event {
     tasks = List();
     starting = Category(title: "Default", weightInPercentage: 100.0);
   }
-  factory Class.fromJson(Map<String, dynamic> json) => _$ClassFromJson(json);
 
-  Map<String, dynamic> toJson() => _$ClassToJson(this);
+  factory Class.fromFirestore(DocumentSnapshot doc) {
+    Map data = doc.data;
+    List<int> list = List();
+    data['days_of_event'].forEach((item) => list.add(item));
+    Class c = Class(
+      title: data['title'],
+      subjectArea: data['subject_area'],
+      courseNumber: data['course_number'],
+      instructor: data['instructor'],
+      units: data['units'],
+      location: data['location'],
+      officeLocation: data['office_location'],
+      description: data['description'],
+      daysOfEvent: list,
+      start: data['start_time'].toDate(),
+      end: data['end_time'].toDate(),
+      id: doc.documentID
+    );
+    return c;
+  }
 
   ///
   ///adds office hours to a class
@@ -72,7 +90,7 @@ class Class extends Event {
     officeHours[(officeHours.length + 1).toString()] = temp;
   }
 
-  String getGrade() {
+  String getGrade(assessments, assignments, categories) {
     Map<Assignment, Category> gradebook = Map();
     for (Assignment a in assessments) {
       gradebook[a] = a.category;
@@ -87,31 +105,10 @@ class Class extends Event {
     for (Category c in categories) {
       cat.add(c);
     }
-    cat.add(starting);
+    //Need all categories and the assignments with categories
     GradeCalculator gradeCalculator = GradeCalculator(cat, gradebook);
     gradeCalculator.calculateGrade();
     return gradeCalculator.letterGrade;
-  }
-
-  String getPercentage() {
-    Map<Assignment, Category> gradebook = Map();
-    for (Assignment a in assessments) {
-      gradebook[a] = a.category;
-    }
-    for (Assignment a in assignments) {
-      gradebook[a] = a.category;
-    }
-    if (gradebook.isEmpty) {
-      return "No Grades yet";
-    }
-    List<Category> cat = List();
-    for (Category c in categories) {
-      cat.add(c);
-    }
-    cat.add(starting);
-    GradeCalculator gradeCalculator = GradeCalculator(cat, gradebook);
-    gradeCalculator.calculateGrade();
-    return gradeCalculator.percentage.toString() + "%";
   }
 
   addCategory(Category category) {

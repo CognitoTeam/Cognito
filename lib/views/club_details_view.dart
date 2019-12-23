@@ -1,3 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cognito/database/database.dart';
+import 'package:cognito/models/academic_term.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 /// Club details view
 /// View screen to edit an Club object
 /// @author Praneet Singh
@@ -11,13 +15,14 @@ import 'package:cognito/views/add_event_view.dart';
 import 'package:cognito/views/add_task_view.dart';
 import 'package:cognito/views/event_details_view.dart';
 import 'package:cognito/views/task_details_view.dart';
+import 'package:provider/provider.dart';
 
 class ClubDetailsView extends StatefulWidget {
   // Hold Club object
   final Club club;
-
+  final AcademicTerm term;
   // Constructor that takes in an academic Club object
-  ClubDetailsView({Key key, @required this.club}) : super(key: key);
+  ClubDetailsView({Key key, @required this.club, this.term}) : super(key: key);
 
   @override
   _ClubDetailsViewState createState() => _ClubDetailsViewState();
@@ -25,6 +30,8 @@ class ClubDetailsView extends StatefulWidget {
 
 class _ClubDetailsViewState extends State<ClubDetailsView> {
   TextEditingController _locationController, _descriptionController;
+  DataBase database = DataBase();
+
   @override
   void initState() {
     super.initState();
@@ -59,12 +66,12 @@ class _ClubDetailsViewState extends State<ClubDetailsView> {
 
   @override
   Widget build(BuildContext context) {
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: BackButtonIcon(),
           onPressed: () {
-            print("Returning a club");
             widget.club.description = _descriptionController.text;
             widget.club.location = _locationController.text;
             Navigator.of(context).pop(widget.club);
@@ -98,10 +105,10 @@ class _ClubDetailsViewState extends State<ClubDetailsView> {
                                 EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                           ),
                           onFieldSubmitted: (val) {
-                            print(val);
                             setState(() {
                               widget.club.title = val;
                             });
+                            database.updateClubName(widget.club.id, val);
                             Navigator.pop(context);
                           },
                           textInputAction: TextInputAction.done,
@@ -113,26 +120,31 @@ class _ClubDetailsViewState extends State<ClubDetailsView> {
           ),
         ],
       ),
-      body: ListView(
-        children: <Widget>[
-          textFieldTile(hint: "Location", controller: _locationController),
-          ListTile(
-            title: TextFormField(
-              controller: _descriptionController,
-              autofocus: false,
-              style: Theme.of(context).accentTextTheme.body1,
-              keyboardType: TextInputType.multiline,
-              textInputAction: TextInputAction.done,
-              maxLines: 5,
-              decoration: InputDecoration(
-                  hintText: "Description",
-                  hintStyle: TextStyle(color: Colors.black45)),
-            ),
-          ),
-          ExpandableOfficerList(widget.club),
-          ExpandableEventList(widget.club),
-          ExpandableTaskList(widget.club)
-        ],
+      body: FutureBuilder(
+        future: database.getCurrentTerm(user),
+        builder: (context, snapshot) {
+          return ListView(
+            children: <Widget>[
+              textFieldTile(hint: "Location", controller: _locationController),
+              ListTile(
+                title: TextFormField(
+                  controller: _descriptionController,
+                  autofocus: false,
+                  style: Theme.of(context).accentTextTheme.body1,
+                  keyboardType: TextInputType.multiline,
+                  textInputAction: TextInputAction.done,
+                  maxLines: 5,
+                  decoration: InputDecoration(
+                      hintText: "Description",
+                      hintStyle: TextStyle(color: Colors.black45)),
+                ),
+              ),
+              ExpandableOfficerList(widget.club, snapshot.data),
+              ExpandableEventList(widget.club, snapshot.data),
+              ExpandableTaskList(widget.club, snapshot.data)
+            ],
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -151,8 +163,9 @@ class _ClubDetailsViewState extends State<ClubDetailsView> {
 
 class ExpandableOfficerList extends StatefulWidget {
   final Club club;
+  final AcademicTerm term;
 
-  ExpandableOfficerList(this.club);
+  ExpandableOfficerList(this.club, this.term);
 
   @override
   _ExpandableOfficerListState createState() => _ExpandableOfficerListState();
@@ -161,15 +174,24 @@ class ExpandableOfficerList extends StatefulWidget {
 class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
   final _officerNameController = TextEditingController();
   final _officerPosController = TextEditingController();
+  String userID;
+  bool userIDLoaded = false;
+  String docID = "";
+  DataBase dataBase = DataBase();
 
-  List<Widget> _listOfOfficers() {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  List<Widget> _listOfOfficers(List<Officer> officers) {
     List<Widget> listOfficers = List();
-    if (widget.club.officers.isNotEmpty) {
-      for (Officer o in widget.club.officers) {
+    if (officers != null && officers.length != 0) {
+      officers.forEach((Officer o){
         listOfficers.add(
           ListTile(
               title: Text(
-                o.officerName + " (" + o.officerPosition + ")",
+                "${o.officerName} ( ${o.officerPosition} )",
                 style: Theme.of(context).accentTextTheme.body2,
               ),
               onTap: () {
@@ -218,7 +240,7 @@ class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
                     });
               }),
         );
-      }
+      });
     } else {
       listOfficers.add(ListTile(
           title: Text(
@@ -265,11 +287,13 @@ class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
                     RaisedButton(
                       child: Text("Add"),
                       onPressed: () {
-                        widget.club.addOfficer(Officer(
+                        Officer o = Officer(
                             _officerNameController.text,
-                            _officerPosController.text));
+                            _officerPosController.text);
+                        widget.club.addOfficer(o);
                         _officerNameController.text = "";
                         _officerPosController.text = "";
+                        dataBase.addOfficer(o, widget.club.id);
                         Navigator.pop(context);
                       },
                     )
@@ -284,30 +308,56 @@ class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-        leading: Icon(Icons.person_outline),
-        title: Text(
-          "Officers",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-        children: _listOfOfficers());
+      return StreamBuilder<List<Officer>>(
+          stream: dataBase.streamClubOfficers(widget.club.id),
+          builder: (context,snapshot) {
+            if(snapshot.connectionState == ConnectionState.done || snapshot.connectionState == ConnectionState.active)
+            {
+              return ExpansionTile(
+                  leading: Icon(Icons.person_outline),
+                  title: Text(
+                    "Officers",
+                    style: Theme.of(context).accentTextTheme.body2,
+                  ),
+                  children: _listOfOfficers(snapshot.data));
+            }
+            else {
+              return ExpansionTile(
+                  leading: Icon(Icons.person_outline),
+                  title: Text(
+                    "Officers",
+                    style: Theme
+                        .of(context)
+                        .accentTextTheme
+                        .body2,
+                  ),
+                  children: _listOfOfficers(null));
+            }});
   }
 }
 
 class ExpandableTaskList extends StatefulWidget {
   final Club club;
-
-  ExpandableTaskList(this.club);
+  final AcademicTerm enteredTerm;
+  ExpandableTaskList(this.club, this.enteredTerm);
 
   @override
   _ExpandableTaskListState createState() => _ExpandableTaskListState();
 }
 
 class _ExpandableTaskListState extends State<ExpandableTaskList> {
-  List<Widget> _listOfTasks() {
+
+  DataBase dataBase = DataBase();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  List<Widget> _listOfTasks(List<Task> tasks, FirebaseUser user) {
     List<Widget> listTasks = List();
-    if (widget.club.tasks.isNotEmpty) {
-      for (Task t in widget.club.tasks) {
+    if (tasks != null && tasks.length != 0) {
+      tasks.forEach((Task t){
         listTasks.add(
           ListTile(
               title: Text(
@@ -323,7 +373,7 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
                 }
               }),
         );
-      }
+      });
     } else {
       listTasks.add(ListTile(
         title: Text(
@@ -342,10 +392,19 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
         onTap: () async {
           //TODO
           Task result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddTaskView()));
+              .push(MaterialPageRoute(builder: (context) => AddTaskView(widget.enteredTerm, true)));
           if (result != null) {
-            print(result.title);
-            widget.club.addTask(result);
+            dataBase.addClubTask(user.uid,
+                result.title,
+                result.location,
+                result.description,
+                result.daysOfEvent,
+                result.isRepeated,
+                result.dueDate,
+                result.priority,
+                result.duration,
+                widget.enteredTerm,
+                widget.club.id);
           } else {
             print("Task returned null");
           }
@@ -357,46 +416,86 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-        leading: Icon(Icons.check_box),
-        title: Text(
-          "Tasks",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-        children: _listOfTasks());
+      FirebaseUser user = Provider.of<FirebaseUser>(context);
+      return StreamBuilder<List<Task>>(
+          stream: dataBase.streamClubTasks(widget.club.id),
+          builder: (context,snapshot) {
+            if (snapshot.connectionState == ConnectionState.done ||
+                snapshot.connectionState == ConnectionState.active) {
+              return ExpansionTile(
+                  leading: Icon(Icons.person_outline),
+                  title: Text(
+                    "Tasks",
+                    style: Theme
+                        .of(context)
+                        .accentTextTheme
+                        .body2,
+                  ),
+                  children: _listOfTasks(snapshot.data, user));
+            }
+            else
+            {
+              return ExpansionTile(
+                  leading: Icon(Icons.event),
+                  title: Text(
+                    "Tasks",
+                    style: Theme
+                        .of(context)
+                        .accentTextTheme
+                        .body2,
+                  ),
+                  children: _listOfTasks(null, user));
+            }
+          });
   }
 }
 
 class ExpandableEventList extends StatefulWidget {
   final Club club;
+  final AcademicTerm term;
 
-  ExpandableEventList(this.club);
+  ExpandableEventList(this.club, this.term);
 
   @override
   _ExpandableEventListState createState() => _ExpandableEventListState();
 }
 
 class _ExpandableEventListState extends State<ExpandableEventList> {
-  List<Widget> _listOfEvents() {
+
+  DataBase dataBase = DataBase();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  /// Gets the current user's ID from Firebase.
+  void getCurrentUserID() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+  }
+
+  List<Widget> _listOfEvents(List<Event> events) {
     List<Widget> listEvents = List();
-    if (widget.club.events.isNotEmpty) {
-      for (Event e in widget.club.events) {
+    if (events != null && events.length != 0) {
+      events.forEach((Event e) {
         listEvents.add(
           ListTile(
               title: Text(
                 e.title,
-                style: Theme.of(context).accentTextTheme.body2,
+                style: Theme
+                    .of(context)
+                    .accentTextTheme
+                    .body2,
               ),
               onTap: () async {
                 Event result = await Navigator.of(context).push(
                     MaterialPageRoute(
                         builder: (context) => EventDetailsView(event: e)));
                 if (result != null) {
-                  print("Event updated " + result.title);
                 }
               }),
         );
-      }
+      });
     } else {
       listEvents.add(ListTile(
           title: Text(
@@ -412,14 +511,12 @@ class _ExpandableEventListState extends State<ExpandableEventList> {
         ),
         leading: Icon(Icons.add),
         onTap: () async {
-          //TODO
           Event result = await Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => AddEventView()));
+              .push(MaterialPageRoute(builder: (context) => AddEventView(widget.term)));
           if (result != null) {
             print(result.title);
-            widget.club.addEvent(result);
+            dataBase.addClubEvent(result, widget.club.id, widget.term);
           } else {
-            print("Event returned null");
           }
         },
       ),
@@ -429,12 +526,34 @@ class _ExpandableEventListState extends State<ExpandableEventList> {
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-        leading: Icon(Icons.event),
-        title: Text(
-          "Events",
-          style: Theme.of(context).accentTextTheme.body2,
-        ),
-        children: _listOfEvents());
+    return StreamBuilder<List<Event>>(
+        stream: dataBase.streamClubEvents(widget.club.id),
+        builder: (context,snapshot) {
+          if(snapshot.connectionState == ConnectionState.done || snapshot.connectionState == ConnectionState.active) {
+            return ExpansionTile(
+                leading: Icon(Icons.event),
+                title: Text(
+                  "Events",
+                  style: Theme
+                      .of(context)
+                      .accentTextTheme
+                      .body2,
+                ),
+                children: _listOfEvents(snapshot.data));
+          }
+          else
+            {
+              return ExpansionTile(
+                  leading: Icon(Icons.event),
+                  title: Text(
+                    "Events",
+                    style: Theme
+                        .of(context)
+                        .accentTextTheme
+                        .body2,
+                  ),
+                  children: _listOfEvents(null));
+            }
+        });
   }
 }

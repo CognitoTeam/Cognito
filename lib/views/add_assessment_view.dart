@@ -1,12 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/database.dart';
+import 'package:cognito/database/notifications.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/category.dart';
 import 'package:cognito/models/class.dart';
 import 'package:cognito/views/add_priority_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
+
+import 'package:provider/provider.dart';
 
 /// Assessment creation view
 /// @author Praneet Singh
@@ -15,7 +20,8 @@ enum Day { M, Tu, W, Th, F, Sat, Sun }
 
 class AddAssessmentView extends StatefulWidget {
   final Class aClass;
-  AddAssessmentView({Key key, @required this.aClass}) : super(key: key);
+  final AcademicTerm term;
+  AddAssessmentView({Key key, @required this.aClass, @required this.term}) : super(key: key);
   @override
   _AddAssessmentViewState createState() => _AddAssessmentViewState();
 }
@@ -35,6 +41,9 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
   final TextEditingController _categoryWeightEdit = TextEditingController();
   bool _isRepeated = false;
   int _selectedPriority = 1;
+  int termID = 0;
+  Notifications noti = Notifications();
+  String classDocID = "";
 
   //  Stepper
   //  init step to 0th position
@@ -63,6 +72,65 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
       ),
       subtitle: subtitle,
     );
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    //Class document id stream
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("Add New Assessment"),
+          backgroundColor: Theme.of(context).primaryColorDark,
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.check),
+              onPressed: () {
+                Assignment result = Assignment(title: _titleController.text, description: _descriptionController.text, location: _locationController.text,
+                    start: null, end: null, dueDate: dueDate, pointsEarned: double.parse(_earnedController.text), category: category, pointsPossible: double.parse(_possibleController.text),
+                    isAssessment: true, duration: Duration(minutes: int.parse(_durationController.text)));
+                database.addAssignment(result, widget.aClass, widget.term, user.uid);
+                Navigator.of(context).pop(_titleController != null
+                    ? result
+                    : null);
+              },
+            )
+          ],
+        ),
+        body: Stepper(
+          currentStep: this.currentStep,
+          type: StepperType.vertical,
+          steps: getSteps(),
+          onStepTapped: (step) {
+            setState(() {
+              currentStep = step;
+            });
+          },
+          onStepCancel: () {
+            setState(() {
+              if (currentStep > 0) {
+                currentStep--;
+              } else {
+                currentStep = 0;
+              }
+            });
+          },
+          onStepContinue: () {
+            setState(() {
+              if (currentStep < getSteps().length - 1) {
+                currentStep++;
+              } else {
+                //Needs term id
+                Assignment result = Assignment(title: _titleController.text, description: _descriptionController.text, location: _locationController.text,
+                    start: null, end: null, dueDate: dueDate, pointsEarned: double.parse(_earnedController.text), category: category, pointsPossible: double.parse(_possibleController.text),
+                    isAssessment: true, duration: Duration(minutes: int.parse(_durationController.text)));
+                database.addAssignment(result, widget.aClass, widget.term, user.uid);
+                Navigator.of(context).pop(result);
+              }
+            });
+          },
+        ));
   }
 
   List<Step> getSteps() {
@@ -164,12 +232,17 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
         ),
         state: StepState.indexed,
         isActive: true,
-        content: ExpansionTile(
-            title: Text(
-              _categoryListTitle,
-              style: Theme.of(context).accentTextTheme.body2,
-            ),
-            children: _listOfCategories()),
+        content: StreamBuilder<List<Category>>(
+          stream: database.streamCategory(widget.aClass),
+          builder: (BuildContext context, AsyncSnapshot<List<Category>> snapshot) {
+            return ExpansionTile(
+                title: Text(
+                  _categoryListTitle,
+                  style: Theme.of(context).accentTextTheme.body2,
+                ),
+                children: _listOfCategories(snapshot.data));
+          },
+        )
       ),
       Step(
           title: Text(
@@ -231,134 +304,141 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
 
   String _categoryListTitle = "Select a category";
   // Returns a LitsTile widget categories as a list of widgets
-  List<Widget> _listOfCategories() {
+  List<Widget> _listOfCategories(List<Category> categories) {
     List<Widget> listCategories = List();
-    if (widget.aClass.categories.isNotEmpty) {
-      for (Category c in widget.aClass.categories) {
-        listCategories.add(
-          ListTile(
-            title: Text(
-              c.title + ": " + c.weightInPercentage.toString() + "%",
-              style: Theme.of(context).accentTextTheme.body2,
-            ),
-            onTap: () async {
-              setState(
-                () {
-                  _categoryListTitle =
-                      c.title + ": " + c.weightInPercentage.toString() + "%";
-                  category = c;
-                },
-              );
-            },
-            onLongPress: () {
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return SimpleDialog(
-                        title:
-                            Text("Are you sure you want to delete " + c.title),
-                        children: <Widget>[
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              RaisedButton(
-                                color: Colors.white,
-                                child: Text("Yes"),
-                                onPressed: () {
-                                  setState(() {
-                                    widget.aClass.deleteCategory(c);
-                                    database.updateDatabase();
+    //Need to get category from Firestore
+    if (categories != null && categories.length > 0) {
+      categories.forEach((c) {
+          listCategories.add(
+            ListTile(
+              title: Text(
+                c.title.toString() + ": " + c.weightInPercentage.toString() +
+                    "%",
+                style: Theme
+                    .of(context)
+                    .accentTextTheme
+                    .body2,
+              ),
+              onTap: () async {
+                setState(
+                      () {
+                    _categoryListTitle =
+                        c.title + ": " + c.weightInPercentage.toString() + "%";
+                    category = c;
+                  },
+                );
+              },
+              onLongPress: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return SimpleDialog(
+                          title:
+                          Text("Are you sure you want to delete " + c.title),
+                          children: <Widget>[
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                RaisedButton(
+                                  color: Colors.white,
+                                  child: Text("Yes"),
+                                  onPressed: () {
+                                    setState(() {
+                                      widget.aClass.deleteCategory(c);
+                                      database.updateDatabase();
+                                      Navigator.of(context).pop();
+                                    });
+                                  },
+                                ),
+                                RaisedButton(
+                                  color: Colors.white,
+                                  child: Text("Cancel"),
+                                  onPressed: () {
                                     Navigator.of(context).pop();
-                                  });
-                                },
-                              ),
-                              RaisedButton(
-                                color: Colors.white,
-                                child: Text("Cancel"),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                              RaisedButton(
-                                child: Text("Edit"),
-                                color: Colors.white,
-                                onPressed: () {
-                                  setState(() {
-                                    _categoryTitleEdit.text = c.title;
-                                    _categoryWeightEdit.text =
-                                        c.weightInPercentage.toString();
-                                  });
-                                  showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return SimpleDialog(
-                                          title: Text("Edit category"),
-                                          children: <Widget>[
-                                            TextFormField(
-                                              controller: _categoryTitleEdit,
-                                              style: Theme.of(context)
-                                                  .accentTextTheme
-                                                  .body2,
-                                              decoration: InputDecoration(
-                                                hintText: "Category title",
-                                                hintStyle: TextStyle(
-                                                    color: Colors.black45),
-                                                contentPadding:
-                                                    EdgeInsets.fromLTRB(
-                                                        20.0, 10.0, 20.0, 10.0),
-                                              ),
+                                  },
+                                ),
+                                RaisedButton(
+                                  child: Text("Edit"),
+                                  color: Colors.white,
+                                  onPressed: () {
+                                    setState(() {
+                                      _categoryTitleEdit.text = c.title;
+                                      _categoryWeightEdit.text =
+                                          c.weightInPercentage.toString();
+                                    });
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return SimpleDialog(
+                                            title: Text("Edit category"),
+                                            children: <Widget>[
+                                              TextFormField(
+                                                controller: _categoryTitleEdit,
+                                                style: Theme
+                                                    .of(context)
+                                                    .accentTextTheme
+                                                    .body2,
+                                                decoration: InputDecoration(
+                                                  hintText: "Category title",
+                                                  hintStyle: TextStyle(
+                                                      color: Colors.black45),
+                                                  contentPadding:
+                                                  EdgeInsets.fromLTRB(
+                                                      20.0, 10.0, 20.0, 10.0),
+                                                ),
 
-                                              //Navigator.pop(context);
-                                              textInputAction:
-                                                  TextInputAction.done,
-                                            ),
-                                            TextFormField(
-                                              controller: _categoryWeightEdit,
-                                              style: Theme.of(context)
-                                                  .accentTextTheme
-                                                  .body2,
-                                              decoration: InputDecoration(
-                                                hintText: "Category Weight",
-                                                hintStyle: TextStyle(
-                                                    color: Colors.black45),
-                                                contentPadding:
-                                                    EdgeInsets.fromLTRB(
-                                                        20.0, 10.0, 20.0, 10.0),
+                                                //Navigator.pop(context);
+                                                textInputAction:
+                                                TextInputAction.done,
                                               ),
-                                              textInputAction:
-                                                  TextInputAction.done,
-                                            ),
-                                            RaisedButton(
-                                              color: Colors.white,
-                                              child: Text("Done"),
-                                              onPressed: () {
-                                                setState(() {
-                                                  c.title =
-                                                      _categoryTitleEdit.text;
-                                                  c.weightInPercentage =
-                                                      double.parse(
-                                                          _categoryWeightEdit
-                                                              .text);
-                                                });
-                                                Navigator.pop(context);
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                          ],
-                                        );
-                                      });
-                                },
-                              )
-                            ],
-                          )
-                        ]);
-                  });
-            },
-          ),
-        );
-      }
-    } else {
+                                              TextFormField(
+                                                controller: _categoryWeightEdit,
+                                                style: Theme
+                                                    .of(context)
+                                                    .accentTextTheme
+                                                    .body2,
+                                                decoration: InputDecoration(
+                                                  hintText: "Category Weight",
+                                                  hintStyle: TextStyle(
+                                                      color: Colors.black45),
+                                                  contentPadding:
+                                                  EdgeInsets.fromLTRB(
+                                                      20.0, 10.0, 20.0, 10.0),
+                                                ),
+                                                textInputAction:
+                                                TextInputAction.done,
+                                              ),
+                                              RaisedButton(
+                                                color: Colors.white,
+                                                child: Text("Done"),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    c.title =
+                                                        _categoryTitleEdit.text;
+                                                    c.weightInPercentage =
+                                                        double.parse(
+                                                            _categoryWeightEdit
+                                                                .text);
+                                                  });
+                                                  Navigator.pop(context);
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        });
+                                  },
+                                )
+                              ],
+                            )
+                          ]);
+                    });
+              },
+            ),);
+      });
+    }
+    else {
       listCategories.add(ListTile(
         title: Text(
           "No Categories so far",
@@ -406,6 +486,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                       textInputAction: TextInputAction.done,
                     ),
                     RaisedButton(
+                      //Every time add category
                       child: Text("Done"),
                       onPressed: () {
                         setState(() {
@@ -413,7 +494,9 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                           cat.weightInPercentage =
                               double.parse(_categoryWeight.text);
                           try {
-                            widget.aClass.addCategory(cat);
+                            //Adding category here will be a permanent measure and stored without compliance with the assignment
+                            //Therefore it will be stored in the classes collection and this will access classes to retrieve all the categories
+                            database.addCategoryToClass(cat, widget.aClass, widget.term);
                           } catch (e) {
                             Scaffold.of(context).showSnackBar(SnackBar(
                               content: Text(e),
@@ -502,78 +585,5 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
             picked.hour, picked.minute);
       });
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text("Add New Assessment"),
-          backgroundColor: Theme.of(context).primaryColorDark,
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.check),
-              onPressed: () {
-                Navigator.of(context).pop(_titleController != null
-                    ? Assignment(
-                        category: category,
-                        pointsEarned: double.parse(_earnedController.text),
-                        pointsPossible: double.parse(_possibleController.text),
-                        title: _titleController.text,
-                        isAssessment: true,
-                        location: _locationController.text,
-                        description: _descriptionController.text,
-                        dueDate: dueDate,
-                        id: getCurrentTerm().getID(),
-                        priority: _selectedPriority,
-                        duration: Duration(
-                            minutes: int.parse(_durationController.text)))
-                    : null);
-              },
-            )
-          ],
-        ),
-        body: Stepper(
-          currentStep: this.currentStep,
-          type: StepperType.vertical,
-          steps: getSteps(),
-          onStepTapped: (step) {
-            setState(() {
-              currentStep = step;
-            });
-          },
-          onStepCancel: () {
-            setState(() {
-              if (currentStep > 0) {
-                currentStep--;
-              } else {
-                currentStep = 0;
-              }
-            });
-          },
-          onStepContinue: () {
-            setState(() {
-              if (currentStep < getSteps().length - 1) {
-                currentStep++;
-              } else {
-                Navigator.of(context).pop(_titleController != null
-                    ? Assignment(
-                        category: category,
-                        pointsEarned: double.parse(_earnedController.text),
-                        pointsPossible: double.parse(_possibleController.text),
-                        title: _titleController.text,
-                        isAssessment: true,
-                        location: _locationController.text,
-                        description: _descriptionController.text,
-                        dueDate: dueDate,
-                        id: getCurrentTerm().getID(),
-                        priority: _selectedPriority,
-                        duration: Duration(
-                            minutes: int.parse(_durationController.text)))
-                    : null);
-              }
-            });
-          },
-        ));
   }
 }

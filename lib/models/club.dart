@@ -1,11 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 /// Models a club
 /// @author Julian Vu
 import 'package:cognito/models/event.dart';
 import 'package:cognito/models/officer.dart';
 import 'package:cognito/models/task.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:json_annotation/json_annotation.dart';
-
-part 'club.g.dart';
 
 @JsonSerializable()
 
@@ -20,7 +21,7 @@ class Club extends Event {
       String location = "",
       DateTime start,
       DateTime end,
-      int id,
+      String id,
       int priority = 1})
       : super(
             title: title,
@@ -34,9 +35,62 @@ class Club extends Event {
     events = List();
     tasks = List();
   }
-factory Club.fromJson(Map<String, dynamic> json) => _$ClubFromJson(json);
 
-  Map<String, dynamic> toJson() => _$ClubToJson(this);
+  factory Club.fromFirestore(DocumentSnapshot doc) {
+    Map data = doc.data;
+    Club c = Club(
+        id: doc.documentID,
+        title: data['title'],
+        description: data['description'],
+        location: data['location'],
+        priority: data['priority'],
+    );
+
+//
+//    DocumentReference documentReference = Firestore.instance.collection('clubs')
+//        .document(doc.documentID);
+//    Query ref = documentReference.collection('events');
+//    Stream<List<Event>> events = ref.snapshots().map((list) =>
+//      list.documents.map((doc) => Event.fromFirestore(doc)));
+
+//    StreamBuilder<List<Event>>(
+//      stream: events,
+//      builder: (context,snapshot) {
+//        print("In here");
+//        c.events = snapshot.data;
+//        return Container();
+//      },
+//    );
+//
+//    print("Club Events " + c.events.length.toString());
+//
+//    ref = documentReference.collection('tasks');
+//    Stream<List<Task>> tasks = ref.snapshots().map((list) =>
+//        list.documents.map((doc) => Task.fromFirestore(doc)));
+//    StreamBuilder<List<Task>>(
+//        stream: tasks,
+//        builder: (context,snapshot) {
+//          c.tasks = snapshot.data;
+//          return Container();
+//    },
+//    );
+//
+//    print("Club Tasks " + c.tasks.length.toString());
+//
+//    ref = documentReference.collection('officers');
+//    Stream<List<Officer>> officers = ref.snapshots().map((list) =>
+//        list.documents.map((doc) => Officer.fromFirestore(doc)));
+//    StreamBuilder<List<Officer>>(
+//      stream: officers,
+//      builder: (context,snapshot) {
+//        c.officers = snapshot.data;
+//        return Container();
+//      },
+//    );
+//    print("Club Officers " + c.officers.length.toString());
+    return c;
+  }
+
   /// Adds a club event to list of events
   void addEvent(Event event) {
     events.add(event);
@@ -49,5 +103,12 @@ factory Club.fromJson(Map<String, dynamic> json) => _$ClubFromJson(json);
   /// Adds a task to list of tasks
   void addTask(Task task) {
     tasks.add(task);
+  }
+
+  Stream<List<Event>> streamClubEvents(FirebaseUser user, DocumentSnapshot doc) {
+    Query ref = Firestore.instance
+        .collection('clubs').document(doc.documentID).collection('events');
+    return ref.snapshots().map((list) =>
+        list.documents.map((doc) => Event.fromFirestore(doc)).toList());
   }
 }

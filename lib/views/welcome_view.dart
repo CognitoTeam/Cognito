@@ -10,8 +10,7 @@ class WelcomeView extends StatefulWidget {
   _WelcomeViewState createState() => _WelcomeViewState();
 }
 
-class _WelcomeViewState extends State<WelcomeView>
-    with SingleTickerProviderStateMixin {
+class _WelcomeViewState extends State<WelcomeView> with SingleTickerProviderStateMixin {
   AnimationController animationController;
   Animation<double> animation;
   @override
@@ -58,7 +57,8 @@ class _WelcomeViewState extends State<WelcomeView>
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: animation.value * 25),
+                            fontSize: animation.value * 25
+                        ),
                       ),
                     ],
                   ),

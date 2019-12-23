@@ -1,3 +1,5 @@
+import 'package:cognito/database/database.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'dart:async';
@@ -23,6 +25,7 @@ class _SignUpViewState extends State<SignUpView> {
   String _email;
   String _password;
   String _confirmPassword;
+  DataBase database = DataBase();
 
   void _submit(BuildContext context) {
     final form = _formKey.currentState;
@@ -36,21 +39,16 @@ class _SignUpViewState extends State<SignUpView> {
   ///User sign up with email and password
   Future<bool> _signUpUser(BuildContext context) async {
     if (_email == null || _password == null || _confirmPassword == null) {
-      print("Error null password or email " +
-          "Email: " +
-          _email +
-          " Password: " +
-          _password);
       return false;
     } else if (_password != _confirmPassword) {
       print("Password Dont match");
       return false;
     } else {
       try {
-        final firebaseUser =
-            await _fireBaseLogin.createEmailUser(_email, _password);
+        final firebaseUser = await _fireBaseLogin.createEmailUser(_email, _password);
         firebaseUser.sendEmailVerification();
         if (firebaseUser != null) {
+          database.initializeFireStore();
           Navigator.push(
               context, MaterialPageRoute(builder: (context) => WelcomeView()));
           return true;
@@ -124,7 +122,7 @@ class _SignUpViewState extends State<SignUpView> {
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
       validator: (confirmation) {
-        var password = _passKey.currentState.value;
+        String password = _passKey.currentState.value;
         return equals(confirmation, password)
             ? null
             : "Passwords do not match!";

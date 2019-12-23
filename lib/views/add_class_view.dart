@@ -2,26 +2,40 @@
 
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/database.dart';
 import 'package:cognito/models/academic_term.dart';
+import 'package:cognito/models/all_terms.dart';
 import 'package:cognito/models/class.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 /// Class creation view
 /// [author] Julian Vu
 enum Day { M, Tu, W, Th, F, Sat, Sun }
 
 class AddClassView extends StatefulWidget {
+
+  final AcademicTerm term;
+
+  AddClassView(this.term);
+
   @override
   _AddClassViewState createState() => _AddClassViewState();
 }
 
 class _AddClassViewState extends State<AddClassView> {
   DataBase database = DataBase();
+  AcademicTerm currentTerm;
+  AllTerms allTerms;
 
   DateTime startTime, endTime;
   List<int> daysOfEvent = List();
+  List<String> subjectsString = List();
+  final firestore = Firestore.instance;
+
 
   final _subjectController = TextEditingController();
   final _courseNumberController = TextEditingController();
@@ -35,6 +49,14 @@ class _AddClassViewState extends State<AddClassView> {
   //  Stepper
   //  init step to 0th position
   int currentStep = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      updateCurrentTerm();
+    });
+  }
 
   /// Return list of [Step] objects representing the different kinds of inputs
   /// Needed to create a [Class]
@@ -235,14 +257,18 @@ class _AddClassViewState extends State<AddClassView> {
     });
   }
 
-  AcademicTerm getCurrentTerm() {
-    for (AcademicTerm term in database.allTerms.terms) {
+  void updateCurrentTerm() async {
+    await updateAllTerms();
+    for (AcademicTerm term in allTerms.terms) {
       if (DateTime.now().isAfter(term.startTime) &&
           DateTime.now().isBefore(term.endTime)) {
-        return term;
+        this.currentTerm = term;
       }
     }
-    return null;
+  }
+
+  Future<void> updateAllTerms() async {
+    allTerms = await database.getTerms();
   }
 
   /// Helper function for deselcting a day
@@ -304,18 +330,16 @@ class _AddClassViewState extends State<AddClassView> {
   }
 
   /// Returns the list of subjects from the academic term
-  List<Widget> _listOfSubjects() {
-    List<Widget> listSubjects =
-        database.allTerms.subjects.map((String subjectItem) {
+  ListTile _itemInListOfSubjects(String subjectName) {
       return ListTile(
-        title: Text(subjectItem),
+        title: Text(subjectName),
         onLongPress: () {
           showDialog(
               context: context,
               builder: (BuildContext context) {
                 return SimpleDialog(
                     title:
-                        Text("Are you sure you want to delete " + subjectItem),
+                    Text("Are you sure you want to delete " + subjectName),
                     children: <Widget>[
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -326,10 +350,10 @@ class _AddClassViewState extends State<AddClassView> {
                             child: Text("Yes"),
                             onPressed: () {
                               setState(() {
-                                database.allTerms.subjects.remove(subjectItem);
+                                allTerms.subjects.remove(subjectName);
                                 Navigator.of(context).pop();
                                 Navigator.of(context).pop();
-
+                                //TODO: removed subject now update that in firestore
                                 database.updateDatabase();
                               });
                             },
@@ -348,13 +372,18 @@ class _AddClassViewState extends State<AddClassView> {
         },
         onTap: () {
           setState(() {
-            _subjectController.text = subjectItem;
+            _subjectController.text = subjectName;
           });
           Navigator.pop(context);
         },
       );
-    }).toList(growable: true);
-    listSubjects.add(ListTile(
+  }
+
+  /// Shows dialog window to select a subject
+  void _showSubjectSelectionDialog() {
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
+    List<Widget> subjects = List();
+    ListTile addSubject = ListTile(
         onTap: () {
           showDialog(
               context: context,
@@ -363,19 +392,20 @@ class _AddClassViewState extends State<AddClassView> {
                   title: Text("Enter New Subject Name"),
                   children: <Widget>[
                     TextFormField(
-                      style: Theme.of(context).accentTextTheme.body1,
+                      style: Theme
+                          .of(context)
+                          .accentTextTheme
+                          .body1,
                       decoration: InputDecoration(
                         hintText: "Subject e.g. CS",
                         hintStyle: TextStyle(color: Colors.black45),
                         contentPadding:
-                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                        EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                       ),
                       onFieldSubmitted: (val) {
                         print(val);
                         setState(() {
-                          database.allTerms.addSubject(val);
-                          database.updateDatabase();
-                          print(database.allTerms.subjects);
+                          database.addSubject(val);
                         });
                         Navigator.pop(context);
                       },
@@ -385,17 +415,27 @@ class _AddClassViewState extends State<AddClassView> {
                 );
               });
         },
-        title: Text("Add subject")));
-    return listSubjects;
-  }
+        title: Text("Add subject"));
 
-  /// Shows dialog window to select a subject
-  void _showSubjectSelectionDialog() {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return SimpleDialog(
-              title: Text("Choose a subject"), children: _listOfSubjects());
+          return StreamBuilder<QuerySnapshot> (
+            stream: Firestore.instance.collection("subjects").where('user_id', isEqualTo: user.uid).snapshots(),
+            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              subjects.clear();
+              if(snapshot.data != null) {
+                print("Snapshot data: " +
+                    snapshot.data.documents.length.toString());
+                snapshot.data.documents.forEach((document) =>
+                    subjects.add(
+                        _itemInListOfSubjects(document['subject_name'])));
+              }
+              subjects.add(addSubject);
+              return SimpleDialog(
+              title: Text("Choose a subject"), children: subjects);
+            }
+          );
         });
   }
 
@@ -412,7 +452,7 @@ class _AddClassViewState extends State<AddClassView> {
               "Choose a subject",
               style: Theme.of(context).accentTextTheme.body1,
             ),
-      onTap: () {
+      onTap: () async {
         _showSubjectSelectionDialog();
       },
     );
@@ -420,6 +460,7 @@ class _AddClassViewState extends State<AddClassView> {
 
   @override
   Widget build(BuildContext context) {
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("Add New Class"),
@@ -428,21 +469,24 @@ class _AddClassViewState extends State<AddClassView> {
           IconButton(
             icon: Icon(Icons.check),
             onPressed: () {
-              Navigator.of(context).pop(_subjectController != null
-                  ? Class(
-                      subjectArea: _subjectController.text,
-                      courseNumber: _courseNumberController.text,
-                      title: _courseTitleController.text,
-                      units: int.parse(_unitCountController.text),
-                      location: _locationController.text,
-                      instructor: _instructorController.text,
-                      officeLocation: _officeLocationController.text,
-                      description: _descriptionController.text,
-                      daysOfEvent: daysOfEvent,
-                      start: startTime,
-                      end: endTime,
-                      id: getCurrentTerm().getID())
-                  : null);
+              updateCurrentTerm();
+              if(_subjectController.text != null || _courseNumberController.text != null || _courseTitleController.text != null
+              || _unitCountController.text != null || _locationController.text != null || _instructorController.text != null ||
+              _officeLocationController.text != null || _descriptionController.text != null || daysOfEvent.isNotEmpty ||
+              startTime != null || endTime != null)
+                {
+                  database.addClass(user, _subjectController.text,
+                      _courseNumberController.text, _courseTitleController.text,
+                      int.parse(_unitCountController.text),  _locationController.text,
+                      _instructorController.text, _officeLocationController.text,
+                      _descriptionController.text, daysOfEvent, startTime, endTime, widget.term);
+                  Navigator.of(context).pop();
+                }
+              else
+                {
+                  //TODO: handle alert for unfilled form
+                }
+
             },
           ),
         ],
@@ -467,23 +511,16 @@ class _AddClassViewState extends State<AddClassView> {
         },
         onStepContinue: () {
           setState(() {
+            //Should be on the last step
             if (currentStep < getSteps().length - 1) {
               currentStep++;
             } else {
-              Navigator.of(context).pop(_subjectController != null
-                  ? Class(
-                      subjectArea: _subjectController.text,
-                      courseNumber: _courseNumberController.text,
-                      title: _courseTitleController.text,
-                      units: int.parse(_unitCountController.text),
-                      location: _locationController.text,
-                      instructor: _instructorController.text,
-                      officeLocation: _officeLocationController.text,
-                      description: _descriptionController.text,
-                      daysOfEvent: daysOfEvent,
-                      start: startTime,
-                      end: endTime)
-                  : null);
+              database.addClass(user, _subjectController.text,
+                  _courseNumberController.text, _courseTitleController.text,
+                  int.parse(_unitCountController.text),  _locationController.text,
+                  _instructorController.text, _officeLocationController.text,
+                  _descriptionController.text, daysOfEvent, startTime, endTime, widget.term);
+              Navigator.of(context).pop();
             }
           });
         },

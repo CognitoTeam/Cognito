@@ -1,13 +1,20 @@
 import 'package:cognito/database/database.dart';
 import 'package:cognito/models/academic_term.dart';
+import 'package:cognito/models/class.dart';
 import 'package:cognito/models/gpa_calculator.dart';
 import 'package:cognito/views/main_drawer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 /// GPA view
 /// @author Praneet Singh
 ///
 class GPAView extends StatefulWidget {
+  final AcademicTerm term;
+
+  GPAView(this.term);
+
   @override
   _GPAViewState createState() => _GPAViewState();
 }
@@ -15,12 +22,13 @@ class GPAView extends StatefulWidget {
 class _GPAViewState extends State<GPAView> {
   DataBase database = DataBase();
 
-  List<Widget> allTermGPA() {
+  List<Widget> allTermGPA(List<AcademicTerm> terms, FirebaseUser user) {
     List<Widget> all = List();
     GPACalculator gpa = GPACalculator();
-    for (AcademicTerm t in database.allTerms.terms) {
-      gpa.addTerm(t);
+    for (AcademicTerm t in terms) {
+      gpa.addTerm(t, user);
     }
+    //Get GPA of each term
     for (AcademicTerm t in gpa.termsMap.keys) {
       all.add(ListTile(
         title: Text(t.termName),
@@ -36,42 +44,102 @@ class _GPAViewState extends State<GPAView> {
     setState(() {});
   }
 
-  double calculateGPA() {
+  double calculateGPA(List<AcademicTerm> terms, FirebaseUser user) {
     GPACalculator gpa = GPACalculator();
-    for (AcademicTerm t in database.allTerms.terms) {
-      gpa.addTerm(t);
+    for (AcademicTerm t in terms) {
+      gpa.addTerm(t, user);
     }
     return gpa.gpa;
   }
 
-  AcademicTerm getCurrentTerm() {
-    for (AcademicTerm term in database.allTerms.terms) {
-      if (DateTime.now().isAfter(term.startTime) &&
-          DateTime.now().isBefore(term.endTime)) {
-        return term;
-      }
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     return Scaffold(
       drawer: MainDrawer(),
       appBar: AppBar(
-        title: Text(
-          "GPA",
-          style: Theme.of(context).primaryTextTheme.title,
-        ),
-        backgroundColor: Theme.of(context).primaryColorDark,
-      ),
+        title: Text("GPA", style: Theme
+            .of(context)
+            .primaryTextTheme
+            .title,),
+        backgroundColor: Theme
+            .of(context)
+            .primaryColorDark,),
       body: ListView(
         children: <Widget>[
-          ListTile(
-            title: Text("Overall GPA:"),
-            trailing: Text(calculateGPA().toStringAsFixed(2)),
+            StreamBuilder<List<AcademicTerm>>(
+            stream: database.streamTerms(user),
+            builder: (context, snapshot) {
+              if(snapshot.connectionState == ConnectionState.done || snapshot.connectionState == ConnectionState.active)
+              {
+                if (snapshot.data != null) {
+                  Map<AcademicTerm, List<Class>> termsMap = Map();
+                  List<AcademicTerm> terms = snapshot.data;
+                  for(int i = 0; i < terms.length; i++)
+                  {
+                    AcademicTerm term = terms[i];
+                    return StreamBuilder<List<Class>>(
+                      stream: database.streamClasses(user, term),
+                      builder: (context, snapshot) {
+                        List<Class> classes = snapshot.data;
+                        termsMap[term] = classes;
+                        return Container();
+                      },
+                    );
+                  }
+                  return ListTile(title: Text("Overall GPA:"),
+                    trailing: Text(
+                        calculateGPA(terms, user).toStringAsFixed(2)),);
+                }
+                else
+                {
+                  return new Container(
+                    child: Center(child: Text("No GPA Yet"),),);
+                }
+              }
+              else{
+                return new Container(
+                  child: Center(child: Text("Loading your GPA..." ),),);
+              }
+            },
           ),
-          Column(children: allTermGPA())
+
+          StreamBuilder<List<AcademicTerm>>(
+            stream: database.streamTerms(user),
+            builder: (context, snapshot) {
+              if(snapshot.connectionState == ConnectionState.done || snapshot.connectionState == ConnectionState.active)
+              {
+                if (snapshot.data != null) {
+                  Map<AcademicTerm, List<Class>> termsMap = Map();
+                  List<AcademicTerm> terms = snapshot.data;
+                  for(int i = 0; i < terms.length; i++)
+                  {
+                    AcademicTerm term = terms[i];
+                    return StreamBuilder<List<Class>>(
+                      stream: database.streamClasses(user, term),
+                      builder: (context, snapshot) {
+                        List<Class> classes = snapshot.data;
+                        termsMap[term] = classes;
+                        return Container();
+                      },
+                    );
+                  }
+                  return ListTile(title: Text("Overall GPA:"),
+                    trailing: Text(
+                        calculateGPA(terms, user).toStringAsFixed(2)),);
+                }
+                else
+                {
+                  return new Container(
+                    child: Center(child: Text("No GPA Yet"),),);
+                }
+              }
+              else{
+                return new Container(
+                  child: Center(child: Text("Loading your GPA..." ),),);
+              }
+            },
+          ),
         ],
       ),
     );
