@@ -100,7 +100,7 @@ class _BufferViewState extends State<BufferView> {
 
   @override
   Widget build(BuildContext context) {
-    var user = Provider.of<FirebaseUser>(context);
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     _initializeDatabase(user);
     return Scaffold(
         body: Center(

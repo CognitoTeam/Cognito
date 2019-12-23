@@ -1,4 +1,5 @@
 import 'package:cognito/database/database.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'dart:async';
@@ -121,7 +122,7 @@ class _SignUpViewState extends State<SignUpView> {
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
       validator: (confirmation) {
-        var password = _passKey.currentState.value;
+        String password = _passKey.currentState.value;
         return equals(confirmation, password)
             ? null
             : "Passwords do not match!";

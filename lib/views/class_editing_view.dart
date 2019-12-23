@@ -440,7 +440,7 @@ class _ClassEditingViewState extends State<ClassEditingView> {
 
   @override
   Widget build(BuildContext context) {
-    var user = Provider.of<FirebaseUser>(context);
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("Edit Class"),

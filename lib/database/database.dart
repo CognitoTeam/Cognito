@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_firestore/cloud_firestore.dart' as prefix0;
 import 'package:cognito/database/firebase_login.dart';
 import 'package:cognito/models/all_terms.dart';
 import 'package:cognito/models/assignment.dart';
@@ -18,7 +17,6 @@ import 'package:cognito/models/officer.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart';
 
 /// FireStore storage for terms
 /// @author Praneet Singh

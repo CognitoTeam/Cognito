@@ -64,7 +64,7 @@ class _MainDrawerState extends State<MainDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    var user = Provider.of<FirebaseUser>(context);
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     return FutureBuilder<AcademicTerm>(
       future: database.getCurrentTerm(user),
       builder: (BuildContext context, AsyncSnapshot<AcademicTerm> snapshot) {

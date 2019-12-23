@@ -118,7 +118,7 @@ class _ClubViewState extends State<ClubView> {
 
   @override
   Widget build(BuildContext context) {
-    var user = Provider.of<FirebaseUser>(context);
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     return FutureBuilder(
       future: database.getCurrentTerm(user),
       builder: (context,snapshot) {

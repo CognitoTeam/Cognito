@@ -64,7 +64,7 @@ class _AddClubViewState extends State<AddClubView> {
 
   @override
   Widget build(BuildContext context) {
-    var user = Provider.of<FirebaseUser>(context);
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     return FutureBuilder(
       future: database.doesClubNameAlreadyExist(_titleController.text, user.uid),
       builder: (context, snapshot) {

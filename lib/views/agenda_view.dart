@@ -391,7 +391,7 @@ class _AgendaViewState extends State<AgendaView>
 
   @override
   Widget build(BuildContext context) {
-    var user = Provider.of<FirebaseUser>(context);
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     database.getCurrentTerm(user);
     Expanded mainAgenda = Expanded(
       child: ListView(
@@ -563,7 +563,7 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
 
   @override
   Widget build(BuildContext context) {
-    var user = Provider.of<FirebaseUser>(context);
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     if (widget.term != null) {
       return StreamBuilder<List<Class>>(
           stream: widget.database.streamClasses(user, widget.term),
@@ -649,7 +649,7 @@ class _FilteredAssignmentExpansionState
 
   @override
   Widget build(BuildContext context) {
-    var user = Provider.of<FirebaseUser>(context);
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     updateGradesID(user.uid);
       if(gradesDocIDFound) {
         return StreamBuilder<List<Assignment>>(
@@ -1113,7 +1113,7 @@ class _FilteredEventExpansionState extends State<FilteredEventExpansion> {
 
   @override
   Widget build(BuildContext context) {
-    var user = Provider.of<FirebaseUser>(context);
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     if(widget.term != null) {
       return StreamBuilder<List<Event>>(
         stream: widget.database.streamEvents(user, widget.term),

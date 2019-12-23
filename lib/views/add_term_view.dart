@@ -15,7 +15,7 @@ class AddTermViewProviderValue extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var user = Provider.of<FirebaseUser>(context);
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     return Container(
       child: StreamProvider<List<AcademicTerm>>.value(
         value: db.streamTerms(user),
@@ -39,7 +39,7 @@ class _AddTermViewState extends State<AddTermView> {
   DataBase database = DataBase();
   //Fire store instance
   final firestore = Firestore.instance;
-  var terms;
+  List<AcademicTerm> terms;
 
   @override
   void initState() {
@@ -99,8 +99,8 @@ class _AddTermViewState extends State<AddTermView> {
 
   @override
   Widget build(BuildContext context) {
-    var user = Provider.of<FirebaseUser>(context);
-    var terms = Provider.of<List<AcademicTerm>>(context);
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
+    List<AcademicTerm> terms = Provider.of<List<AcademicTerm>>(context);
     this.terms = terms;
     return FutureBuilder(
         future: database.doesTermNameAlreadyExist(_termNameController.text, user.uid),

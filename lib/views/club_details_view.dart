@@ -66,7 +66,7 @@ class _ClubDetailsViewState extends State<ClubDetailsView> {
 
   @override
   Widget build(BuildContext context) {
-    var user = Provider.of<FirebaseUser>(context);
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -416,7 +416,7 @@ class _ExpandableTaskListState extends State<ExpandableTaskList> {
 
   @override
   Widget build(BuildContext context) {
-      var user = Provider.of<FirebaseUser>(context);
+      FirebaseUser user = Provider.of<FirebaseUser>(context);
       return StreamBuilder<List<Task>>(
           stream: dataBase.streamClubTasks(widget.club.id),
           builder: (context,snapshot) {

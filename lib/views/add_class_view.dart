@@ -381,7 +381,7 @@ class _AddClassViewState extends State<AddClassView> {
 
   /// Shows dialog window to select a subject
   void _showSubjectSelectionDialog() {
-    var user = Provider.of<FirebaseUser>(context);
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     List<Widget> subjects = List();
     ListTile addSubject = ListTile(
         onTap: () {
@@ -460,7 +460,7 @@ class _AddClassViewState extends State<AddClassView> {
 
   @override
   Widget build(BuildContext context) {
-    var user = Provider.of<FirebaseUser>(context);
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("Add New Class"),

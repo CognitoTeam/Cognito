@@ -48,7 +48,7 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
 
   @override
   Widget build(BuildContext context) {
-    var user = Provider.of<FirebaseUser>(context);
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     return Scaffold(
         appBar: AppBar(
           title: Text("Add New Assignment"),

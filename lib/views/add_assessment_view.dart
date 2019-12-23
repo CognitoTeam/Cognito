@@ -78,7 +78,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
   @override
   Widget build(BuildContext context) {
     //Class document id stream
-    var user = Provider.of<FirebaseUser>(context);
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     return Scaffold(
         appBar: AppBar(
           title: Text("Add New Assessment"),

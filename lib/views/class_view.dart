@@ -108,7 +108,7 @@ class _ClassViewState extends State<ClassView> {
   /// Gets the grade from this the given [Class]
   //TODO: Not graded when there are more than one classes
   Future<String> calculateGrade(Class c) async {
-    var gradeBookValue = await updateGradebookValues(c);
+    List gradeBookValue = await updateGradebookValues(c);
     String value = c.getGrade(gradeBookValue[1], gradeBookValue[0], gradeBookValue[2]);
     return "Grade: " + value;
   }
@@ -296,7 +296,7 @@ class _ClassViewState extends State<ClassView> {
   @override
   Widget build(BuildContext context) {
 //    updateGradeStream(term);
-    var user = Provider.of<FirebaseUser>(context);
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
 
     return FutureBuilder(
       future: database.getCurrentTerm(user),

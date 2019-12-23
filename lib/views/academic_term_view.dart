@@ -76,7 +76,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
   @override
   Widget build(BuildContext context) {
     //get user from the provider
-    var user = Provider.of<FirebaseUser>(context);
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
 
     return Scaffold(
       drawer: MainDrawer(),
