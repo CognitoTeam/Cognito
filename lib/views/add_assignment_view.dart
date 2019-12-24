@@ -447,8 +447,14 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
                             cat.weightInPercentage =
                                 double.parse(_categoryWeight.text);
                             try {
-                              database.addCategoryToClass(
-                                  cat, widget.aClass, widget.term, userID);
+                              if(isCategoryOver(cat.weightInPercentage, categories))
+                              {
+                                //TODO: ADD some kind of alert
+                              }
+                              else
+                              {
+                                database.addCategoryToClass(cat, widget.aClass, widget.term, userID);
+                              }
                             } catch (e) {
                               Scaffold.of(context).showSnackBar(SnackBar(
                                 content: Text(e),
@@ -469,6 +475,15 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
       ),
     );
     return listCategories;
+  }
+
+
+  bool isCategoryOver(double categoryWeight, List<Category> categories) {
+    int sum = 0;
+    for(Category c in categories) {
+      c.weightInPercentage += sum;
+    }
+    return sum + categoryWeight > 100;
   }
 
   Column daySelectionColumn(Day day) {

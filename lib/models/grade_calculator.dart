@@ -89,10 +89,11 @@ class GradeCalculator {
       totalWeightInPercentage += category.weightInPercentage;
     });
     uniqueCategoriesUsed.forEach((category) {
-      percentage += double.parse(((category.pointsEarned / category.pointsPossible) *
-          (totalWeightInPercentage > 100 ? category.weightInPercentage : 1))
-          .toStringAsFixed(2))*100;
+      percentage += double.parse(((category.pointsEarned / category.pointsPossible) * category.weightInPercentage)
+          .toStringAsFixed(2));
+      print(percentage);
     });
+    percentage = percentage/totalWeightInPercentage * 100;
     //Add default percentage
 
     // Determine letter grade from percentage value

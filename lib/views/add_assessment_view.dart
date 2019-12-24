@@ -498,10 +498,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                             //Therefore it will be stored in the classes collection and this will access classes to retrieve all the categories
                             if(isCategoryOver(cat.weightInPercentage, categories))
                               {
-                                Scaffold.of(context).showSnackBar(SnackBar(
-                                  content: Text("Categories add to more than 100%"),
-                                  duration: Duration(seconds: 7),
-                                ));
+                                //TODO: Add some kind of alert
                               }
                             else
                               {
