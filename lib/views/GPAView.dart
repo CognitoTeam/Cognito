@@ -7,9 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-/// GPA view
-/// @author Praneet Singh
-///
+
 class GPAView extends StatefulWidget {
   final AcademicTerm term;
 

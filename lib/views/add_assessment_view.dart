@@ -496,7 +496,17 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                           try {
                             //Adding category here will be a permanent measure and stored without compliance with the assignment
                             //Therefore it will be stored in the classes collection and this will access classes to retrieve all the categories
-                            database.addCategoryToClass(cat, widget.aClass, widget.term, userID);
+                            if(isCategoryOver(cat.weightInPercentage, categories))
+                              {
+                                Scaffold.of(context).showSnackBar(SnackBar(
+                                  content: Text("Categories add to more than 100%"),
+                                  duration: Duration(seconds: 7),
+                                ));
+                              }
+                            else
+                              {
+                                database.addCategoryToClass(cat, widget.aClass, widget.term, userID);
+                              }
                           } catch (e) {
                             Scaffold.of(context).showSnackBar(SnackBar(
                               content: Text(e),
@@ -518,6 +528,13 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
     return listCategories;
   }
 
+  bool isCategoryOver(double categoryWeight, List<Category> categories) {
+    int sum = 0;
+    for(Category c in categories) {
+      c.weightInPercentage += sum;
+    }
+    return sum + categoryWeight > 100;
+  }
 // Returns a column widget containg 7 checkboxes for day selection
   Column daySelectionColumn(Day day) {
     return Column(

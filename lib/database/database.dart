@@ -793,7 +793,6 @@ class DataBase {
         .where('instructor', isEqualTo: classObj.instructor)
         .where('term_name', isEqualTo: term.termName)
         .getDocuments();
-    print("Class ID: " + classObj.id);
     //Should be only a unique class
     if (snapshot.documents.length == 1) {
       firestore

@@ -208,7 +208,6 @@ class _ClassViewState extends State<ClassView> {
                               color: Colors.white,
                             ),
                             subtitle: new FutureBuilder(
-                              //TODO: Not graded when there are more than one classes
                                 future: calculateGrade(classObj),
                                 builder: (BuildContext context,
                                     AsyncSnapshot<String> snapshot) {
