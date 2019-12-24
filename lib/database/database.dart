@@ -716,13 +716,10 @@ class DataBase {
       Assignment assignment, Class classObj, AcademicTerm term, String userId) async {
     String termID = term.getID();
     String collectionName;
-    String otherCollectionName;
     if (assignment.isAssessment) {
       collectionName = "assessments";
-      otherCollectionName = "assignments";
     } else {
       collectionName = "assignments";
-      otherCollectionName = "assessments";
     }
 
     DocumentReference docRefGradesUserTerm;
@@ -732,7 +729,7 @@ class DataBase {
     QuerySnapshot snapshot = await firestore
         .collection("grades")
         .where("user_id", isEqualTo: userId)
-        .where("term_id", isEqualTo: term.getID())
+        .where("term_id", isEqualTo: termID)
         .getDocuments();
 
     //First time adding a grade will need to create a [term of user]
@@ -796,8 +793,7 @@ class DataBase {
         .where('instructor', isEqualTo: classObj.instructor)
         .where('term_name', isEqualTo: term.termName)
         .getDocuments();
-    if (snapshot.documents.length == 0)
-    if (snapshot.documents.length > 1)
+    print("Class ID: " + classObj.id);
     //Should be only a unique class
     if (snapshot.documents.length == 1) {
       firestore
@@ -819,7 +815,7 @@ class DataBase {
   }
 
   Future addCategoryToClass(
-      Category cat, Class aClass, AcademicTerm term) async {
+      Category cat, Class aClass, AcademicTerm term, String userID) async {
     //Need to find the correct class
     QuerySnapshot snapshot = await firestore
         .collection('classes')
