@@ -91,7 +91,6 @@ class GradeCalculator {
     uniqueCategoriesUsed.forEach((category) {
       percentage += double.parse(((category.pointsEarned / category.pointsPossible) * category.weightInPercentage)
           .toStringAsFixed(2));
-      print(percentage);
     });
     percentage = percentage/totalWeightInPercentage * 100;
     //Add default percentage

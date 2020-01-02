@@ -53,6 +53,7 @@ class GPACalculator {
     //Get the all Classes of a term
     List<Class> classes = await dataBase.getClassForTerm(term, user.uid);
     if (classes == null || classes.isEmpty) {
+      print("Classes is null for the term: " + term.termName);
     } else {
       for (Class c in classes) {
         String g = c.getGrade(null, null, null);

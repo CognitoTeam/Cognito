@@ -207,8 +207,8 @@ class _ClassViewState extends State<ClassView> {
                               Icons.label,
                               color: Colors.white,
                             ),
-                            subtitle: new FutureBuilder(
-                                future: calculateGrade(classObj),
+                            subtitle: new StreamBuilder(
+                                stream: calculateGrade(classObj).asStream(),
                                 builder: (BuildContext context,
                                     AsyncSnapshot<String> snapshot) {
                                   updateGradebookValues(classObj);
