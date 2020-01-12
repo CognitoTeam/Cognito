@@ -234,6 +234,7 @@ class DataBase {
       list.documents.map((doc) => Category.fromFirestore(doc)).toList());
   }
 
+  //TODO: combine so no termGradesId needed
   Stream<List<Assignment>> streamAssignments(String termGradesId, bool isAssessment)
   {
     String s = isAssessment ? "assessments" : "assignments";
@@ -243,6 +244,12 @@ class DataBase {
         list.documents.map((doc) => Assignment.fromFirestore(doc)).toList());
   }
 
+  Stream<List<String>> streamGradeDocID(String userID, String termID)
+  {
+    Query ref = firestore.collection('grades').where('user_id', isEqualTo: userID).where('term_id', isEqualTo: termID);
+    return ref.snapshots().map((list) =>
+        list.documents.map((doc) => doc.documentID).toList());
+  }
 
   Stream<Class> getClass(String classId) {
     return firestore

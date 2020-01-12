@@ -397,10 +397,10 @@ class _AgendaViewState extends State<AgendaView>
       child: ListView(
         children: <Widget>[
           FilteredClassExpansion(widget.term, selectedDate, database),
-          FilteredAssignmentExpansion(
-              widget.term, selectedDate, false, database, selectedDate),
-          FilteredAssignmentExpansion(
-              widget.term, selectedDate, true, database, selectedDate),
+          FilteredAssignmentProvider(
+              widget.term, selectedDate, false, selectedDate),
+          FilteredAssignmentProvider(
+              widget.term, selectedDate, true, selectedDate),
           FilteredEventExpansion(widget.term, selectedDate, database),
         ],
       ),
@@ -604,6 +604,27 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
   }
 }
 
+class FilteredAssignmentProvider extends StatelessWidget {
+  final db = DataBase();
+  final AcademicTerm term;
+  final DateTime date;
+  final bool isAssessment;
+  DateTime selectedDate;
+
+  FilteredAssignmentProvider(this.term, this.date, this.isAssessment, this.selectedDate);
+
+  @override
+  Widget build(BuildContext context) {
+    String userId = Provider.of<FirebaseUser>(context).uid;
+    return Container(
+      child: StreamProvider<List<String>>.value(
+        value: db.streamGradeDocID(userId, term.id),
+        child: FilteredAssignmentExpansion(term, date, this.isAssessment, db, selectedDate),
+      )
+    );
+  }
+
+}
 class FilteredAssignmentExpansion extends StatefulWidget {
   final AcademicTerm term;
   final DateTime date;
@@ -625,7 +646,7 @@ class _FilteredAssignmentExpansionState
   Notifications noti = Notifications();
   DateTime oneWeekFromToday = DateTime.now().add(Duration(days: 7));
   String gradesDocID = "";
-  bool gradesDocIDFound = false;
+  bool gradesDocIDFound = true;
   DataBase database = DataBase();
 
   @override
@@ -633,27 +654,14 @@ class _FilteredAssignmentExpansionState
     super.initState();
   }
 
-  void updateGradesID(String userId)
-  async {
-    QuerySnapshot gradesQuery = await Firestore.instance.collection("grades").where(
-        'user_id', isEqualTo: database.userID).where('term_name', isEqualTo: widget.term.termName).getDocuments();
-    if(gradesQuery.documents.length != 1)
-    {
-    }
-    else if(gradesQuery.documents.length == 1)
-    {
-      gradesDocID = gradesQuery.documents[0].documentID;
-      gradesDocIDFound = true;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    FirebaseUser user = Provider.of<FirebaseUser>(context);
-    updateGradesID(user.uid);
-      if(gradesDocIDFound) {
+    List<String> gradeIDs = Provider.of<List<String>>(context);
+    String gradeID = gradeIDs != null && gradeIDs.length > 0 ? gradeIDs[0] : null;
+    if(gradeID != null) {
+      print(widget.isAssessment);
         return StreamBuilder<List<Assignment>>(
-            stream: database.streamAssignments(gradesDocID, widget.isAssessment),
+            stream: database.streamAssignments(gradeID, widget.isAssessment),
             builder: (BuildContext context, snapshot) {
               List<Assignment> assignments = snapshot.data;
                 return ExpansionTile(
