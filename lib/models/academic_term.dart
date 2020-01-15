@@ -20,6 +20,7 @@ class AcademicTerm {
     List<Club> clubs;
     List<Task> tasks;
     List<Event> events;
+    String gpa;
     AcademicTerm({this.id, this.termName, this.startTime, this.endTime}){
       classes = List();
       clubs = List();
@@ -36,6 +37,24 @@ class AcademicTerm {
         endTime: data['end_date'].toDate(),
       );
     }
+
+    Map<String, double> gradePointsMultiplier = {
+      //Maps Letter grade to GP multiplier
+      "A+": 4.0,
+      "A": 4.0,
+      "A-": 3.7,
+      "B+": 3.3,
+      "B": 3.0,
+      "B-": 2.7,
+      "C+": 2.3,
+      "C": 2.0,
+      "C-": 1.7,
+      "D+": 1.3,
+      "D": 1.0,
+      "D-": 0.7,
+      "F+": 0.0,
+      "F": 0.0
+    };
 
     String getStartDateAsString() {
       return "${startTime.month}/${startTime.day}/${startTime.year}";

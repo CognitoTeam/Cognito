@@ -74,6 +74,17 @@ class GPACalculator {
     }
   }
 
+  String getGPAFromGradeLetters(List<String> gradeLetters)
+  {
+    double sum = 0;
+    for(String str in gradeLetters)
+      {
+        if(str == null) continue;
+        sum = sum + gradePointsMultiplier[str];
+      }
+    return gradeLetters.length > 0 ? num.parse((sum/gradeLetters.length).toStringAsFixed(3)).toString():"Grades not issued";
+  }
+
 //Calculates the final GPA for all terms
   void calculateGPA() {
     double finalGPA = 0.0;

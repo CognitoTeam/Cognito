@@ -225,6 +225,7 @@ class DataBase {
       return ref.snapshots().map((list) =>
           list.documents.map((doc) => Club.fromFirestore(doc)).toList());
     }
+    return null;
   }
 
   Stream<List<Category>> streamCategory(Class classObj)
@@ -243,7 +244,14 @@ class DataBase {
         list.documents.map((doc) => Assignment.fromFirestore(doc)).toList());
   }
 
-
+  Stream<List<Assignment>> streamAssignmentsFromClass(String classId)
+  {
+    print(classId.substring(1));
+    Query ref = firestore.collection('classes').document(classId).collection("assignments");
+    return ref.snapshots().map((list) =>
+        list.documents.map((doc) => Assignment.fromFirestore(doc)).toList());
+  }
+  
   Stream<Class> getClass(String classId) {
     return firestore
         .collection('classes').document(classId).snapshots().map((snap) => Class.fromFirestore(snap));
@@ -904,17 +912,16 @@ class DataBase {
   }
 
   Assignment documentToAssignment(DocumentSnapshot document) {
-    int minutes = document['duration_in_minutes'];
-    Duration d = new Duration(minutes: minutes);
+    Timestamp date = document['due_date'];
     return new Assignment(
         title: document['title'],
         isAssessment: document['is_assessment'],
         description: document['description'],
         location: document['location'],
-        dueDate: document['due_date'].toDate(),
+        dueDate: date != null ? document['due_date'] .toDate(): null,
         id: document['term_id'],
         priority: document['priority'],
-        duration: d,
+        duration: document['duration_in_minutes'] != null ? Duration(minutes: document['duration_in_minutes']) : null,
         pointsEarned: document['points_earned'],
         pointsPossible: document['points_possible'],
         category: Category(
