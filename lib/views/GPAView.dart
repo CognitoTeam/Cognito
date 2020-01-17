@@ -33,6 +33,7 @@ class GPAView extends StatefulWidget {
 
 class _GPAViewState extends State<GPAView> {
   DataBase database = DataBase();
+  List<double> termsGPA = List();
 
   List<Widget> allTermGPA(List<AcademicTerm> terms, FirebaseUser user) {
     List<Widget> all = List();
@@ -64,43 +65,34 @@ class _GPAViewState extends State<GPAView> {
     return gpa.gpa;
   }
 
-  Widget getClasses(AcademicTerm term, FirebaseUser user) {
-    return StreamProvider<List<Class>>.value(
-      value: database.streamClasses(user, term),
-      child: TermClassesView(term)
-    );
-  }
-
   Widget rowOfTermsAndGPA(FirebaseUser user, List<AcademicTerm> terms)
   {
     return ListView.builder(
       itemBuilder: (context, index) {
         return Padding(
           padding: EdgeInsets.all(16.0),
-          child: getClasses(terms[index], user)
+          child: getClasses(terms[index], user, termsGPA)
         );
       },
       itemCount: 1,
     );
   }
 
-  String averageGPA(List<String> gpaList)
+  String averageGPA(List<double> gpaList)
   {
     double sum = 0;
-    for(String gpa in gpaList)
+    for(double gpa in gpaList)
       {
-        if(gpa == null || gpa == "Grades not issued") continue;
-        sum += double.parse(gpa);
+        sum += gpa;
       }
-    print("sum: " + sum.toString());
     return num.parse((sum/gpaList.length).toStringAsFixed(3)).toString();
   }
 
   @override
   Widget build(BuildContext context) {
     FirebaseUser user = Provider.of<FirebaseUser>(context);
-    List<AcademicTerm> terms = Provider.of<List<AcademicTerm>>(context);
-    List<String> termsGPA = List();
+    List<AcademicTerm> terms = Provider.of<List<AcademicTerm>>(context)??[];
+    List<double> termsGPA = List();
     return Scaffold(
       drawer: MainDrawer(),
       appBar: AppBar(
@@ -112,48 +104,67 @@ class _GPAViewState extends State<GPAView> {
             .of(context)
             .primaryColorDark,),
       body:
-        terms != null && terms.length > 0 ? ListView.builder(
-          itemBuilder: (context, index) {
-            if(index < terms.length) {
-              termsGPA.add(terms[index].gpa);
-              return Padding(
-                padding: EdgeInsets.all(16.0),
-                child: getClasses(terms[index], user),
-              );
-            }else
-              {
-                print("Overall GPA: " + averageGPA(termsGPA));
-                return Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: ListTile(title: Text("Overall GPA"),
-                  trailing: Text(averageGPA(termsGPA)),),
-                );
-              }
-          },
-          itemCount: terms.length + 1,
+        ListView(
+          shrinkWrap: true,
+          children: list(terms, user, termsGPA),
         )
-            :
-        ListTile(title: Text("No GPA Yet"),)
+    );
+  }
+
+  List<Widget> list(List<AcademicTerm> terms, FirebaseUser user, List<double> termsGPA) {
+    List<Widget> retWidget = List();
+    for(AcademicTerm term in terms) {
+      retWidget.add(Padding(
+        padding: EdgeInsets.all(16.0),
+        child: getClasses(term, user, termsGPA),
+      ));
+    }
+    terms.length != 0 ?
+    retWidget.add(Padding(
+      padding: EdgeInsets.all(16.0),
+      child: ListTile(title: Text("Overall GPA"),
+        trailing: Text(averageGPA(termsGPA)),),)) : ListTile(title: Text("No GPA Yet"),);
+    return retWidget;
+  }
+
+  Widget getClasses(AcademicTerm term, FirebaseUser user, List<double> termsGPA) {
+    return StreamProvider<List<Class>>.value(
+        value: database.streamClasses(user, term),
+        child: TermClassesView(term, termsGPA)
     );
   }
 }
 
-class TermClassesView extends StatelessWidget {
+class TermClassesView extends StatefulWidget {
 
   final AcademicTerm term;
+  final List<double> termsGPA;
 
-  TermClassesView(this.term);
+  TermClassesView(this.term, this.termsGPA);
+
+  @override
+  _TermClassesViewState createState() => _TermClassesViewState();
+}
+
+class _TermClassesViewState extends State<TermClassesView> {
 
   @override
   Widget build(BuildContext context) {
     ScrollController _scrollController = new ScrollController();
     List<Class> classes = Provider.of<List<Class>>(context);
-    return Container(
-      child: ListView(
-        shrinkWrap: true,
-        children: _term(classes),
-        controller: _scrollController,
-      ),
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
+    DataBase db = DataBase();
+    return StreamBuilder(
+      stream: db.streamClasses(user, widget.term),
+      builder: (context, snapshot) {
+        return Container(
+          child: ListView(
+            children: _term(classes),
+            controller: _scrollController,
+            shrinkWrap: true,
+          ),
+        );
+      },
     );
   }
 
@@ -162,26 +173,23 @@ class TermClassesView extends StatelessWidget {
     List<Widget> classesList = List();
     List<String> gradeLetters = List();
     classesList.add(ListTile(
-      title: Text(term.termName),
+      title: Text(widget.term.termName),
     ));
+    String gpaDisplay;
     if(classes != null) {
       classes.forEach((Class c) {
-        term.classes.add(c);
         classesList.add(
             _class(c),
         );
-        if(c.gradeLetter != null)
-          {
-            gradeLetters.add(c.gradeLetter);
-          }
+        gradeLetters.add(c.gradeLetter);
       });
     }
+    print(gradeLetters.toString());
     GPACalculator gpaCalculator = GPACalculator();
-    String gpaDisplay = gpaCalculator.getGPAFromGradeLetters(gradeLetters);
-    //TODO: grades is returning nothing and override correct answer
-    term.gpa = gpaDisplay;
-    print(gpaDisplay);
-      classesList.add(ListTile(title: Text(term.termName + " GPA:"),
+    gpaDisplay = gpaCalculator.getGPAFromGradeLetters(gradeLetters);
+    print("Term GPA: " + gpaDisplay.toString());
+    widget.term.gpa = gpaDisplay;
+      classesList.add(ListTile(title: Text(widget.term.termName + " GPA:"),
           trailing: Text(
               gpaDisplay
           )));

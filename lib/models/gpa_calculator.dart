@@ -82,6 +82,7 @@ class GPACalculator {
         if(str == null) continue;
         sum = sum + gradePointsMultiplier[str];
       }
+    print("Sum: " + sum.toString());
     return gradeLetters.length > 0 ? num.parse((sum/gradeLetters.length).toStringAsFixed(3)).toString():"Grades not issued";
   }
 
