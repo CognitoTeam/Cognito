@@ -3,7 +3,6 @@ import 'package:cognito/database/database.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/class.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 
 ///Model for the GPA calculator
 ///@author Praneet Singh

@@ -23,3 +23,11 @@ pubspec.lock
 \.vscode/launch\.json
 
 ios/Flutter/flutter_export_environment.sh
+
+*
+!.gitattributes
+!.gitignore
+!readme.md
+!.gitkeep
+!*.dart
+!*/
