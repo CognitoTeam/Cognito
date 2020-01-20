@@ -593,7 +593,8 @@ class _FilteredClassExpansionState extends State<FilteredClassExpansion> {
               .accentTextTheme
               .body2,
         ),
-        children: [ListTile(
+        children: [
+          ListTile(
             title: Text(
               "No classes today",
               style: Theme.of(context).accentTextTheme.body2,

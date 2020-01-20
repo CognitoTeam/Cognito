@@ -225,6 +225,7 @@ class DataBase {
       return ref.snapshots().map((list) =>
           list.documents.map((doc) => Club.fromFirestore(doc)).toList());
     }
+    return null;
   }
 
   Stream<List<Category>> streamCategory(Class classObj)
@@ -723,13 +724,10 @@ class DataBase {
       Assignment assignment, Class classObj, AcademicTerm term, String userId) async {
     String termID = term.getID();
     String collectionName;
-    String otherCollectionName;
     if (assignment.isAssessment) {
       collectionName = "assessments";
-      otherCollectionName = "assignments";
     } else {
       collectionName = "assignments";
-      otherCollectionName = "assessments";
     }
 
     DocumentReference docRefGradesUserTerm;
@@ -739,7 +737,7 @@ class DataBase {
     QuerySnapshot snapshot = await firestore
         .collection("grades")
         .where("user_id", isEqualTo: userId)
-        .where("term_id", isEqualTo: term.getID())
+        .where("term_id", isEqualTo: termID)
         .getDocuments();
 
     //First time adding a grade will need to create a [term of user]
@@ -803,8 +801,6 @@ class DataBase {
         .where('instructor', isEqualTo: classObj.instructor)
         .where('term_name', isEqualTo: term.termName)
         .getDocuments();
-    if (snapshot.documents.length == 0)
-    if (snapshot.documents.length > 1)
     //Should be only a unique class
     if (snapshot.documents.length == 1) {
       firestore
@@ -826,7 +822,7 @@ class DataBase {
   }
 
   Future addCategoryToClass(
-      Category cat, Class aClass, AcademicTerm term) async {
+      Category cat, Class aClass, AcademicTerm term, String userID) async {
     //Need to find the correct class
     QuerySnapshot snapshot = await firestore
         .collection('classes')
@@ -916,17 +912,16 @@ class DataBase {
   }
 
   Assignment documentToAssignment(DocumentSnapshot document) {
-    int minutes = document['duration_in_minutes'];
-    Duration d = new Duration(minutes: minutes);
+    Timestamp date = document['due_date'];
     return new Assignment(
         title: document['title'],
         isAssessment: document['is_assessment'],
         description: document['description'],
         location: document['location'],
-        dueDate: document['due_date'].toDate(),
+        dueDate: date != null ? document['due_date'] .toDate(): null,
         id: document['term_id'],
         priority: document['priority'],
-        duration: d,
+        duration: document['duration_in_minutes'] != null ? Duration(minutes: document['duration_in_minutes']) : null,
         pointsEarned: document['points_earned'],
         pointsPossible: document['points_possible'],
         category: Category(

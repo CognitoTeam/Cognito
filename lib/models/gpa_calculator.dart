@@ -52,6 +52,7 @@ class GPACalculator {
     //Get the all Classes of a term
     List<Class> classes = await dataBase.getClassForTerm(term, user.uid);
     if (classes == null || classes.isEmpty) {
+      print("Classes is null for the term: " + term.termName);
     } else {
       for (Class c in classes) {
         String g = c.getGrade(null, null, null);
@@ -70,6 +71,18 @@ class GPACalculator {
       }
 
     }
+  }
+
+  String getGPAFromGradeLetters(List<String> gradeLetters)
+  {
+    double sum = 0;
+    for(String str in gradeLetters)
+      {
+        if(str == null) continue;
+        sum = sum + gradePointsMultiplier[str];
+      }
+    print("Sum: " + sum.toString());
+    return gradeLetters.length > 0 ? num.parse((sum/gradeLetters.length).toStringAsFixed(3)).toString():"Grades not issued";
   }
 
 //Calculates the final GPA for all terms

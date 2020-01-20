@@ -22,7 +22,6 @@ class _GradeBookViewState extends State<GradeBookView> {
   List<Widget> rowsOfWidgets() {
     List<Widget> rowsOfWidgets = [];
     Class selectedClass = widget.selectedClass;
-
     rowsOfWidgets.add(ListTile(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -1,5 +1,7 @@
 // Copyright 2019 UniPlan. All rights reserved.
 
+import 'dart:collection';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/database.dart';
 import 'package:cognito/models/assignment.dart';
@@ -26,6 +28,7 @@ class Class extends Event {
   List<Assignment> assessments;
   List<Task> tasks;
   Category starting;
+  String gradeLetter;
 
   Class(
       {String title,
@@ -146,6 +149,32 @@ class Class extends Event {
       default:
         print("Invalid key");
     }
+  }
+
+  returnCategories() {
+    HashSet<Category> cats = new HashSet();
+    for(Assignment assignment in this.assignments)
+      {
+        cats.add(assignment.category);
+      }
+    for(Assignment assessment in this.assessments)
+    {
+      cats.add(assessment.category);
+    }
+    return cats.toList();
+  }
+
+  returnGradeBook() {
+    Map<Assignment, Category> gradeBook = Map();
+    for(Assignment assignment in this.assignments)
+    {
+      gradeBook[assignment] = assignment.category;
+    }
+    for(Assignment assessment in this.assessments)
+    {
+      gradeBook[assessment] = assessment.category;
+    }
+    return gradeBook;
   }
 
   @override

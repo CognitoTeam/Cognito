@@ -101,7 +101,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
         body: Stepper(
           currentStep: this.currentStep,
           type: StepperType.vertical,
-          steps: getSteps(),
+          steps: getSteps(user.uid),
           onStepTapped: (step) {
             setState(() {
               currentStep = step;
@@ -118,7 +118,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
           },
           onStepContinue: () {
             setState(() {
-              if (currentStep < getSteps().length - 1) {
+              if (currentStep < getSteps(user.uid).length - 1) {
                 currentStep++;
               } else {
                 //Needs term id
@@ -133,7 +133,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
         ));
   }
 
-  List<Step> getSteps() {
+  List<Step> getSteps(String userID) {
     return [
       Step(
           title: Text(
@@ -240,7 +240,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                   _categoryListTitle,
                   style: Theme.of(context).accentTextTheme.body2,
                 ),
-                children: _listOfCategories(snapshot.data));
+                children: _listOfCategories(snapshot.data, userID));
           },
         )
       ),
@@ -304,7 +304,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
 
   String _categoryListTitle = "Select a category";
   // Returns a LitsTile widget categories as a list of widgets
-  List<Widget> _listOfCategories(List<Category> categories) {
+  List<Widget> _listOfCategories(List<Category> categories, String userID) {
     List<Widget> listCategories = List();
     //Need to get category from Firestore
     if (categories != null && categories.length > 0) {
@@ -496,7 +496,14 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                           try {
                             //Adding category here will be a permanent measure and stored without compliance with the assignment
                             //Therefore it will be stored in the classes collection and this will access classes to retrieve all the categories
-                            database.addCategoryToClass(cat, widget.aClass, widget.term);
+                            if(isCategoryOver(cat.weightInPercentage, categories))
+                              {
+                                //TODO: Add some kind of alert
+                              }
+                            else
+                              {
+                                database.addCategoryToClass(cat, widget.aClass, widget.term, userID);
+                              }
                           } catch (e) {
                             Scaffold.of(context).showSnackBar(SnackBar(
                               content: Text(e),
@@ -518,6 +525,13 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
     return listCategories;
   }
 
+  bool isCategoryOver(double categoryWeight, List<Category> categories) {
+    int sum = 0;
+    for(Category c in categories) {
+      c.weightInPercentage += sum;
+    }
+    return sum + categoryWeight > 100;
+  }
 // Returns a column widget containg 7 checkboxes for day selection
   Column daySelectionColumn(Day day) {
     return Column(

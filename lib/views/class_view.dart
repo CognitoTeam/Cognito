@@ -113,25 +113,6 @@ class _ClassViewState extends State<ClassView> {
     return "Grade: " + value;
   }
 
-
-  Future updateClassStream(Class c) async
-  {
-    QuerySnapshot snapshot = await Firestore.instance.collection('classes')
-        .where('user_id', isEqualTo: database.userID)
-        .where('term_name', isEqualTo: term.termName)
-        .where('title', isEqualTo: c.title)
-        .where('instructor', isEqualTo: c.instructor).getDocuments();
-    //This is the document of grades now we need assignments collection doc
-    if(snapshot.documents.length == 1)
-    {
-      classDocID = snapshot.documents[0].documentID;
-    }
-    else if(snapshot.documents.length > 1)
-    {
-      print("ERROR: Query for grade found more than 1 length");
-    }
-  }
-
   /// Builds [Card]s from the [AcademicTerm]'s list of [Class] objects
   /// in the form of a [ListView]
   Widget _getClassCards(FirebaseUser user, AcademicTerm term){
@@ -144,7 +125,6 @@ class _ClassViewState extends State<ClassView> {
             classes = snapshot.data;
             return new ListView(
               children: classes.map((classObj) {
-                updateClassStream(classObj);
                 updateGradebookValues(classObj);
                 return Container(
                   margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
@@ -207,9 +187,8 @@ class _ClassViewState extends State<ClassView> {
                               Icons.label,
                               color: Colors.white,
                             ),
-                            subtitle: new FutureBuilder(
-                              //TODO: Not graded when there are more than one classes
-                                future: calculateGrade(classObj),
+                            subtitle: new StreamBuilder(
+                                stream: calculateGrade(classObj).asStream(),
                                 builder: (BuildContext context,
                                     AsyncSnapshot<String> snapshot) {
                                   updateGradebookValues(classObj);
