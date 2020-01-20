@@ -190,6 +190,7 @@ class DataBase {
           .collection('classes')
           .where('user_id', isEqualTo: user.uid)
           .where('term_name', isEqualTo: term.termName);
+
       return ref.snapshots().map((list) =>
           list.documents.map((doc) => Class.fromFirestore(doc)).toList());
     }

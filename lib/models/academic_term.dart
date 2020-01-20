@@ -20,7 +20,7 @@ class AcademicTerm {
     List<Club> clubs;
     List<Task> tasks;
     List<Event> events;
-    String gpa;
+    double gpa;
     AcademicTerm({this.id, this.termName, this.startTime, this.endTime}){
       classes = List();
       clubs = List();
@@ -30,12 +30,14 @@ class AcademicTerm {
 
     factory AcademicTerm.fromFirestore(DocumentSnapshot doc) {
       Map data = doc.data;
-      return AcademicTerm(
-        id: doc.documentID,
+      AcademicTerm term = new AcademicTerm(
+        id: doc.documentID.toString(),
         termName: data['term_name'],
         startTime: data['start_date'].toDate(),
         endTime: data['end_date'].toDate(),
       );
+      term.gpa = data['gpa'].toDouble();
+      return term;
     }
 
     Map<String, double> gradePointsMultiplier = {

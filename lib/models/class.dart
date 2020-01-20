@@ -3,7 +3,6 @@
 import 'dart:collection';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cognito/database/database.dart';
 import 'package:cognito/models/assignment.dart';
 import 'package:cognito/models/category.dart';
 import 'package:cognito/models/event.dart';
@@ -28,7 +27,7 @@ class Class extends Event {
   List<Assignment> assessments;
   List<Task> tasks;
   Category starting;
-  String gradeLetter;
+  double grade;
 
   Class(
       {String title,
@@ -81,8 +80,9 @@ class Class extends Event {
       daysOfEvent: list,
       start: data['start_time'].toDate(),
       end: data['end_time'].toDate(),
-      id: doc.documentID
+      id: doc.documentID.toString()
     );
+    c.grade = data['grade'].toDouble();
     return c;
   }
 

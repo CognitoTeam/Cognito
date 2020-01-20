@@ -133,6 +133,44 @@ class GradeCalculator {
     setGradePointMultiplier();
   }
 
+  String getLetterGrade()
+  {
+    // Determine letter grade from percentage value
+    if (percentage >= gradeScale["F"] && percentage < gradeScale["F+"]) {
+      return "F";
+    } else if (percentage >= gradeScale["F+"] &&
+        percentage < gradeScale["D-"]) {
+      return "F+";
+    } else if (percentage >= gradeScale["D-"] && percentage < gradeScale["D"]) {
+      return "D-";
+    } else if (percentage >= gradeScale["D"] && percentage < gradeScale["D+"]) {
+      return "D";
+    } else if (percentage >= gradeScale["D+"] &&
+        percentage < gradeScale["C-"]) {
+      return "D+";
+    } else if (percentage >= gradeScale["C-"] && percentage < gradeScale["C"]) {
+      return "C-";
+    } else if (percentage >= gradeScale["C"] && percentage < gradeScale["C+"]) {
+      return "C";
+    } else if (percentage >= gradeScale["C+"] &&
+        percentage < gradeScale["B-"]) {
+      return "C+";
+    } else if (percentage >= gradeScale["B-"] && percentage < gradeScale["B"]) {
+      return "B-";
+    } else if (percentage >= gradeScale["B"] && percentage < gradeScale["B+"]) {
+      return "B";
+    } else if (percentage >= gradeScale["B+"] &&
+        percentage < gradeScale["A-"]) {
+      return "B+";
+    } else if (percentage >= gradeScale["A-"] && percentage < gradeScale["A"]) {
+      return "A-";
+    } else if (percentage >= gradeScale["A"] && percentage < gradeScale["A+"]) {
+      return "A";
+    } else {
+      return "A+";
+    }
+  }
+
   /// Sets grade point multiplier
   void setGradePointMultiplier() {
     switch (letterGrade) {
