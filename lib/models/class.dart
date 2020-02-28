@@ -28,6 +28,7 @@ class Class extends Event {
   List<Task> tasks;
   Category starting;
   double grade;
+  String colorCode = '0xFF42A5F5';
 
   Class(
       {String title,
@@ -82,7 +83,11 @@ class Class extends Event {
       end: data['end_time'].toDate(),
       id: doc.documentID.toString()
     );
+    print(c.toString());
     c.grade = data['grade'].toDouble();
+    print("grade: " + c.grade.toString());
+    c.colorCode = data['color'];
+    print("Color: " + c.colorCode.toString());
     return c;
   }
 

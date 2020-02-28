@@ -95,6 +95,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
           builder: (context,snapshot) {
             List<AcademicTerm> terms = snapshot.data;
             if(snapshot.data == null) {
+              print(user.uid);
               return new Center(
                 child: Text("Lets start by adding a term!"),
               );

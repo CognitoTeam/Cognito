@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/firebase_login.dart';
@@ -380,6 +381,7 @@ class DataBase {
     QuerySnapshot querySnapshot = await firestore
         .collection('classes')
         .where('user_id', isEqualTo: userID)
+        .where('user_id', isEqualTo: userID)
         .where('term_name', isEqualTo: term.termName)
         .where('title', isEqualTo: classObj.title)
         .where('instructor', isEqualTo: classObj.instructor)
@@ -518,6 +520,7 @@ class DataBase {
       List<int> daysOfEvent,
       DateTime startTime,
       DateTime endTime,
+      String color,
       AcademicTerm term) async {
     DocumentReference classCollectionReference =
         Firestore.instance.collection("classes").document();
@@ -534,6 +537,8 @@ class DataBase {
       "days_of_event": daysOfEvent,
       "start_time": startTime,
       "end_time": endTime,
+      "color" : color,
+      "grade" : 0,
       "term_name": term.termName,
       "term_id": await generateTermID(term)
     });
@@ -575,7 +580,8 @@ class DataBase {
         "term_name": text,
         "start_date": startDate,
         "end_date": endDate,
-        "term_id": newTermReference.documentID
+        "term_id": newTermReference.documentID,
+        "gpa" : 0
       });
       newTermReference.collection("classes_collection").document();
       newTermReference.collection("assignments_collection").document();
