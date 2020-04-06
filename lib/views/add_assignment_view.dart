@@ -71,7 +71,7 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
         body: Stepper(
           currentStep: this.currentStep,
           type: StepperType.vertical,
-          steps: getSteps(),
+          steps: getSteps(user.uid),
           onStepTapped: (step) {
             setState(() {
               currentStep = step;
@@ -88,7 +88,7 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
           },
           onStepContinue: () {
             setState(() {
-              if (currentStep < getSteps().length - 1) {
+              if (currentStep < getSteps(user.uid).length - 1) {
                 currentStep++;
               } else {
                 //Needs term id
@@ -103,7 +103,7 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
         ));
   }
 
-  List<Step> getSteps() {
+  List<Step> getSteps(String userID) {
     return [
       Step(
           title: Text(
@@ -190,7 +190,7 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
                   _categoryListTitle,
                   style: Theme.of(context).accentTextTheme.body2,
                 ),
-                children: _listOfCategories(snapshot.data));
+                children: _listOfCategories(snapshot.data, userID));
           },
         )
       ),
@@ -261,7 +261,7 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
   }
 
   String _categoryListTitle = "Category";
-  List<Widget> _listOfCategories(List<Category> categories) {
+  List<Widget> _listOfCategories(List<Category> categories, userID) {
     //Need to get category from Firestore
     List<Widget> listCategories = List();
     if (categories != null && categories.length > 0) {
@@ -447,9 +447,14 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
                             cat.weightInPercentage =
                                 double.parse(_categoryWeight.text);
                             try {
-                              //TODO: widget.aClass.addCategory(cat);
-                              database.addCategoryToClass(
-                                  cat, widget.aClass, widget.term);
+                              if(isCategoryOver(cat.weightInPercentage, categories))
+                              {
+                                //TODO: ADD some kind of alert
+                              }
+                              else
+                              {
+                                database.addCategoryToClass(cat, widget.aClass, widget.term, userID);
+                              }
                             } catch (e) {
                               Scaffold.of(context).showSnackBar(SnackBar(
                                 content: Text(e),
@@ -470,6 +475,15 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
       ),
     );
     return listCategories;
+  }
+
+
+  bool isCategoryOver(double categoryWeight, List<Category> categories) {
+    int sum = 0;
+    for(Category c in categories) {
+      c.weightInPercentage += sum;
+    }
+    return sum + categoryWeight > 100;
   }
 
   Column daySelectionColumn(Day day) {

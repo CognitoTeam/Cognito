@@ -113,25 +113,6 @@ class _ClassViewState extends State<ClassView> {
     return "Grade: " + value;
   }
 
-
-  Future updateClassStream(Class c) async
-  {
-    QuerySnapshot snapshot = await Firestore.instance.collection('classes')
-        .where('user_id', isEqualTo: database.userID)
-        .where('term_name', isEqualTo: term.termName)
-        .where('title', isEqualTo: c.title)
-        .where('instructor', isEqualTo: c.instructor).getDocuments();
-    //This is the document of grades now we need assignments collection doc
-    if(snapshot.documents.length == 1)
-    {
-      classDocID = snapshot.documents[0].documentID;
-    }
-    else if(snapshot.documents.length > 1)
-    {
-      print("ERROR: Query for grade found more than 1 length");
-    }
-  }
-
   /// Builds [Card]s from the [AcademicTerm]'s list of [Class] objects
   /// in the form of a [ListView]
   Widget _getClassCards(FirebaseUser user, AcademicTerm term){
@@ -140,11 +121,11 @@ class _ClassViewState extends State<ClassView> {
       stream: database.streamClasses(user, term),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if(snapshot.connectionState == ConnectionState.done || snapshot.connectionState == ConnectionState.active) {
-          if (snapshot.data != null || classes.length == 0) {
+          if (snapshot.data != null || snapshot.data.length != 0) {
+            print(snapshot.data.length);
             classes = snapshot.data;
             return new ListView(
               children: classes.map((classObj) {
-                updateClassStream(classObj);
                 updateGradebookValues(classObj);
                 return Container(
                   margin: EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
@@ -196,9 +177,7 @@ class _ClassViewState extends State<ClassView> {
                       },
                       child: Card(
                           elevation: 10.0,
-                          color: Theme
-                              .of(context)
-                              .primaryColor,
+                          color: Color(int.parse(classObj.colorCode, radix: 16)),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30.0)),
                           //StreamBuilder stream of only one
@@ -207,9 +186,8 @@ class _ClassViewState extends State<ClassView> {
                               Icons.label,
                               color: Colors.white,
                             ),
-                            subtitle: new FutureBuilder(
-                              //TODO: Not graded when there are more than one classes
-                                future: calculateGrade(classObj),
+                            subtitle: new StreamBuilder(
+                                stream: calculateGrade(classObj).asStream(),
                                 builder: (BuildContext context,
                                     AsyncSnapshot<String> snapshot) {
                                   updateGradebookValues(classObj);
@@ -280,7 +258,12 @@ class _ClassViewState extends State<ClassView> {
               }).toList(),
             );
           }
-          else {
+          else if(classes.length == 0)
+            {
+              return new Container(
+                child: Center(child: Text("No Classes Yet"),),);
+            }
+          else{
             return new Container(
               child: Center(child: Text("No Classes Yet"),),);
           }

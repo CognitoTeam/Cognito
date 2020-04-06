@@ -71,32 +71,29 @@ class GradeCalculator {
       }
     });
 
-    double sumOfCurrentAssignedCategories = 0;
     List<Category> uniqueCategoriesUsed = List();
     // Re-count points for every assignment
     for (Assignment assignment in gradeBook.keys) {
       //Figure out sum of currently assigned categories
       if(!uniqueCategoriesUsed.contains(assignment.category))
         {
-          sumOfCurrentAssignedCategories += assignment.category.weightInPercentage;
           uniqueCategoriesUsed.add(assignment.category);
         }
       assignment.category.pointsEarned += assignment.pointsEarned;
       assignment.category.pointsPossible += assignment.pointsPossible;
     }
-
     // Reset and recalculate percentage
     percentage = 0.0;
+    double totalWeightInPercentage = 0;
     uniqueCategoriesUsed.forEach((category) {
-      percentage += (category.pointsPossible == 0.0
-          ? 0.0
-          : double.parse(((category.pointsEarned / category.pointsPossible) *
-                  category.weightInPercentage)
-              .toStringAsFixed(2)));
+      totalWeightInPercentage += category.weightInPercentage;
     });
+    uniqueCategoriesUsed.forEach((category) {
+      percentage += double.parse(((category.pointsEarned / category.pointsPossible) * category.weightInPercentage)
+          .toStringAsFixed(2));
+    });
+    percentage = percentage/totalWeightInPercentage * 100;
     //Add default percentage
-
-    percentage += (100 - sumOfCurrentAssignedCategories);
 
     // Determine letter grade from percentage value
     if (percentage >= gradeScale["F"] && percentage < gradeScale["F+"]) {
@@ -134,6 +131,44 @@ class GradeCalculator {
     }
 
     setGradePointMultiplier();
+  }
+
+  String getLetterGrade()
+  {
+    // Determine letter grade from percentage value
+    if (percentage >= gradeScale["F"] && percentage < gradeScale["F+"]) {
+      return "F";
+    } else if (percentage >= gradeScale["F+"] &&
+        percentage < gradeScale["D-"]) {
+      return "F+";
+    } else if (percentage >= gradeScale["D-"] && percentage < gradeScale["D"]) {
+      return "D-";
+    } else if (percentage >= gradeScale["D"] && percentage < gradeScale["D+"]) {
+      return "D";
+    } else if (percentage >= gradeScale["D+"] &&
+        percentage < gradeScale["C-"]) {
+      return "D+";
+    } else if (percentage >= gradeScale["C-"] && percentage < gradeScale["C"]) {
+      return "C-";
+    } else if (percentage >= gradeScale["C"] && percentage < gradeScale["C+"]) {
+      return "C";
+    } else if (percentage >= gradeScale["C+"] &&
+        percentage < gradeScale["B-"]) {
+      return "C+";
+    } else if (percentage >= gradeScale["B-"] && percentage < gradeScale["B"]) {
+      return "B-";
+    } else if (percentage >= gradeScale["B"] && percentage < gradeScale["B+"]) {
+      return "B";
+    } else if (percentage >= gradeScale["B+"] &&
+        percentage < gradeScale["A-"]) {
+      return "B+";
+    } else if (percentage >= gradeScale["A-"] && percentage < gradeScale["A"]) {
+      return "A-";
+    } else if (percentage >= gradeScale["A"] && percentage < gradeScale["A+"]) {
+      return "A";
+    } else {
+      return "A+";
+    }
   }
 
   /// Sets grade point multiplier

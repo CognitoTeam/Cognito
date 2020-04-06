@@ -30,4 +30,6 @@ ios/Flutter/flutter_export_environment.sh
 !readme.md
 !.gitkeep
 !*.dart
+!*.flutter-plugins-dependencies
 !*/
+.flutter-plugins-dependencies

@@ -185,7 +185,7 @@ class _MainDrawerState extends State<MainDrawer> {
                       }
                       else{
                         Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (context) => GPAView(term)));
+                            MaterialPageRoute(builder: (context) => GPATermsProviderView()));
                       }
                     }),
                 RaisedButton(

@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/firebase_login.dart';
@@ -190,6 +191,7 @@ class DataBase {
           .collection('classes')
           .where('user_id', isEqualTo: user.uid)
           .where('term_name', isEqualTo: term.termName);
+
       return ref.snapshots().map((list) =>
           list.documents.map((doc) => Class.fromFirestore(doc)).toList());
     }
@@ -225,6 +227,7 @@ class DataBase {
       return ref.snapshots().map((list) =>
           list.documents.map((doc) => Club.fromFirestore(doc)).toList());
     }
+    return null;
   }
 
   Stream<List<Category>> streamCategory(Class classObj)
@@ -378,6 +381,7 @@ class DataBase {
     QuerySnapshot querySnapshot = await firestore
         .collection('classes')
         .where('user_id', isEqualTo: userID)
+        .where('user_id', isEqualTo: userID)
         .where('term_name', isEqualTo: term.termName)
         .where('title', isEqualTo: classObj.title)
         .where('instructor', isEqualTo: classObj.instructor)
@@ -516,6 +520,7 @@ class DataBase {
       List<int> daysOfEvent,
       DateTime startTime,
       DateTime endTime,
+      String color,
       AcademicTerm term) async {
     DocumentReference classCollectionReference =
         Firestore.instance.collection("classes").document();
@@ -532,6 +537,8 @@ class DataBase {
       "days_of_event": daysOfEvent,
       "start_time": startTime,
       "end_time": endTime,
+      "color" : color,
+      "grade" : 0,
       "term_name": term.termName,
       "term_id": await generateTermID(term)
     });
@@ -573,7 +580,8 @@ class DataBase {
         "term_name": text,
         "start_date": startDate,
         "end_date": endDate,
-        "term_id": newTermReference.documentID
+        "term_id": newTermReference.documentID,
+        "gpa" : 0
       });
       newTermReference.collection("classes_collection").document();
       newTermReference.collection("assignments_collection").document();
@@ -723,13 +731,10 @@ class DataBase {
       Assignment assignment, Class classObj, AcademicTerm term, String userId) async {
     String termID = term.getID();
     String collectionName;
-    String otherCollectionName;
     if (assignment.isAssessment) {
       collectionName = "assessments";
-      otherCollectionName = "assignments";
     } else {
       collectionName = "assignments";
-      otherCollectionName = "assessments";
     }
 
     DocumentReference docRefGradesUserTerm;
@@ -739,7 +744,7 @@ class DataBase {
     QuerySnapshot snapshot = await firestore
         .collection("grades")
         .where("user_id", isEqualTo: userId)
-        .where("term_id", isEqualTo: term.getID())
+        .where("term_id", isEqualTo: termID)
         .getDocuments();
 
     //First time adding a grade will need to create a [term of user]
@@ -803,8 +808,6 @@ class DataBase {
         .where('instructor', isEqualTo: classObj.instructor)
         .where('term_name', isEqualTo: term.termName)
         .getDocuments();
-    if (snapshot.documents.length == 0)
-    if (snapshot.documents.length > 1)
     //Should be only a unique class
     if (snapshot.documents.length == 1) {
       firestore
@@ -826,7 +829,7 @@ class DataBase {
   }
 
   Future addCategoryToClass(
-      Category cat, Class aClass, AcademicTerm term) async {
+      Category cat, Class aClass, AcademicTerm term, String userID) async {
     //Need to find the correct class
     QuerySnapshot snapshot = await firestore
         .collection('classes')
@@ -916,17 +919,16 @@ class DataBase {
   }
 
   Assignment documentToAssignment(DocumentSnapshot document) {
-    int minutes = document['duration_in_minutes'];
-    Duration d = new Duration(minutes: minutes);
+    Timestamp date = document['due_date'];
     return new Assignment(
         title: document['title'],
         isAssessment: document['is_assessment'],
         description: document['description'],
         location: document['location'],
-        dueDate: document['due_date'].toDate(),
+        dueDate: date != null ? document['due_date'] .toDate(): null,
         id: document['term_id'],
         priority: document['priority'],
-        duration: d,
+        duration: document['duration_in_minutes'] != null ? Duration(minutes: document['duration_in_minutes']) : null,
         pointsEarned: document['points_earned'],
         pointsPossible: document['points_possible'],
         category: Category(

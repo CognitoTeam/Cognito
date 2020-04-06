@@ -7,6 +7,7 @@ import 'package:cognito/database/database.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/all_terms.dart';
 import 'package:cognito/models/class.dart';
+import 'package:cognito/views/block_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -49,6 +50,8 @@ class _AddClassViewState extends State<AddClassView> {
   //  Stepper
   //  init step to 0th position
   int currentStep = 0;
+  Color pickerColor = Color(0xff443a49);
+  Color currentColor = Color(0xff443a4);
 
   @override
   void initState() {
@@ -162,8 +165,25 @@ class _AddClassViewState extends State<AddClassView> {
         content: _repeatingDaySelectionTile(),
         state: StepState.indexed,
         isActive: true,
+      ),
+      Step(
+        title: Text(
+          "Choose a Color Theme",
+          style: Theme.of(context).accentTextTheme.body1,
+        ),
+        content: BlockPicker(
+          pickerColor: currentColor,
+          onColorChanged: changeColor,
+        ),
+        state: StepState.indexed,
+        isActive: true,
       )
     ];
+  }
+
+  void changeColor(Color color) {
+    setState(() => pickerColor = color);
+    print(pickerColor.toString() + "++++" + pickerColor.value.toString() + "++++" + decToHexa(pickerColor.value));
   }
 
   /// Returns [ListTile] widget containing checkboxes that represent the
@@ -203,6 +223,44 @@ class _AddClassViewState extends State<AddClassView> {
         _timeSelectionTile(false),
       ],
     );
+  }
+
+  static String decToHexa(int n)
+  {
+    // char array to store hexadecimal number
+    List hexaDeciNum = new List();
+
+    // counter for hexadecimal number array
+    int i = 0;
+    while(n!=0)
+    {
+      // temporary variable to store remainder
+      int temp  = 0;
+
+      // storing remainder in temp variable.
+      temp = n % 16;
+
+      // check if temp < 10
+      if(temp < 10)
+      {
+        hexaDeciNum.add(String.fromCharCode(temp + 48));
+        i++;
+      }
+      else
+      {
+        hexaDeciNum.add(String.fromCharCode(temp + 55));
+        i++;
+      }
+
+      n = n~/16;
+    }
+
+    // printing hexadecimal number array in reverse order
+    String val = "";
+    for(int j=hexaDeciNum.length - 1; j>=0; j--) {
+      val += hexaDeciNum[j].toLowerCase();
+    }
+    return val;
   }
 
   /// Returns a [ListTile] for selecting the start or end time depending on
@@ -479,7 +537,7 @@ class _AddClassViewState extends State<AddClassView> {
                       _courseNumberController.text, _courseTitleController.text,
                       int.parse(_unitCountController.text),  _locationController.text,
                       _instructorController.text, _officeLocationController.text,
-                      _descriptionController.text, daysOfEvent, startTime, endTime, widget.term);
+                      _descriptionController.text, daysOfEvent, startTime, endTime, decToHexa(pickerColor.value),widget.term);
                   Navigator.of(context).pop();
                 }
               else
@@ -519,7 +577,7 @@ class _AddClassViewState extends State<AddClassView> {
                   _courseNumberController.text, _courseTitleController.text,
                   int.parse(_unitCountController.text),  _locationController.text,
                   _instructorController.text, _officeLocationController.text,
-                  _descriptionController.text, daysOfEvent, startTime, endTime, widget.term);
+                  _descriptionController.text, daysOfEvent, startTime, endTime, decToHexa(pickerColor.value), widget.term);
               Navigator.of(context).pop();
             }
           });
