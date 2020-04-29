@@ -16,10 +16,13 @@ import 'package:cognito/views/assessment_details_view.dart';
 import 'package:cognito/views/assignment_details_view.dart';
 import 'package:cognito/views/calendar_view.dart';
 import 'package:cognito/views/class_details_view.dart';
+import 'package:cognito/views/components/agenda_header.dart';
+import 'package:cognito/views/components/agenda_navigator.dart';
 import 'package:cognito/views/event_details_view.dart';
 import 'package:cognito/views/main_drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../views/utils/PriorityAgenda/priority_agenda.dart';
@@ -62,7 +65,6 @@ class _AgendaViewState extends State<AgendaView>
 
   bool isOpened = false;
   AnimationController _animationController;
-  Animation<Color> _buttonColor;
   Animation<double> _translateButton;
   Curve _curve = Curves.easeIn;
   double _fabHeight = 56.0;
@@ -95,17 +97,6 @@ class _AgendaViewState extends State<AgendaView>
           ..addListener(() {
             setState(() {});
           });
-    _buttonColor = ColorTween(
-      begin: Color(0xFFfbc02d),
-      end: Colors.red,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Interval(
-        0.00,
-        1.00,
-        curve: Curves.linear,
-      ),
-    ));
     _translateButton = Tween<double>(
       begin: _fabHeight,
       end: -14.0,
@@ -240,6 +231,18 @@ class _AgendaViewState extends State<AgendaView>
             });
           }
     return listTasks;
+  }
+
+  Widget classes(FirebaseUser user)
+  {
+    return Column(
+      children: [
+        Text(
+          "Classes",
+          style: Theme.of(context).primaryTextTheme.title
+        )
+      ],
+    );
   }
 
   Widget assessment(FirebaseUser user) {
@@ -378,16 +381,56 @@ class _AgendaViewState extends State<AgendaView>
     );
   }
 
-  Widget toggle() {
-    return Container(
-      child: FloatingActionButton(
-          heroTag: "mainButton",
-          backgroundColor: _buttonColor.value,
-          onPressed: animate,
-          tooltip: 'Toggle',
-          child: Icon(Icons.add)),
+  Widget getAgenda()
+  {
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
+    return Column(
+      children: [
+        classes(user)
+      ],
     );
   }
+
+  Widget getSpeedDial()
+  {
+    return SpeedDial(
+      marginRight: 15,
+      marginBottom: 70,
+      animatedIcon: AnimatedIcons.menu_close,
+      animatedIconTheme: IconThemeData(size: 22.0),
+      closeManually: false,
+      curve: Curves.bounceIn,
+      overlayOpacity: 0.5,
+      backgroundColor: Theme.of(context).buttonColor,
+      foregroundColor: Colors.white,
+      elevation: 8.0,
+      shape: CircleBorder(),
+      children: [
+        SpeedDialChild(
+          child: Icon(
+            Icons.class_,
+            color: Colors.white,
+          ),
+          backgroundColor: Color(0xFF6FCF97),
+          label: 'Class',
+          labelStyle: TextStyle(fontSize: 18.0),
+          onTap: () => print('SECOND CHILD'),
+        ),
+        SpeedDialChild(
+            child: Icon(
+              Icons.calendar_view_day,
+              color: Colors.white,
+            ),
+            backgroundColor: Color(0xFF706FD3),
+            label: 'Term',
+            labelStyle: TextStyle(fontSize: 18.0),
+            onTap: () => print('FIRST CHILD')
+        ),
+      ],
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -418,76 +461,85 @@ class _AgendaViewState extends State<AgendaView>
           }
       );
     }
-    return Scaffold(
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          Transform(
-            transform: Matrix4.translationValues(
-              0.0,
-              _translateButton.value * 3.0,
-              0.0,
-            ),
-            child: assignment(user),
-          ),
-          Transform(
-            transform: Matrix4.translationValues(
-              0.0,
-              _translateButton.value * 2.0,
-              0.0,
-            ),
-            child: assessment(user),
-          ),
-          Transform(
-            transform: Matrix4.translationValues(
-              0.0,
-              _translateButton.value,
-              0.0,
-            ),
-            child: event(),
-          ),
-          toggle(),
-        ],
-      ),
-      drawer: MainDrawer(),
-      appBar: AppBar(
-        elevation: 0,
-        title: Text(
-          DateFormat.MMMMEEEEd().format(selectedDate),
-          style: Theme
-              .of(context)
-              .primaryTextTheme
-              .title,
-        ),
-        backgroundColor: Theme
-            .of(context)
-            .primaryColorDark,
-      ),
 
-      body: Column(
+    return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
+//      floatingActionButton: Padding(
+//        padding: const EdgeInsets.only(bottom: 50.0),
+//        child: Column(
+//          mainAxisAlignment: MainAxisAlignment.end,
+//          children: <Widget>[
+//            Transform(
+//              transform: Matrix4.translationValues(
+//                0.0,
+//                _translateButton.value * 3.0,
+//                0.0,
+//              ),
+//              child: assignment(user),
+//            ),
+//            Transform(
+//              transform: Matrix4.translationValues(
+//                0.0,
+//                _translateButton.value * 2.0,
+//                0.0,
+//              ),
+//              child: assessment(user),
+//            ),
+//            Transform(
+//              transform: Matrix4.translationValues(
+//                0.0,
+//                _translateButton.value,
+//                0.0,
+//              ),
+//              child: event(),
+//            ),
+//            toggle(),
+//          ],
+//        ),
+//      ),
+      drawer: MainDrawer(),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(30),
+        child: AppBar(
+          elevation: 0,
+          iconTheme: Theme.of(context).iconTheme,
+          backgroundColor: Theme
+              .of(context)
+              .primaryColorDark,
+        )
+      ),
+      floatingActionButton: getSpeedDial(),
+      body: Stack(
         children: <Widget>[
-          CalendarView(
+          getAgenda(),
+//          CustomScrollView(
+//            slivers: <Widget>[
+//              const SliverAppBar(
+//                pinned: true,
+//                expandedHeight: 236,
+//                flexibleSpace: FlexibleSpaceBar(
+//
+//                ),
+//              )
+//            ],
+//          ),
+          AgendaHeader(selectedDate: selectedDate, calendarView:CalendarView(
             onDateSelected: (DateTime date) {
               setState(() {
                 selectedDate = date;
               });
             },
+          ),),
+          Container(
+            margin: EdgeInsets.fromLTRB(3, 250, 3, 20),
+            child: getAgenda(),
           ),
-          (_currentIndex == 0) ? mainAgenda : priorityAgenda
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: onTabTapped,
-        items: [
-          BottomNavigationBarItem(
-            icon: new Icon(Icons.home),
-            title: new Text('Agenda'),
-          ),
-          BottomNavigationBarItem(
-            icon: new Icon(Icons.list),
-            title: new Text('Priorities'),
-          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: AgendaNavigator(currentIndex: _currentIndex, onNavigationChange: onTabTapped)
+          )
         ],
       ),
     );

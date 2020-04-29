@@ -68,7 +68,7 @@ class _EventDetailsViewState extends State<EventDetailsView> {
               maxLines: 5,
               decoration: InputDecoration(
                   hintText: "Description",
-                  hintStyle: TextStyle(color: Colors.black45)),
+                  hintStyle: Theme.of(context).inputDecorationTheme.hintStyle),
             ),
           ),
           state: StepState.indexed,
@@ -199,7 +199,7 @@ class _EventDetailsViewState extends State<EventDetailsView> {
         style: Theme.of(context).accentTextTheme.body1,
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.black45),
+          hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
         ),
       ),
       subtitle: subtitle,

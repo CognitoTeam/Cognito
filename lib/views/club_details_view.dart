@@ -57,7 +57,7 @@ class _ClubDetailsViewState extends State<ClubDetailsView> {
         style: Theme.of(context).accentTextTheme.body1,
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.black45),
+          hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
         ),
       ),
       subtitle: subtitle,
@@ -100,7 +100,7 @@ class _ClubDetailsViewState extends State<ClubDetailsView> {
                           style: Theme.of(context).accentTextTheme.body2,
                           decoration: InputDecoration(
                             hintText: "Club Title",
-                            hintStyle: TextStyle(color: Colors.black45),
+                            hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                             contentPadding:
                                 EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                           ),
@@ -136,7 +136,7 @@ class _ClubDetailsViewState extends State<ClubDetailsView> {
                   maxLines: 5,
                   decoration: InputDecoration(
                       hintText: "Description",
-                      hintStyle: TextStyle(color: Colors.black45)),
+                      hintStyle: Theme.of(context).inputDecorationTheme.hintStyle),
                 ),
               ),
               ExpandableOfficerList(widget.club, snapshot.data),
@@ -208,7 +208,7 @@ class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
                             style: Theme.of(context).accentTextTheme.body2,
                             decoration: InputDecoration(
                               hintText: "Officer Name",
-                              hintStyle: TextStyle(color: Colors.black45),
+                              hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                               contentPadding:
                                   EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                             ),
@@ -219,7 +219,7 @@ class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
                             style: Theme.of(context).accentTextTheme.body2,
                             decoration: InputDecoration(
                               hintText: "Officer Position",
-                              hintStyle: TextStyle(color: Colors.black45),
+                              hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                               contentPadding:
                                   EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                             ),
@@ -267,7 +267,7 @@ class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
                       style: Theme.of(context).accentTextTheme.body2,
                       decoration: InputDecoration(
                         hintText: "Officer Name",
-                        hintStyle: TextStyle(color: Colors.black45),
+                        hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                         contentPadding:
                             EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                       ),
@@ -278,7 +278,7 @@ class _ExpandableOfficerListState extends State<ExpandableOfficerList> {
                       style: Theme.of(context).accentTextTheme.body2,
                       decoration: InputDecoration(
                         hintText: "Officer Position",
-                        hintStyle: TextStyle(color: Colors.black45),
+                        hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                         contentPadding:
                             EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                       ),

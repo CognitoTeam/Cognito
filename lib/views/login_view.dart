@@ -83,9 +83,6 @@ class _LoginViewState extends State<LoginView> {
       ),
       decoration: InputDecoration(
         hintText: "Email",
-        hintStyle: TextStyle(
-          color: Colors.black45,
-        ),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
       validator: (val) => !val.contains('@') ? 'Invalid Email' : null,
@@ -100,9 +97,6 @@ class _LoginViewState extends State<LoginView> {
       ),
       decoration: InputDecoration(
         hintText: "Password",
-        hintStyle: TextStyle(
-          color: Colors.black45,
-        ),
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
       validator: (val) => val.length < 6 ? 'Password too short' : null,
@@ -127,7 +121,7 @@ class _LoginViewState extends State<LoginView> {
     final forgotLabel = FlatButton(
       child: Text(
         "Forgot password?",
-        style: TextStyle(color: Colors.black54),
+        style: TextStyle(color: Colors.grey),
       ),
       onPressed: () {
         Navigator.push(context,
@@ -138,7 +132,7 @@ class _LoginViewState extends State<LoginView> {
     final cancelLabel = FlatButton(
       child: Text(
         "Cancel",
-        style: TextStyle(color: Colors.black54),
+        style: TextStyle(color: Colors.grey),
       ),
       onPressed: () {
         Navigator.pop(context);

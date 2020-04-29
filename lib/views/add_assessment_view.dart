@@ -67,7 +67,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
         style: Theme.of(context).accentTextTheme.body1,
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.black45),
+          hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
         ),
       ),
       subtitle: subtitle,
@@ -159,7 +159,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
               maxLines: 5,
               decoration: InputDecoration(
                   hintText: "Description",
-                  hintStyle: TextStyle(color: Colors.black45)),
+                  hintStyle: Theme.of(context).inputDecorationTheme.hintStyle),
             ),
           ),
           state: StepState.indexed,
@@ -381,8 +381,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                                                     .body2,
                                                 decoration: InputDecoration(
                                                   hintText: "Category title",
-                                                  hintStyle: TextStyle(
-                                                      color: Colors.black45),
+                                                  hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                                                   contentPadding:
                                                   EdgeInsets.fromLTRB(
                                                       20.0, 10.0, 20.0, 10.0),
@@ -400,8 +399,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                                                     .body2,
                                                 decoration: InputDecoration(
                                                   hintText: "Category Weight",
-                                                  hintStyle: TextStyle(
-                                                      color: Colors.black45),
+                                                  hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                                                   contentPadding:
                                                   EdgeInsets.fromLTRB(
                                                       20.0, 10.0, 20.0, 10.0),
@@ -466,7 +464,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                       style: Theme.of(context).accentTextTheme.body2,
                       decoration: InputDecoration(
                         hintText: "Category title",
-                        hintStyle: TextStyle(color: Colors.black45),
+                        hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                         contentPadding:
                             EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                       ),
@@ -479,7 +477,7 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                       style: Theme.of(context).accentTextTheme.body2,
                       decoration: InputDecoration(
                         hintText: "Category Weight",
-                        hintStyle: TextStyle(color: Colors.black45),
+                        hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                         contentPadding:
                             EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                       ),

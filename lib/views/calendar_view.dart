@@ -1,6 +1,7 @@
 // Copyright 2019 UniPlan. All rights reserved.
 import 'package:date_utils/date_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Calendar view widget screen
 /// Displays a date picker for the calendar view
@@ -15,7 +16,7 @@ class CalendarView extends StatefulWidget {
 
 class _CalendarViewState extends State<CalendarView> {
   // List of day names
-  List dayNames = ['Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun'];
+  List dayNames = ['Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun'];
   // Currently selected date
   DateTime selectedDate = DateTime.now();
   // Iterable for the next 7 days
@@ -56,43 +57,46 @@ class _CalendarViewState extends State<CalendarView> {
         });
       },
       child: Text("Previous\nWeek",
-          style: TextStyle(color: Colors.white, fontSize: 15)),
+          style: Theme.of(context).primaryTextTheme.body2),
     ));
     // Seven buttons for the selected days
     for (DateTime d in selectedWeeksDays) {
       bool selected = d.day == selectedDate.day &&
           d.month == selectedDate.month &&
           d.year == selectedDate.year;
-      SizedBox c = SizedBox(
-        width: 75.0,
-        child: FlatButton(
-          onPressed: () {
-            setState(() {
-              // set the state and call onDateSelected
-              selectedDate = d;
-              widget.onDateSelected(selectedDate);
-            });
-          },
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                d.day.toString(),
-                style: TextStyle(
-                    color: selected ? Colors.white : Colors.grey,
-                    fontSize: selected ? 23 : 20),
-              ),
-              Text(
-                dayNames[DateTime(selectedDate.year, selectedDate.month, d.day)
-                        .weekday -
-                    1],
-                style: TextStyle(
-                    color: selected ? Colors.white : Colors.grey,
-                    fontSize: selected ? 19 : 16),
-              )
-            ],
+      Container c = Container(
+        child: SizedBox(
+          child: FlatButton(
+            color: selected ? Color(0xFFFFE6A4) : null,
+            onPressed: () {
+              setState(() {
+                // set the state and call onDateSelected
+                selectedDate = d;
+                widget.onDateSelected(selectedDate);
+              });
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                    dayNames[DateTime(selectedDate.year, selectedDate.month, d.day).weekday - 1],
+                    style: GoogleFonts.poppins(
+                        color: selected ? Color(0xFFFF793F) : Colors.black,
+                        fontSize: 15
+                    )
+                ),
+                Text(
+                  d.day.toString(),
+                  style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      color: selected ? Color(0xFFFF793F) : Colors.black,
+                      fontSize: 15
+                  ),
+                )
+              ],
+            ),
           ),
-        ),
+        )
       );
       calendar.add(c);
     }
@@ -108,8 +112,8 @@ class _CalendarViewState extends State<CalendarView> {
         });
       },
       child: Text("Next\nWeek",
-          style: TextStyle(color: Colors.white, fontSize: 15)),
-    ));
+          style: Theme.of(context).primaryTextTheme.body2)),
+    );
     return calendar;
   }
 
@@ -161,7 +165,7 @@ class _CalendarViewState extends State<CalendarView> {
                 IconButton(
                   iconSize: 20,
                   icon: Icon(Icons.calendar_today),
-                  color: Colors.white,
+                  color: Colors.black,
                   onPressed: () {
                     _selectDate(context);
                   },
@@ -169,7 +173,7 @@ class _CalendarViewState extends State<CalendarView> {
                 FlatButton(
                   child: Text(
                     "Today",
-                    style: TextStyle(color: Colors.white, fontSize: 14),
+                    style: TextStyle(color: Colors.black, fontSize: 14),
                   ),
                   onPressed: () {
                     setState(() {

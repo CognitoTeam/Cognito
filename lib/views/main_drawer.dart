@@ -34,7 +34,6 @@ class _MainDrawerState extends State<MainDrawer> {
   void initState() {
     super.initState();
     setState(() {
-      //TODO: what is this here for
       _getUserID();
     });
   }

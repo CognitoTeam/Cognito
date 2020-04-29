@@ -55,7 +55,7 @@ class _AddTaskViewState extends State<AddTaskView> {
         style: Theme.of(context).accentTextTheme.body1,
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.black45),
+          hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
         ),
       ),
       subtitle: subtitle,
@@ -164,7 +164,7 @@ class _AddTaskViewState extends State<AddTaskView> {
               maxLines: 5,
               decoration: InputDecoration(
                   hintText: "Description",
-                  hintStyle: TextStyle(color: Colors.black45)),
+                  hintStyle: Theme.of(context).inputDecorationTheme.hintStyle),
             ),
           ),
           state: StepState.indexed,

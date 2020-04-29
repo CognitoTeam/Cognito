@@ -129,7 +129,7 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
               maxLines: 5,
               decoration: InputDecoration(
                   hintText: "Description",
-                  hintStyle: TextStyle(color: Colors.black45)),
+                  hintStyle: Theme.of(context).inputDecorationTheme.hintStyle),
             ),
           ),
           state: StepState.indexed,
@@ -240,7 +240,7 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
         style: Theme.of(context).accentTextTheme.body1,
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.black45),
+          hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
         ),
       ),
       subtitle: subtitle,
@@ -324,8 +324,7 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
                                                   .body2,
                                               decoration: InputDecoration(
                                                 hintText: "Category title",
-                                                hintStyle: TextStyle(
-                                                    color: Colors.black45),
+                                                hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                                                 contentPadding:
                                                     EdgeInsets.fromLTRB(
                                                         20.0, 10.0, 20.0, 10.0),
@@ -342,8 +341,7 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
                                                   .body2,
                                               decoration: InputDecoration(
                                                 hintText: "Category Weight",
-                                                hintStyle: TextStyle(
-                                                    color: Colors.black45),
+                                                hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                                                 contentPadding:
                                                     EdgeInsets.fromLTRB(
                                                         20.0, 10.0, 20.0, 10.0),
@@ -419,7 +417,7 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
                       style: Theme.of(context).accentTextTheme.body2,
                       decoration: InputDecoration(
                         hintText: "Category title",
-                        hintStyle: TextStyle(color: Colors.black45),
+                        hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                         contentPadding:
                             EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                       ),
@@ -432,7 +430,7 @@ class _AddAssignmentViewState extends State<AddAssignmentView> {
                       style: Theme.of(context).accentTextTheme.body2,
                       decoration: InputDecoration(
                         hintText: "Category Weight",
-                        hintStyle: TextStyle(color: Colors.black45),
+                        hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                         contentPadding:
                             EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                       ),
