@@ -20,6 +20,7 @@ class AgendaNavigator extends StatelessWidget {
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           backgroundColor: Theme.of(context).primaryColorDark,
+          selectedItemColor: Theme.of(context).buttonColor,
           currentIndex: currentIndex,
           onTap: onNavigationChange,
           items: [

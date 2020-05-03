@@ -33,14 +33,7 @@ class AgendaHeader extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
                         Container(
-                          padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-                          child: Text(
-                            "Today's Agenda",
-                            style: Theme.of(context).primaryTextTheme.title,
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.fromLTRB(17, 5, 0, 0),
+                          padding: EdgeInsets.fromLTRB(17, 125, 0, 0),
                           alignment: Alignment.centerLeft,
                           child: Text(
                             DateFormat.MMMMEEEEd().format(selectedDate),
@@ -52,7 +45,7 @@ class AgendaHeader extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    padding: EdgeInsets.fromLTRB(0, 0, 15, 15),
+                    padding: EdgeInsets.fromLTRB(0, 25, 15, 15),
                     alignment: Alignment.topCenter,
                     child: CircularPercentIndicator(
                       radius: 90.0,
@@ -69,7 +62,7 @@ class AgendaHeader extends StatelessWidget {
                 ],
               ),
               Container(
-                padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
                 child: calendarView
               )
             ],

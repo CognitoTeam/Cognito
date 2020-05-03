@@ -1,5 +1,6 @@
 // Copyright 2019 UniPlan. All rights reserved.
 import 'dart:async';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/database/database.dart';
@@ -22,6 +23,7 @@ import 'package:cognito/views/event_details_view.dart';
 import 'package:cognito/views/main_drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -66,6 +68,15 @@ class _AgendaViewState extends State<AgendaView>
   bool isOpened = false;
   AnimationController _animationController;
   Animation<double> _translateButton;
+
+  ScrollController _scrollController;
+  double titleXAlignment = -0.8;
+  double titleYAlignment= 0.15;
+  AnimatedOpacity agendaHeader;
+  bool _headerVisible = true;
+  AnimationController _opacityController;
+  Animation _opacityTween;
+
   Curve _curve = Curves.easeIn;
   double _fabHeight = 56.0;
   DataBase database = DataBase();
@@ -73,25 +84,53 @@ class _AgendaViewState extends State<AgendaView>
   String gradesDocID = "";
   bool gradesDocIDFound = false;
 
-
-
   final db = Firestore.instance;
   StreamSubscription sub;
   Map data;
 
+  String message = "";
+
+
   @override
   void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(() {
+      //TODO: Determine Opacity animation
+      if(_scrollController.position.minScrollExtent + 40 <= _scrollController.offset && _headerVisible == false)
+      {
+        setState(() {
+          _headerVisible = true;
+        });
+      }
+        setState(() {
+          titleXAlignment = (1 - _scrollController.offset/_scrollController.position.maxScrollExtent) * -.8;
+          titleYAlignment = ((_scrollController.offset/_scrollController.position.maxScrollExtent)* 0.85) + 0.15;
+        });
+    });
     sub = db.collection('terms').document('id').snapshots().listen((snap) {
       setState(() {
         data = snap.data;
       });
     });
-    super.initState();
-
 
     setState(() {
       selectedDate = DateTime.now();
+      agendaHeader = AnimatedOpacity(
+        opacity: _headerVisible ? 1.0 : 0.0,
+        duration: Duration(milliseconds: 500),
+        child: AgendaHeader(selectedDate: selectedDate, calendarView:CalendarView(
+          onDateSelected: (DateTime date) {
+            setState(() {
+              selectedDate = date;
+            });
+          },
+        ),
+        ),
+      );
     });
+
+
     _animationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 200))
           ..addListener(() {
@@ -108,10 +147,12 @@ class _AgendaViewState extends State<AgendaView>
         curve: _curve,
       ),
     ));
+
   }
 
   @override
   dispose() {
+    _scrollController.dispose();
     _animationController.dispose();
     super.dispose();
   }
@@ -381,21 +422,11 @@ class _AgendaViewState extends State<AgendaView>
     );
   }
 
-  Widget getAgenda()
-  {
-    FirebaseUser user = Provider.of<FirebaseUser>(context);
-    return Column(
-      children: [
-        classes(user)
-      ],
-    );
-  }
-
   Widget getSpeedDial()
   {
     return SpeedDial(
       marginRight: 15,
-      marginBottom: 70,
+      marginBottom: 20,
       animatedIcon: AnimatedIcons.menu_close,
       animatedIconTheme: IconThemeData(size: 22.0),
       closeManually: false,
@@ -448,10 +479,6 @@ class _AgendaViewState extends State<AgendaView>
         ],
       ),
     );
-
-    Expanded priorityAgenda = Expanded(
-      child: new PriorityAgenda("PriorityAgenda"),
-    );
     
     void onTabTapped(int index)
     {
@@ -462,86 +489,154 @@ class _AgendaViewState extends State<AgendaView>
       );
     }
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
-//      floatingActionButton: Padding(
-//        padding: const EdgeInsets.only(bottom: 50.0),
-//        child: Column(
-//          mainAxisAlignment: MainAxisAlignment.end,
-//          children: <Widget>[
-//            Transform(
-//              transform: Matrix4.translationValues(
-//                0.0,
-//                _translateButton.value * 3.0,
-//                0.0,
-//              ),
-//              child: assignment(user),
-//            ),
-//            Transform(
-//              transform: Matrix4.translationValues(
-//                0.0,
-//                _translateButton.value * 2.0,
-//                0.0,
-//              ),
-//              child: assessment(user),
-//            ),
-//            Transform(
-//              transform: Matrix4.translationValues(
-//                0.0,
-//                _translateButton.value,
-//                0.0,
-//              ),
-//              child: event(),
-//            ),
-//            toggle(),
-//          ],
-//        ),
-//      ),
-      drawer: MainDrawer(),
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(30),
-        child: AppBar(
-          elevation: 0,
-          iconTheme: Theme.of(context).iconTheme,
-          backgroundColor: Theme
-              .of(context)
-              .primaryColorDark,
-        )
+    var todayAgenda = Text("Today's Agenda",
+      style: TextStyle(
+          color: Colors.black,
+          fontSize: 20.0
       ),
-      floatingActionButton: getSpeedDial(),
-      body: Stack(
-        children: <Widget>[
-          getAgenda(),
-//          CustomScrollView(
-//            slivers: <Widget>[
-//              const SliverAppBar(
-//                pinned: true,
-//                expandedHeight: 236,
-//                flexibleSpace: FlexibleSpaceBar(
-//
-//                ),
-//              )
-//            ],
-//          ),
-          AgendaHeader(selectedDate: selectedDate, calendarView:CalendarView(
-            onDateSelected: (DateTime date) {
-              setState(() {
-                selectedDate = date;
-              });
-            },
-          ),),
-          Container(
-            margin: EdgeInsets.fromLTRB(3, 250, 3, 20),
-            child: getAgenda(),
+    );
+
+    var agendaItems = [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          new Text("Classes", 
+              style: Theme.of(context).primaryTextTheme.body1
           ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: AgendaNavigator(currentIndex: _currentIndex, onNavigationChange: onTabTapped)
-          )
+          new Icon(Icons.class_)
         ],
       ),
+      Center(
+        child: Container(
+          padding: EdgeInsets.all(7),
+          child: Text(
+              "There are no classes currently",
+              style: Theme.of(context).primaryTextTheme.body2
+          ),
+        )
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          new Text(
+              "Assignments",
+              style: Theme.of(context).primaryTextTheme.body1
+          ),
+          new Icon(Icons.assignment)
+        ],
+      ),
+      Center(
+          child: Container(
+            padding: EdgeInsets.fromLTRB(0, 7, 0, 15),
+            child: Text(
+                "There are no assignments currently",
+                style: Theme.of(context).primaryTextTheme.body2
+            ),
+          )
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          new Text(
+              "Assessments",
+              style: Theme.of(context).primaryTextTheme.body1
+          ),
+          new Icon(Icons.assessment)
+        ],
+      ),
+      Center(
+          child: Container(
+            padding: EdgeInsets.all(7),
+            child: Text(
+                "There are no assessments currently",
+                style: Theme.of(context).primaryTextTheme.body2
+            ),
+          )
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          new Text(
+              "Events",
+              style: Theme.of(context).primaryTextTheme.body1
+          ),
+          new Icon(Icons.group)
+        ],
+      ),
+      Center(
+          child: Container(
+            padding: EdgeInsets.all(7),
+            child: Text(
+                "There are no events currently",
+                style: Theme.of(context).primaryTextTheme.body2
+            ),
+          )
+      ),
+    ];
+
+    return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
+      drawer: MainDrawer(),
+      floatingActionButton: getSpeedDial(),
+      body: NestedScrollView(
+        body: ListView.builder(
+          itemCount: agendaItems.length,
+          itemBuilder: (context, index) => Container(
+            padding: EdgeInsets.fromLTRB(20, 5, 20, 0),
+            child: Material(
+              color: Theme.of(context).backgroundColor,
+              borderRadius: BorderRadius.circular(5.0),
+              child: Center(
+                child: agendaItems[index],
+              ),
+            ),
+          )
+        ),
+        controller: _scrollController,
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return <Widget>[
+            SliverAppBar(
+              elevation: 0,
+              onStretchTrigger: () {
+                return;
+                },
+              expandedHeight: 265.0,
+              floating: false,
+              pinned: true,
+              backgroundColor: Theme.of(context).primaryColorDark,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(30),
+                ),
+              ),
+              flexibleSpace: FlexibleSpaceBar(
+//                  collapseMode: CollapseMode.pin,
+                  centerTitle: true,
+                  background: AnimatedOpacity(
+                    opacity: _headerVisible ? 1.0 : 0.0,
+                    duration: Duration(milliseconds: 500),
+                    child: AgendaHeader(selectedDate: selectedDate, calendarView:CalendarView(
+                      onDateSelected: (DateTime date) {
+                        setState(() {
+                          selectedDate = date;
+                        });
+                      },
+                    ),
+                    ),
+                  ),
+                  title: Align(
+                    alignment: Alignment(
+                        titleXAlignment,
+                        titleYAlignment
+                    ),
+                    child: todayAgenda,
+                  )
+                ),
+              ),
+            ];
+          },
+        ),
+      bottomNavigationBar: AgendaNavigator(currentIndex: _currentIndex, onNavigationChange: onTabTapped),
     );
   }
 }

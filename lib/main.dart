@@ -47,10 +47,12 @@ class MyApp extends StatelessWidget {
                 ),
                 body1: GoogleFonts.poppins(
                     color: Colors.black,
-                    fontSize: 20
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold
                 ),
                 body2: GoogleFonts.poppins(
                     color: Colors.black,
+                    fontSize: 15
                 ),
             ),
             accentTextTheme:
