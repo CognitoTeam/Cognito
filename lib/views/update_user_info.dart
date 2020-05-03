@@ -78,9 +78,7 @@ class _UpdateUserInfoState extends State<UpdateUserInfo>
                       style: Theme.of(context).primaryTextTheme.body1,
                       decoration: InputDecoration(
                         hintText: "First name",
-                        hintStyle: TextStyle(
-                          color: Colors.white70,
-                        ),
+                        hintStyle: Theme.of(context).inputDecorationTheme.hintStyle
 //                        contentPadding:
 //                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
 
@@ -93,9 +91,7 @@ class _UpdateUserInfoState extends State<UpdateUserInfo>
                       style: Theme.of(context).primaryTextTheme.body1,
                       decoration: InputDecoration(
                         hintText: "Last name",
-                        hintStyle: TextStyle(
-                          color: Colors.white70,
-                        ),
+                        hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
 //                        contentPadding:
 //                            EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                       ),

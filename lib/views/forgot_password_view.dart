@@ -68,9 +68,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
       style: Theme.of(context).primaryTextTheme.body1,
       decoration: InputDecoration(
         hintText: "Email",
-        hintStyle: TextStyle(
-          color: Colors.black45,
-        ),
+        hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
       validator: (val) => !val.contains('@') ? 'Invalid Email' : null,
@@ -95,7 +93,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
     final cancelLabel = FlatButton(
       child: Text(
         "Cancel",
-        style: TextStyle(color: Colors.black54),
+        style: TextStyle(color: Colors.grey),
       ),
       onPressed: () {
         Navigator.pop(context);

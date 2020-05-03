@@ -151,7 +151,6 @@ class _AddTermViewState extends State<AddTermView> {
                       style: Theme.of(context).accentTextTheme.body1,
                       decoration: InputDecoration(
                         hintText: "Term title (e.g. \"Spring 2019\")",
-                        hintStyle: TextStyle(color: Colors.black45),
                       ),
                       onFieldSubmitted: (newTermName) {
                         setState(() {

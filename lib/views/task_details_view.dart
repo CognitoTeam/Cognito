@@ -64,7 +64,7 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
         style: Theme.of(context).accentTextTheme.body1,
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.black45),
+          hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
         ),
       ),
       subtitle: subtitle,
@@ -129,7 +129,7 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
               maxLines: 5,
               decoration: InputDecoration(
                   hintText: "Description",
-                  hintStyle: TextStyle(color: Colors.black45)),
+                  hintStyle: Theme.of(context).inputDecorationTheme.hintStyle),
             ),
           ),
           state: StepState.indexed,
@@ -229,7 +229,7 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
                           style: Theme.of(context).accentTextTheme.body2,
                           decoration: InputDecoration(
                             hintText: "Task Title",
-                            hintStyle: TextStyle(color: Colors.black45),
+                            hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                             contentPadding:
                                 EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                           ),

@@ -145,7 +145,7 @@ class _AddClassViewState extends State<AddClassView> {
             maxLines: 5,
             decoration: InputDecoration(
                 hintText: "Description",
-                hintStyle: TextStyle(color: Colors.black45)),
+                hintStyle: Theme.of(context).inputDecorationTheme.hintStyle),
           ),
           state: StepState.indexed,
           isActive: true),
@@ -299,7 +299,7 @@ class _AddClassViewState extends State<AddClassView> {
         style: Theme.of(context).accentTextTheme.body1,
         decoration: InputDecoration(
           labelText: hint,
-          labelStyle: TextStyle(color: Colors.black45),
+          labelStyle: TextStyle(color: Colors.grey),
         ),
       ),
       subtitle: subtitle,
@@ -456,7 +456,7 @@ class _AddClassViewState extends State<AddClassView> {
                           .body1,
                       decoration: InputDecoration(
                         hintText: "Subject e.g. CS",
-                        hintStyle: TextStyle(color: Colors.black45),
+                        hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                         contentPadding:
                         EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                       ),

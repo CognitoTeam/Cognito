@@ -86,9 +86,7 @@ class _SignUpViewState extends State<SignUpView> {
       ),
       decoration: InputDecoration(
         hintText: "Email",
-        hintStyle: TextStyle(
-          color: Colors.black,
-        ),
+        hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
       validator: (val) => !val.contains('@') ? 'Invalid Email' : null,
@@ -102,9 +100,7 @@ class _SignUpViewState extends State<SignUpView> {
       style: TextStyle(color: Colors.black),
       decoration: InputDecoration(
         hintText: "Password",
-        hintStyle: TextStyle(
-          color: Colors.black,
-        ),
+        hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
       validator: (val) => val.length < 6 ? 'Password too short' : null,
@@ -116,9 +112,7 @@ class _SignUpViewState extends State<SignUpView> {
       style: TextStyle(color: Colors.black),
       decoration: InputDecoration(
         hintText: "Confirm password",
-        hintStyle: TextStyle(
-          color: Colors.black,
-        ),
+        hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
         contentPadding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
       ),
       validator: (confirmation) {
@@ -148,7 +142,7 @@ class _SignUpViewState extends State<SignUpView> {
     final cancelLabel = FlatButton(
       child: Text(
         "Cancel",
-        style: TextStyle(color: Colors.black54),
+        style: TextStyle(color: Colors.grey),
       ),
       onPressed: () {
         Navigator.pop(context);

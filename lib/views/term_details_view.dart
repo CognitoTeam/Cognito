@@ -70,7 +70,7 @@ class _TermDetailsViewState extends State<TermDetailsView> {
                           style: Theme.of(context).accentTextTheme.body2,
                           decoration: InputDecoration(
                             hintText: "Term Title",
-                            hintStyle: TextStyle(color: Colors.black45),
+                            hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                             contentPadding:
                                 EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                           ),
