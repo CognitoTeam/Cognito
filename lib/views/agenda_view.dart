@@ -97,10 +97,16 @@ class _AgendaViewState extends State<AgendaView>
     _scrollController = ScrollController();
     _scrollController.addListener(() {
       //TODO: Determine Opacity animation
-      if(_scrollController.position.minScrollExtent + 40 <= _scrollController.offset && _headerVisible == false)
+      if(_scrollController.position.minScrollExtent == _scrollController.offset && _headerVisible == false)
       {
         setState(() {
           _headerVisible = true;
+        });
+      }
+      if(_scrollController.position.minScrollExtent != _scrollController.offset && _headerVisible == true)
+      {
+        setState(() {
+          _headerVisible = false;
         });
       }
         setState(() {
@@ -489,7 +495,7 @@ class _AgendaViewState extends State<AgendaView>
       );
     }
 
-    var todayAgenda = Text("Today's Agenda",
+    var todayAgenda = Text("Daily Agenda",
       style: TextStyle(
           color: Colors.black,
           fontSize: 20.0

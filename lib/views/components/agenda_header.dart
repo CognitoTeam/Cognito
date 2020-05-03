@@ -45,10 +45,10 @@ class AgendaHeader extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    padding: EdgeInsets.fromLTRB(0, 25, 15, 15),
+                    padding: EdgeInsets.fromLTRB(0, 30, 30, 0),
                     alignment: Alignment.topCenter,
                     child: CircularPercentIndicator(
-                      radius: 90.0,
+                      radius: 110.0,
                       lineWidth: 10.0,
                       percent: 0.75,
                       center: Text(
