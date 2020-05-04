@@ -34,6 +34,9 @@ import '../utils/main_agenda.dart';
 /// Displays daily agenda
 /// @author Julian Vu
 
+
+///Footer commented code kept for logic
+
 class AgendaView extends StatefulWidget {
   AcademicTerm term;
 
@@ -163,6 +166,225 @@ class _AgendaViewState extends State<AgendaView>
     super.dispose();
   }
 
+  Widget getSpeedDial()
+  {
+    return SpeedDial(
+      marginRight: 15,
+      marginBottom: 20,
+      animatedIcon: AnimatedIcons.menu_close,
+      animatedIconTheme: IconThemeData(size: 22.0),
+      closeManually: false,
+      curve: Curves.bounceIn,
+      overlayOpacity: 0.5,
+      backgroundColor: Theme.of(context).buttonColor,
+      foregroundColor: Colors.white,
+      elevation: 8.0,
+      shape: CircleBorder(),
+      children: [
+        SpeedDialChild(
+          child: Icon(
+            Icons.class_,
+            color: Colors.white,
+          ),
+          backgroundColor: Color(0xFF6FCF97),
+          label: 'Class',
+          labelStyle: TextStyle(fontSize: 18.0),
+          onTap: () => print('SECOND CHILD'),
+        ),
+        SpeedDialChild(
+            child: Icon(
+              Icons.calendar_view_day,
+              color: Colors.white,
+            ),
+            backgroundColor: Color(0xFF706FD3),
+            label: 'Term',
+            labelStyle: TextStyle(fontSize: 18.0),
+            onTap: () => print('FIRST CHILD')
+        ),
+      ],
+    );
+  }
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
+    database.getCurrentTerm(user);
+//    Expanded mainAgenda = Expanded(
+//      child: ListView(
+//        children: <Widget>[
+//          FilteredClassExpansion(widget.term, selectedDate, database),
+//          FilteredAssignmentProvider(
+//              widget.term, selectedDate, false, selectedDate),
+//          FilteredAssignmentProvider(
+//              widget.term, selectedDate, true, selectedDate),
+//          FilteredEventExpansion(widget.term, selectedDate, database),
+//        ],
+//      ),
+//    );
+    
+    void onTabTapped(int index)
+    {
+      setState(
+          () {
+            _currentIndex = index;
+          }
+      );
+    }
+
+    var todayAgenda = Text("Daily Agenda",
+      style: TextStyle(
+          color: Colors.black,
+          fontSize: 20.0
+      ),
+    );
+
+    var agendaItems = [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          new Text("Classes", 
+              style: Theme.of(context).primaryTextTheme.body1
+          ),
+          new Icon(Icons.class_)
+        ],
+      ),
+      Center(
+        child: Container(
+          padding: EdgeInsets.all(7),
+          child: Text(
+              "There are no classes currently",
+              style: Theme.of(context).primaryTextTheme.body2
+          ),
+        )
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          new Text(
+              "Assignments",
+              style: Theme.of(context).primaryTextTheme.body1
+          ),
+          new Icon(Icons.assignment)
+        ],
+      ),
+      Center(
+          child: Container(
+            padding: EdgeInsets.fromLTRB(0, 7, 0, 15),
+            child: Text(
+                "There are no assignments currently",
+                style: Theme.of(context).primaryTextTheme.body2
+            ),
+          )
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          new Text(
+              "Assessments",
+              style: Theme.of(context).primaryTextTheme.body1
+          ),
+          new Icon(Icons.assessment)
+        ],
+      ),
+      Center(
+          child: Container(
+            padding: EdgeInsets.all(7),
+            child: Text(
+                "There are no assessments currently",
+                style: Theme.of(context).primaryTextTheme.body2
+            ),
+          )
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          new Text(
+              "Events",
+              style: Theme.of(context).primaryTextTheme.body1
+          ),
+          new Icon(Icons.group)
+        ],
+      ),
+      Center(
+          child: Container(
+            padding: EdgeInsets.all(7),
+            child: Text(
+                "There are no events currently",
+                style: Theme.of(context).primaryTextTheme.body2
+            ),
+          )
+      ),
+    ];
+
+    return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
+      drawer: MainDrawer(),
+      floatingActionButton: getSpeedDial(),
+      body: NestedScrollView(
+        body: ListView.builder(
+          itemCount: agendaItems.length,
+          itemBuilder: (context, index) => Container(
+            padding: EdgeInsets.fromLTRB(20, 5, 20, 0),
+            child: Material(
+              color: Theme.of(context).backgroundColor,
+              borderRadius: BorderRadius.circular(5.0),
+              child: Center(
+                child: agendaItems[index],
+              ),
+            ),
+          )
+        ),
+        controller: _scrollController,
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return <Widget>[
+            SliverAppBar(
+              elevation: 0,
+              onStretchTrigger: () {
+                return;
+                },
+              expandedHeight: 265.0,
+              floating: false,
+              pinned: true,
+              backgroundColor: Theme.of(context).primaryColorDark,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(30),
+                ),
+              ),
+              flexibleSpace: FlexibleSpaceBar(
+//                  collapseMode: CollapseMode.pin,
+                  centerTitle: true,
+                  background: AnimatedOpacity(
+                    opacity: _headerVisible ? 1.0 : 0.0,
+                    duration: Duration(milliseconds: 500),
+                    child: AgendaHeader(selectedDate: selectedDate, calendarView:CalendarView(
+                      onDateSelected: (DateTime date) {
+                        setState(() {
+                          selectedDate = date;
+                        });
+                      },
+                    ),
+                    ),
+                  ),
+                  title: Align(
+                    alignment: Alignment(
+                        titleXAlignment,
+                        titleYAlignment
+                    ),
+                    child: todayAgenda,
+                  )
+                ),
+              ),
+            ];
+          },
+        ),
+    );
+  }
+}
+
+/*
   animate() {
     if (!isOpened) {
       _animationController.forward();
@@ -428,223 +650,6 @@ class _AgendaViewState extends State<AgendaView>
     );
   }
 
-  Widget getSpeedDial()
-  {
-    return SpeedDial(
-      marginRight: 15,
-      marginBottom: 20,
-      animatedIcon: AnimatedIcons.menu_close,
-      animatedIconTheme: IconThemeData(size: 22.0),
-      closeManually: false,
-      curve: Curves.bounceIn,
-      overlayOpacity: 0.5,
-      backgroundColor: Theme.of(context).buttonColor,
-      foregroundColor: Colors.white,
-      elevation: 8.0,
-      shape: CircleBorder(),
-      children: [
-        SpeedDialChild(
-          child: Icon(
-            Icons.class_,
-            color: Colors.white,
-          ),
-          backgroundColor: Color(0xFF6FCF97),
-          label: 'Class',
-          labelStyle: TextStyle(fontSize: 18.0),
-          onTap: () => print('SECOND CHILD'),
-        ),
-        SpeedDialChild(
-            child: Icon(
-              Icons.calendar_view_day,
-              color: Colors.white,
-            ),
-            backgroundColor: Color(0xFF706FD3),
-            label: 'Term',
-            labelStyle: TextStyle(fontSize: 18.0),
-            onTap: () => print('FIRST CHILD')
-        ),
-      ],
-    );
-  }
-
-
-
-  @override
-  Widget build(BuildContext context) {
-    FirebaseUser user = Provider.of<FirebaseUser>(context);
-    database.getCurrentTerm(user);
-    Expanded mainAgenda = Expanded(
-      child: ListView(
-        children: <Widget>[
-          FilteredClassExpansion(widget.term, selectedDate, database),
-          FilteredAssignmentProvider(
-              widget.term, selectedDate, false, selectedDate),
-          FilteredAssignmentProvider(
-              widget.term, selectedDate, true, selectedDate),
-          FilteredEventExpansion(widget.term, selectedDate, database),
-        ],
-      ),
-    );
-    
-    void onTabTapped(int index)
-    {
-      setState(
-          () {
-            _currentIndex = index;
-          }
-      );
-    }
-
-    var todayAgenda = Text("Daily Agenda",
-      style: TextStyle(
-          color: Colors.black,
-          fontSize: 20.0
-      ),
-    );
-
-    var agendaItems = [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          new Text("Classes", 
-              style: Theme.of(context).primaryTextTheme.body1
-          ),
-          new Icon(Icons.class_)
-        ],
-      ),
-      Center(
-        child: Container(
-          padding: EdgeInsets.all(7),
-          child: Text(
-              "There are no classes currently",
-              style: Theme.of(context).primaryTextTheme.body2
-          ),
-        )
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          new Text(
-              "Assignments",
-              style: Theme.of(context).primaryTextTheme.body1
-          ),
-          new Icon(Icons.assignment)
-        ],
-      ),
-      Center(
-          child: Container(
-            padding: EdgeInsets.fromLTRB(0, 7, 0, 15),
-            child: Text(
-                "There are no assignments currently",
-                style: Theme.of(context).primaryTextTheme.body2
-            ),
-          )
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          new Text(
-              "Assessments",
-              style: Theme.of(context).primaryTextTheme.body1
-          ),
-          new Icon(Icons.assessment)
-        ],
-      ),
-      Center(
-          child: Container(
-            padding: EdgeInsets.all(7),
-            child: Text(
-                "There are no assessments currently",
-                style: Theme.of(context).primaryTextTheme.body2
-            ),
-          )
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          new Text(
-              "Events",
-              style: Theme.of(context).primaryTextTheme.body1
-          ),
-          new Icon(Icons.group)
-        ],
-      ),
-      Center(
-          child: Container(
-            padding: EdgeInsets.all(7),
-            child: Text(
-                "There are no events currently",
-                style: Theme.of(context).primaryTextTheme.body2
-            ),
-          )
-      ),
-    ];
-
-    return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
-      drawer: MainDrawer(),
-      floatingActionButton: getSpeedDial(),
-      body: NestedScrollView(
-        body: ListView.builder(
-          itemCount: agendaItems.length,
-          itemBuilder: (context, index) => Container(
-            padding: EdgeInsets.fromLTRB(20, 5, 20, 0),
-            child: Material(
-              color: Theme.of(context).backgroundColor,
-              borderRadius: BorderRadius.circular(5.0),
-              child: Center(
-                child: agendaItems[index],
-              ),
-            ),
-          )
-        ),
-        controller: _scrollController,
-        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-          return <Widget>[
-            SliverAppBar(
-              elevation: 0,
-              onStretchTrigger: () {
-                return;
-                },
-              expandedHeight: 265.0,
-              floating: false,
-              pinned: true,
-              backgroundColor: Theme.of(context).primaryColorDark,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(30),
-                ),
-              ),
-              flexibleSpace: FlexibleSpaceBar(
-//                  collapseMode: CollapseMode.pin,
-                  centerTitle: true,
-                  background: AnimatedOpacity(
-                    opacity: _headerVisible ? 1.0 : 0.0,
-                    duration: Duration(milliseconds: 500),
-                    child: AgendaHeader(selectedDate: selectedDate, calendarView:CalendarView(
-                      onDateSelected: (DateTime date) {
-                        setState(() {
-                          selectedDate = date;
-                        });
-                      },
-                    ),
-                    ),
-                  ),
-                  title: Align(
-                    alignment: Alignment(
-                        titleXAlignment,
-                        titleYAlignment
-                    ),
-                    child: todayAgenda,
-                  )
-                ),
-              ),
-            ];
-          },
-        ),
-    );
-  }
-}
 
 class FilteredClassExpansion extends StatefulWidget {
   final AcademicTerm term;
@@ -1312,3 +1317,5 @@ class _FilteredEventExpansionState extends State<FilteredEventExpansion> {
       }
   }
 }
+
+ */
