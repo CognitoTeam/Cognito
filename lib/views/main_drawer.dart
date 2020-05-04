@@ -5,7 +5,7 @@ import 'package:cognito/models/academic_term.dart';
 import 'package:cognito/models/all_terms.dart';
 import 'package:cognito/views/GPAView.dart';
 import 'package:cognito/views/academic_term_view.dart';
-import 'package:cognito/views/agenda_view.dart';
+import 'package:cognito/views/AgendaViews/agenda_view.dart';
 import 'package:cognito/views/class_view.dart';
 import 'package:cognito/views/clubs_view.dart';
 import 'package:cognito/views/energy_view.dart';
@@ -13,6 +13,8 @@ import 'package:cognito/views/login_selection_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'AgendaViews/agenda_views.dart';
 
 class MainDrawer extends StatefulWidget {
   static MainDrawer _instance;
@@ -109,7 +111,7 @@ class _MainDrawerState extends State<MainDrawer> {
                       } else {
                         Navigator.of(context).pushReplacement(
                             MaterialPageRoute(builder: (context) =>
-                                AgendaView(snapshot.data)));
+                                AgendaViews(snapshot.data)));
                       }
                     }),
                 ListTile(

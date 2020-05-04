@@ -4,11 +4,13 @@ import 'package:cognito/models/class.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/models/task.dart';
 import 'package:cognito/views/academic_term_view.dart';
-import 'package:cognito/views/agenda_view.dart';
+import 'package:cognito/views/AgendaViews/agenda_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cognito/database/notifications.dart';
 import 'package:provider/provider.dart';
+
+import 'AgendaViews/agenda_views.dart';
 
 class BufferView extends StatefulWidget {
   @override
@@ -39,7 +41,7 @@ class _BufferViewState extends State<BufferView> {
     } else {
       Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => AgendaView(term)),
+          MaterialPageRoute(builder: (context) => AgendaViews(term)),
           ModalRoute.withName("/Home"));
     }
     // Initialize notifications after database is initialized

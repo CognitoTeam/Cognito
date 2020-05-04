@@ -1,17 +1,20 @@
+import 'package:cognito/models/academic_term.dart';
 import 'package:flutter/material.dart';
 
 class AgendaNavigator extends StatelessWidget {
   final int currentIndex;
   final Function(int) onNavigationChange;
+  final AcademicTerm term;
 
   AgendaNavigator({
     @required this.currentIndex,
     @required this.onNavigationChange,
+    @required this.term,
     });
-
 
   @override
   Widget build(BuildContext context) {
+
     return ClipRRect(
         borderRadius: new BorderRadius.only(
           topLeft: const Radius.circular(25.0),
