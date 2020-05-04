@@ -27,8 +27,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../views/utils/PriorityAgenda/priority_agenda.dart';
-import '../views/utils/main_agenda.dart';
+import '../utils/PriorityAgenda/priority_agenda.dart';
+import '../utils/main_agenda.dart';
 
 /// Agenda view screen
 /// Displays daily agenda
@@ -642,7 +642,6 @@ class _AgendaViewState extends State<AgendaView>
             ];
           },
         ),
-      bottomNavigationBar: AgendaNavigator(currentIndex: _currentIndex, onNavigationChange: onTabTapped),
     );
   }
 }
