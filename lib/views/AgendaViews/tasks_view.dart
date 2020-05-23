@@ -29,7 +29,6 @@ class _TasksViewState extends State<TasksView> {
         ),
       ),
       body: TasksViewBody(),
-      backgroundColor: Theme.of(context).backgroundColor,
     );
   }
 

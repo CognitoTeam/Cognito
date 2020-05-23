@@ -29,6 +29,12 @@ class _SliderWidgetState extends State<SliderWidget> {
           ? double.infinity
           : (this.widget.sliderHeight) * 5.5,
       decoration: new BoxDecoration(
+          boxShadow: [BoxShadow(
+              color: Colors.grey,
+              blurRadius: 2.0,
+              spreadRadius: 0.0,
+              offset: Offset(2.0, 2.0)
+          )],
         borderRadius: new BorderRadius.all(
           Radius.circular((this.widget.sliderHeight * .75)),
         ),
