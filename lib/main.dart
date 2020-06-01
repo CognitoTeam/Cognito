@@ -32,6 +32,21 @@ class MyApp extends StatelessWidget {
           title: "UniPlan",
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
+            colorScheme: ColorScheme(
+              background: Colors.black,
+              primaryVariant: Colors.black,
+              secondary: Color(0xFFFFB142),
+              primary: Colors.black,
+              onSurface: Colors.black,
+              brightness: Brightness.dark,
+              onPrimary: Colors.black,
+              secondaryVariant: Color(0xFF746868),
+              onBackground: Colors.black,
+              onError: Colors.black,
+              onSecondary: Colors.black,
+              surface: Colors.black,
+              error: Colors.black,
+            ),
             buttonColor: Color(0xFFFF793F),
             iconTheme: IconThemeData(color: Colors.black, size: 20),
             primaryColor: Color(0xFF00227a),
@@ -54,6 +69,14 @@ class MyApp extends StatelessWidget {
                     color: Colors.black,
                     fontSize: 15
                 ),
+                subtitle: GoogleFonts.poppins(
+                  color: Color(0xFF746868),
+                  fontSize: 16
+                ),
+                subhead: GoogleFonts.poppins(
+                  color: Color(0xFF746868),
+                  fontSize: 13
+                )
             ),
             accentTextTheme:
               TextTheme(
