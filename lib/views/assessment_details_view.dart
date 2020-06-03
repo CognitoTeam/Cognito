@@ -442,7 +442,7 @@ class _AssessmentDetailsViewState extends State<AssessmentDetailsView> {
           ),
           title: Text(
             widget.assignment.title,
-            style: Theme.of(context).primaryTextTheme.title,
+            style: Theme.of(context).primaryTextTheme.headline2,
           ),
           backgroundColor: Theme.of(context).primaryColorDark,
         ),

@@ -324,7 +324,7 @@ class _AddEnergyDialogState extends State<AddEnergyDialog> {
                 primaryColorDark: Theme.of(context).primaryColorDark,
                 primaryColorLight: Theme.of(context).primaryColorLight,
                 valueIndicatorTextStyle:
-                    Theme.of(context).primaryTextTheme.body1),
+                    Theme.of(context).primaryTextTheme.bodyText1),
             child: Slider(
               value: _energyLevelSelected,
               max: 10.0,

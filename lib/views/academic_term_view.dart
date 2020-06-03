@@ -83,7 +83,7 @@ class _AcademicTermViewState extends State<AcademicTermView> {
       appBar: AppBar(
         title: Text(
           "Academic Terms",
-          style: Theme.of(context).primaryTextTheme.title,
+          style: Theme.of(context).primaryTextTheme.headline2,
         ),
         backgroundColor: Theme.of(context).primaryColorDark,
       ),

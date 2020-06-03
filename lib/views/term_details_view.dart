@@ -49,7 +49,7 @@ class _TermDetailsViewState extends State<TermDetailsView> {
         ),
         title: Text(
           widget.term.termName,
-          style: Theme.of(context).primaryTextTheme.title,
+          style: Theme.of(context).primaryTextTheme.headline2,
         ),
         backgroundColor: Theme.of(context).primaryColorDark,
         actions: <Widget>[

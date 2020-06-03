@@ -129,7 +129,7 @@ class _ClubViewState extends State<ClubView> {
               appBar: AppBar(
                 title: Text(
                   snapshot.data.termName + " - Clubs",
-                  style: Theme.of(context).primaryTextTheme.title,
+                  style: Theme.of(context).primaryTextTheme.headline2,
                 ),
                 backgroundColor: Theme.of(context).primaryColorDark,
               ),

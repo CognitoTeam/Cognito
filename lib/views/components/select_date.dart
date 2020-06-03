@@ -26,14 +26,14 @@ class _SelectDateState extends State<SelectDate> {
             alignment: Alignment.centerLeft,
             child: Text(
               widget.title,
-              style: Theme.of(context).primaryTextTheme.subtitle,
+              style: Theme.of(context).primaryTextTheme.subtitle1,
             ),
           ): Container(color: Colors.black,),
           Row(
               children: [
                 Text(
                   dml.formatTimeOfDay(selectedTime, alwaysUse24HourFormat: false),
-                  style: Theme.of(context).primaryTextTheme.subhead,
+                  style: Theme.of(context).primaryTextTheme.subtitle2,
                 ),
                 Container(
                   padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),

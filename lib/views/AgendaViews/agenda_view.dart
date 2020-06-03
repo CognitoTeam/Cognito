@@ -244,7 +244,7 @@ class _AgendaViewState extends State<AgendaView>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           new Text("Classes", 
-              style: Theme.of(context).primaryTextTheme.body1
+              style: Theme.of(context).primaryTextTheme.bodyText1
           ),
           new Icon(Icons.class_)
         ],
@@ -254,7 +254,7 @@ class _AgendaViewState extends State<AgendaView>
           padding: EdgeInsets.all(7),
           child: Text(
               "There are no classes currently",
-              style: Theme.of(context).primaryTextTheme.body2
+              style: Theme.of(context).primaryTextTheme.bodyText2
           ),
         )
       ),
@@ -263,7 +263,7 @@ class _AgendaViewState extends State<AgendaView>
         children: [
           new Text(
               "Assignments",
-              style: Theme.of(context).primaryTextTheme.body1
+              style: Theme.of(context).primaryTextTheme.bodyText1
           ),
           new Icon(Icons.assignment)
         ],
@@ -273,7 +273,7 @@ class _AgendaViewState extends State<AgendaView>
             padding: EdgeInsets.fromLTRB(0, 7, 0, 15),
             child: Text(
                 "There are no assignments currently",
-                style: Theme.of(context).primaryTextTheme.body2
+                style: Theme.of(context).primaryTextTheme.bodyText2
             ),
           )
       ),
@@ -282,7 +282,7 @@ class _AgendaViewState extends State<AgendaView>
         children: [
           new Text(
               "Assessments",
-              style: Theme.of(context).primaryTextTheme.body1
+              style: Theme.of(context).primaryTextTheme.bodyText1
           ),
           new Icon(Icons.assessment)
         ],
@@ -292,7 +292,7 @@ class _AgendaViewState extends State<AgendaView>
             padding: EdgeInsets.all(7),
             child: Text(
                 "There are no assessments currently",
-                style: Theme.of(context).primaryTextTheme.body2
+                style: Theme.of(context).primaryTextTheme.bodyText2
             ),
           )
       ),
@@ -301,7 +301,7 @@ class _AgendaViewState extends State<AgendaView>
         children: [
           new Text(
               "Events",
-              style: Theme.of(context).primaryTextTheme.body1
+              style: Theme.of(context).primaryTextTheme.bodyText1
           ),
           new Icon(Icons.group)
         ],
@@ -311,7 +311,7 @@ class _AgendaViewState extends State<AgendaView>
             padding: EdgeInsets.all(7),
             child: Text(
                 "There are no events currently",
-                style: Theme.of(context).primaryTextTheme.body2
+                style: Theme.of(context).primaryTextTheme.bodyText2
             ),
           )
       ),
@@ -507,7 +507,7 @@ class _AgendaViewState extends State<AgendaView>
       children: [
         Text(
           "Classes",
-          style: Theme.of(context).primaryTextTheme.title
+          style: Theme.of(context).primaryTextTheme.headline2
         )
       ],
     );
