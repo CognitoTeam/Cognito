@@ -99,7 +99,6 @@ class _AgendaViewState extends State<AgendaView>
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(() {
-      //TODO: Determine Opacity animation
       if(_scrollController.position.minScrollExtent == _scrollController.offset && _headerVisible == false)
       {
         setState(() {

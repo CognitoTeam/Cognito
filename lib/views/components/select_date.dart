@@ -20,6 +20,7 @@ class _SelectDateState extends State<SelectDate> {
       padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
       child: Column(
         children: [
+          widget.title != "" ?
           Container(
             padding: EdgeInsets.all(0),
             alignment: Alignment.centerLeft,
@@ -27,7 +28,7 @@ class _SelectDateState extends State<SelectDate> {
               widget.title,
               style: Theme.of(context).primaryTextTheme.subtitle,
             ),
-          ),
+          ): Container(color: Colors.black,),
           Row(
               children: [
                 Text(

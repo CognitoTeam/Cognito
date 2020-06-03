@@ -49,6 +49,7 @@ class _DaysCheckboxState extends State<DaysCheckbox> {
         list.add(cb);
       }
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
      children: list,
     );
