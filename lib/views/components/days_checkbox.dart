@@ -28,7 +28,7 @@ class _DaysCheckboxState extends State<DaysCheckbox> {
                 padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                 child:  Text(
                   _days[i],
-                  style: Theme.of(context).primaryTextTheme.subhead,
+                  style: Theme.of(context).primaryTextTheme.subtitle2,
                 ),
               ),
             ),

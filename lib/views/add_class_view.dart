@@ -21,6 +21,8 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
   FocusNode _focusNodeClassLocation = FocusNode();
   FocusNode _focusNodeOfficeLocation = FocusNode();
   FocusNode _focusNodeUnits = FocusNode();
+  FocusNode _focusNodeCategoryName = FocusNode();
+  FocusNode _focusNodeCategoryPercent = FocusNode();
 
   @override
   void initState() {
@@ -66,6 +68,20 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
         _controller.reverse();
       }
     });
+    _focusNodeCategoryName.addListener(() {
+      if (_focusNodeCategoryName.hasFocus) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    });
+    _focusNodeCategoryPercent.addListener(() {
+      if (_focusNodeCategoryPercent.hasFocus) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    });
   }
 
   @override
@@ -76,6 +92,8 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
     _focusNodeUnits.dispose();
     _focusNodeOfficeLocation.dispose();
     _focusNodeClassLocation.dispose();
+    _focusNodeCategoryName.dispose();
+    _focusNodeCategoryPercent.dispose();
     super.dispose();
   }
 
@@ -124,7 +142,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
               alignment: Alignment.centerLeft,
               child: Text(
                 "Add a new class",
-                style: Theme.of(context).primaryTextTheme.title,
+                style: Theme.of(context).primaryTextTheme.headline2,
                 textAlign: TextAlign.left,
               ),
             ),
@@ -136,7 +154,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
                 children: [
                   Text(
                     "Title",
-                    style: Theme.of(context).primaryTextTheme.subtitle,
+                    style: Theme.of(context).primaryTextTheme.subtitle1,
                     textAlign: TextAlign.right,
                   ),
                   titleInput(),
@@ -147,7 +165,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
                       alignment: Alignment.centerLeft,
                       child: Text(
                         "to",
-                        style: Theme.of(context).primaryTextTheme.subhead,
+                        style: Theme.of(context).primaryTextTheme.subtitle2,
                       ),
                     ),
                   ),
@@ -157,7 +175,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
                     alignment: Alignment.centerLeft,
                     child: Text(
                       "Days Repeated",
-                      style: Theme.of(context).primaryTextTheme.subtitle,
+                      style: Theme.of(context).primaryTextTheme.subtitle1,
                     ),
                   ),
                   SizedBox(height: 5,),
@@ -219,7 +237,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
           alignment: Alignment.center,
           child: Text(
             "Office Days",
-            style: Theme.of(context).primaryTextTheme.subhead,
+            style: Theme.of(context).primaryTextTheme.subtitle2,
           ),
         ),
         Padding(
@@ -233,7 +251,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
         Padding(
           padding: EdgeInsets.all(8),
         ),
-        AddCategories()
+        AddCategories(_focusNodeCategoryName, _focusNodeCategoryPercent)
       ],
     );
   }
@@ -419,7 +437,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
       children: [
         Text(
           "Office Hours",
-          style: Theme.of(context).primaryTextTheme.subhead,
+          style: Theme.of(context).primaryTextTheme.subtitle2,
         ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -430,7 +448,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
               padding: EdgeInsets.fromLTRB(0, 13, 0, 0),
               child: Text(
                 "to",
-                style: Theme.of(context).primaryTextTheme.subhead,
+                style: Theme.of(context).primaryTextTheme.subtitle2,
               ),
             ),
             SizedBox(width: 20,),

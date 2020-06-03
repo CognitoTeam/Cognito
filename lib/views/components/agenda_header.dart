@@ -37,7 +37,7 @@ class AgendaHeader extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           child: Text(
                             DateFormat.MMMMEEEEd().format(selectedDate),
-                            style: Theme.of(context).primaryTextTheme.body1,
+                            style: Theme.of(context).primaryTextTheme.bodyText1,
                             textAlign: TextAlign.left,
                           ),
                         ),
@@ -53,7 +53,7 @@ class AgendaHeader extends StatelessWidget {
                       percent: 0.75,
                       center: Text(
                           "75%",
-                          style: Theme.of(context).primaryTextTheme.body1),
+                          style: Theme.of(context).primaryTextTheme.bodyText1),
                       progressColor: Color(0xFF33D9B2),
                       circularStrokeCap: CircularStrokeCap.round,
                       backgroundColor: Theme.of(context).backgroundColor,

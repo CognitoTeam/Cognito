@@ -57,7 +57,7 @@ class _CalendarViewState extends State<CalendarView> {
         });
       },
       child: Text("Previous\nWeek",
-          style: Theme.of(context).primaryTextTheme.body2),
+          style: Theme.of(context).primaryTextTheme.bodyText2),
     ));
     // Seven buttons for the selected days
     for (DateTime d in selectedWeeksDays) {
@@ -112,7 +112,7 @@ class _CalendarViewState extends State<CalendarView> {
         });
       },
       child: Text("Next\nWeek",
-          style: Theme.of(context).primaryTextTheme.body2)),
+          style: Theme.of(context).primaryTextTheme.bodyText2)),
     );
     return calendar;
   }

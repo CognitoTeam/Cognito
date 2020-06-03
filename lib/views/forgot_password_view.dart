@@ -65,7 +65,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
     final email = TextFormField(
       keyboardType: TextInputType.emailAddress,
       autofocus: false,
-      style: Theme.of(context).primaryTextTheme.body1,
+      style: Theme.of(context).primaryTextTheme.bodyText1,
       decoration: InputDecoration(
         hintText: "Email",
         hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,

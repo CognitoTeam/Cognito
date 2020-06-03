@@ -28,7 +28,7 @@ class _AddPriorityDialogState extends State<AddPriorityDialog> {
                 primaryColorDark: Theme.of(context).primaryColorDark,
                 primaryColorLight: Theme.of(context).primaryColorLight,
                 valueIndicatorTextStyle:
-                    Theme.of(context).primaryTextTheme.body1),
+                    Theme.of(context).primaryTextTheme.bodyText1),
             child: Slider(
               value: _prioritySelected,
               max: 3.0,

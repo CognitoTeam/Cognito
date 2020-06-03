@@ -75,7 +75,7 @@ class _UpdateUserInfoState extends State<UpdateUserInfo>
                       controller: _firstName,
                       keyboardType: TextInputType.text,
                       autofocus: false,
-                      style: Theme.of(context).primaryTextTheme.body1,
+                      style: Theme.of(context).primaryTextTheme.bodyText1,
                       decoration: InputDecoration(
                         hintText: "First name",
                         hintStyle: Theme.of(context).inputDecorationTheme.hintStyle
@@ -88,7 +88,7 @@ class _UpdateUserInfoState extends State<UpdateUserInfo>
                       controller: _lastName,
                       keyboardType: TextInputType.text,
                       autofocus: false,
-                      style: Theme.of(context).primaryTextTheme.body1,
+                      style: Theme.of(context).primaryTextTheme.bodyText1,
                       decoration: InputDecoration(
                         hintText: "Last name",
                         hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,

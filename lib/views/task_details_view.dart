@@ -207,7 +207,7 @@ class _TaskDetailsViewState extends State<TaskDetailsView> {
         ),
         title: Text(
           widget.task.title,
-          style: Theme.of(context).primaryTextTheme.title,
+          style: Theme.of(context).primaryTextTheme.headline2,
         ),
         backgroundColor: Theme.of(context).primaryColorDark,
         actions: <Widget>[

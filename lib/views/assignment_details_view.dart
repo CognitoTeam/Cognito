@@ -356,7 +356,7 @@ class _AssignmentDetailsViewState extends State<AssignmentDetailsView> {
           ),
           title: Text(
             widget.assignment.title,
-            style: Theme.of(context).primaryTextTheme.title,
+            style: Theme.of(context).primaryTextTheme.headline2,
           ),
           backgroundColor: Theme.of(context).primaryColorDark,
         ),

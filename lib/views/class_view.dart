@@ -291,7 +291,7 @@ class _ClassViewState extends State<ClassView> {
               appBar: AppBar(
                 title: Text(
                   snapshot.data.termName + " - Classes",
-                  style: Theme.of(context).primaryTextTheme.title,
+                  style: Theme.of(context).primaryTextTheme.headline2,
                 ),
                 backgroundColor: Theme.of(context).primaryColorDark,
               ),

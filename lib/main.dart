@@ -41,8 +41,8 @@ class MyApp extends StatelessWidget {
               brightness: Brightness.dark,
               onPrimary: Colors.black,
               secondaryVariant: Color(0xFF746868),
-              onBackground: Colors.black,
-              onError: Colors.black,
+              onBackground: Color(0xFF34ACE0),
+              onError: Color(0xFFEB5757),
               onSecondary: Colors.black,
               surface: Colors.black,
               error: Colors.black,
@@ -55,28 +55,67 @@ class MyApp extends StatelessWidget {
             accentColor: Color(0xFFfbc02d),
             backgroundColor: Color(0xFFFFF9EE),
             primaryTextTheme: TextTheme(
-                title: GoogleFonts.poppins(
+              headline1: GoogleFonts.poppins(
+                  color: Colors.black,
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold
+              ),
+                headline2: GoogleFonts.poppins(
                     color: Colors.black,
                     fontSize: 30,
                     fontWeight: FontWeight.bold
                 ),
-                body1: GoogleFonts.poppins(
+                headline3: GoogleFonts.poppins(
+                    color: Colors.black,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold
+                ),
+                headline4: GoogleFonts.poppins(
+                    color: Colors.black,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold
+                ),
+                headline5: GoogleFonts.poppins(
+                    color: Colors.black,
+                    fontSize: 13,
+                ),
+                headline6: GoogleFonts.poppins(
+                    color: Colors.black,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold
+                ),
+                bodyText1: GoogleFonts.poppins(
                     color: Colors.black,
                     fontSize: 20,
                     fontWeight: FontWeight.bold
                 ),
-                body2: GoogleFonts.poppins(
+                bodyText2: GoogleFonts.poppins(
                     color: Colors.black,
                     fontSize: 15
                 ),
-                subtitle: GoogleFonts.poppins(
-                  color: Color(0xFF746868),
-                  fontSize: 16
+                button: GoogleFonts.poppins(
+                    color: Color(0xFFFFF9EE),
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold
                 ),
-                subhead: GoogleFonts.poppins(
-                  color: Color(0xFF746868),
-                  fontSize: 13
-                )
+                caption: GoogleFonts.poppins(
+                    color: Colors.black,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold
+                ),
+                overline: GoogleFonts.poppins(
+                    color: Colors.black,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold
+                ),
+                subtitle1: GoogleFonts.poppins(
+                    color: Color(0xFF746868),
+                    fontSize: 16
+                ),
+                subtitle2: GoogleFonts.poppins(
+                    color: Color(0xFF746868),
+                    fontSize: 13
+                ),
             ),
             accentTextTheme:
               TextTheme(
