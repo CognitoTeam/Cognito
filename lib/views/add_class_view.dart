@@ -1,8 +1,8 @@
 import 'package:cognito/models/academic_term.dart';
+import 'package:cognito/views/components/add_categories.dart';
 import 'package:cognito/views/components/days_checkbox.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-
+import 'package:flutter/services.dart';
 import 'components/select_date.dart';
 
 class AddClassView extends StatefulWidget {
@@ -12,7 +12,72 @@ class AddClassView extends StatefulWidget {
   _AddClassViewState createState() => _AddClassViewState();
 }
 
-class _AddClassViewState extends State<AddClassView> {
+class _AddClassViewState extends State<AddClassView> with SingleTickerProviderStateMixin{
+
+  AnimationController _controller;
+  Animation _animation;
+  FocusNode _focusNodeInstructor = FocusNode();
+  FocusNode _focusNodeDescription = FocusNode();
+  FocusNode _focusNodeClassLocation = FocusNode();
+  FocusNode _focusNodeOfficeLocation = FocusNode();
+  FocusNode _focusNodeUnits = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+    _animation = Tween(begin: 350.0, end: 75.0).animate(_controller)
+      ..addListener(() {
+        setState(() {});
+      });
+    _focusNodeInstructor.addListener(() {
+      if (_focusNodeInstructor.hasFocus) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    });
+    _focusNodeDescription.addListener(() {
+      if (_focusNodeDescription.hasFocus) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    });
+    _focusNodeClassLocation.addListener(() {
+      if (_focusNodeClassLocation.hasFocus) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    });
+    _focusNodeOfficeLocation.addListener(() {
+      if (_focusNodeOfficeLocation.hasFocus) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    });
+    _focusNodeUnits.addListener(() {
+      if (_focusNodeOfficeLocation.hasFocus) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNodeInstructor.dispose();
+    _focusNodeDescription.dispose();
+    _focusNodeUnits.dispose();
+    _focusNodeOfficeLocation.dispose();
+    _focusNodeClassLocation.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,18 +87,24 @@ class _AddClassViewState extends State<AddClassView> {
           backgroundColor: Color(0xFF64BC88),
           elevation: 0,
         ),
-        body: Stack(
-          children: [
-            head(),
-            body()
-          ],
-        ),
+        body: new InkWell(
+          splashColor: Colors.transparent,
+          onTap: () {
+            FocusScope.of(context).requestFocus(FocusNode());
+          },
+          child: Stack(
+            children: [
+              body(),
+              head(),
+            ],
+          ),
+        )
     );
   }
 
   Widget head() {
     return Container(
-      height: 350,
+      height: _animation.value,
       padding: EdgeInsets.fromLTRB(25, 0, 25, 0),
       width: double.infinity,
       decoration: new BoxDecoration(
@@ -43,49 +114,65 @@ class _AddClassViewState extends State<AddClassView> {
             bottomRight: const Radius.circular(40.0),
           )
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Text(
-                "Add a new class",
-                style: Theme.of(context).primaryTextTheme.title,
-                textAlign: TextAlign.right,
-          ),
-          titleInput(),
-          SelectDate(title: "Start Time",),
-          Padding(
-            padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-            child: Align(
+      child: FittedBox(
+        alignment: Alignment.topLeft,
+        fit: BoxFit.none,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
               alignment: Alignment.centerLeft,
               child: Text(
-                "to",
-                style: Theme.of(context).primaryTextTheme.subhead,
+                "Add a new class",
+                style: Theme.of(context).primaryTextTheme.title,
+                textAlign: TextAlign.left,
               ),
             ),
-          ),
-          SelectDate(title: "End Time",),
-          SizedBox(height: 10,),
-          DaysCheckboxWidget()
-        ],
-      ),
+            Opacity(
+              opacity: (_animation.value - 75)/275,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    "Title",
+                    style: Theme.of(context).primaryTextTheme.subtitle,
+                    textAlign: TextAlign.right,
+                  ),
+                  titleInput(),
+                  SelectDate(title: "Start Time",),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "to",
+                        style: Theme.of(context).primaryTextTheme.subhead,
+                      ),
+                    ),
+                  ),
+                  SelectDate(title: "End Time",),
+                  SizedBox(height: 10,),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Days Repeated",
+                      style: Theme.of(context).primaryTextTheme.subtitle,
+                    ),
+                  ),
+                  SizedBox(height: 5,),
+                  DaysCheckbox()
+                ],
+              ),
+            ),
+          ],
+        )
+        )
     );
   }
 
   Widget titleInput() {
-    return Column(
-      children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            "Title",
-            style: Theme.of(context).primaryTextTheme.subtitle,
-            textAlign: TextAlign.right,
-          ),
-        ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Container(
+    return Container(
             width: 250,
             child: TextField(
               decoration: InputDecoration(
@@ -94,44 +181,310 @@ class _AddClassViewState extends State<AddClassView> {
                 hintText: "ie CS-154 Formal Lanuages",
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(
-                    color: Color(0xFF746868),
+                    color: Theme.of(context).colorScheme.secondaryVariant,
                   ),
                 ),
                 focusedBorder: UnderlineInputBorder(
                     borderSide: BorderSide(
-                      color: Color(0xFF746868),
+                      color: Theme.of(context).colorScheme.secondaryVariant,
                     )
                 ),
               ),
             ),
+    );
+  }
+
+  Widget body() {
+    return ListView(
+      padding: EdgeInsets.all(25),
+      children: [
+        SizedBox(height: _animation.value,),
+        instructorInput(),
+        Padding(
+          padding: EdgeInsets.all(8),
+        ),
+        descriptionInput(),
+        Padding(
+          padding: EdgeInsets.all(8),
+        ),
+        locationInput(),
+        Padding(
+          padding: EdgeInsets.all(8),
+        ),
+        officeHours(),
+        Padding(
+          padding: EdgeInsets.all(8),
+        ),
+        Container(
+          alignment: Alignment.center,
+          child: Text(
+            "Office Days",
+            style: Theme.of(context).primaryTextTheme.subhead,
           ),
         ),
+        Padding(
+          padding: EdgeInsets.all(4),
+        ),
+        DaysCheckbox(),
+        Padding(
+          padding: EdgeInsets.all(8),
+        ),
+        unitsInput(),
+        Padding(
+          padding: EdgeInsets.all(8),
+        ),
+        AddCategories()
       ],
     );
   }
 
-  Widget DaysCheckboxWidget() {
+  Widget instructorInput() {
     return Column(
       children: [
         Align(
           alignment: Alignment.centerLeft,
           child: Text(
-            "Days Repeated",
-            style: Theme.of(context).primaryTextTheme.subtitle,
+            "Professor/Instructor",
+            style: Theme.of(context).primaryTextTheme.subtitle1,
           ),
         ),
-        SizedBox(height: 5,),
-        DaysCheckbox()
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Container(
+            width: 250,
+            child: TextField(
+              focusNode: _focusNodeInstructor,
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.all(5),
+                isDense: true,
+                hintText: "ie Dr Potika",
+                enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      width: 1,
+                    color: Theme.of(context).colorScheme.secondaryVariant,
+                  ),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    width: 1,
+                    color: Theme.of(context).colorScheme.secondaryVariant,
+                  )
+                ),
+              ),
+            ),
+          ),
+        )
+      ]
+    );
+  }
+
+  Widget descriptionInput() {
+    return Column(
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "Description",
+              style: Theme.of(context).primaryTextTheme.subtitle1,
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              width: 360,
+              child: TextField(
+                focusNode: _focusNodeDescription,
+                expands: false,
+                maxLines: 10,
+                minLines: 1,
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.all(5),
+                  isDense: true,
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      width: 1,
+                      color: Theme.of(context).colorScheme.secondaryVariant,
+                    ),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        width: 1,
+                        color: Theme.of(context).colorScheme.secondaryVariant,
+                      )
+                  ),
+                ),
+              ),
+            ),
+          )
+        ]
+    );
+  }
+
+  Widget locationInput() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Class Location",
+                style: Theme.of(context).primaryTextTheme.subtitle1,
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                width: 150,
+                child: TextField(
+                  focusNode: _focusNodeClassLocation,
+                  expands: false,
+                  maxLines: 10,
+                  minLines: 1,
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.all(5),
+                    isDense: true,
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        width: 1,
+                        color: Theme.of(context).colorScheme.secondaryVariant,
+                      ),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          width: 1,
+                          color: Theme.of(context).colorScheme.secondaryVariant,
+                        )
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
+        SizedBox(
+          width: 50,
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Office Location",
+                style: Theme.of(context).primaryTextTheme.subtitle1,
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                width: 150,
+                child: TextField(
+                  focusNode: _focusNodeOfficeLocation,
+                  expands: false,
+                  maxLines: 10,
+                  minLines: 1,
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.all(5),
+                    isDense: true,
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        width: 1,
+                        color: Theme.of(context).colorScheme.secondaryVariant,
+                      ),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          width: 1,
+                          color: Theme.of(context).colorScheme.secondaryVariant,
+                        )
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ],
+        )
       ],
     );
   }
 
-  Widget  body() {
-    return Container(
-
+  Widget officeHours()
+  {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Office Hours",
+          style: Theme.of(context).primaryTextTheme.subhead,
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SelectDate(title: "",),
+            SizedBox(width: 20,),
+            Container(
+              padding: EdgeInsets.fromLTRB(0, 13, 0, 0),
+              child: Text(
+                "to",
+                style: Theme.of(context).primaryTextTheme.subhead,
+              ),
+            ),
+            SizedBox(width: 20,),
+            SelectDate(title: "",)
+      ],
+      )
+      ],
     );
   }
 
+  Widget unitsInput()
+  {
+    return Column(
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "Units",
+              style: Theme.of(context).primaryTextTheme.subtitle1,
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              width: 70,
+              child: TextField(
+                inputFormatters: <TextInputFormatter>[
+                  WhitelistingTextInputFormatter.digitsOnly
+                ], // Only numbers can be entered
+                keyboardType: TextInputType.number,
+                focusNode: _focusNodeUnits,
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.all(5),
+                  isDense: true,
+                  hintText: "ie 3",
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      width: 1,
+                      color: Theme.of(context).colorScheme.secondaryVariant,
+                    ),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        width: 1,
+                        color: Theme.of(context).colorScheme.secondaryVariant,
+                      )
+                  ),
+                ),
+              ),
+            ),
+          )
+        ]
+    );
+  }
 }
 
 
