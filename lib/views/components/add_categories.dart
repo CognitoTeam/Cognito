@@ -16,16 +16,30 @@ class AddCategories extends StatefulWidget {
 class TempCategory {
   String name;
   double percent;
-  TempCategory(this.name, this.percent);
+  int id;
+  static int nextId = 0;
+  TempCategory(this.name, this.percent){
+    id = nextId++;
+  }
 }
 
 class _AddCategoriesState extends State<AddCategories> {
 
   double percentage = 1.0;
-  TextEditingController categoryNameController;
-  TextEditingController categoryPercentController;
+  TextEditingController categoryNameController = new TextEditingController();
+  TextEditingController categoryPercentController = new TextEditingController();
   List<TempCategory> addedCategories = new List<TempCategory>();
   List<Widget> categories = new List<Widget>();
+  double percentageSum = 0.0;
+  bool _categoryValueOverflow = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    TempCategory.nextId = 0;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +57,9 @@ class _AddCategoriesState extends State<AddCategories> {
             CircularPercentIndicator(
               radius: 60.0,
               lineWidth: 6.0,
-              percent: percentage,
+              percent: percentageSum/100,
               center: Text(
-                  "${percentage * 100}%",
+                  "$percentageSum%",
                   style: Theme.of(context).primaryTextTheme.subtitle2),
               progressColor: Color(0xFF33D9B2),
               circularStrokeCap: CircularStrokeCap.round,
@@ -53,7 +67,7 @@ class _AddCategoriesState extends State<AddCategories> {
             ),
           ],
         ),
-        addCategory()
+        addCategoryWidget()
       ],
     );
   }
@@ -62,55 +76,82 @@ class _AddCategoriesState extends State<AddCategories> {
   {
       return Container(
         child: Column(
-            children: categories
+            children: categories ?? [Container()]
         ),
         width: 225,
       );
   }
 
-  List<Widget> categoriesWidgets(TempCategory tc)
+  void updateCategory()
   {
-    categories.add(Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Container(
-                child: Text(
-                  "${tc.name}",
-                  style: Theme.of(context).primaryTextTheme.headline5,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-              ),
-            ),
-            Row(
+    setState(() {
+      for(TempCategory tc in addedCategories)
+        {
+            categories.add(Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "${tc.percent}%",
-                  style: Theme.of(context).primaryTextTheme.headline5,
-                ),
-                SizedBox(width: 10),
-                RawMaterialButton(
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  constraints: BoxConstraints.tight(Size(20, 20)),
-                  elevation: 5,
-                  fillColor: Theme.of(context).colorScheme.onError,
-                  child: Icon(
-                    Icons.remove,
-                    color: Theme.of(context).backgroundColor,
-                    size: 15,
+                Flexible(
+                  child: Container(
+                    child: Text(
+                      "${tc.name}",
+                      style: Theme.of(context).primaryTextTheme.headline5,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
                   ),
-                  onPressed: () {},
-                  shape: CircleBorder(),
-                  padding: EdgeInsets.all(0),
-                ),],
-            ),
-          ],
-        )
-        );
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "${tc.percent}%",
+                      style: Theme.of(context).primaryTextTheme.headline5,
+                    ),
+                    SizedBox(width: 10),
+                    RawMaterialButton(
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      constraints: BoxConstraints.tight(Size(20, 20)),
+                      elevation: 5,
+                      fillColor: Theme.of(context).colorScheme.onError,
+                      child: Icon(
+                        Icons.remove,
+                        color: Theme.of(context).backgroundColor,
+                        size: 15,
+                      ),
+                      onPressed: () {
+                        deleteCategory(tc.id);
+                      },
+                      shape: CircleBorder(),
+                      padding: EdgeInsets.all(0),
+                    ),],
+                ),
+              ],
+            )
+            );
+            categories.add(Padding(padding: EdgeInsets.fromLTRB(0, 5, 0, 0),));
+          }
+        }
+      );
   }
 
-  Widget addCategory()
+  void deleteCategory(int id)
+  {
+    print("delete" + id.toString());
+    setState(() {
+      for(int i = 0; i < addedCategories.length; i++)
+        {
+          TempCategory tc = addedCategories[i];
+          if(tc.id == id)
+            {
+              percentageSum -= tc.percent;
+              addedCategories.removeAt(i);
+            }
+        }
+      categories.clear();
+      updateCategory();
+    });
+  }
+
+  Widget addCategoryWidget()
   {
       return Row(
         children: [
@@ -124,6 +165,7 @@ class _AddCategoriesState extends State<AddCategories> {
                 expands: false,
                 decoration: InputDecoration(
                   hintText: "ie Homework",
+                  errorText: _categoryValueOverflow ? "Value over 100%" : null,
                   contentPadding: EdgeInsets.all(5),
                   isDense: true,
                   enabledBorder: UnderlineInputBorder(
@@ -158,6 +200,7 @@ class _AddCategoriesState extends State<AddCategories> {
                 expands: false,
                 decoration: InputDecoration(
                   hintText: "ie 25",
+                  errorText: _categoryValueOverflow ? "" : null,
                   contentPadding: EdgeInsets.all(5),
                   isDense: true,
                   enabledBorder: UnderlineInputBorder(
@@ -178,13 +221,9 @@ class _AddCategoriesState extends State<AddCategories> {
           ),
           SizedBox(width: 15,),
           RaisedButton(
-            onPressed: () {
-              setState() {
-                addedCategories.add(new TempCategory(categoryNameController.value.toString(), double.parse(categoryPercentController.value.toString())));
-              }
-            },
+            onPressed: addCategory,
             child: Text(
-              "Add Category",
+            "Add Category",
               style: Theme.of(context).primaryTextTheme.button,
             ),
             color: Theme.of(context).colorScheme.onBackground,
@@ -194,6 +233,41 @@ class _AddCategoriesState extends State<AddCategories> {
           )
         ],
       );
+  }
+
+  void addCategory()
+  {
+    Widget okButton = FlatButton(
+      child: Text("OK"),
+      onPressed: () { },
+    );
+
+    AlertDialog alert = AlertDialog(
+      title: Text("Categories would add up to above 100%"),
+      content: Text("Consider inputted category values"),
+      actions: [
+        okButton,
+      ],
+    );
+
+    addedCategories.add(new TempCategory(categoryNameController.text, double.parse(categoryPercentController.text)));
+    if(percentageSum + double.parse(categoryPercentController.text) > 100)
+      {
+        setState(() {
+          _categoryValueOverflow = true;
+        });
+      }
+    else if(categoryNameController.text == "" || double.parse(categoryPercentController.text) < 0)
+    {
+      //TODO figure out error handling
+    }
+    else {
+      percentageSum += double.parse(categoryPercentController.text);
+      categories.clear();
+      categoryNameController.clear();
+      categoryPercentController.clear();
+      updateCategory();
+    }
   }
 }
 
