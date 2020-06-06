@@ -251,7 +251,21 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
         Padding(
           padding: EdgeInsets.all(8),
         ),
-        AddCategories(_focusNodeCategoryName, _focusNodeCategoryPercent)
+        AddCategories(_focusNodeCategoryName, _focusNodeCategoryPercent),
+        Padding(
+          padding: EdgeInsets.all(8),
+        ),
+        RaisedButton(
+          onPressed: (){},
+          child: Text(
+            "Add Class",
+            style: Theme.of(context).primaryTextTheme.button,
+          ),
+          color: Theme.of(context).colorScheme.onBackground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18.0),
+          ),
+        )
       ],
     );
   }
