@@ -1,3 +1,4 @@
+import 'package:cognito/views/components/task_agenda_item.dart';
 import 'package:flutter/material.dart';
 
 import '../main_drawer.dart';
@@ -28,35 +29,31 @@ class _TasksViewState extends State<TasksView> {
         ),
       ),
       body: TasksViewBody(),
-      backgroundColor: Theme.of(context).backgroundColor,
     );
   }
 
   Widget TasksViewBody()
   {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Center(
-          child: Text(
-            "You have 0 tasks left for today",
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        )
-        ,
-        ListView(
-          children: tasks(),
-        )
+    return ListView(
+      padding: const EdgeInsets.all(15),
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.all(10),
+        ),
+        SliderWidget(),
+        Padding(
+          padding: EdgeInsets.all(10),
+        ),
+        SliderWidget(),
+        Padding(
+          padding: EdgeInsets.all(10),
+        ),
+        SliderWidget(),
+        Padding(
+          padding: EdgeInsets.all(10),
+        ),
       ],
     );
-  }
-
-  List<Widget> tasks()
-  {
-    
   }
 
 }
