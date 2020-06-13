@@ -3,6 +3,7 @@ import 'package:cognito/views/components/add_categories.dart';
 import 'package:cognito/views/components/days_checkbox.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cognito/views/components/block_picker.dart';
 import 'components/select_date.dart';
 
 class AddClassView extends StatefulWidget {
@@ -23,6 +24,9 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
   FocusNode _focusNodeUnits = FocusNode();
   FocusNode _focusNodeCategoryName = FocusNode();
   FocusNode _focusNodeCategoryPercent = FocusNode();
+
+  Color pickerColor = Color(0xff443a49);
+  Color currentColor = Color(0xff443a4);
 
   @override
   void initState() {
@@ -255,6 +259,23 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
         Padding(
           padding: EdgeInsets.all(8),
         ),
+        Container(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            "Select a Color Theme",
+            style: Theme.of(context).primaryTextTheme.subtitle2,
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(8),
+        ),
+        BlockPicker(
+          pickerColor: currentColor,
+          onColorChanged: changeColor,
+        ),
+        Padding(
+          padding: EdgeInsets.all(8),
+        ),
         RaisedButton(
           onPressed: (){},
           child: Text(
@@ -268,6 +289,49 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
         )
       ],
     );
+  }
+
+  static String decToHexa(int n)
+  {
+    // char array to store hexadecimal number
+    List hexaDeciNum = new List();
+
+    // counter for hexadecimal number array
+    int i = 0;
+    while(n!=0)
+    {
+      // temporary variable to store remainder
+      int temp  = 0;
+
+      // storing remainder in temp variable.
+      temp = n % 16;
+
+      // check if temp < 10
+      if(temp < 10)
+      {
+        hexaDeciNum.add(String.fromCharCode(temp + 48));
+        i++;
+      }
+      else
+      {
+        hexaDeciNum.add(String.fromCharCode(temp + 55));
+        i++;
+      }
+
+      n = n~/16;
+    }
+
+    // printing hexadecimal number array in reverse order
+    String val = "";
+    for(int j=hexaDeciNum.length - 1; j>=0; j--) {
+      val += hexaDeciNum[j].toLowerCase();
+    }
+    return val;
+  }
+
+  void changeColor(Color color) {
+    setState(() => pickerColor = color);
+    print(pickerColor.toString() + "++++" + pickerColor.value.toString() + "++++" + decToHexa(pickerColor.value));
   }
 
   Widget instructorInput() {
