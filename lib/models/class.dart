@@ -36,6 +36,8 @@ class Class extends Event {
       String location = "",
       DateTime start,
       DateTime end,
+        DateTime officeStart,
+        DateTime officeEnd,
       String courseNumber,
       String instructor,
       String officeLocation,

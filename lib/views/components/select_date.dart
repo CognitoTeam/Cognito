@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class SelectDate extends StatefulWidget {
   SelectDate({Key key, this.title}) : super(key: key);
 
   final String title;
+  DateTime selectedDate = DateTime.fromMicrosecondsSinceEpoch(0);
 
   @override
   _SelectDateState createState() => _SelectDateState();
@@ -11,11 +13,11 @@ class SelectDate extends StatefulWidget {
 
 class _SelectDateState extends State<SelectDate> {
 
+
   TimeOfDay selectedTime = TimeOfDay.now();
 
   @override
   Widget build(BuildContext context) {
-    DefaultMaterialLocalizations dml = new DefaultMaterialLocalizations();
     return Container(
       padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
       child: Column(
@@ -32,7 +34,7 @@ class _SelectDateState extends State<SelectDate> {
           Row(
               children: [
                 Text(
-                  dml.formatTimeOfDay(selectedTime, alwaysUse24HourFormat: false),
+                  DateFormat('h:mma').format(widget.selectedDate),
                   style: Theme.of(context).primaryTextTheme.subtitle2,
                 ),
                 Container(
@@ -67,6 +69,7 @@ class _SelectDateState extends State<SelectDate> {
     if(picked != null && picked != selectedTime)
       setState(() {
         selectedTime = picked;
+        widget.selectedDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, selectedTime.hour, selectedTime.minute);
       });
   }
 }

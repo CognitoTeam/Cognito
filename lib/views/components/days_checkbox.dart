@@ -15,6 +15,24 @@ class _DaysCheckboxState extends State<DaysCheckbox> {
     return _buildCheckBoxes();
   }
 
+  List<int> getIntList()
+  {
+    List<int> days = List();
+      for(int i = 0; i < _data.length; i++)
+        {
+          if(_data[i])
+            {
+              if(i == 0)
+                {
+                  days[6] = 6;
+                }
+              else{
+                days[i - 1] = i;
+              }
+            }
+        }
+  }
+
   Widget _buildCheckBoxes() {
     List<Widget> list = new List();
     Widget cb;

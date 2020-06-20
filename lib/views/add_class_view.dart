@@ -1,13 +1,18 @@
+import 'package:cognito/database/database.dart';
 import 'package:cognito/models/academic_term.dart';
+import 'package:cognito/models/category.dart';
 import 'package:cognito/views/components/add_categories.dart';
 import 'package:cognito/views/components/days_checkbox.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cognito/views/components/block_picker.dart';
+import 'package:provider/provider.dart';
 import 'components/select_date.dart';
 
 class AddClassView extends StatefulWidget {
-  AddClassView(AcademicTerm term);
+  AddClassView(this.term);
+  final AcademicTerm term;
 
   @override
   _AddClassViewState createState() => _AddClassViewState();
@@ -25,15 +30,31 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
   FocusNode _focusNodeCategoryName = FocusNode();
   FocusNode _focusNodeCategoryPercent = FocusNode();
 
+  TextEditingController titleController = TextEditingController();
+  SelectDate classStart = SelectDate(title: "Start Time",);
+  SelectDate classEnd = SelectDate(title: "End Time",);
+  List<int> daysRepeated = List();
+  TextEditingController instructorController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  TextEditingController classLocationController = TextEditingController();
+  TextEditingController officeLocationController = TextEditingController();
+  SelectDate officeStart = SelectDate(title: "",);
+  SelectDate officeEnd = SelectDate(title: "",);
+  List<int> officeDaysRepeated = List();
   Color pickerColor = Color(0xff443a49);
   Color currentColor = Color(0xff443a4);
+  TextEditingController unitsController = TextEditingController();
+  List<Category> categories = List();
+
+
+  final db = DataBase();
 
   @override
   void initState() {
     super.initState();
 
     _controller = AnimationController(vsync: this, duration: Duration(milliseconds: 300));
-    _animation = Tween(begin: 350.0, end: 75.0).animate(_controller)
+    _animation = Tween(begin: 450.0, end: 150.0).animate(_controller)
       ..addListener(() {
         setState(() {});
       });
@@ -98,6 +119,12 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
     _focusNodeClassLocation.dispose();
     _focusNodeCategoryName.dispose();
     _focusNodeCategoryPercent.dispose();
+    titleController.dispose();
+    instructorController.dispose();
+    descriptionController.dispose();
+    classLocationController.dispose();
+    officeLocationController.dispose();
+    unitsController.dispose();
     super.dispose();
   }
 
@@ -162,7 +189,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
                     textAlign: TextAlign.right,
                   ),
                   titleInput(),
-                  SelectDate(title: "Start Time",),
+                  classStart,
                   Padding(
                     padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                     child: Align(
@@ -173,7 +200,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
                       ),
                     ),
                   ),
-                  SelectDate(title: "End Time",),
+                  classEnd,
                   SizedBox(height: 10,),
                   Align(
                     alignment: Alignment.centerLeft,
@@ -197,6 +224,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
     return Container(
             width: 250,
             child: TextField(
+              controller: titleController,
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.all(5),
                 isDense: true,
@@ -217,6 +245,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
   }
 
   Widget body() {
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     return ListView(
       padding: EdgeInsets.all(25),
       children: [
@@ -277,7 +306,8 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
           padding: EdgeInsets.all(8),
         ),
         RaisedButton(
-          onPressed: (){},
+          onPressed: (){ db.addClass(user, titleController.text, unitsController.text == "" ? -1 : int.parse(unitsController.text), classLocationController.text, instructorController.text,
+              officeLocationController.text, descriptionController.text, daysRepeated, classStart.selectedDate, classEnd.selectedDate, officeStart.selectedDate, officeEnd.selectedDate, currentColor.toString(), widget.term);},
           child: Text(
             "Add Class",
             style: Theme.of(context).primaryTextTheme.button,
@@ -349,6 +379,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
           child: Container(
             width: 250,
             child: TextField(
+              controller: instructorController,
               focusNode: _focusNodeInstructor,
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.all(5),
@@ -389,6 +420,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
             child: Container(
               width: 360,
               child: TextField(
+                controller: descriptionController,
                 focusNode: _focusNodeDescription,
                 expands: false,
                 maxLines: 10,
@@ -436,6 +468,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
               child: Container(
                 width: 150,
                 child: TextField(
+                  controller: classLocationController,
                   focusNode: _focusNodeClassLocation,
                   expands: false,
                   maxLines: 10,
@@ -479,6 +512,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
               child: Container(
                 width: 150,
                 child: TextField(
+                  controller: officeLocationController,
                   focusNode: _focusNodeOfficeLocation,
                   expands: false,
                   maxLines: 10,
@@ -520,7 +554,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SelectDate(title: "",),
+            officeStart,
             SizedBox(width: 20,),
             Container(
               padding: EdgeInsets.fromLTRB(0, 13, 0, 0),
@@ -530,7 +564,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
               ),
             ),
             SizedBox(width: 20,),
-            SelectDate(title: "",)
+            officeEnd
       ],
       )
       ],
@@ -553,6 +587,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
             child: Container(
               width: 70,
               child: TextField(
+                controller: unitsController,
                 inputFormatters: <TextInputFormatter>[
                   WhitelistingTextInputFormatter.digitsOnly
                 ], // Only numbers can be entered

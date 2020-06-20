@@ -509,8 +509,6 @@ class DataBase {
 
   void addClass(
       FirebaseUser user,
-      String subjectArea,
-      String courseNumber,
       String title,
       int units,
       String location,
@@ -520,6 +518,8 @@ class DataBase {
       List<int> daysOfEvent,
       DateTime startTime,
       DateTime endTime,
+      DateTime officeStartTime,
+      DateTime officeEndTime,
       String color,
       AcademicTerm term) async {
     DocumentReference classCollectionReference =
@@ -527,8 +527,6 @@ class DataBase {
     classCollectionReference.setData({
       "user_id": user.uid,
       "title": title,
-      "subject_area": subjectArea,
-      "course_number": courseNumber,
       "instructor": instructor,
       "units": units,
       "location": location,
@@ -537,6 +535,8 @@ class DataBase {
       "days_of_event": daysOfEvent,
       "start_time": startTime,
       "end_time": endTime,
+      "office_start_time" : officeStartTime,
+      "office_end_time" : officeEndTime,
       "color" : color,
       "grade" : 0,
       "term_name": term.termName,
