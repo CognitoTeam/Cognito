@@ -15,6 +15,7 @@ import 'package:cognito/models/club.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/models/task.dart';
 import 'package:cognito/models/officer.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:firebase_auth/firebase_auth.dart';

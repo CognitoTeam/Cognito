@@ -314,7 +314,7 @@ class _ClassEditingViewState extends State<ClassEditingView> with SingleTickerPr
         ),
         RaisedButton(
           onPressed: (){ db.addClass(user, titleController.text, unitsController.text == "" ? -1 : int.parse(unitsController.text), classLocationController.text, instructorController.text,
-              officeLocationController.text, descriptionController.text, daysRepeated, classStart.selectedDate, classEnd.selectedDate, officeStart.selectedDate, officeEnd.selectedDate, currentColor.toString());},
+              officeLocationController.text, descriptionController.text, daysRepeated, classStart.selectedDate, classEnd.selectedDate, officeStart.selectedDate, officeEnd.selectedDate, currentColor.toString(), null);},
           child: Text(
             "Add Class",
             style: Theme.of(context).primaryTextTheme.button,

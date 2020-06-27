@@ -1,6 +1,7 @@
 // Copyright 2019 UniPlan. All rights reserved.
 
 import 'dart:collection';
+import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/models/assignment.dart';
@@ -87,9 +88,7 @@ class Class extends Event {
     );
     print(c.toString());
     c.grade = data['grade'].toDouble();
-    print("grade: " + c.grade.toString());
     c.colorCode = data['color'];
-    print("Color: " + c.colorCode.toString());
     return c;
   }
 

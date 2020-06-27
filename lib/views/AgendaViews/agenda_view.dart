@@ -29,6 +29,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../utils/PriorityAgenda/priority_agenda.dart';
 import '../utils/main_agenda.dart';
+import 'AgendaListItems/classes_list_view.dart';
 
 /// Agenda view screen
 /// Displays daily agenda
@@ -87,16 +88,16 @@ class _AgendaViewState extends State<AgendaView>
   String gradesDocID = "";
   bool gradesDocIDFound = false;
 
-  final db = Firestore.instance;
+  DataBase db = DataBase();
   StreamSubscription sub;
   Map data;
 
   String message = "";
 
-
   @override
   void initState() {
     super.initState();
+
     _scrollController = ScrollController();
     _scrollController.addListener(() {
       if(_scrollController.position.minScrollExtent == _scrollController.offset && _headerVisible == false)
@@ -116,7 +117,7 @@ class _AgendaViewState extends State<AgendaView>
           titleYAlignment = ((_scrollController.offset/_scrollController.position.maxScrollExtent)* 0.85) + 0.15;
         });
     });
-    sub = db.collection('terms').document('id').snapshots().listen((snap) {
+    sub = Firestore.instance.collection('terms').document('id').snapshots().listen((snap) {
       setState(() {
         data = snap.data;
       });
@@ -239,22 +240,31 @@ class _AgendaViewState extends State<AgendaView>
       ),
     );
 
+    bool loggedIn = user != null;
+    if(loggedIn)
+      {
+        StreamProvider<List<Class>>.value(
+          value: db.streamClasses(user, widget.term),
+          child: ClassesListView(selectedDate),
+        );
+      }
     var agendaItems = [
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          new Text("Classes", 
-              style: Theme.of(context).primaryTextTheme.bodyText1
-          ),
+          new Text(
+          "Classes",
+          style: Theme.of(context).primaryTextTheme.bodyText1
+      ),
           new Icon(Icons.class_)
         ],
       ),
       Center(
         child: Container(
           padding: EdgeInsets.all(7),
-          child: Text(
-              "There are no classes currently",
-              style: Theme.of(context).primaryTextTheme.bodyText2
+          child: StreamProvider<List<Class>>.value(
+            value: db.streamClasses(user, widget.term),
+            child: ClassesListView(selectedDate),
           ),
         )
       ),

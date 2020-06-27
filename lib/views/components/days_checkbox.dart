@@ -20,14 +20,15 @@ class _DaysCheckboxState extends State<DaysCheckbox> {
     List<int> days = List();
       for(int i = 0; i < _data.length; i++)
         {
+          //Makes the list Mon -> Sun
           if(_data[i])
             {
               if(i == 0)
                 {
-                  days[6] = 6;
+                  days[6] = 1;
                 }
               else{
-                days[i - 1] = i;
+                days[i - 1] = 1;
               }
             }
         }
