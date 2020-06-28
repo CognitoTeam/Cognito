@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 
 class DaysCheckbox extends StatefulWidget {
+
+  final List<int> daysRepeated;
+
+  DaysCheckbox(this.daysRepeated);
+
+
   @override
   _DaysCheckboxState createState() => _DaysCheckboxState();
 }
@@ -15,7 +21,7 @@ class _DaysCheckboxState extends State<DaysCheckbox> {
     return _buildCheckBoxes();
   }
 
-  List<int> getIntList()
+  void getIntList()
   {
     List<int> days = List();
       for(int i = 0; i < _data.length; i++)
@@ -32,6 +38,7 @@ class _DaysCheckboxState extends State<DaysCheckbox> {
               }
             }
         }
+      days = widget.daysRepeated;
   }
 
   Widget _buildCheckBoxes() {
@@ -59,6 +66,7 @@ class _DaysCheckboxState extends State<DaysCheckbox> {
                 onChanged: (bool value) {
                   setState(() {
                     _data[i] = value;
+                    getIntList();
                   });
                 },
               ),

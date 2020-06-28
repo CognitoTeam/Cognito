@@ -217,7 +217,7 @@ class _ClassEditingViewState extends State<ClassEditingView> with SingleTickerPr
                         ),
                       ),
                       SizedBox(height: 5,),
-                      DaysCheckbox()
+                      DaysCheckbox(daysRepeated)
                     ],
                   ),
                 ),
@@ -283,7 +283,7 @@ class _ClassEditingViewState extends State<ClassEditingView> with SingleTickerPr
         Padding(
           padding: EdgeInsets.all(4),
         ),
-        DaysCheckbox(),
+        DaysCheckbox(officeDaysRepeated),
         Padding(
           padding: EdgeInsets.all(8),
         ),
@@ -314,7 +314,7 @@ class _ClassEditingViewState extends State<ClassEditingView> with SingleTickerPr
         ),
         RaisedButton(
           onPressed: (){ db.addClass(user, titleController.text, unitsController.text == "" ? -1 : int.parse(unitsController.text), classLocationController.text, instructorController.text,
-              officeLocationController.text, descriptionController.text, daysRepeated, classStart.selectedDate, classEnd.selectedDate, officeStart.selectedDate, officeEnd.selectedDate, currentColor.toString(), null);},
+              officeLocationController.text, descriptionController.text, daysRepeated, classStart.selectedDate, classEnd.selectedDate, officeDaysRepeated, officeStart.selectedDate, officeEnd.selectedDate, currentColor.toString(), null);},
           child: Text(
             "Add Class",
             style: Theme.of(context).primaryTextTheme.button,

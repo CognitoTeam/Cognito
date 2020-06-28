@@ -49,12 +49,14 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
 
   final db = DataBase();
 
+  final double begin = 350;
+  final double end = 100;
+
   @override
   void initState() {
     super.initState();
-
     _controller = AnimationController(vsync: this, duration: Duration(milliseconds: 300));
-    _animation = Tween(begin: 450.0, end: 150.0).animate(_controller)
+    _animation = Tween(begin: begin, end: end).animate(_controller)
       ..addListener(() {
         setState(() {});
       });
@@ -178,7 +180,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
               ),
             ),
             Opacity(
-              opacity: (_animation.value - 75)/275,
+              opacity: (_animation.value - end)/(begin - end),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -210,7 +212,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
                     ),
                   ),
                   SizedBox(height: 5,),
-                  DaysCheckbox()
+                  DaysCheckbox(daysRepeated)
                 ],
               ),
             ),
@@ -218,7 +220,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
         )
         )
     );
-  }
+  }//        SizedBox(height: _animation.value,),
 
   Widget titleInput() {
     return Container(
@@ -246,78 +248,83 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
 
   Widget body() {
     FirebaseUser user = Provider.of<FirebaseUser>(context);
-    return ListView(
-      padding: EdgeInsets.all(25),
-      children: [
-        SizedBox(height: _animation.value,),
-        instructorInput(),
-        Padding(
-          padding: EdgeInsets.all(8),
-        ),
-        descriptionInput(),
-        Padding(
-          padding: EdgeInsets.all(8),
-        ),
-        locationInput(),
-        Padding(
-          padding: EdgeInsets.all(8),
-        ),
-        officeHours(),
-        Padding(
-          padding: EdgeInsets.all(8),
-        ),
-        Container(
-          alignment: Alignment.center,
-          child: Text(
-            "Office Days",
-            style: Theme.of(context).primaryTextTheme.subtitle2,
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.all(4),
-        ),
-        DaysCheckbox(),
-        Padding(
-          padding: EdgeInsets.all(8),
-        ),
-        unitsInput(),
-        Padding(
-          padding: EdgeInsets.all(8),
-        ),
-        AddCategories(_focusNodeCategoryName, _focusNodeCategoryPercent),
-        Padding(
-          padding: EdgeInsets.all(8),
-        ),
-        Container(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            "Select a Color Theme",
-            style: Theme.of(context).primaryTextTheme.subtitle2,
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.all(8),
-        ),
-        BlockPicker(
-          pickerColor: currentColor,
-          onColorChanged: changeColor,
-        ),
-        Padding(
-          padding: EdgeInsets.all(8),
-        ),
-        RaisedButton(
-          onPressed: (){ db.addClass(user, titleController.text, unitsController.text == "" ? -1 : int.parse(unitsController.text), classLocationController.text, instructorController.text,
-              officeLocationController.text, descriptionController.text, daysRepeated, classStart.selectedDate, classEnd.selectedDate, officeStart.selectedDate, officeEnd.selectedDate, currentColor.toString(), widget.term);},
-          child: Text(
-            "Add Class",
-            style: Theme.of(context).primaryTextTheme.button,
-          ),
-          color: Theme.of(context).colorScheme.onBackground,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18.0),
-          ),
+    double slope = end/(begin - end) * -1;
+    return Container(
+      padding: EdgeInsets.fromLTRB(0, slope * (_animation.value - begin), 0, 0),
+      child: 
+        ListView(
+          padding: EdgeInsets.fromLTRB(25, 25, 25, 25),
+          children: [
+            SizedBox(height: _animation.value,),
+            instructorInput(),
+            Padding(
+              padding: EdgeInsets.all(8),
+            ),
+            descriptionInput(),
+            Padding(
+              padding: EdgeInsets.all(8),
+            ),
+            locationInput(),
+            Padding(
+              padding: EdgeInsets.all(8),
+            ),
+            officeHours(),
+            Padding(
+              padding: EdgeInsets.all(8),
+            ),
+            Container(
+              alignment: Alignment.center,
+              child: Text(
+                "Office Days",
+                style: Theme.of(context).primaryTextTheme.subtitle2,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(4),
+            ),
+            DaysCheckbox(officeDaysRepeated),
+            Padding(
+              padding: EdgeInsets.all(8),
+            ),
+            unitsInput(),
+            Padding(
+              padding: EdgeInsets.all(8),
+            ),
+            AddCategories(_focusNodeCategoryName, _focusNodeCategoryPercent),
+            Padding(
+              padding: EdgeInsets.all(8),
+            ),
+            Container(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Select a Color Theme",
+                style: Theme.of(context).primaryTextTheme.subtitle2,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8),
+            ),
+            BlockPicker(
+              pickerColor: currentColor,
+              onColorChanged: changeColor,
+            ),
+            Padding(
+              padding: EdgeInsets.all(8),
+            ),
+            RaisedButton(
+              onPressed: (){ db.addClass(user, titleController.text, unitsController.text == "" ? -1 : int.parse(unitsController.text), classLocationController.text, instructorController.text,
+                  officeLocationController.text, descriptionController.text, daysRepeated, classStart.selectedDate, classEnd.selectedDate, officeDaysRepeated, officeStart.selectedDate, officeEnd.selectedDate, currentColor.toString(), widget.term);},
+              child: Text(
+                "Add Class",
+                style: Theme.of(context).primaryTextTheme.button,
+              ),
+              color: Theme.of(context).colorScheme.onBackground,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18.0),
+              ),
+            )
+          ],
         )
-      ],
     );
   }
 
