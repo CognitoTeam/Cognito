@@ -33,16 +33,16 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
   TextEditingController titleController = TextEditingController();
   SelectDate classStart = SelectDate(title: "Start Time",);
   SelectDate classEnd = SelectDate(title: "End Time",);
-  List<int> daysRepeated = List();
+  DaysCheckbox daysRepeated = DaysCheckbox();
   TextEditingController instructorController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController classLocationController = TextEditingController();
   TextEditingController officeLocationController = TextEditingController();
   SelectDate officeStart = SelectDate(title: "",);
   SelectDate officeEnd = SelectDate(title: "",);
-  List<int> officeDaysRepeated = List();
-  Color pickerColor = Color(0xff443a49);
-  Color currentColor = Color(0xff443a4);
+  DaysCheckbox officeDaysRepeated = DaysCheckbox();
+  Color pickerColor = Color(4282661449);
+  Color currentColor = Color(4282661449);
   TextEditingController unitsController = TextEditingController();
   List<Category> categories = List();
 
@@ -212,7 +212,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
                     ),
                   ),
                   SizedBox(height: 5,),
-                  DaysCheckbox(daysRepeated)
+                  daysRepeated
                 ],
               ),
             ),
@@ -282,7 +282,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
             Padding(
               padding: EdgeInsets.all(4),
             ),
-            DaysCheckbox(officeDaysRepeated),
+            officeDaysRepeated,
             Padding(
               padding: EdgeInsets.all(8),
             ),
@@ -313,7 +313,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
             ),
             RaisedButton(
               onPressed: (){ db.addClass(user, titleController.text, unitsController.text == "" ? -1 : int.parse(unitsController.text), classLocationController.text, instructorController.text,
-                  officeLocationController.text, descriptionController.text, daysRepeated, classStart.selectedDate, classEnd.selectedDate, officeDaysRepeated, officeStart.selectedDate, officeEnd.selectedDate, currentColor.toString(), widget.term);},
+                  officeLocationController.text, descriptionController.text, daysRepeated.daysRepeated, classStart.selectedDate, classEnd.selectedDate, officeDaysRepeated.daysRepeated, officeStart.selectedDate, officeEnd.selectedDate, currentColor.value, widget.term);},
               child: Text(
                 "Add Class",
                 style: Theme.of(context).primaryTextTheme.button,
@@ -366,10 +366,7 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
     return val;
   }
 
-  void changeColor(Color color) {
-    setState(() => pickerColor = color);
-    print(pickerColor.toString() + "++++" + pickerColor.value.toString() + "++++" + decToHexa(pickerColor.value));
-  }
+  void changeColor(Color color) => setState(() => currentColor = color);
 
   Widget instructorInput() {
     return Column(

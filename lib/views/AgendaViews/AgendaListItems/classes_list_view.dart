@@ -49,7 +49,7 @@ class _ClassesListViewState extends State<ClassesListView> {
  {
    return Container(
        decoration: BoxDecoration(
-           color: getColor(c.colorCode),
+           color: c.returnColor(),
            borderRadius: BorderRadius.all(Radius.circular(20)),
            boxShadow: [BoxShadow(
                color: Colors.grey,
@@ -97,6 +97,7 @@ class _ClassesListViewState extends State<ClassesListView> {
 
   List<Class> getClassesOfToday(List<Class> classes) {
       List<Class> todayClasses = new List();
+      if(classes == null) return todayClasses;
       for(Class c in classes)
         {
           int dayNumber = 0;

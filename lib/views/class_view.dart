@@ -177,7 +177,7 @@ class _ClassViewState extends State<ClassView> {
                       },
                       child: Card(
                           elevation: 10.0,
-                          color: Color(int.parse(classObj.colorCode, radix: 16)),
+                          color: classObj.returnColor(),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30.0)),
                           //StreamBuilder stream of only one

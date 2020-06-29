@@ -522,7 +522,7 @@ class DataBase {
       List<int> officeDaysOfEvent,
       DateTime officeStartTime,
       DateTime officeEndTime,
-      String color,
+      int color,
       AcademicTerm term) async {
     DocumentReference classCollectionReference =
         Firestore.instance.collection("classes").document();

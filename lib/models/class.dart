@@ -29,7 +29,7 @@ class Class extends Event {
   List<Task> tasks;
   Category starting;
   double grade;
-  String colorCode = '0xFF42A5F5';
+  int colorCode = 4281642208;
 
   Class(
       {String title,
@@ -181,6 +181,11 @@ class Class extends Event {
       gradeBook[assessment] = assessment.category;
     }
     return gradeBook;
+  }
+
+  returnColor()
+  {
+    return Color(colorCode);
   }
 
   @override

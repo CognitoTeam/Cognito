@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 
 class DaysCheckbox extends StatefulWidget {
 
-  final List<int> daysRepeated;
-
-  DaysCheckbox(this.daysRepeated);
-
+  List<int> daysRepeated = new List();
 
   @override
   _DaysCheckboxState createState() => _DaysCheckboxState();
@@ -24,21 +21,24 @@ class _DaysCheckboxState extends State<DaysCheckbox> {
   void getIntList()
   {
     List<int> days = List();
-      for(int i = 0; i < _data.length; i++)
+    days.clear();
+    for(int i = 0; i < _data.length; i++)
         {
+          print(i);
           //Makes the list Mon -> Sun
+          //if Sun -> Sat on data is true;
           if(_data[i])
             {
               if(i == 0)
                 {
-                  days[6] = 1;
+                  days.add(6);
                 }
               else{
-                days[i - 1] = 1;
+                days.add(i - 1);
               }
             }
         }
-      days = widget.daysRepeated;
+      widget.daysRepeated = days;
   }
 
   Widget _buildCheckBoxes() {
