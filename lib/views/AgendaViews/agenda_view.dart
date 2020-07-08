@@ -241,7 +241,7 @@ class _AgendaViewState extends State<AgendaView>
     );
 
     bool loggedIn = user != null;
-    if(loggedIn)
+    if(loggedIn && widget.term != null)
       {
         StreamProvider<List<Class>>.value(
           value: db.streamClasses(user, widget.term),

@@ -187,7 +187,7 @@ class DataBase {
   }
 
   Stream<List<Class>> streamClasses(FirebaseUser user, AcademicTerm term) {
-    if(user != null) {
+    if(user != null && term != null) {
       Query ref = firestore
           .collection('classes')
           .where('user_id', isEqualTo: user.uid)
