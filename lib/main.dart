@@ -66,13 +66,13 @@ class MyApp extends StatelessWidget {
                     fontWeight: FontWeight.bold
                 ),
                 headline3: GoogleFonts.poppins(
-                    color: Colors.black,
-                    fontSize: 30,
+                    color: Color(0xFFFFF9EE),
+                    fontSize: 15,
                     fontWeight: FontWeight.bold
                 ),
                 headline4: GoogleFonts.poppins(
-                    color: Colors.black,
-                    fontSize: 30,
+                    color: Color(0xFFFFF9EE),
+                    fontSize: 12,
                     fontWeight: FontWeight.bold
                 ),
                 headline5: GoogleFonts.poppins(
@@ -99,8 +99,8 @@ class MyApp extends StatelessWidget {
                     fontWeight: FontWeight.bold
                 ),
                 caption: GoogleFonts.poppins(
-                    color: Colors.black,
-                    fontSize: 30,
+                    color: Color(0xFFFFF9EE),
+                    fontSize: 15,
                     fontWeight: FontWeight.bold
                 ),
                 overline: GoogleFonts.poppins(

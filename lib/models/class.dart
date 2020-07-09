@@ -1,6 +1,7 @@
 // Copyright 2019 UniPlan. All rights reserved.
 
 import 'dart:collection';
+import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cognito/models/assignment.dart';
@@ -28,7 +29,7 @@ class Class extends Event {
   List<Task> tasks;
   Category starting;
   double grade;
-  String colorCode = '0xFF42A5F5';
+  int colorCode = 4281642208;
 
   Class(
       {String title,
@@ -36,6 +37,8 @@ class Class extends Event {
       String location = "",
       DateTime start,
       DateTime end,
+        DateTime officeStart,
+        DateTime officeEnd,
       String courseNumber,
       String instructor,
       String officeLocation,
@@ -85,9 +88,7 @@ class Class extends Event {
     );
     print(c.toString());
     c.grade = data['grade'].toDouble();
-    print("grade: " + c.grade.toString());
     c.colorCode = data['color'];
-    print("Color: " + c.colorCode.toString());
     return c;
   }
 
@@ -180,6 +181,11 @@ class Class extends Event {
       gradeBook[assessment] = assessment.category;
     }
     return gradeBook;
+  }
+
+  returnColor()
+  {
+    return Color(colorCode);
   }
 
   @override

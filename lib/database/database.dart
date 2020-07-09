@@ -15,6 +15,7 @@ import 'package:cognito/models/club.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/models/task.dart';
 import 'package:cognito/models/officer.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:cognito/models/academic_term.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -186,7 +187,7 @@ class DataBase {
   }
 
   Stream<List<Class>> streamClasses(FirebaseUser user, AcademicTerm term) {
-    if(user != null) {
+    if(user != null && term != null) {
       Query ref = firestore
           .collection('classes')
           .where('user_id', isEqualTo: user.uid)
@@ -509,8 +510,6 @@ class DataBase {
 
   void addClass(
       FirebaseUser user,
-      String subjectArea,
-      String courseNumber,
       String title,
       int units,
       String location,
@@ -520,15 +519,16 @@ class DataBase {
       List<int> daysOfEvent,
       DateTime startTime,
       DateTime endTime,
-      String color,
+      List<int> officeDaysOfEvent,
+      DateTime officeStartTime,
+      DateTime officeEndTime,
+      int color,
       AcademicTerm term) async {
     DocumentReference classCollectionReference =
         Firestore.instance.collection("classes").document();
     classCollectionReference.setData({
       "user_id": user.uid,
       "title": title,
-      "subject_area": subjectArea,
-      "course_number": courseNumber,
       "instructor": instructor,
       "units": units,
       "location": location,
@@ -537,6 +537,9 @@ class DataBase {
       "days_of_event": daysOfEvent,
       "start_time": startTime,
       "end_time": endTime,
+      "office_days_of_event" : officeDaysOfEvent,
+      "office_start_time" : officeStartTime,
+      "office_end_time" : officeEndTime,
       "color" : color,
       "grade" : 0,
       "term_name": term.termName,
