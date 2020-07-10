@@ -9,8 +9,9 @@ import '../../../HexColor.dart';
 class ClassesListView extends StatefulWidget {
 
   final DateTime selectedDate;
+  final List<Class> classes;
 
-  const ClassesListView(this.selectedDate);
+  const ClassesListView(this.selectedDate, this.classes);
 
   @override
   _ClassesListViewState createState() => _ClassesListViewState();
@@ -19,9 +20,8 @@ class ClassesListView extends StatefulWidget {
 class _ClassesListViewState extends State<ClassesListView> {
   @override
   Widget build(BuildContext context) {
-    final classes = Provider.of<List<Class>>(context);
     //get classes for the day of the week
-    List<Class> classesToday = getClassesOfToday(classes);
+    List<Class> classesToday = getClassesOfToday(widget.classes);
     return Container(
       child: classesToday == null || classesToday.length == 0 ?
         Text(

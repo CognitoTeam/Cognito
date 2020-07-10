@@ -33,27 +33,29 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             colorScheme: ColorScheme(
-              background: Colors.black,
-              primaryVariant: Colors.black,
+              background: Colors.transparent,
+              primaryVariant: Colors.transparent,
               secondary: Color(0xFFFFB142),
-              primary: Colors.black,
-              onSurface: Colors.black,
+              primary: Colors.transparent,
+              onSurface: Colors.transparent,
               brightness: Brightness.dark,
-              onPrimary: Colors.black,
+              onPrimary: Colors.transparent,
               secondaryVariant: Color(0xFF746868),
               onBackground: Color(0xFF34ACE0),
               onError: Color(0xFFEB5757),
-              onSecondary: Colors.black,
-              surface: Colors.black,
-              error: Colors.black,
+              onSecondary: Colors.transparent,
+              surface: Colors.transparent,
+              error: Colors.transparent,
             ),
             buttonColor: Color(0xFFFF793F),
+            buttonTheme: ButtonThemeData( textTheme: ButtonTextTheme.accent),
             iconTheme: IconThemeData(color: Colors.black, size: 20),
             primaryColor: Color(0xFF00227a),
             primaryColorLight: Color(0xFF6e74dc),
             primaryColorDark: Color(0xFFFFDA79),
             accentColor: Color(0xFFfbc02d),
             backgroundColor: Color(0xFFFFF9EE),
+            dialogBackgroundColor: Color(0xFFFFF9EE),
             primaryTextTheme: TextTheme(
               headline1: GoogleFonts.poppins(
                   color: Colors.black,
@@ -62,7 +64,7 @@ class MyApp extends StatelessWidget {
               ),
                 headline2: GoogleFonts.poppins(
                     color: Colors.black,
-                    fontSize: 30,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold
                 ),
                 headline3: GoogleFonts.poppins(

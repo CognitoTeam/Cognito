@@ -12,6 +12,7 @@ import 'package:cognito/models/class.dart';
 import 'package:cognito/models/event.dart';
 import 'package:cognito/views/add_assessment_view.dart';
 import 'package:cognito/views/add_assignment_view.dart';
+import 'package:cognito/views/add_class_view.dart';
 import 'package:cognito/views/add_event_view.dart';
 import 'package:cognito/views/assessment_details_view.dart';
 import 'package:cognito/views/assignment_details_view.dart';
@@ -19,6 +20,7 @@ import 'package:cognito/views/calendar_view.dart';
 import 'package:cognito/views/class_details_view.dart';
 import 'package:cognito/views/components/agenda_header.dart';
 import 'package:cognito/views/components/agenda_navigator.dart';
+import 'package:cognito/views/components/popup/choose_class.dart';
 import 'package:cognito/views/event_details_view.dart';
 import 'package:cognito/views/main_drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -89,6 +91,7 @@ class _AgendaViewState extends State<AgendaView>
   bool gradesDocIDFound = false;
 
   DataBase db = DataBase();
+  List<Class> classes = new List();
   StreamSubscription sub;
   Map data;
 
@@ -97,7 +100,6 @@ class _AgendaViewState extends State<AgendaView>
   @override
   void initState() {
     super.initState();
-
     _scrollController = ScrollController();
     _scrollController.addListener(() {
       if(_scrollController.position.minScrollExtent == _scrollController.offset && _headerVisible == false)
@@ -168,6 +170,7 @@ class _AgendaViewState extends State<AgendaView>
 
   Widget getSpeedDial()
   {
+    FirebaseUser user = Provider.of<FirebaseUser>(context);
     return SpeedDial(
       marginRight: 15,
       marginBottom: 20,
@@ -189,7 +192,33 @@ class _AgendaViewState extends State<AgendaView>
           backgroundColor: Color(0xFF6FCF97),
           label: 'Class',
           labelStyle: TextStyle(fontSize: 18.0),
-          onTap: () => print('SECOND CHILD'),
+          onTap: () async {
+            await Navigator.push(context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        AddClassView(
+                            widget.term
+                        )
+                )
+            );
+          }
+        ),
+        SpeedDialChild(
+          child: Icon(
+            Icons.assignment,
+            color: Colors.white,
+          ),
+          backgroundColor: Color(0xFFFFB8B8),
+          label: 'Assignment',
+          labelStyle: TextStyle(fontSize: 18.0),
+          onTap: () {
+            showDialog(
+                context: context,
+                builder: (BuildContext buildContext) {
+                  return ChooseClassDialog(classes);
+                }
+              );
+          },
         ),
         SpeedDialChild(
             child: Icon(
@@ -205,24 +234,11 @@ class _AgendaViewState extends State<AgendaView>
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     FirebaseUser user = Provider.of<FirebaseUser>(context);
+    classes = Provider.of<List<Class>>(context);
     database.getCurrentTerm(user);
-//    Expanded mainAgenda = Expanded(
-//      child: ListView(
-//        children: <Widget>[
-//          FilteredClassExpansion(widget.term, selectedDate, database),
-//          FilteredAssignmentProvider(
-//              widget.term, selectedDate, false, selectedDate),
-//          FilteredAssignmentProvider(
-//              widget.term, selectedDate, true, selectedDate),
-//          FilteredEventExpansion(widget.term, selectedDate, database),
-//        ],
-//      ),
-//    );
     
     void onTabTapped(int index)
     {
@@ -240,14 +256,6 @@ class _AgendaViewState extends State<AgendaView>
       ),
     );
 
-    bool loggedIn = user != null;
-    if(loggedIn && widget.term != null)
-      {
-        StreamProvider<List<Class>>.value(
-          value: db.streamClasses(user, widget.term),
-          child: ClassesListView(selectedDate),
-        );
-      }
     var agendaItems = [
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -262,10 +270,7 @@ class _AgendaViewState extends State<AgendaView>
       Center(
         child: Container(
           padding: EdgeInsets.all(7),
-          child: StreamProvider<List<Class>>.value(
-            value: db.streamClasses(user, widget.term),
-            child: ClassesListView(selectedDate),
-          ),
+          child: ClassesListView(selectedDate, classes)
         )
       ),
       Row(
