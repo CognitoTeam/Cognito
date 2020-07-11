@@ -19,9 +19,6 @@ class Assignment extends Task {
   Assignment(
       {String title,
         String description = "",
-        String location = "",
-        DateTime start,
-        DateTime end,
         DateTime dueDate,
         double pointsPossible = 0.0,
         double pointsEarned = 0.0,
@@ -30,16 +27,12 @@ class Assignment extends Task {
         String classObjId,
         String id,
         int priority = 1,
-        Duration duration}) : super(
+        }) : super(
       title: title,
       description: description,
-      location: location,
-      start: start,
-      end: end,
       dueDate: dueDate,
       id: id,
       priority: priority,
-      duration: duration
   ) {
     this.pointsPossible = pointsPossible;
     this.pointsEarned = pointsEarned;
@@ -58,11 +51,9 @@ class Assignment extends Task {
       title: data['title'],
       isAssessment: data['is_assessment'],
       description: data['description'],
-      location: data['location'],
       dueDate: data['due_date'].toDate(),
       id: doc.documentID,
       priority: data['priority'],
-      duration: d,
       pointsEarned: data['points_earned'],
       pointsPossible: data['points_possible'],
       category: Category(

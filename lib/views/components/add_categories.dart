@@ -1,3 +1,4 @@
+import 'package:cognito/models/category.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -250,6 +251,32 @@ class _AddCategoriesState extends State<AddCategories> {
       ],
     );
 
+    AlertDialog(
+      title: new Text("Category name already in use"),
+      content: new Text("Please check your added categories"),
+      actions: <Widget>[
+        // usually buttons at the bottom of the dialog
+        new FlatButton(
+          child: new Text("Close"),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+
+    for(TempCategory c in addedCategories)
+      {
+//        if(categoryNameController.text == c.name)
+//          {
+//            showDialog(
+//                context: context,
+//                builder: (BuildContext cotext)
+//            {
+//              return AlertDialog
+//            });
+//          }
+      }
     addedCategories.add(new TempCategory(categoryNameController.text, double.parse(categoryPercentController.text)));
     if(percentageSum + double.parse(categoryPercentController.text) > 100)
       {

@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cognito/views/components/block_picker.dart';
 import 'package:provider/provider.dart';
-import 'components/select_date.dart';
+import 'components/select_time.dart';
 
 class AddClassView extends StatefulWidget {
   AddClassView(this.term);
@@ -31,15 +31,15 @@ class _AddClassViewState extends State<AddClassView> with SingleTickerProviderSt
   FocusNode _focusNodeCategoryPercent = FocusNode();
 
   TextEditingController titleController = TextEditingController();
-  SelectDate classStart = SelectDate(title: "Start Time",);
-  SelectDate classEnd = SelectDate(title: "End Time",);
+  SelectTime classStart = SelectTime(title: "Start Time",);
+  SelectTime classEnd = SelectTime(title: "End Time",);
   DaysCheckbox daysRepeated = DaysCheckbox();
   TextEditingController instructorController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController classLocationController = TextEditingController();
   TextEditingController officeLocationController = TextEditingController();
-  SelectDate officeStart = SelectDate(title: "",);
-  SelectDate officeEnd = SelectDate(title: "",);
+  SelectTime officeStart = SelectTime(title: "",);
+  SelectTime officeEnd = SelectTime(title: "",);
   DaysCheckbox officeDaysRepeated = DaysCheckbox();
   Color pickerColor = Color(4282661449);
   Color currentColor = Color(4282661449);

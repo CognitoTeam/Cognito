@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class SelectDate extends StatefulWidget {
-  SelectDate({Key key, this.title}) : super(key: key);
+  DateTime selectedDate = DateTime.now();
+  final ValueChanged<DateTime> onDateSelected;
 
-  final String title;
-  DateTime selectedDate = DateTime.fromMicrosecondsSinceEpoch(0);
+  SelectDate({this.onDateSelected});
 
   @override
   _SelectDateState createState() => _SelectDateState();
@@ -19,23 +19,14 @@ class _SelectDateState extends State<SelectDate> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-      child: Column(
-        children: [
-          widget.title != "" ?
-          Container(
-            padding: EdgeInsets.all(0),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              widget.title,
-              style: Theme.of(context).primaryTextTheme.subtitle1,
-            ),
-          ): Container(color: Colors.black,),
-          Row(
+        padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+        child: Column(
+          children: [
+            Row(
               children: [
                 Text(
-                  DateFormat('h:mma').format(widget.selectedDate),
-                  style: Theme.of(context).primaryTextTheme.subtitle2,
+                  getDateTimeString(widget.selectedDate),
+                  style: Theme.of(context).primaryTextTheme.subtitle1,
                 ),
                 Container(
                   padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -45,7 +36,7 @@ class _SelectDateState extends State<SelectDate> {
                     elevation: 5,
                     fillColor: Theme.of(context).colorScheme.secondary,
                     child: Icon(
-                      Icons.access_time,
+                      Icons.calendar_today,
                       color: Theme.of(context).backgroundColor,
                       size: 20,
                     ),
@@ -55,21 +46,35 @@ class _SelectDateState extends State<SelectDate> {
                   ),
                 )
               ],
-          )
-        ],
-      )
+            )
+          ],
+        )
     );
   }
 
+  String getDateTimeString(DateTime dateTime)
+  {
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    int day = dateTime.day;
+    return DateFormat('EEEE').format(dateTime) + ', $day ' +  monthNames[dateTime.month];
+  }
+
   Future<Null> _selectDate(BuildContext context) async {
-    final TimeOfDay picked = await showTimePicker(
+    final DateTime picked = await showDatePicker(
         context: context,
-        initialTime: selectedTime,
-    );
-    if(picked != null && picked != selectedTime)
+        initialDate: widget.selectedDate != null
+            ? DateTime(widget.selectedDate.year, widget.selectedDate.month, widget.selectedDate.day)
+            : DateTime.now(),
+        firstDate: DateTime(1990),
+        lastDate: DateTime(3000));
+
+    if (picked != null) {
       setState(() {
-        selectedTime = picked;
-        widget.selectedDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, selectedTime.hour, selectedTime.minute);
+        widget.selectedDate = picked;
+        widget.onDateSelected(widget.selectedDate);
       });
+    }
   }
 }

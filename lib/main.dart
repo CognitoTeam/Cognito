@@ -32,6 +32,7 @@ class MyApp extends StatelessWidget {
           title: "UniPlan",
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
+            splashColor: Colors.transparent,
             colorScheme: ColorScheme(
               background: Colors.transparent,
               primaryVariant: Colors.transparent,

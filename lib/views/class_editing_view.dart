@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cognito/views/components/block_picker.dart';
 import 'package:provider/provider.dart';
-import 'components/select_date.dart';
+import 'components/select_time.dart';
 
 enum Day { M, Tu, W, Th, F, Sat, Sun }
 
@@ -38,15 +38,15 @@ class _ClassEditingViewState extends State<ClassEditingView> with SingleTickerPr
   FocusNode _focusNodeCategoryPercent = FocusNode();
 
   TextEditingController titleController = TextEditingController();
-  SelectDate classStart = SelectDate(title: "Start Time",);
-  SelectDate classEnd = SelectDate(title: "End Time",);
+  SelectTime classStart = SelectTime(title: "Start Time",);
+  SelectTime classEnd = SelectTime(title: "End Time",);
   List<int> daysRepeated = List();
   TextEditingController instructorController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController classLocationController = TextEditingController();
   TextEditingController officeLocationController = TextEditingController();
-  SelectDate officeStart = SelectDate(title: "",);
-  SelectDate officeEnd = SelectDate(title: "",);
+  SelectTime officeStart = SelectTime(title: "",);
+  SelectTime officeEnd = SelectTime(title: "",);
   List<int> officeDaysRepeated = List();
   Color pickerColor = Color(0xff443a49);
   Color currentColor = Color(0xff443a4);

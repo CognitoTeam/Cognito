@@ -927,11 +927,9 @@ class DataBase {
         title: document['title'],
         isAssessment: document['is_assessment'],
         description: document['description'],
-        location: document['location'],
         dueDate: date != null ? document['due_date'] .toDate(): null,
         id: document['term_id'],
         priority: document['priority'],
-        duration: document['duration_in_minutes'] != null ? Duration(minutes: document['duration_in_minutes']) : null,
         pointsEarned: document['points_earned'],
         pointsPossible: document['points_possible'],
         category: Category(

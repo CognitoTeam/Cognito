@@ -86,16 +86,20 @@ class _ChooseClassButtonState extends State<ChooseClassButton> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _backgroundColor = _secondaryTrim;
-          _secondaryTrim = Theme.of(context).backgroundColor;
-        });
-//                Navigator.push(context,
-//                    MaterialPageRoute(
-//                        builder: (context) =>
-//                            AddAssignmentView()
-//                    )
-//                );
+//        setState(() {
+//          _backgroundColor = _secondaryTrim;
+//          _secondaryTrim = Theme.of(context).backgroundColor;
+//        });
+                Navigator.push(context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            AddAssignmentView(widget.c)
+                    )
+                );
+//        setState(() {
+//          _backgroundColor = Theme.of(context).backgroundColor;
+//          _secondaryTrim = _secondaryTrim;
+//        });
       },
       child: AnimatedContainer(
         duration: Duration(milliseconds: 500),

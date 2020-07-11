@@ -87,9 +87,9 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
             IconButton(
               icon: Icon(Icons.check),
               onPressed: () {
-                Assignment result = Assignment(title: _titleController.text, description: _descriptionController.text, location: _locationController.text,
-                    start: null, end: null, dueDate: dueDate, pointsEarned: double.parse(_earnedController.text), category: category, pointsPossible: double.parse(_possibleController.text),
-                    isAssessment: true, duration: Duration(minutes: int.parse(_durationController.text)));
+                Assignment result = Assignment(title: _titleController.text, description: _descriptionController.text,
+                    dueDate: dueDate, pointsEarned: double.parse(_earnedController.text), category: category, pointsPossible: double.parse(_possibleController.text),
+                    isAssessment: true);
                 database.addAssignment(result, widget.aClass, widget.term, user.uid);
                 Navigator.of(context).pop(_titleController != null
                     ? result
@@ -122,9 +122,9 @@ class _AddAssessmentViewState extends State<AddAssessmentView> {
                 currentStep++;
               } else {
                 //Needs term id
-                Assignment result = Assignment(title: _titleController.text, description: _descriptionController.text, location: _locationController.text,
-                    start: null, end: null, dueDate: dueDate, pointsEarned: double.parse(_earnedController.text), category: category, pointsPossible: double.parse(_possibleController.text),
-                    isAssessment: true, duration: Duration(minutes: int.parse(_durationController.text)));
+                Assignment result = Assignment(title: _titleController.text, description: _descriptionController.text,
+                    dueDate: dueDate, pointsEarned: double.parse(_earnedController.text), category: category, pointsPossible: double.parse(_possibleController.text),
+                    isAssessment: true);
                 database.addAssignment(result, widget.aClass, widget.term, user.uid);
                 Navigator.of(context).pop(result);
               }

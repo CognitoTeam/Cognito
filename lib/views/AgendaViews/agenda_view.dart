@@ -130,12 +130,14 @@ class _AgendaViewState extends State<AgendaView>
       agendaHeader = AnimatedOpacity(
         opacity: _headerVisible ? 1.0 : 0.0,
         duration: Duration(milliseconds: 500),
-        child: AgendaHeader(selectedDate: selectedDate, calendarView:CalendarView(
-          onDateSelected: (DateTime date) {
-            setState(() {
-              selectedDate = date;
-            });
-          },
+        child: AgendaHeader(
+          selectedDate: selectedDate,
+          calendarView:CalendarView(
+            onDateSelected: (DateTime date) {
+              setState(() {
+                selectedDate = date;
+              });
+            },
         ),
         ),
       );
