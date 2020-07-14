@@ -14,7 +14,6 @@ class Category {
 
   Category({String title, double weightInPercentage, String id}) {
     this.title = title;
-    this.id = id;
     this.weightInPercentage = weightInPercentage;
     this.pointsEarned = 0.0;
     this.pointsPossible = 0.0;

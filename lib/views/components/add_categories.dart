@@ -14,31 +14,17 @@ class AddCategories extends StatefulWidget {
   _AddCategoriesState createState() => _AddCategoriesState();
 }
 
-class TempCategory {
-  String name;
-  double percent;
-  int id;
-  static int nextId = 0;
-  TempCategory(this.name, this.percent){
-    id = nextId++;
-  }
-}
-
 class _AddCategoriesState extends State<AddCategories> {
 
-  double percentage = 1.0;
   TextEditingController categoryNameController = new TextEditingController();
   TextEditingController categoryPercentController = new TextEditingController();
-  List<TempCategory> addedCategories = new List<TempCategory>();
-  List<Widget> categories = new List<Widget>();
+  List<Category> categories = new List<Category>();
+  List<Widget> categoriesWidget = new List<Widget>();
   double percentageSum = 0.0;
-  bool _categoryValueOverflow = false;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    TempCategory.nextId = 0;
   }
 
 
@@ -77,7 +63,7 @@ class _AddCategoriesState extends State<AddCategories> {
   {
       return Container(
         child: Column(
-            children: categories ?? [Container()]
+            children: categoriesWidget ?? [Container()]
         ),
         width: 225,
       );
@@ -85,16 +71,18 @@ class _AddCategoriesState extends State<AddCategories> {
 
   void updateCategory()
   {
+    categoriesWidget.clear();
     setState(() {
-      for(TempCategory tc in addedCategories)
+      for(Category cat in categories)
         {
-            categories.add(Row(
+            print("Trying to add");
+            categoriesWidget.add(Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Flexible(
                   child: Container(
                     child: Text(
-                      "${tc.name}",
+                      "${cat.title}",
                       style: Theme.of(context).primaryTextTheme.headline5,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
@@ -104,7 +92,7 @@ class _AddCategoriesState extends State<AddCategories> {
                 Row(
                   children: [
                     Text(
-                      "${tc.percent}%",
+                      "${cat.weightInPercentage}%",
                       style: Theme.of(context).primaryTextTheme.headline5,
                     ),
                     SizedBox(width: 10),
@@ -119,7 +107,7 @@ class _AddCategoriesState extends State<AddCategories> {
                         size: 15,
                       ),
                       onPressed: () {
-                        deleteCategory(tc.id);
+                        deleteCategory(cat);
                       },
                       shape: CircleBorder(),
                       padding: EdgeInsets.all(0),
@@ -128,26 +116,23 @@ class _AddCategoriesState extends State<AddCategories> {
               ],
             )
             );
-            categories.add(Padding(padding: EdgeInsets.fromLTRB(0, 5, 0, 0),));
+            categoriesWidget.add(Padding(padding: EdgeInsets.fromLTRB(0, 5, 0, 0),));
           }
         }
       );
   }
 
-  void deleteCategory(int id)
+  void deleteCategory(Category category)
   {
-    print("delete" + id.toString());
     setState(() {
-      for(int i = 0; i < addedCategories.length; i++)
+      for(Category c in categories)
         {
-          TempCategory tc = addedCategories[i];
-          if(tc.id == id)
+          if(c.title.toLowerCase() == category.title.toLowerCase())
             {
-              percentageSum -= tc.percent;
-              addedCategories.removeAt(i);
+              percentageSum -= c.weightInPercentage;
+              categories.remove(c);
             }
         }
-      categories.clear();
       updateCategory();
     });
   }
@@ -166,7 +151,6 @@ class _AddCategoriesState extends State<AddCategories> {
                 expands: false,
                 decoration: InputDecoration(
                   hintText: "ie Homework",
-                  errorText: _categoryValueOverflow ? "Value over 100%" : null,
                   contentPadding: EdgeInsets.all(5),
                   isDense: true,
                   enabledBorder: UnderlineInputBorder(
@@ -201,7 +185,6 @@ class _AddCategoriesState extends State<AddCategories> {
                 expands: false,
                 decoration: InputDecoration(
                   hintText: "ie 25",
-                  errorText: _categoryValueOverflow ? "" : null,
                   contentPadding: EdgeInsets.all(5),
                   isDense: true,
                   enabledBorder: UnderlineInputBorder(
@@ -238,12 +221,22 @@ class _AddCategoriesState extends State<AddCategories> {
 
   void addCategory()
   {
-    Widget okButton = FlatButton(
-      child: Text("OK"),
-      onPressed: () { },
+    Widget okButton = new FlatButton(
+      child: new Text("Ok"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
     );
 
-    AlertDialog alert = AlertDialog(
+    AlertDialog invalidCategoryAlert = AlertDialog(
+      title: Text("The category information is invalid"),
+      content: Text("Make sure name field is not empty and percentage is in range 1 - 100"),
+      actions: [
+        okButton,
+      ],
+    );
+
+    AlertDialog overflowAlert = AlertDialog(
       title: Text("Categories would add up to above 100%"),
       content: Text("Consider inputted category values"),
       actions: [
@@ -251,50 +244,62 @@ class _AddCategoriesState extends State<AddCategories> {
       ],
     );
 
-    AlertDialog(
+    AlertDialog invalidNameAlert = AlertDialog(
       title: new Text("Category name already in use"),
       content: new Text("Please check your added categories"),
       actions: <Widget>[
-        // usually buttons at the bottom of the dialog
-        new FlatButton(
-          child: new Text("Close"),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
+        okButton
       ],
     );
 
-    for(TempCategory c in addedCategories)
+    Category newCategory = new Category(title: categoryNameController.text, weightInPercentage: double.parse(categoryPercentController.text));
+    if(containsCategory(newCategory))
       {
-//        if(categoryNameController.text == c.name)
-//          {
-//            showDialog(
-//                context: context,
-//                builder: (BuildContext cotext)
-//            {
-//              return AlertDialog
-//            });
-//          }
+        showDialog(
+            context: context,
+            builder: (BuildContext) {
+              return invalidNameAlert;
+            }
+        );
       }
-    addedCategories.add(new TempCategory(categoryNameController.text, double.parse(categoryPercentController.text)));
-    if(percentageSum + double.parse(categoryPercentController.text) > 100)
+    else if(percentageSum + double.parse(categoryPercentController.text) > 100)
       {
-        setState(() {
-          _categoryValueOverflow = true;
-        });
+        showDialog(
+            context: context,
+            builder: (BuildContext) {
+              return overflowAlert;
+            }
+        );
       }
-    else if(categoryNameController.text == "" || double.parse(categoryPercentController.text) < 0)
+    else if(categoryNameController.text == "" || double.parse(categoryPercentController.text) < 0 || double.parse(categoryPercentController.text) > 100)
     {
-      //TODO figure out error handling
+      showDialog(
+        context: context,
+        builder: (BuildContext) {
+          return invalidCategoryAlert;
+        }
+      );
     }
     else {
+      //Meets the requirements for a new category
       percentageSum += double.parse(categoryPercentController.text);
-      categories.clear();
       categoryNameController.clear();
       categoryPercentController.clear();
+      categories.add(newCategory);
       updateCategory();
     }
+  }
+
+  bool containsCategory(Category category)
+  {
+    for(Category c in categories)
+      {
+        if(c.title.toLowerCase() == category.title.toLowerCase())
+          {
+            return true;
+          }
+      }
+    return false;
   }
 }
 
